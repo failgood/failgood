@@ -42,7 +42,7 @@ fun main() {
     }
     testFinished.get(1, TimeUnit.SECONDS)
 
-
+    Suite(listOf(ContextLifecycleTest.context)).run()
     val uptime = ManagementFactory.getRuntimeMXBean().uptime
     println("finished after: ${uptime}ms")
 }

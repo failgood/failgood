@@ -1,14 +1,19 @@
 package nanotest
 
-class Suite {
-    val contexts = mutableListOf<TestContext>()
-    fun context(name: String, function: TestContext.() -> Unit) {
+class Suite(private val contexts: Collection<Context>) {
+    fun run(): SuiteResult {
+        val result = contexts.map { it.execute() }
+        return SuiteResult(result.flatMap(TestContext::testFailures), result)
+    }
+}
+
+class Context(private val name: String, private val function: TestContext.() -> Unit) {
+    fun execute(): TestContext {
         val testContext = TestContext(name)
-        contexts.add(testContext)
         testContext.function()
+        return testContext
     }
 
-    fun run() = SuiteResult(contexts.flatMap(TestContext::testFailures), contexts)
 }
 
 class TestContext(val name: String) {
@@ -26,7 +31,7 @@ class TestContext(val name: String) {
 
 data class SuiteResult(
     val failedTests: Collection<TestFailure>,
-    val contexts: MutableList<TestContext>
+    val contexts: List<TestContext>
 ) {
     val allOk = failedTests.isEmpty()
 

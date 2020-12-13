@@ -13,10 +13,9 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 
 fun main() {
-    val suite = Suite()
     val testFinished = CompletableFuture<Unit>()
     val failingTestFinished = CompletableFuture<Throwable>()
-    suite.context("nanotest bootstrap context") {
+    val results = Suite(listOf(Context("nanotest bootstrap context") {
         test("firstTest") {
             expectThat(true).isTrue()
             testFinished.complete(Unit)
@@ -29,8 +28,7 @@ fun main() {
                 throw e
             }
         }
-    }
-    val results = suite.run()
+    })).run()
     expectThrows<RuntimeException> { results.check() }
     expectThat(results) {
         get(SuiteResult::allOk).isFalse()
@@ -43,8 +41,11 @@ fun main() {
         }
     }
     testFinished.get(1, TimeUnit.SECONDS)
+
+
     val uptime = ManagementFactory.getRuntimeMXBean().uptime
     println("finished after: ${uptime}ms")
 }
+
 
 

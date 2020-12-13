@@ -36,6 +36,9 @@ fun main() {
             get(TestFailure::name).isEqualTo("failing test")
             get(TestFailure::throwable).isSameInstanceAs(failingTestFinished.get())
         }
+        get(SuiteResult::contexts).hasSize(1).single().and {
+            get(TestContext::name).isEqualTo("nanotest bootstrap context")
+        }
     }
     testFinished.get(1, TimeUnit.SECONDS)
     val uptime = ManagementFactory.getRuntimeMXBean().uptime

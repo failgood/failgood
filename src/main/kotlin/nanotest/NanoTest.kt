@@ -8,7 +8,7 @@ class Suite {
         testContext.function()
     }
 
-    fun awaitExecution() = SuiteResult(false, contexts.flatMap(TestContext::testFailures), contexts)
+    fun run() = SuiteResult(contexts.flatMap(TestContext::testFailures), contexts)
 }
 
 class TestContext(val name: String) {
@@ -25,9 +25,16 @@ class TestContext(val name: String) {
 }
 
 data class SuiteResult(
-    val allOk: Boolean,
     val failedTests: Collection<TestFailure>,
     val contexts: MutableList<TestContext>
-)
+) {
+    val allOk = failedTests.isEmpty()
+
+    fun check() {
+        if (!allOk) throw NanoTestException(failedTests)
+    }
+}
+
+class NanoTestException(val failedTests: Collection<TestFailure>) : RuntimeException("test failed")
 
 data class TestFailure(val name: String, val throwable: Throwable)

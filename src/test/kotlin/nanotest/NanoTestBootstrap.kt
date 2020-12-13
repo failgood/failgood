@@ -1,6 +1,7 @@
 package nanotest
 
 import strikt.api.expectThat
+import strikt.api.expectThrows
 import strikt.assertions.hasSize
 import strikt.assertions.isEqualTo
 import strikt.assertions.isFalse
@@ -29,7 +30,8 @@ fun main() {
             }
         }
     }
-    val results = suite.awaitExecution()
+    val results = suite.run()
+    expectThrows<RuntimeException> { results.check() }
     expectThat(results) {
         get(SuiteResult::allOk).isFalse()
         get(SuiteResult::failedTests).hasSize(1).single().and {

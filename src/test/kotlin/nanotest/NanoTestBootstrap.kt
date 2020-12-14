@@ -29,6 +29,10 @@ fun main() {
                 throw e
             }
         }
+        context("child context") {
+            context("grandchild context") {
+            }
+        }
     }.run()
     expectThrows<RuntimeException> { results.check() }
     expectThat(results) {

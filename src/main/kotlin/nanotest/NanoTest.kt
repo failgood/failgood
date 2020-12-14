@@ -44,6 +44,10 @@ data class TestContext(val name: String) {
 
     }
 
+    fun context(name: String, function: TestContext.() -> Unit) {
+
+    }
+
 }
 
 data class SuiteResult(

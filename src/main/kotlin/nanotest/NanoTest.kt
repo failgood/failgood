@@ -10,7 +10,11 @@ class Suite(val contexts: Collection<Context>) {
 
     fun run(): SuiteResult {
         val result = contexts.map { it.execute() }
-        return SuiteResult(result.flatMap(TestContext::testFailures), result)
+        val allContexts = result.flatMap { it.allChildContexts() } + result
+        println(allContexts.joinToString {
+            it.name
+        })
+        return SuiteResult(allContexts.flatMap { it.testFailures }, result)
     }
 }
 
@@ -29,7 +33,9 @@ data class Context(val name: String, private val function: TestContext.() -> Uni
 
 data class TestContext(val name: String) {
     val testFailures = mutableListOf<TestFailure>()
+    val childContexts = mutableListOf<TestContext>()
 
+    fun allChildContexts(): List<TestContext> = childContexts.flatMap { it.allChildContexts() } + childContexts
     fun test(testName: String, function: () -> Unit) {
         try {
             function()
@@ -45,14 +51,16 @@ data class TestContext(val name: String) {
     }
 
     fun context(name: String, function: TestContext.() -> Unit) {
-
+        val childContext = TestContext(name)
+        childContext.function()
+        childContexts.add(childContext)
     }
 
 }
 
 data class SuiteResult(
     val failedTests: Collection<TestFailure>,
-    val contexts: List<TestContext>
+    val rootContexts: List<TestContext>
 ) {
     val allOk = failedTests.isEmpty()
 

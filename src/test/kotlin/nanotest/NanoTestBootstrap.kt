@@ -2,11 +2,12 @@ package nanotest
 
 import strikt.api.expectThat
 import strikt.api.expectThrows
+import strikt.assertions.all
 import strikt.assertions.hasSize
+import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import strikt.assertions.isFalse
 import strikt.assertions.isLessThan
-import strikt.assertions.isSameInstanceAs
 import strikt.assertions.isTrue
 import strikt.assertions.single
 import java.lang.management.ManagementFactory
@@ -31,20 +32,23 @@ fun main() {
         }
         context("child context") {
             context("grandchild context") {
+                test("failing test") {
+                    expectThat(true).isFalse()
+                }
             }
         }
     }.run()
-    expectThrows<RuntimeException> { results.check() }
     expectThat(results) {
         get(SuiteResult::allOk).isFalse()
-        get(SuiteResult::failedTests).hasSize(1).single().and {
+        get(SuiteResult::failedTests).hasSize(2).all {
             get(TestFailure::name).isEqualTo("failing test")
-            get(TestFailure::throwable).isSameInstanceAs(failingTestFinished.get())
+            get(TestFailure::throwable).isA<AssertionError>()
         }
-        get(SuiteResult::contexts).hasSize(1).single().and {
+        get(SuiteResult::rootContexts).single().and {
             get(TestContext::name).isEqualTo("root")
         }
     }
+    expectThrows<RuntimeException> { results.check() }
     testFinished.get(1, TimeUnit.SECONDS)
 
     Suite(listOf(ContextLifecycleTest.context, SuiteTest.context)).run().check()

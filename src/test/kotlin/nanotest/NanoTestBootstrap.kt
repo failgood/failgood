@@ -5,6 +5,7 @@ import strikt.api.expectThrows
 import strikt.assertions.hasSize
 import strikt.assertions.isEqualTo
 import strikt.assertions.isFalse
+import strikt.assertions.isLessThan
 import strikt.assertions.isSameInstanceAs
 import strikt.assertions.isTrue
 import strikt.assertions.single
@@ -45,6 +46,7 @@ fun main() {
     Suite(listOf(ContextLifecycleTest.context)).run().check()
     val uptime = ManagementFactory.getRuntimeMXBean().uptime
     println("finished after: ${uptime}ms")
+    expectThat(uptime).isLessThan(1000) // lets see how far we can get with one second
 }
 
 

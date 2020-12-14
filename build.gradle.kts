@@ -4,7 +4,7 @@ plugins {
     kotlin("jvm") version "1.4.20"
 }
 
-group = "kotest-fun"
+group = "nanotest"
 version = "1.0-SNAPSHOT"
 
 repositories {

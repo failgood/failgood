@@ -1,13 +1,15 @@
 package nanotest
 
-class Suite(private val contexts: Collection<Context>) {
+class Suite(val contexts: Collection<Context>) {
+    constructor(function: TestContext.() -> Unit) : this(listOf(Context("root", function)))
+
     fun run(): SuiteResult {
         val result = contexts.map { it.execute() }
         return SuiteResult(result.flatMap(TestContext::testFailures), result)
     }
 }
 
-class Context(private val name: String, private val function: TestContext.() -> Unit) {
+class Context(val name: String, private val function: TestContext.() -> Unit) {
     fun execute(): TestContext {
         val testContext = TestContext(name)
         testContext.function()

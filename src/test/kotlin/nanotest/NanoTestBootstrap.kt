@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 fun main() {
     val testFinished = CompletableFuture<Unit>()
     val failingTestFinished = CompletableFuture<Throwable>()
-    val results = Suite(listOf(Context("nanotest bootstrap context") {
+    val results = Suite() {
         test("firstTest") {
             expectThat(true).isTrue()
             testFinished.complete(Unit)
@@ -28,7 +28,7 @@ fun main() {
                 throw e
             }
         }
-    })).run()
+    }.run()
     expectThrows<RuntimeException> { results.check() }
     expectThat(results) {
         get(SuiteResult::allOk).isFalse()
@@ -37,12 +37,12 @@ fun main() {
             get(TestFailure::throwable).isSameInstanceAs(failingTestFinished.get())
         }
         get(SuiteResult::contexts).hasSize(1).single().and {
-            get(TestContext::name).isEqualTo("nanotest bootstrap context")
+            get(TestContext::name).isEqualTo("root")
         }
     }
     testFinished.get(1, TimeUnit.SECONDS)
 
-    Suite(listOf(ContextLifecycleTest.context)).run()
+    Suite(listOf(ContextLifecycleTest.context)).run().check()
     val uptime = ManagementFactory.getRuntimeMXBean().uptime
     println("finished after: ${uptime}ms")
 }

@@ -1,6 +1,7 @@
 package nanotest
 
 class Suite(val contexts: Collection<Context>) {
+
     constructor(function: TestContext.() -> Unit) : this(listOf(Context("root", function)))
 
     fun run(): SuiteResult {
@@ -9,7 +10,7 @@ class Suite(val contexts: Collection<Context>) {
     }
 }
 
-class Context(val name: String, private val function: TestContext.() -> Unit) {
+data class Context(val name: String, private val function: TestContext.() -> Unit) {
     fun execute(): TestContext {
         val testContext = TestContext(name)
         testContext.function()

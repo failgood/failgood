@@ -10,7 +10,6 @@ object ContextLifecycleTest {
                 test("test") {}
             }.contexts.single().name).isEqualTo("root")
         }
-
     }
 
 }

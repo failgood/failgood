@@ -43,7 +43,7 @@ fun main() {
     }
     testFinished.get(1, TimeUnit.SECONDS)
 
-    Suite(listOf(ContextLifecycleTest.context)).run().check()
+    Suite(listOf(ContextLifecycleTest.context, SuiteTest.context)).run().check()
     val uptime = ManagementFactory.getRuntimeMXBean().uptime
     println("finished after: ${uptime}ms")
     expectThat(uptime).isLessThan(1000) // lets see how far we can get with one second

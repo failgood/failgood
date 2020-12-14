@@ -4,12 +4,11 @@ import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
 object ContextLifecycleTest {
-    val context = Context("Contexts") {
-        test("Suite{} creates a root context") {
-            expectThat(Suite {
-                test("test") {}
-            }.contexts.single().name).isEqualTo("root")
+    private val automaticallyNamedContext = Context {}
+
+    val context = Context() {
+        test("root context can get name from enclosing object") {
+            expectThat(automaticallyNamedContext.name).isEqualTo("ContextLifecycleTest")
         }
     }
-
 }

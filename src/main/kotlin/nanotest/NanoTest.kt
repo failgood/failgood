@@ -11,16 +11,11 @@ class Suite(val contexts: Collection<Context>) {
     fun run(): SuiteResult {
         val result = contexts.map { it.execute() }
         val allContexts = result.flatMap { it.allChildContexts() } + result
-        println(allContexts.joinToString {
-            it.name
-        })
         return SuiteResult(allContexts.flatMap { it.testFailures }, result)
     }
 }
 
-class EmptySuiteException : RuntimeException("suite can not be empty") {
-
-}
+class EmptySuiteException : RuntimeException("suite can not be empty")
 
 data class Context(val name: String, private val function: TestContext.() -> Unit) {
     fun execute(): TestContext {
@@ -28,12 +23,16 @@ data class Context(val name: String, private val function: TestContext.() -> Uni
         testContext.function()
         return testContext
     }
+}
 
+fun Any.Context(function: TestContext.() -> Unit): Context {
+    val name = this::class.simpleName ?: throw NanoTestException("could not determine object name")
+    return Context(name, function)
 }
 
 data class TestContext(val name: String) {
     val testFailures = mutableListOf<TestFailure>()
-    val childContexts = mutableListOf<TestContext>()
+    private val childContexts = mutableListOf<TestContext>()
 
     fun allChildContexts(): List<TestContext> = childContexts.flatMap { it.allChildContexts() } + childContexts
     fun test(testName: String, function: () -> Unit) {
@@ -65,11 +64,12 @@ data class SuiteResult(
     val allOk = failedTests.isEmpty()
 
     fun check() {
-        if (!allOk) throw NanoTestException(failedTests)
+        if (!allOk) throw SuiteFailedException(failedTests)
     }
 }
 
-class NanoTestException(val failedTests: Collection<TestFailure>) : RuntimeException("test failed") {
+open class NanoTestException(override val message: String) : RuntimeException(message)
+class SuiteFailedException(private val failedTests: Collection<TestFailure>) : NanoTestException("test failed") {
     override fun toString(): String = failedTests.joinToString { it.throwable.stackTraceToString() }
 }
 

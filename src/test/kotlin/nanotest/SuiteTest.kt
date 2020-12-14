@@ -1,6 +1,7 @@
 package nanotest
 
 import strikt.api.expectThat
+import strikt.api.expectThrows
 import strikt.assertions.isEqualTo
 import strikt.assertions.isFalse
 import strikt.assertions.isTrue
@@ -19,6 +20,15 @@ object SuiteTest {
         test("Suite has Contexts") {
             val suite = Suite(tenContexts)
             expectThat(suite.contexts).isEqualTo(tenContexts)
+        }
+        test("Empty Suite fails") {
+            expectThrows<RuntimeException> {
+                Suite(listOf())
+            }
+        }
+        xtest("Suite is stateless") {
+            val suite = Suite(tenContexts)
+            expectThat(suite.run()).isEqualTo(suite.run())
         }
 
     }

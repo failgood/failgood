@@ -27,7 +27,7 @@ data class Context(val name: String, private val function: TestContext.() -> Uni
 
 }
 
-class TestContext(val name: String) {
+data class TestContext(val name: String) {
     val testFailures = mutableListOf<TestFailure>()
 
     fun test(testName: String, function: () -> Unit) {
@@ -61,4 +61,16 @@ class NanoTestException(val failedTests: Collection<TestFailure>) : RuntimeExcep
     override fun toString(): String = failedTests.joinToString { it.throwable.stackTraceToString() }
 }
 
-data class TestFailure(val name: String, val throwable: Throwable)
+class TestFailure(val name: String, val throwable: Throwable) {
+    override fun equals(other: Any?): Boolean {
+        return (other is TestFailure)
+                && name == other.name
+                && throwable.stackTraceToString() == other.throwable.stackTraceToString()
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + throwable.stackTraceToString().hashCode()
+        return result
+    }
+}

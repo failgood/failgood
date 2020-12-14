@@ -16,19 +16,21 @@ object SuiteTest {
                 expectThat(true).isFalse()
             }
         }
-        val tenContexts = (1 until 10).map { context.copy(name = "context $it") }
+        val contexts = (1 until 2).map { context.copy(name = "context $it") }
         test("Suite has Contexts") {
-            val suite = Suite(tenContexts)
-            expectThat(suite.contexts).isEqualTo(tenContexts)
+            val suite = Suite(contexts)
+            expectThat(suite.contexts).isEqualTo(contexts)
         }
         test("Empty Suite fails") {
             expectThrows<RuntimeException> {
                 Suite(listOf())
             }
         }
-        xtest("Suite is stateless") {
-            val suite = Suite(tenContexts)
-            expectThat(suite.run()).isEqualTo(suite.run())
+        test("Suite is stateless") {
+            val suite = Suite(contexts)
+            // both run calls have to be on the same line to make the exception stacktrace equal
+            val (firstRun, secondRun) = listOf(suite.run(), suite.run())
+            expectThat(firstRun).isEqualTo(secondRun)
         }
 
     }

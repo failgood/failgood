@@ -11,7 +11,7 @@ class Suite(val contexts: Collection<Context>) {
     fun run(): SuiteResult {
         val results: List<TestContext> = contexts.map { TestContext(it).execute() }
         val allContexts = results.flatMap { it.allChildContexts() } + results
-        return SuiteResult(allContexts.flatMap { it.testFailures }, results)
+        return SuiteResult(allContexts.flatMap { it.testFailures }, allContexts)
     }
 }
 
@@ -38,7 +38,7 @@ interface ContextDSL {
 data class TestContext(val name: String, val function: ContextLambda) : ContextDSL {
     constructor(context: Context) : this(context.name, context.function)
 
-    private val closables = mutableListOf<AutoCloseable>()
+    private val closeables = mutableListOf<AutoCloseable>()
     val testFailures = mutableListOf<TestFailure>()
     private val childContexts = mutableListOf<TestContext>()
 
@@ -62,20 +62,20 @@ data class TestContext(val name: String, val function: ContextLambda) : ContextD
     }
 
     override fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T {
-        closables.add(AutoCloseable { closeFunction(wrapped) })
+        closeables.add(AutoCloseable { closeFunction(wrapped) })
         return wrapped
     }
 
     fun execute(): TestContext {
         function()
-        closables.forEach { it.close() }
+        closeables.forEach { it.close() }
         return this
     }
 }
 
 data class SuiteResult(
     val failedTests: Collection<TestFailure>,
-    val rootContexts: List<TestContext>
+    val contexts: List<TestContext>
 ) {
     val allOk = failedTests.isEmpty()
 

@@ -3,13 +3,14 @@ package nanotest
 import strikt.api.expectThat
 import strikt.api.expectThrows
 import strikt.assertions.all
+import strikt.assertions.containsExactlyInAnyOrder
 import strikt.assertions.hasSize
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import strikt.assertions.isFalse
 import strikt.assertions.isLessThan
 import strikt.assertions.isTrue
-import strikt.assertions.single
+import strikt.assertions.map
 import java.lang.management.ManagementFactory
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
@@ -44,9 +45,8 @@ fun main() {
             get(TestFailure::name).isEqualTo("failing test")
             get(TestFailure::throwable).isA<AssertionError>()
         }
-        get(SuiteResult::rootContexts).single().and {
-            get(TestContext::name).isEqualTo("root")
-        }
+        get(SuiteResult::contexts).map { it.name }
+            .containsExactlyInAnyOrder("root", "child context", "grandchild context")
     }
     expectThrows<RuntimeException> { results.check() }
     testFinished.get(1, TimeUnit.SECONDS)

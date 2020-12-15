@@ -42,8 +42,6 @@ data class TestContext(val name: String, val function: TestContext.() -> Unit) {
 
     @Suppress("UNUSED_PARAMETER", "unused")
     fun xtest(ignoredTestName: String, function: () -> Unit) {
-
-
     }
 
     fun context(name: String, function: TestContext.() -> Unit): TestContext {
@@ -92,9 +90,5 @@ class TestFailure(val name: String, val throwable: Throwable) {
                 && throwable.stackTraceToString() == other.throwable.stackTraceToString()
     }
 
-    override fun hashCode(): Int {
-        var result = name.hashCode()
-        result = 31 * result + throwable.stackTraceToString().hashCode()
-        return result
-    }
+    override fun hashCode(): Int = name.hashCode() * 31 + throwable.stackTraceToString().hashCode()
 }

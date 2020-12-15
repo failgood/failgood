@@ -50,12 +50,14 @@ fun main() {
     }
     expectThrows<RuntimeException> { results.check() }
     testFinished.get(1, TimeUnit.SECONDS)
+    println("bootstrapped after: ${uptime()}ms")
 
     Suite(listOf(TestContextTest.context, SuiteTest.context, ContextTest.context)).run().check()
-    val uptime = ManagementFactory.getRuntimeMXBean().uptime
-    println("finished after: ${uptime}ms")
-    expectThat(uptime).isLessThan(1000) // lets see how far we can get with one second
+    println("finished after: ${uptime()}ms")
+    expectThat(uptime()).isLessThan(1000) // lets see how far we can get with one second
 }
+
+private fun uptime() = ManagementFactory.getRuntimeMXBean().uptime
 
 
 

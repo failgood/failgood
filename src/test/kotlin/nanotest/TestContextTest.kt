@@ -11,8 +11,6 @@ object TestContextTest {
             val events = mutableListOf<String>()
             var closeCalled = false
             val closable = AutoCloseable { closeCalled = true }
-
-
             var resource: AutoCloseable? = null
             Suite {
                 resource = autoClose(closable) {
@@ -26,6 +24,19 @@ object TestContextTest {
             expectThat(events).containsExactly("test", "close callback")
             expectThat(resource).isEqualTo(closable)
             expectThat(closeCalled).isTrue()
+        }
+        xtest("every test gets a fresh context") {
+            val events = mutableListOf<String>()
+            Suite {
+                events.add("root context")
+                test("test 1") {
+                    events.add("test 1")
+                }
+                test("test 2") {
+                    events.add("test 2")
+                }
+            }.run()
+            expectThat(events).containsExactly("root context", "test 1", "root context", "test 2")
         }
     }
 }

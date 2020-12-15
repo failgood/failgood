@@ -1,5 +1,9 @@
 package nanotest
 
+import nanotest.exp.ContextCollector
+import nanotest.exp.ContextInfo
+import nanotest.exp.TestDescriptor
+
 class Suite(val contexts: Collection<Context>) {
 
     init {
@@ -9,13 +13,16 @@ class Suite(val contexts: Collection<Context>) {
     constructor(function: ContextLambda) : this(listOf(Context("root", function)))
 
     fun run(): SuiteResult {
-        val results: List<TestContext> = contexts.map { TestContext(it).execute() }
-        val allContexts = results.flatMap { it.allChildContexts() } + results
-        val allTests = allContexts.flatMap { it.testResults }
+
+        val results: List<ContextInfo> = contexts.map { ContextCollector(it).execute() }
+        val allTestResults: List<TestResult> =
+            results.flatMap { it.tests.map { test -> TestExecutor(it.rootContext, test).execute() } }
+
+//        val allTests = allContexts.flatMap { it.testResults }
         return SuiteResult(
-            allTests,
-            allTests.filterIsInstance<Failed>(),
-            allContexts.map { ContextResult(it.name, it.testResults) })
+            allTestResults,
+            allTestResults.filterIsInstance<Failed>(), results
+        )
     }
 }
 
@@ -39,48 +46,11 @@ interface ContextDSL {
     fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T
 }
 
-internal data class TestContext(val name: String, val function: ContextLambda) : ContextDSL {
-    constructor(context: Context) : this(context.name, context.function)
-
-    private val closeables = mutableListOf<AutoCloseable>()
-    val testResults = mutableListOf<TestResult>()
-    private val childContexts = mutableListOf<TestContext>()
-
-    fun allChildContexts(): List<TestContext> = childContexts.flatMap { it.allChildContexts() } + childContexts
-    override fun test(name: String, function: () -> Unit) {
-        try {
-            function()
-            testResults.add(Success(name))
-        } catch (e: AssertionError) {
-            testResults.add(Failed(name, e))
-        }
-    }
-
-    @Suppress("UNUSED_PARAMETER", "unused")
-    override fun xtest(ignoredTestName: String, function: () -> Unit) {
-    }
-
-    override fun context(name: String, function: ContextLambda) {
-        val element = TestContext(name, function).execute()
-        childContexts.add(element)
-    }
-
-    override fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T {
-        closeables.add(AutoCloseable { closeFunction(wrapped) })
-        return wrapped
-    }
-
-    fun execute(): TestContext {
-        function()
-        closeables.forEach { it.close() }
-        return this
-    }
-}
 
 data class SuiteResult(
     val allTests: List<TestResult>,
     val failedTests: Collection<Failed>,
-    val contexts: List<ContextResult>
+    val contexts: List<ContextInfo>
 ) {
     val allOk = failedTests.isEmpty()
 
@@ -88,8 +58,6 @@ data class SuiteResult(
         if (!allOk) throw SuiteFailedException(failedTests)
     }
 }
-
-data class ContextResult(val name: String, val testResults: List<TestResult>)
 
 open class NanoTestException(override val message: String) : RuntimeException(message)
 class SuiteFailedException(private val failedTests: Collection<Failed>) : NanoTestException("test failed") {
@@ -108,4 +76,66 @@ class Failed(val name: String, val throwable: Throwable) : TestResult() {
     }
 
     override fun hashCode(): Int = name.hashCode() * 31 + throwable.stackTraceToString().hashCode()
+}
+
+
+internal class TestExecutor(private val context: Context, private val test: TestDescriptor) {
+    private val closeables = mutableListOf<AutoCloseable>()
+    private var testResult: TestResult? = null
+    fun execute(): TestResult {
+        val dsl: ContextDSL = contextDSL(test.parentContexts)
+        dsl.(context.function)()
+        closeables.forEach { it.close() }
+        return testResult!!
+    }
+
+    inner class ContextFinder(private val contexts: List<String>) : ContextDSL {
+        override fun test(name: String, function: () -> Unit) {
+        }
+
+        override fun xtest(ignoredTestName: String, function: () -> Unit) {
+        }
+
+        override fun context(name: String, function: ContextLambda) {
+            if (contexts.first() != name)
+                return
+
+            contextDSL(contexts.drop(1)).function()
+        }
+
+        override fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T {
+            closeables.add(AutoCloseable { closeFunction(wrapped) })
+            return wrapped
+        }
+
+    }
+
+    private fun contextDSL(parentContexts: List<String>) = if (parentContexts.isEmpty())
+        TestFinder(test.name)
+    else
+        ContextFinder(parentContexts)
+
+    inner class TestFinder(val name: String) : ContextDSL {
+        override fun test(name: String, function: () -> Unit) {
+            if (this.name == name)
+                try {
+                    function()
+                    testResult = Success(name)
+                } catch (e: AssertionError) {
+                    testResult = Failed(name, e)
+                }
+        }
+
+        override fun xtest(ignoredTestName: String, function: () -> Unit) {
+        }
+
+        override fun context(name: String, function: ContextLambda) {
+        }
+
+        override fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T {
+            closeables.add(AutoCloseable { closeFunction(wrapped) })
+            return wrapped
+        }
+
+    }
 }

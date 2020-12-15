@@ -5,9 +5,9 @@ import nanotest.ContextDSL
 import nanotest.ContextLambda
 
 internal class ContextCollector(private val context: Context) {
-    data class TestDescriptor(val parentContexts: List<String>, val name: String)
 
     val tests = mutableListOf<TestDescriptor>()
+    val contexts = mutableListOf<List<String>>()
 
     inner class ContextVisitor(private val parentContexts: List<String>) : ContextDSL {
         override fun test(name: String, function: () -> Unit) {
@@ -18,14 +18,19 @@ internal class ContextCollector(private val context: Context) {
         }
 
         override fun context(name: String, function: ContextLambda) {
-            ContextVisitor(parentContexts + name).function()
+            val context = parentContexts + name
+            contexts.add(context)
+            ContextVisitor(context).function()
         }
 
         override fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit) = wrapped
     }
 
-    fun execute(): List<TestDescriptor> {
+    fun execute(): ContextInfo {
         ContextVisitor(listOf()).(context.function)()
-        return tests
+        return ContextInfo(context, contexts, tests)
     }
 }
+
+data class ContextInfo(val rootContext: Context, val contexts: List<List<String>>, val tests: List<TestDescriptor>)
+data class TestDescriptor(val parentContexts: List<String>, val name: String)

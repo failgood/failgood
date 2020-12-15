@@ -1,7 +1,8 @@
 package nanotest
 
 import nanotest.exp.ContextCollector
-import nanotest.exp.ContextCollector.TestDescriptor
+import nanotest.exp.ContextInfo
+import nanotest.exp.TestDescriptor
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.containsExactlyInAnyOrder
@@ -27,8 +28,8 @@ object ContextCollectorTest {
                     }
                 }
             }
-            val tests = ContextCollector(ctx).execute()
-            expectThat(tests).containsExactlyInAnyOrder(
+            val tests: ContextInfo = ContextCollector(ctx).execute()
+            expectThat(tests.tests).containsExactlyInAnyOrder(
                 TestDescriptor(listOf(), "test 1"),
                 TestDescriptor(listOf(), "test 2"),
                 TestDescriptor(listOf("context 1", "context 2"), "test 3")

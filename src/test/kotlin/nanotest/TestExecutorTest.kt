@@ -1,11 +1,14 @@
 package nanotest
 
-import nanotest.exp.ContextCollector.TestDescriptor
+import nanotest.exp.TestDescriptor
 import strikt.api.expectThat
 import strikt.assertions.all
 import strikt.assertions.containsExactly
 import strikt.assertions.isA
 
+fun main() {
+    Suite(listOf(TestExecutorTest.context)).run().check()
+}
 object TestExecutorTest {
     val context = Context {
         val events = mutableListOf<String>()
@@ -40,65 +43,8 @@ object TestExecutorTest {
             "root context", "context 1", "context 2", "test 3"
         )
         expectThat(result).all { isA<Success>() }
+
+        expectThat(listOf(listOf("a"), listOf("b", "c"))).containsExactly(listOf("a"), listOf("b", "c"))
     }
 }
 
-internal class TestExecutor(val context: Context, val test: TestDescriptor) {
-    private val closeables = mutableListOf<AutoCloseable>()
-    private var testResult: TestResult? = null
-    fun execute(): TestResult {
-        val dsl: ContextDSL = contextDSL(test.parentContexts)
-        dsl.(context.function)()
-        return testResult!!
-    }
-
-    inner class ContextFinder(val contexts: List<String>) : ContextDSL {
-        override fun test(name: String, function: () -> Unit) {
-        }
-
-        override fun xtest(ignoredTestName: String, function: () -> Unit) {
-        }
-
-        override fun context(name: String, function: ContextLambda) {
-            if (contexts.first() != name)
-                return
-
-            contextDSL(contexts.drop(1)).function()
-        }
-
-        override fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T {
-            closeables.add(AutoCloseable { closeFunction(wrapped) })
-            return wrapped
-        }
-
-    }
-
-    private fun contextDSL(parentContexts: List<String>) = if (parentContexts.isEmpty())
-        TestFinder(test.name)
-    else
-        ContextFinder(parentContexts)
-
-    inner class TestFinder(val name: String) : ContextDSL {
-        override fun test(name: String, function: () -> Unit) {
-            if (this.name == name)
-                try {
-                    function()
-                    testResult = Success(name)
-                } catch (e: AssertionError) {
-                    testResult = Failed(name, e)
-                }
-        }
-
-        override fun xtest(ignoredTestName: String, function: () -> Unit) {
-        }
-
-        override fun context(name: String, function: ContextLambda) {
-        }
-
-        override fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T {
-            closeables.add(AutoCloseable { closeFunction(wrapped) })
-            return wrapped
-        }
-
-    }
-}

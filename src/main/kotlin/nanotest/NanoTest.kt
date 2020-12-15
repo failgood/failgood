@@ -31,7 +31,7 @@ fun Any.Context(function: ContextLambda): Context {
 }
 
 interface ContextDSL {
-    fun test(testName: String, function: () -> Unit)
+    fun test(name: String, function: () -> Unit)
 
     @Suppress("UNUSED_PARAMETER", "unused")
     fun xtest(ignoredTestName: String, function: () -> Unit)
@@ -47,12 +47,12 @@ internal data class TestContext(val name: String, val function: ContextLambda) :
     private val childContexts = mutableListOf<TestContext>()
 
     fun allChildContexts(): List<TestContext> = childContexts.flatMap { it.allChildContexts() } + childContexts
-    override fun test(testName: String, function: () -> Unit) {
+    override fun test(name: String, function: () -> Unit) {
         try {
             function()
-            testResults.add(Success(testName))
+            testResults.add(Success(name))
         } catch (e: AssertionError) {
-            testResults.add(Failed(testName, e))
+            testResults.add(Failed(name, e))
         }
     }
 

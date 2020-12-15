@@ -21,6 +21,7 @@ data class Context(val name: String, private val function: TestContext.() -> Uni
     fun execute(): TestContext {
         val testContext = TestContext(name)
         testContext.function()
+        testContext.cleanUp()
         return testContext
     }
 }
@@ -31,6 +32,7 @@ fun Any.Context(function: TestContext.() -> Unit): Context {
 }
 
 data class TestContext(val name: String) {
+    private val closables = mutableListOf<AutoCloseable>()
     val testFailures = mutableListOf<TestFailure>()
     private val childContexts = mutableListOf<TestContext>()
 
@@ -43,16 +45,25 @@ data class TestContext(val name: String) {
         }
     }
 
-    @Suppress("UNUSED_PARAMETER")
+    @Suppress("UNUSED_PARAMETER", "unused")
     fun xtest(ignoredTestName: String, function: () -> Unit) {
 
 
     }
 
-    fun context(name: String, function: TestContext.() -> Unit) {
-        val childContext = TestContext(name)
-        childContext.function()
-        childContexts.add(childContext)
+    fun context(name: String, function: TestContext.() -> Unit): TestContext {
+        val element = Context(name, function).execute()
+        childContexts.add(element)
+        return element
+    }
+
+    fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T {
+        closables.add(AutoCloseable { closeFunction(wrapped) })
+        return wrapped
+    }
+
+    fun cleanUp() {
+        closables.forEach { it.close() }
     }
 
 }

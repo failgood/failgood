@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
 fun main() {
     val testFinished = CompletableFuture<Unit>()
     val failingTestFinished = CompletableFuture<Throwable>()
-    val results = Suite() {
+    val results = Suite {
         test("firstTest") {
             expectThat(true).isTrue()
             testFinished.complete(Unit)

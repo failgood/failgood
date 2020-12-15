@@ -55,16 +55,11 @@ data class TestContext(val name: String, val function: TestContext.() -> Unit) {
         return wrapped
     }
 
-    fun cleanUp() {
-        closables.forEach { it.close() }
-    }
-
     fun execute(): TestContext {
         function()
-        cleanUp()
+        closables.forEach { it.close() }
         return this
     }
-
 }
 
 data class SuiteResult(

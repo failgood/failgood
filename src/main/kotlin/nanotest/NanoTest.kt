@@ -6,7 +6,7 @@ class Suite(val contexts: Collection<Context>) {
         if (contexts.isEmpty()) throw EmptySuiteException()
     }
 
-    constructor(function: TestContext.() -> Unit) : this(listOf(Context("root", function)))
+    constructor(function: ContextLambda) : this(listOf(Context("root", function)))
 
     fun run(): SuiteResult {
         val results: List<TestContext> = contexts.map { TestContext(it).execute() }
@@ -17,14 +17,16 @@ class Suite(val contexts: Collection<Context>) {
 
 class EmptySuiteException : RuntimeException("suite can not be empty")
 
-data class Context(val name: String, val function: TestContext.() -> Unit)
+data class Context(val name: String, val function: ContextLambda)
 
-fun Any.Context(function: TestContext.() -> Unit): Context {
+typealias ContextLambda = TestContext.() -> Unit
+
+fun Any.Context(function: ContextLambda): Context {
     val name = this::class.simpleName ?: throw NanoTestException("could not determine object name")
     return Context(name, function)
 }
 
-data class TestContext(val name: String, val function: TestContext.() -> Unit) {
+data class TestContext(val name: String, val function: ContextLambda) {
     constructor(context: Context) : this(context.name, context.function)
 
     private val closables = mutableListOf<AutoCloseable>()
@@ -44,7 +46,7 @@ data class TestContext(val name: String, val function: TestContext.() -> Unit) {
     fun xtest(ignoredTestName: String, function: () -> Unit) {
     }
 
-    fun context(name: String, function: TestContext.() -> Unit): TestContext {
+    fun context(name: String, function: ContextLambda): TestContext {
         val element = TestContext(name, function).execute()
         childContexts.add(element)
         return element

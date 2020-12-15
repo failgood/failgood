@@ -9,21 +9,15 @@ class Suite(val contexts: Collection<Context>) {
     constructor(function: TestContext.() -> Unit) : this(listOf(Context("root", function)))
 
     fun run(): SuiteResult {
-        val result = contexts.map { it.execute() }
-        val allContexts = result.flatMap { it.allChildContexts() } + result
-        return SuiteResult(allContexts.flatMap { it.testFailures }, result)
+        val results: List<TestContext> = contexts.map { TestContext(it).execute() }
+        val allContexts = results.flatMap { it.allChildContexts() } + results
+        return SuiteResult(allContexts.flatMap { it.testFailures }, results)
     }
 }
 
 class EmptySuiteException : RuntimeException("suite can not be empty")
 
-data class Context(val name: String, private val function: TestContext.() -> Unit) {
-    fun execute(): TestContext {
-        val testContext = TestContext(name, function)
-        testContext.execute()
-        return testContext
-    }
-}
+data class Context(val name: String, val function: TestContext.() -> Unit)
 
 fun Any.Context(function: TestContext.() -> Unit): Context {
     val name = this::class.simpleName ?: throw NanoTestException("could not determine object name")
@@ -31,6 +25,8 @@ fun Any.Context(function: TestContext.() -> Unit): Context {
 }
 
 data class TestContext(val name: String, val function: TestContext.() -> Unit) {
+    constructor(context: Context) : this(context.name, context.function)
+
     private val closables = mutableListOf<AutoCloseable>()
     val testFailures = mutableListOf<TestFailure>()
     private val childContexts = mutableListOf<TestContext>()
@@ -51,7 +47,7 @@ data class TestContext(val name: String, val function: TestContext.() -> Unit) {
     }
 
     fun context(name: String, function: TestContext.() -> Unit): TestContext {
-        val element = Context(name, function).execute()
+        val element = TestContext(name, function).execute()
         childContexts.add(element)
         return element
     }
@@ -65,9 +61,10 @@ data class TestContext(val name: String, val function: TestContext.() -> Unit) {
         closables.forEach { it.close() }
     }
 
-    fun execute() {
+    fun execute(): TestContext {
         function()
         cleanUp()
+        return this
     }
 
 }

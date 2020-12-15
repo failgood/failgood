@@ -17,10 +17,6 @@ object SuiteTest {
             }
         }
         val contexts = (1 until 2).map { context.copy(name = "context $it") }
-        test("Suite has Contexts") {
-            val suite = Suite(contexts)
-            expectThat(suite.contexts).isEqualTo(contexts)
-        }
         test("Empty Suite fails") {
             expectThrows<RuntimeException> {
                 Suite(listOf())

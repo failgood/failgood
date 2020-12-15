@@ -115,14 +115,14 @@ internal class TestExecutor(private val context: Context, private val test: Test
     else
         ContextFinder(parentContexts)
 
-    inner class TestFinder(val name: String) : ContextDSL {
+    inner class TestFinder(private val name: String) : ContextDSL {
         override fun test(name: String, function: () -> Unit) {
             if (this.name == name)
-                try {
+                testResult = try {
                     function()
-                    testResult = Success(name)
+                    Success(name)
                 } catch (e: AssertionError) {
-                    testResult = Failed(name, e)
+                    Failed(name, e)
                 }
         }
 

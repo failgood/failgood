@@ -19,14 +19,23 @@ class EmptySuiteException : RuntimeException("suite can not be empty")
 
 data class Context(val name: String, val function: ContextLambda)
 
-typealias ContextLambda = TestContext.() -> Unit
+typealias ContextLambda = ContextDSL.() -> Unit
 
 fun Any.Context(function: ContextLambda): Context {
     val name = this::class.simpleName ?: throw NanoTestException("could not determine object name")
     return Context(name, function)
 }
 
-data class TestContext(val name: String, val function: ContextLambda) {
+interface ContextDSL {
+    fun test(testName: String, function: () -> Unit)
+
+    @Suppress("UNUSED_PARAMETER", "unused")
+    fun xtest(ignoredTestName: String, function: () -> Unit)
+    fun context(name: String, function: ContextLambda): TestContext
+    fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T
+}
+
+data class TestContext(val name: String, val function: ContextLambda) : ContextDSL {
     constructor(context: Context) : this(context.name, context.function)
 
     private val closables = mutableListOf<AutoCloseable>()
@@ -34,7 +43,7 @@ data class TestContext(val name: String, val function: ContextLambda) {
     private val childContexts = mutableListOf<TestContext>()
 
     fun allChildContexts(): List<TestContext> = childContexts.flatMap { it.allChildContexts() } + childContexts
-    fun test(testName: String, function: () -> Unit) {
+    override fun test(testName: String, function: () -> Unit) {
         try {
             function()
         } catch (e: AssertionError) {
@@ -43,16 +52,16 @@ data class TestContext(val name: String, val function: ContextLambda) {
     }
 
     @Suppress("UNUSED_PARAMETER", "unused")
-    fun xtest(ignoredTestName: String, function: () -> Unit) {
+    override fun xtest(ignoredTestName: String, function: () -> Unit) {
     }
 
-    fun context(name: String, function: ContextLambda): TestContext {
+    override fun context(name: String, function: ContextLambda): TestContext {
         val element = TestContext(name, function).execute()
         childContexts.add(element)
         return element
     }
 
-    fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T {
+    override fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T {
         closables.add(AutoCloseable { closeFunction(wrapped) })
         return wrapped
     }

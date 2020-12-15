@@ -59,7 +59,9 @@ fun main() {
                 ContextCollectorTest.context,
                 TestContextTest.context,
                 SuiteTest.context,
-                ContextTest.context
+                ContextTest.context,
+                TestExecutorTest.context
+
             )
         ).run()
             .apply { check() }

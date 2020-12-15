@@ -6,12 +6,7 @@ import strikt.assertions.isEqualTo
 import strikt.assertions.isTrue
 
 object TestContextTest {
-    private val automaticallyNamedContext = Context {}
-
     val context = Context {
-        test("root context can get name from enclosing object") {
-            expectThat(automaticallyNamedContext.name).isEqualTo(TestContextTest::class.simpleName)
-        }
         test("can close resources") {
             val events = mutableListOf<String>()
             var closeCalled = false

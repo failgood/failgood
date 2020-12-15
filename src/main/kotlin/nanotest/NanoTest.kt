@@ -19,9 +19,8 @@ class EmptySuiteException : RuntimeException("suite can not be empty")
 
 data class Context(val name: String, private val function: TestContext.() -> Unit) {
     fun execute(): TestContext {
-        val testContext = TestContext(name)
-        testContext.function()
-        testContext.cleanUp()
+        val testContext = TestContext(name, function)
+        testContext.execute()
         return testContext
     }
 }
@@ -31,7 +30,7 @@ fun Any.Context(function: TestContext.() -> Unit): Context {
     return Context(name, function)
 }
 
-data class TestContext(val name: String) {
+data class TestContext(val name: String, val function: TestContext.() -> Unit) {
     private val closables = mutableListOf<AutoCloseable>()
     val testFailures = mutableListOf<TestFailure>()
     private val childContexts = mutableListOf<TestContext>()
@@ -64,6 +63,11 @@ data class TestContext(val name: String) {
 
     fun cleanUp() {
         closables.forEach { it.close() }
+    }
+
+    fun execute() {
+        function()
+        cleanUp()
     }
 
 }

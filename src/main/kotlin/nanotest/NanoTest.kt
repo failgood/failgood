@@ -11,7 +11,8 @@ class Suite(val contexts: Collection<Context>) {
     fun run(): SuiteResult {
         val results: List<TestContext> = contexts.map { TestContext(it).execute() }
         val allContexts = results.flatMap { it.allChildContexts() } + results
-        return SuiteResult(allContexts.flatMap { it.testFailures }, allContexts)
+        val allTests = allContexts.flatMap { it.testResults }
+        return SuiteResult(allTests, allTests.filterIsInstance<Failed>(), allContexts)
     }
 }
 
@@ -39,15 +40,16 @@ data class TestContext(val name: String, val function: ContextLambda) : ContextD
     constructor(context: Context) : this(context.name, context.function)
 
     private val closeables = mutableListOf<AutoCloseable>()
-    val testFailures = mutableListOf<TestFailure>()
+    val testResults = mutableListOf<TestResult>()
     private val childContexts = mutableListOf<TestContext>()
 
     fun allChildContexts(): List<TestContext> = childContexts.flatMap { it.allChildContexts() } + childContexts
     override fun test(testName: String, function: () -> Unit) {
         try {
             function()
+            testResults.add(Success(testName))
         } catch (e: AssertionError) {
-            testFailures.add(TestFailure(testName, e))
+            testResults.add(Failed(testName, e))
         }
     }
 
@@ -74,7 +76,8 @@ data class TestContext(val name: String, val function: ContextLambda) : ContextD
 }
 
 data class SuiteResult(
-    val failedTests: Collection<TestFailure>,
+    val allTests: List<TestResult>,
+    val failedTests: Collection<Failed>,
     val contexts: List<TestContext>
 ) {
     val allOk = failedTests.isEmpty()
@@ -85,13 +88,17 @@ data class SuiteResult(
 }
 
 open class NanoTestException(override val message: String) : RuntimeException(message)
-class SuiteFailedException(private val failedTests: Collection<TestFailure>) : NanoTestException("test failed") {
+class SuiteFailedException(private val failedTests: Collection<Failed>) : NanoTestException("test failed") {
     override fun toString(): String = failedTests.joinToString { it.throwable.stackTraceToString() }
 }
 
-class TestFailure(val name: String, val throwable: Throwable) {
+sealed class TestResult
+
+data class Success(val name: String) : TestResult()
+
+class Failed(val name: String, val throwable: Throwable) : TestResult() {
     override fun equals(other: Any?): Boolean {
-        return (other is TestFailure)
+        return (other is Failed)
                 && name == other.name
                 && throwable.stackTraceToString() == other.throwable.stackTraceToString()
     }

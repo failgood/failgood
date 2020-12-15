@@ -54,7 +54,8 @@ fun main() {
     println("bootstrapped after: ${uptime()}ms")
 
     val suiteResults =
-        Suite(listOf(TestContextTest.context, SuiteTest.context, ContextTest.context)).run().apply { check() }
+        Suite(listOf(TestContext2Test.context, TestContextTest.context, SuiteTest.context, ContextTest.context)).run()
+            .apply { check() }
     println("finished after: ${uptime()}ms. ran ${suiteResults.allTests.count()} main tests and ${results.allTests.count()} bootstrap tests")
     expectThat(uptime()).isLessThan(1000) // lets see how far we can get with one second
 }

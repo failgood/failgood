@@ -28,18 +28,5 @@ object TestContextTest {
             expectThat(resource).isEqualTo(closable)
             expectThat(closeCalled).isTrue()
         }
-        xtest("every test gets a fresh context") {
-            val events = mutableListOf<String>()
-            TestContext("the context") {
-                events.add("root context")
-                test("test 1") {
-                    events.add("test 1")
-                }
-                test("test 2") {
-                    events.add("test 2")
-                }
-            }.execute()
-            expectThat(events).containsExactly("root context", "test 1", "root context", "test 2")
-        }
     }
 }

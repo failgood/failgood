@@ -12,7 +12,10 @@ class Suite(val contexts: Collection<Context>) {
         val results: List<TestContext> = contexts.map { TestContext(it).execute() }
         val allContexts = results.flatMap { it.allChildContexts() } + results
         val allTests = allContexts.flatMap { it.testResults }
-        return SuiteResult(allTests, allTests.filterIsInstance<Failed>(), allContexts)
+        return SuiteResult(
+            allTests,
+            allTests.filterIsInstance<Failed>(),
+            allContexts.map { ContextResult(it.name, it.testResults) })
     }
 }
 
@@ -32,11 +35,11 @@ interface ContextDSL {
 
     @Suppress("UNUSED_PARAMETER", "unused")
     fun xtest(ignoredTestName: String, function: () -> Unit)
-    fun context(name: String, function: ContextLambda): TestContext
+    fun context(name: String, function: ContextLambda)
     fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T
 }
 
-data class TestContext(val name: String, val function: ContextLambda) : ContextDSL {
+internal data class TestContext(val name: String, val function: ContextLambda) : ContextDSL {
     constructor(context: Context) : this(context.name, context.function)
 
     private val closeables = mutableListOf<AutoCloseable>()
@@ -57,10 +60,9 @@ data class TestContext(val name: String, val function: ContextLambda) : ContextD
     override fun xtest(ignoredTestName: String, function: () -> Unit) {
     }
 
-    override fun context(name: String, function: ContextLambda): TestContext {
+    override fun context(name: String, function: ContextLambda) {
         val element = TestContext(name, function).execute()
         childContexts.add(element)
-        return element
     }
 
     override fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T {
@@ -78,7 +80,7 @@ data class TestContext(val name: String, val function: ContextLambda) : ContextD
 data class SuiteResult(
     val allTests: List<TestResult>,
     val failedTests: Collection<Failed>,
-    val contexts: List<TestContext>
+    val contexts: List<ContextResult>
 ) {
     val allOk = failedTests.isEmpty()
 
@@ -86,6 +88,8 @@ data class SuiteResult(
         if (!allOk) throw SuiteFailedException(failedTests)
     }
 }
+
+data class ContextResult(val name: String, val testResults: List<TestResult>)
 
 open class NanoTestException(override val message: String) : RuntimeException(message)
 class SuiteFailedException(private val failedTests: Collection<Failed>) : NanoTestException("test failed") {

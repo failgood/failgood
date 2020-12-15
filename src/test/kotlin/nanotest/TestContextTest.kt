@@ -5,6 +5,9 @@ import strikt.assertions.containsExactly
 import strikt.assertions.isEqualTo
 import strikt.assertions.isTrue
 
+fun main() {
+    Suite(listOf(TestContextTest.context)).run().check()
+}
 object TestContextTest {
     val context = Context {
         test("can close resources") {
@@ -27,7 +30,7 @@ object TestContextTest {
         }
         xtest("every test gets a fresh context") {
             val events = mutableListOf<String>()
-            Suite {
+            TestContext("the context") {
                 events.add("root context")
                 test("test 1") {
                     events.add("test 1")
@@ -35,7 +38,7 @@ object TestContextTest {
                 test("test 2") {
                     events.add("test 2")
                 }
-            }.run()
+            }.execute()
             expectThat(events).containsExactly("root context", "test 1", "root context", "test 2")
         }
     }

@@ -43,9 +43,6 @@ fun main() {
             get(Failed::name).get(TestDescriptor::name).isEqualTo("failing test")
             get(Failed::throwable).isA<AssertionError>()
         }
-        // TODO
-//        get(SuiteResult::contexts).single().get(ContextInfo::contexts)
-//            .containsExactly(listOf("child context"), listOf("child content", "grandchild context"))
         get(SuiteResult::allTests).hasSize(3)
     }
     expectThrows<RuntimeException> { results.check() }
@@ -55,10 +52,8 @@ fun main() {
     val suiteResults =
         Suite(
             listOf(
-                ContextCollectorTest.context,
                 SuiteTest.context,
                 ContextTest.context,
-                TestExecutorTest.context,
                 TestIsolationFunctionalTest.context,
                 ContextExecutorTest.context
             )

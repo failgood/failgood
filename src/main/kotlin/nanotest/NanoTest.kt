@@ -72,67 +72,6 @@ class Failed(val name: TestDescriptor, val throwable: Throwable) : TestResult() 
 }
 
 
-internal class TestExecutor(private val context: Context, private val test: TestDescriptor) {
-    private val closeables = mutableListOf<AutoCloseable>()
-    private var testResult: TestResult? = null
-    fun execute(): TestResult {
-        val dsl: ContextDSL = contextDSL(test.parentContexts)
-        dsl.(context.function)()
-        closeables.forEach { it.close() }
-        return testResult!!
-    }
-
-    inner class ContextFinder(private val contexts: List<String>) : ContextDSL {
-        override fun test(name: String, function: () -> Unit) {
-        }
-
-        override fun xtest(ignoredTestName: String, function: () -> Unit) {
-        }
-
-        override fun context(name: String, function: ContextLambda) {
-            if (contexts.first() != name)
-                return
-
-            contextDSL(contexts.drop(1)).function()
-        }
-
-        override fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T {
-            closeables.add(AutoCloseable { closeFunction(wrapped) })
-            return wrapped
-        }
-
-    }
-
-    private fun contextDSL(parentContexts: List<String>) = if (parentContexts.isEmpty())
-        TestFinder(test.name)
-    else
-        ContextFinder(parentContexts)
-
-    inner class TestFinder(private val name: String) : ContextDSL {
-        override fun test(name: String, function: () -> Unit) {
-            if (this.name == name)
-                testResult = try {
-                    function()
-                    Success(test)
-                } catch (e: AssertionError) {
-                    Failed(test, e)
-                }
-        }
-
-        override fun xtest(ignoredTestName: String, function: () -> Unit) {
-        }
-
-        override fun context(name: String, function: ContextLambda) {
-        }
-
-        override fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T {
-            closeables.add(AutoCloseable { closeFunction(wrapped) })
-            return wrapped
-        }
-
-    }
-}
-
 data class TestDescriptor(val parentContexts: List<String>, val name: String)
 class ContextExecutor(private val context: Context) {
 

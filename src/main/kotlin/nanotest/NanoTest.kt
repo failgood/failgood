@@ -12,7 +12,6 @@ class Suite(val contexts: Collection<Context>) {
 
         val results: List<TestResult> = contexts.flatMap { ContextExecutor(it).execute() }
 
-//        val allTests = allContexts.flatMap { it.testResults }
         return SuiteResult(
             results,
             results.filterIsInstance<Failed>()
@@ -76,20 +75,20 @@ data class TestDescriptor(val parentContexts: List<String>, val name: String)
 class ContextExecutor(private val context: Context) {
 
     private val testResults = mutableListOf<TestResult>()
-    val excecutedTests = mutableSetOf<TestDescriptor>()
+    val executedTests = mutableSetOf<TestDescriptor>()
 
     val contexts = mutableListOf<List<String>>()
 
     inner class ContextVisitor(private val parentContexts: List<String>) : ContextDSL {
         val closeables = mutableListOf<AutoCloseable>()
-        var ranATest = false
+        private var ranATest = false
         var moreTestsLeft = false
         override fun test(name: String, function: () -> Unit) {
             val testDescriptor = TestDescriptor(parentContexts, name)
-            if (excecutedTests.contains(testDescriptor)) {
+            if (executedTests.contains(testDescriptor)) {
                 return
             } else if (!ranATest) {
-                excecutedTests.add(testDescriptor)
+                executedTests.add(testDescriptor)
                 val testResult = try {
                     function()
                     Success(testDescriptor)

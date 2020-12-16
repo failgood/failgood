@@ -20,8 +20,9 @@ object ContextCollectorTest {
                     events.add("test 2")
                 }
                 context("context 1") {
-
+                    events.add("context 1")
                     context("context 2") {
+                        events.add("context 2")
                         test("test 3") {
                             events.add("test 3")
                         }
@@ -35,7 +36,9 @@ object ContextCollectorTest {
                 TestDescriptor(listOf("context 1", "context 2"), "test 3")
             )
 
-            expectThat(events).containsExactly("root context")
+            // TODO: here one test should run (async) to use the created contexts.
+            // and closeables need to be closed to make sure we don't leak
+            expectThat(events).containsExactly("root context", "context 1", "context 2")
         }
     }
 

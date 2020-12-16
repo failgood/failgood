@@ -59,7 +59,8 @@ fun main() {
                 TestContextTest.context,
                 SuiteTest.context,
                 ContextTest.context,
-                TestExecutorTest.context
+                TestExecutorTest.context,
+                TestIsolationFunctionalTest.context
 
             )
         ).run()

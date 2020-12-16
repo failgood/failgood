@@ -140,3 +140,66 @@ internal class TestExecutor(private val context: Context, private val test: Test
 }
 
 data class TestDescriptor(val parentContexts: List<String>, val name: String)
+class ContextExecutor(private val context: Context) {
+
+    private val testResults = mutableListOf<TestResult>()
+    val excecutedTests = mutableSetOf<TestDescriptor>()
+
+    val contexts = mutableListOf<List<String>>()
+
+    inner class ContextVisitor(private val parentContexts: List<String>) : ContextDSL {
+        var ranATest = false
+        var moreTestsLeft = false
+        override fun test(name: String, function: () -> Unit) {
+            val testDescriptor = TestDescriptor(parentContexts, name)
+            if (excecutedTests.contains(testDescriptor)) {
+                return
+            } else if (!ranATest) {
+                excecutedTests.add(testDescriptor)
+                val testResult = try {
+                    function()
+                    Success(testDescriptor)
+                } catch (e: AssertionError) {
+                    Failed(testDescriptor, e)
+                }
+                testResults.add(testResult)
+                ranATest = true
+            } else {
+                moreTestsLeft = true
+            }
+        }
+
+        override fun xtest(ignoredTestName: String, function: () -> Unit) {
+            val testDescriptor = TestDescriptor(parentContexts, ignoredTestName)
+            testResults.add(Ignored(testDescriptor))
+        }
+
+        override fun context(name: String, function: ContextLambda) {
+            // if we already ran a test in this context we don't need to visit the child context now
+            if (ranATest) {
+                moreTestsLeft = true // but we need to run the root context again to visit this child context
+                return
+            }
+            val context = parentContexts + name
+            contexts.add(context)
+            val visitor = ContextVisitor(context)
+            visitor.function()
+            if (visitor.moreTestsLeft)
+                moreTestsLeft = true
+        }
+
+        override fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit) = wrapped
+    }
+
+    fun execute(): List<TestResult> {
+        val function = context.function
+        while (true) {
+            val visitor = ContextVisitor(listOf())
+            visitor.function()
+            if (!visitor.moreTestsLeft)
+                break
+        }
+        return testResults
+    }
+}
+

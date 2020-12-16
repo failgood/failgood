@@ -41,7 +41,7 @@ object ContextExecutorTest {
     }
 }
 
-class ContextExecutor(val ctx: Context) {
+class ContextExecutor(private val context: Context) {
 
     private val testResults = mutableListOf<TestResult>()
     val excecutedTests = mutableSetOf<TestDescriptor>()
@@ -93,9 +93,10 @@ class ContextExecutor(val ctx: Context) {
     }
 
     fun execute(): List<TestResult> {
+        val function = context.function
         while (true) {
             val visitor = ContextVisitor(listOf())
-            visitor.(ctx.function)()
+            visitor.function()
             if (!visitor.moreTestsLeft)
                 break
         }

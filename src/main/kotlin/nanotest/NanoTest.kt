@@ -2,7 +2,6 @@ package nanotest
 
 import nanotest.exp.ContextCollector
 import nanotest.exp.ContextInfo
-import nanotest.exp.TestDescriptor
 
 class Suite(val contexts: Collection<Context>) {
 
@@ -66,9 +65,9 @@ class SuiteFailedException(private val failedTests: Collection<Failed>) : NanoTe
 
 sealed class TestResult
 
-data class Success(val name: String) : TestResult()
-
-class Failed(val name: String, val throwable: Throwable) : TestResult() {
+data class Success(val test: TestDescriptor) : TestResult()
+data class Ignored(val test: TestDescriptor) : TestResult()
+class Failed(val name: TestDescriptor, val throwable: Throwable) : TestResult() {
     override fun equals(other: Any?): Boolean {
         return (other is Failed)
                 && name == other.name
@@ -120,9 +119,9 @@ internal class TestExecutor(private val context: Context, private val test: Test
             if (this.name == name)
                 testResult = try {
                     function()
-                    Success(name)
+                    Success(test)
                 } catch (e: AssertionError) {
-                    Failed(name, e)
+                    Failed(test, e)
                 }
         }
 
@@ -139,3 +138,5 @@ internal class TestExecutor(private val context: Context, private val test: Test
 
     }
 }
+
+data class TestDescriptor(val parentContexts: List<String>, val name: String)

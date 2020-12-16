@@ -2,7 +2,6 @@ package nanotest
 
 import nanotest.exp.ContextCollector
 import nanotest.exp.ContextInfo
-import nanotest.exp.TestDescriptor
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.containsExactlyInAnyOrder

@@ -1,6 +1,5 @@
 package nanotest
 
-import nanotest.exp.TestDescriptor
 import strikt.api.expectThat
 import strikt.assertions.all
 import strikt.assertions.containsExactly
@@ -43,8 +42,6 @@ object TestExecutorTest {
             "root context", "context 1", "context 2", "test 3"
         )
         expectThat(result).all { isA<Success>() }
-
-        expectThat(listOf(listOf("a"), listOf("b", "c"))).containsExactly(listOf("a"), listOf("b", "c"))
     }
 }
 

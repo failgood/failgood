@@ -40,7 +40,7 @@ fun main() {
     expectThat(results) {
         get(SuiteResult::allOk).isFalse()
         get(SuiteResult::failedTests).hasSize(2).all {
-            get(Failed::name).isEqualTo("failing test")
+            get(Failed::name).get(TestDescriptor::name).isEqualTo("failing test")
             get(Failed::throwable).isA<AssertionError>()
         }
         // TODO
@@ -60,8 +60,8 @@ fun main() {
                 SuiteTest.context,
                 ContextTest.context,
                 TestExecutorTest.context,
-                TestIsolationFunctionalTest.context
-
+                TestIsolationFunctionalTest.context,
+                ContextExecutorTest.context
             )
         ).run()
             .apply { check() }

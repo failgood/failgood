@@ -3,6 +3,7 @@ package nanotest.exp
 import nanotest.Context
 import nanotest.ContextDSL
 import nanotest.ContextLambda
+import nanotest.TestDescriptor
 
 internal class ContextCollector(private val context: Context) {
 
@@ -33,4 +34,3 @@ internal class ContextCollector(private val context: Context) {
 }
 
 data class ContextInfo(val rootContext: Context, val contexts: List<List<String>>, val tests: List<TestDescriptor>)
-data class TestDescriptor(val parentContexts: List<String>, val name: String)

@@ -1,8 +1,5 @@
 package nanotest
 
-import nanotest.exp.ContextCollector
-import nanotest.exp.ContextInfo
-
 class Suite(val contexts: Collection<Context>) {
 
     init {
@@ -13,14 +10,12 @@ class Suite(val contexts: Collection<Context>) {
 
     fun run(): SuiteResult {
 
-        val results: List<ContextInfo> = contexts.map { ContextCollector(it).execute() }
-        val allTestResults: List<TestResult> =
-            results.flatMap { it.tests.map { test -> TestExecutor(it.rootContext, test).execute() } }
+        val results: List<TestResult> = contexts.flatMap { ContextExecutor(it).execute() }
 
 //        val allTests = allContexts.flatMap { it.testResults }
         return SuiteResult(
-            allTestResults,
-            allTestResults.filterIsInstance<Failed>(), results
+            results,
+            results.filterIsInstance<Failed>()
         )
     }
 }
@@ -48,8 +43,7 @@ interface ContextDSL {
 
 data class SuiteResult(
     val allTests: List<TestResult>,
-    val failedTests: Collection<Failed>,
-    val contexts: List<ContextInfo>
+    val failedTests: Collection<Failed>
 ) {
     val allOk = failedTests.isEmpty()
 
@@ -148,6 +142,7 @@ class ContextExecutor(private val context: Context) {
     val contexts = mutableListOf<List<String>>()
 
     inner class ContextVisitor(private val parentContexts: List<String>) : ContextDSL {
+        val closeables = mutableListOf<AutoCloseable>()
         var ranATest = false
         var moreTestsLeft = false
         override fun test(name: String, function: () -> Unit) {
@@ -188,7 +183,10 @@ class ContextExecutor(private val context: Context) {
                 moreTestsLeft = true
         }
 
-        override fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit) = wrapped
+        override fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T {
+            closeables.add(AutoCloseable { closeFunction(wrapped) })
+            return wrapped
+        }
     }
 
     fun execute(): List<TestResult> {
@@ -196,6 +194,7 @@ class ContextExecutor(private val context: Context) {
         while (true) {
             val visitor = ContextVisitor(listOf())
             visitor.function()
+            visitor.closeables.forEach { it.close() }
             if (!visitor.moreTestsLeft)
                 break
         }

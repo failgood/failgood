@@ -56,7 +56,6 @@ fun main() {
         Suite(
             listOf(
                 ContextCollectorTest.context,
-                TestContextTest.context,
                 SuiteTest.context,
                 ContextTest.context,
                 TestExecutorTest.context,

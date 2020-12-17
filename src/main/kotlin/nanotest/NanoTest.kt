@@ -62,6 +62,7 @@ class Failed(val name: TestDescriptor, val throwable: Throwable) : TestResult() 
 data class TestDescriptor(val parentContexts: List<String>, val name: String)
 class ContextExecutor(private val context: Context) {
 
+    private val finishedContexts = mutableSetOf<List<String>>()
     private val testResults = mutableListOf<TestResult>()
     val executedTests = mutableSetOf<TestDescriptor>()
 
@@ -102,11 +103,18 @@ class ContextExecutor(private val context: Context) {
                 return
             }
             val context = parentContexts + name
+            if (finishedContexts.contains(context))
+                return
             contexts.add(context)
             val visitor = ContextVisitor(context)
             visitor.function()
             if (visitor.moreTestsLeft)
                 moreTestsLeft = true
+            else
+                finishedContexts.add(context)
+
+            if (visitor.ranATest)
+                ranATest = true
         }
 
         override fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T {

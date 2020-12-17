@@ -1,49 +1,38 @@
 package nanotest
 
 class Suite(val contexts: Collection<Context>) {
+    constructor(function: ContextLambda) : this(listOf(Context("root", function)))
 
     init {
         if (contexts.isEmpty()) throw EmptySuiteException()
     }
 
-    constructor(function: ContextLambda) : this(listOf(Context("root", function)))
-
     fun run(): SuiteResult {
-
         val results: List<TestResult> = contexts.flatMap { ContextExecutor(it).execute() }
-
-        return SuiteResult(
-            results,
-            results.filterIsInstance<Failed>()
-        )
+        return SuiteResult(results, results.filterIsInstance<Failed>())
     }
 }
 
-class EmptySuiteException : RuntimeException("suite can not be empty")
-
 data class Context(val name: String, val function: ContextLambda)
+
+class EmptySuiteException : NanoTestException("suite can not be empty")
 
 typealias ContextLambda = ContextDSL.() -> Unit
 
-fun Any.Context(function: ContextLambda): Context {
-    val name = this::class.simpleName ?: throw NanoTestException("could not determine object name")
-    return Context(name, function)
-}
+fun Any.Context(function: ContextLambda): Context =
+    Context(this::class.simpleName ?: throw NanoTestException("could not determine object name"), function)
 
 interface ContextDSL {
     fun test(name: String, function: () -> Unit)
 
-    @Suppress("UNUSED_PARAMETER", "unused")
+    @Suppress("UNUSED_PARAMETER", "unused", "SpellCheckingInspection")
     fun xtest(ignoredTestName: String, function: () -> Unit)
     fun context(name: String, function: ContextLambda)
     fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T
 }
 
 
-data class SuiteResult(
-    val allTests: List<TestResult>,
-    val failedTests: Collection<Failed>
-) {
+data class SuiteResult(val allTests: List<TestResult>, val failedTests: Collection<Failed>) {
     val allOk = failedTests.isEmpty()
 
     fun check() {
@@ -57,7 +46,6 @@ class SuiteFailedException(private val failedTests: Collection<Failed>) : NanoTe
 }
 
 sealed class TestResult
-
 data class Success(val test: TestDescriptor) : TestResult()
 data class Ignored(val test: TestDescriptor) : TestResult()
 class Failed(val name: TestDescriptor, val throwable: Throwable) : TestResult() {
@@ -81,8 +69,10 @@ class ContextExecutor(private val context: Context) {
 
     inner class ContextVisitor(private val parentContexts: List<String>) : ContextDSL {
         val closeables = mutableListOf<AutoCloseable>()
-        private var ranATest = false
-        var moreTestsLeft = false
+        private var ranATest =
+            false // we only run one test per instance so if this is true we don't invoke test lambdas
+        var moreTestsLeft = false // are there more tests left to run?
+
         override fun test(name: String, function: () -> Unit) {
             val testDescriptor = TestDescriptor(parentContexts, name)
             if (executedTests.contains(testDescriptor)) {
@@ -103,13 +93,11 @@ class ContextExecutor(private val context: Context) {
         }
 
         override fun xtest(ignoredTestName: String, function: () -> Unit) {
-            val testDescriptor = TestDescriptor(parentContexts, ignoredTestName)
-            testResults.add(Ignored(testDescriptor))
+            testResults.add(Ignored(TestDescriptor(parentContexts, ignoredTestName)))
         }
 
         override fun context(name: String, function: ContextLambda) {
-            // if we already ran a test in this context we don't need to visit the child context now
-            if (ranATest) {
+            if (ranATest) { // if we already ran a test in this context we don't need to visit the child context now
                 moreTestsLeft = true // but we need to run the root context again to visit this child context
                 return
             }
@@ -122,8 +110,7 @@ class ContextExecutor(private val context: Context) {
         }
 
         override fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T {
-            closeables.add(AutoCloseable { closeFunction(wrapped) })
-            return wrapped
+            return wrapped.apply { closeables.add(AutoCloseable { closeFunction(wrapped) }) }
         }
     }
 

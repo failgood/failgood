@@ -19,14 +19,16 @@ class EmptySuiteException : NanoTestException("suite can not be empty")
 
 typealias ContextLambda = ContextDSL.() -> Unit
 
+typealias TestLambda = () -> Unit
+
 fun Any.Context(function: ContextLambda): Context =
     Context(this::class.simpleName ?: throw NanoTestException("could not determine object name"), function)
 
 interface ContextDSL {
-    fun test(name: String, function: () -> Unit)
+    fun test(name: String, function: TestLambda)
 
     @Suppress("UNUSED_PARAMETER", "unused", "SpellCheckingInspection")
-    fun xtest(ignoredTestName: String, function: () -> Unit)
+    fun xtest(ignoredTestName: String, function: TestLambda)
     fun context(name: String, function: ContextLambda)
     fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T
 }
@@ -60,6 +62,7 @@ class Failed(val name: TestDescriptor, val throwable: Throwable) : TestResult() 
 
 
 data class TestDescriptor(val parentContexts: List<String>, val name: String)
+
 class ContextExecutor(private val context: Context) {
 
     private val finishedContexts = mutableSetOf<List<String>>()
@@ -74,7 +77,7 @@ class ContextExecutor(private val context: Context) {
             false // we only run one test per instance so if this is true we don't invoke test lambdas
         var moreTestsLeft = false // are there more tests left to run?
 
-        override fun test(name: String, function: () -> Unit) {
+        override fun test(name: String, function: TestLambda) {
             val testDescriptor = TestDescriptor(parentContexts, name)
             if (executedTests.contains(testDescriptor)) {
                 return
@@ -93,7 +96,7 @@ class ContextExecutor(private val context: Context) {
             }
         }
 
-        override fun xtest(ignoredTestName: String, function: () -> Unit) {
+        override fun xtest(ignoredTestName: String, function: TestLambda) {
             testResults.add(Ignored(TestDescriptor(parentContexts, ignoredTestName)))
         }
 

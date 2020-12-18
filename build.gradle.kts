@@ -18,6 +18,8 @@ repositories {
     jcenter()
 }
 dependencies {
+    implementation(enforcedPlatform("org.jetbrains.kotlin:kotlin-bom:1.4.21"))
+    implementation(kotlin("stdlib-jdk8"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     testImplementation("io.strikt:strikt-core:0.28.1")
 }
@@ -27,6 +29,11 @@ tasks {
         from(sourceSets.main.get().allSource)
         archiveClassifier.set("sources")
     }
+}
+
+tasks.withType<JavaCompile>() {
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
 }
 
 tasks.withType<KotlinCompile> {

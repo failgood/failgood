@@ -1,6 +1,8 @@
 package nanotest
 
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.Executors
 
@@ -16,7 +18,8 @@ class Suite(val contexts: Collection<Context>) {
         return try {
             threadPool.asCoroutineDispatcher().use { dispatcher ->
                 runBlocking(dispatcher) {
-                    val results: List<TestResult> = contexts.flatMap { ContextExecutor(it).execute() }
+                    val results: List<TestResult> =
+                        contexts.map { async { ContextExecutor(it).execute() } }.awaitAll().flatten()
                     SuiteResult(results, results.filterIsInstance<Failed>())
                 }
             }

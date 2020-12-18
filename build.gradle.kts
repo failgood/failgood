@@ -11,11 +11,14 @@ plugins {
 group = "nanotest"
 version = "0.1"
 
+val coroutinesVersion = "1.4.2"
+
 repositories {
     mavenCentral()
     jcenter()
 }
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     testImplementation("io.strikt:strikt-core:0.28.1")
 }
 

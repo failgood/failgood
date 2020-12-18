@@ -57,3 +57,12 @@ publishing {
 }
 
 tasks.wrapper { distributionType = Wrapper.DistributionType.ALL }
+
+val testMain = task("testMain", JavaExec::class) {
+    main = "nanotest.NanoTestBootstrapKt"
+    classpath = sourceSets["test"].runtimeClasspath
+}
+
+tasks.check {
+    dependsOn(testMain)
+}

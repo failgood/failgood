@@ -40,7 +40,7 @@ fun main() {
     expectThat(results) {
         get(SuiteResult::allOk).isFalse()
         get(SuiteResult::failedTests).hasSize(2).all {
-            get(Failed::name).get(TestDescriptor::name).isEqualTo("failing test")
+            get(Failed::test).get(TestDescriptor::name).isEqualTo("failing test")
             get(Failed::throwable).isA<AssertionError>()
         }
         get(SuiteResult::allTests).hasSize(3)

@@ -4,7 +4,7 @@ import strikt.api.expectThat
 import strikt.assertions.containsExactly
 
 object TestIsolationFunctionalTest {
-    val context = Context {
+    val context = context {
         xtest("test isolation") {
             val events = mutableListOf<String>()
             Suite {

@@ -7,7 +7,7 @@ import strikt.assertions.isFalse
 import strikt.assertions.isTrue
 
 object SuiteTest {
-    val context = Context {
+    val context = context {
         val context = Context("one failing one passing test") {
             test("firstTest") {
                 expectThat(true).isTrue()

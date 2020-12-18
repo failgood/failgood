@@ -4,7 +4,9 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
+import java.lang.management.ManagementFactory
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class Suite(val contexts: Collection<Context>) {
     constructor(function: ContextLambda) : this(listOf(Context("root", function)))
@@ -14,17 +16,24 @@ class Suite(val contexts: Collection<Context>) {
     }
 
     fun run(): SuiteResult {
-        val threadPool = Executors.newFixedThreadPool(16)
+        val threadPool = Executors.newWorkStealingPool()
         return try {
             threadPool.asCoroutineDispatcher().use { dispatcher ->
                 runBlocking(dispatcher) {
                     val results: List<TestResult> =
-                        contexts.map { async { ContextExecutor(it).execute() } }.awaitAll().flatten()
+                        contexts.map {
+                            async {
+                                ContextExecutor(it).execute()
+                            }
+                        }.awaitAll().flatten()
                     SuiteResult(results, results.filterIsInstance<Failed>())
                 }
             }
         } finally {
+            val threadPoolInfo = threadPool.toString()
+            threadPool.awaitTermination(100, TimeUnit.SECONDS)
             threadPool.shutdown()
+            println("finished after: ${ManagementFactory.getRuntimeMXBean().uptime}. threadpool: $threadPoolInfo")
         }
     }
 }
@@ -37,7 +46,7 @@ typealias ContextLambda = suspend ContextDSL.() -> Unit
 
 typealias TestLambda = suspend () -> Unit
 
-fun Any.Context(function: ContextLambda): Context =
+fun Any.context(function: ContextLambda): Context =
     Context(this::class.simpleName ?: throw NanoTestException("could not determine object name"), function)
 
 interface ContextDSL {
@@ -54,8 +63,21 @@ data class SuiteResult(val allTests: List<TestResult>, val failedTests: Collecti
     val allOk = failedTests.isEmpty()
 
     fun check() {
+        allTests.forEach {
+            when (it) {
+                is Failed -> {
+                    println("failed: " + it.test)
+                    println(it.throwable.stackTraceToString())
+                }
+                is Success -> println("success: " + it.test)
+                is Ignored -> println("ignored: " + it.test)
+            }
+        }
+        println("" + allTests.size + " tests")
         if (!allOk) throw SuiteFailedException(failedTests)
+
     }
+
 }
 
 open class NanoTestException(override val message: String) : RuntimeException(message)
@@ -66,14 +88,14 @@ class SuiteFailedException(private val failedTests: Collection<Failed>) : NanoTe
 sealed class TestResult
 data class Success(val test: TestDescriptor) : TestResult()
 data class Ignored(val test: TestDescriptor) : TestResult()
-class Failed(val name: TestDescriptor, val throwable: Throwable) : TestResult() {
+class Failed(val test: TestDescriptor, val throwable: Throwable) : TestResult() {
     override fun equals(other: Any?): Boolean {
         return (other is Failed)
-                && name == other.name
+                && test == other.test
                 && throwable.stackTraceToString() == other.throwable.stackTraceToString()
     }
 
-    override fun hashCode(): Int = name.hashCode() * 31 + throwable.stackTraceToString().hashCode()
+    override fun hashCode(): Int = test.hashCode() * 31 + throwable.stackTraceToString().hashCode()
 }
 
 
@@ -144,7 +166,7 @@ class ContextExecutor(private val context: Context) {
     suspend fun execute(): List<TestResult> {
         val function = context.function
         while (true) {
-            val visitor = ContextVisitor(listOf())
+            val visitor = ContextVisitor(listOf(context.name))
             visitor.function()
             visitor.closeables.forEach { it.close() }
             if (!visitor.moreTestsLeft)

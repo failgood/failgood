@@ -8,7 +8,7 @@ import strikt.assertions.isEqualTo
 import strikt.assertions.isTrue
 
 object ContextExecutorTest {
-    val context = Context {
+    val context = context {
         test("runs the optimal path to each test") {
             val events = mutableListOf<String>()
             val ctx = Context("root context") {

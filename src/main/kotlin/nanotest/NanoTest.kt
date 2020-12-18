@@ -1,5 +1,9 @@
 package nanotest
 
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.runBlocking
+import java.util.concurrent.Executors
+
 class Suite(val contexts: Collection<Context>) {
     constructor(function: ContextLambda) : this(listOf(Context("root", function)))
 
@@ -8,8 +12,17 @@ class Suite(val contexts: Collection<Context>) {
     }
 
     fun run(): SuiteResult {
-        val results: List<TestResult> = contexts.flatMap { ContextExecutor(it).execute() }
-        return SuiteResult(results, results.filterIsInstance<Failed>())
+        val threadPool = Executors.newFixedThreadPool(16)
+        return try {
+            threadPool.asCoroutineDispatcher().use { dispatcher ->
+                runBlocking(dispatcher) {
+                    val results: List<TestResult> = contexts.flatMap { ContextExecutor(it).execute() }
+                    SuiteResult(results, results.filterIsInstance<Failed>())
+                }
+            }
+        } finally {
+            threadPool.shutdown()
+        }
     }
 }
 
@@ -17,19 +30,19 @@ data class Context(val name: String, val function: ContextLambda)
 
 class EmptySuiteException : NanoTestException("suite can not be empty")
 
-typealias ContextLambda = ContextDSL.() -> Unit
+typealias ContextLambda = suspend ContextDSL.() -> Unit
 
-typealias TestLambda = () -> Unit
+typealias TestLambda = suspend () -> Unit
 
 fun Any.Context(function: ContextLambda): Context =
     Context(this::class.simpleName ?: throw NanoTestException("could not determine object name"), function)
 
 interface ContextDSL {
-    fun test(name: String, function: TestLambda)
+    suspend fun test(name: String, function: TestLambda)
 
     @Suppress("UNUSED_PARAMETER", "unused", "SpellCheckingInspection")
-    fun xtest(ignoredTestName: String, function: TestLambda)
-    fun context(name: String, function: ContextLambda)
+    suspend fun xtest(ignoredTestName: String, function: TestLambda)
+    suspend fun context(name: String, function: ContextLambda)
     fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T
 }
 
@@ -77,7 +90,7 @@ class ContextExecutor(private val context: Context) {
             false // we only run one test per instance so if this is true we don't invoke test lambdas
         var moreTestsLeft = false // are there more tests left to run?
 
-        override fun test(name: String, function: TestLambda) {
+        override suspend fun test(name: String, function: TestLambda) {
             val testDescriptor = TestDescriptor(parentContexts, name)
             if (executedTests.contains(testDescriptor)) {
                 return
@@ -96,11 +109,11 @@ class ContextExecutor(private val context: Context) {
             }
         }
 
-        override fun xtest(ignoredTestName: String, function: TestLambda) {
+        override suspend fun xtest(ignoredTestName: String, function: TestLambda) {
             testResults.add(Ignored(TestDescriptor(parentContexts, ignoredTestName)))
         }
 
-        override fun context(name: String, function: ContextLambda) {
+        override suspend fun context(name: String, function: ContextLambda) {
             if (ranATest) { // if we already ran a test in this context we don't need to visit the child context now
                 moreTestsLeft = true // but we need to run the root context again to visit this child context
                 return
@@ -125,7 +138,7 @@ class ContextExecutor(private val context: Context) {
         }
     }
 
-    fun execute(): List<TestResult> {
+    suspend fun execute(): List<TestResult> {
         val function = context.function
         while (true) {
             val visitor = ContextVisitor(listOf())

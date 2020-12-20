@@ -41,7 +41,7 @@ fun main() {
         get(SuiteResult::allOk).isFalse()
         get(SuiteResult::failedTests).hasSize(2).all {
             get(Failed::test).get(TestDescriptor::name).isEqualTo("failing test")
-            get(Failed::throwable).isA<AssertionError>()
+            get(Failed::failure).isA<AssertionError>()
         }
         get(SuiteResult::allTests).hasSize(3)
     }
@@ -55,12 +55,14 @@ fun main() {
                 SuiteTest.context,
                 ContextTest.context,
                 TestIsolationFunctionalTest.context,
-                ContextExecutorTest.context
+                ContextExecutorTest.context,
+                ExceptionPrettyPrinterTest.context
             )
         ).run()
-            .apply { check() }
+
     println("finished after: ${uptime()}ms. ran ${suiteResults.allTests.count()} main tests and ${results.allTests.count()} bootstrap tests")
     expectThat(uptime()).isLessThan(1000) // lets see how far we can get with one second
+    suiteResults.check(false)
 }
 
 private fun uptime() = ManagementFactory.getRuntimeMXBean().uptime

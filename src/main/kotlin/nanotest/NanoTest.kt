@@ -62,7 +62,8 @@ interface ContextDSL {
 data class SuiteResult(val allTests: List<TestResult>, val failedTests: Collection<Failed>) {
     val allOk = failedTests.isEmpty()
 
-    fun check() {
+    fun check(throwException: Boolean = true) {
+        /*
         allTests.forEach {
             when (it) {
                 is Failed -> {
@@ -73,29 +74,44 @@ data class SuiteResult(val allTests: List<TestResult>, val failedTests: Collecti
                 is Ignored -> println("ignored: " + it.test)
             }
         }
-        println("" + allTests.size + " tests")
-        if (!allOk) throw SuiteFailedException(failedTests)
+         */
+        println("${allTests.size} tests")
+        if (allOk)
+            return
+        if (throwException)
+            throw SuiteFailedException(failedTests)
+        else {
+            val message = failedTests.joinToString {
+                val testDescription = """${it.test.parentContexts.joinToString(">")} : ${it.test.name}"""
+                val exceptionInfo = ExceptionPrettyPrinter().prettyPrint(it.failure)
 
+                "$testDescription failed with $exceptionInfo"
+            }
+            println(message)
+//            exitProcess(-1)
+        }
     }
-
 }
 
 open class NanoTestException(override val message: String) : RuntimeException(message)
 class SuiteFailedException(private val failedTests: Collection<Failed>) : NanoTestException("test failed") {
-    override fun toString(): String = failedTests.joinToString { it.throwable.stackTraceToString() }
+    override fun toString(): String {
+        return failedTests.joinToString { it.failure.stackTraceToString().substringBefore("nanotest.Suite") }
+    }
+
 }
 
 sealed class TestResult
 data class Success(val test: TestDescriptor) : TestResult()
 data class Ignored(val test: TestDescriptor) : TestResult()
-class Failed(val test: TestDescriptor, val throwable: Throwable) : TestResult() {
+class Failed(val test: TestDescriptor, val failure: AssertionError) : TestResult() {
     override fun equals(other: Any?): Boolean {
         return (other is Failed)
                 && test == other.test
-                && throwable.stackTraceToString() == other.throwable.stackTraceToString()
+                && failure.stackTraceToString() == other.failure.stackTraceToString()
     }
 
-    override fun hashCode(): Int = test.hashCode() * 31 + throwable.stackTraceToString().hashCode()
+    override fun hashCode(): Int = test.hashCode() * 31 + failure.stackTraceToString().hashCode()
 }
 
 
@@ -173,6 +189,14 @@ class ContextExecutor(private val context: Context) {
                 break
         }
         return testResults
+    }
+}
+
+class ExceptionPrettyPrinter {
+    fun prettyPrint(assertionError: AssertionError): String {
+        val stackTrace =
+            assertionError.stackTrace.filter { it.lineNumber > 0 }.dropLastWhile { it.fileName != "NanoTest.kt" }
+        return "${assertionError.message} ${stackTrace.joinToString("\t\n")}"
     }
 }
 

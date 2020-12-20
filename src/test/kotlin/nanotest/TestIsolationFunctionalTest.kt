@@ -5,7 +5,7 @@ import strikt.assertions.containsExactly
 
 object TestIsolationFunctionalTest {
     val context = context {
-        xtest("test isolation") {
+        test("test isolation") {
             val events = mutableListOf<String>()
             Suite {
                 events.add("root context")

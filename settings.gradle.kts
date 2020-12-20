@@ -1,2 +1,2 @@
-rootProject.name = "nanotest"
+rootProject.name = "failfast"
 

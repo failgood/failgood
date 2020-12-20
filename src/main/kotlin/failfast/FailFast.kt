@@ -1,4 +1,4 @@
-package nanotest
+package failfast
 
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
@@ -40,14 +40,14 @@ class Suite(val contexts: Collection<Context>) {
 
 data class Context(val name: String, val function: ContextLambda)
 
-class EmptySuiteException : NanoTestException("suite can not be empty")
+class EmptySuiteException : FailFastException("suite can not be empty")
 
 typealias ContextLambda = suspend ContextDSL.() -> Unit
 
 typealias TestLambda = suspend () -> Unit
 
 fun Any.context(function: ContextLambda): Context =
-    Context(this::class.simpleName ?: throw NanoTestException("could not determine object name"), function)
+    Context(this::class.simpleName ?: throw FailFastException("could not determine object name"), function)
 
 interface ContextDSL {
     suspend fun test(name: String, function: TestLambda)
@@ -93,12 +93,8 @@ data class SuiteResult(val allTests: List<TestResult>, val failedTests: Collecti
     }
 }
 
-open class NanoTestException(override val message: String) : RuntimeException(message)
-class SuiteFailedException(private val failedTests: Collection<Failed>) : NanoTestException("test failed") {
-    override fun toString(): String {
-        return failedTests.joinToString { it.failure.stackTraceToString().substringBefore("nanotest.Suite") }
-    }
-
+open class FailFastException(override val message: String) : RuntimeException(message)
+class SuiteFailedException(private val failedTests: Collection<Failed>) : FailFastException("test failed") {
 }
 
 sealed class TestResult
@@ -195,7 +191,7 @@ class ContextExecutor(private val context: Context) {
 class ExceptionPrettyPrinter {
     fun prettyPrint(assertionError: AssertionError): String {
         val stackTrace =
-            assertionError.stackTrace.filter { it.lineNumber > 0 }.dropLastWhile { it.fileName != "NanoTest.kt" }
+            assertionError.stackTrace.filter { it.lineNumber > 0 }.dropLastWhile { it.fileName != "FailFast.kt" }
         return "${assertionError.message} ${stackTrace.joinToString("\t\n")}"
     }
 }

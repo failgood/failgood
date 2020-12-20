@@ -1,4 +1,4 @@
-package nanotest
+package failfast
 
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo

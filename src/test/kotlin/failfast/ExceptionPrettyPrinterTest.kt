@@ -1,4 +1,4 @@
-package nanotest
+package failfast
 
 import strikt.api.expectThat
 import strikt.assertions.matches
@@ -9,7 +9,7 @@ object ExceptionPrettyPrinterTest {
         test("shortens assertion errors") {
             val epp = ExceptionPrettyPrinter()
             expectThat(epp.prettyPrint(AssertionError("cause"))) {
-                matches(Regex(".*NanoTest.kt:\\d*\\)$", RegexOption.DOT_MATCHES_ALL))
+                matches(Regex(".*FailFast.kt:\\d*\\)$", RegexOption.DOT_MATCHES_ALL))
                 startsWith("cause")
 
             }

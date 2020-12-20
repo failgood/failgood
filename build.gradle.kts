@@ -8,7 +8,7 @@ plugins {
     id("com.jfrog.bintray") version "1.8.5"
 }
 
-group = "nanotest"
+group = "failfast"
 version = "0.1"
 
 val coroutinesVersion = "1.4.2"
@@ -50,7 +50,7 @@ publishing {
             from(components["java"])
             artifact(tasks["sourceJar"])
             groupId = project.group as String
-            artifactId = "nanotest"
+            artifactId = "failfast"
             version = project.version as String
         }
     }
@@ -59,7 +59,7 @@ publishing {
 tasks.wrapper { distributionType = Wrapper.DistributionType.ALL }
 
 val testMain = task("testMain", JavaExec::class) {
-    main = "nanotest.NanoTestBootstrapKt"
+    main = "failfast.FailFastBootstrapTestKt"
     classpath = sourceSets["test"].runtimeClasspath
 }
 

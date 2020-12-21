@@ -3,6 +3,10 @@ package failfast
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.lang.management.ManagementFactory
 import java.util.concurrent.Executors
@@ -16,16 +20,14 @@ class Suite(val contexts: Collection<Context>) {
     }
 
     fun run(): SuiteResult {
+        val testResultChannel = Channel<TestResult>(UNLIMITED)
         val threadPool = Executors.newWorkStealingPool()
         return try {
             threadPool.asCoroutineDispatcher().use { dispatcher ->
                 runBlocking(dispatcher) {
-                    val results: List<TestResult> =
-                        contexts.map {
-                            async {
-                                ContextExecutor(it).execute()
-                            }
-                        }.awaitAll().flatten()
+                    val totalTests =
+                        contexts.map { async { ContextExecutor(it, testResultChannel).execute() } }.awaitAll().sum()
+                    val results = (0 until totalTests).map { testResultChannel.receive() }
                     SuiteResult(results, results.filterIsInstance<Failed>())
                 }
             }
@@ -113,7 +115,7 @@ class Failed(val test: TestDescriptor, val failure: AssertionError) : TestResult
 
 data class TestDescriptor(val parentContexts: List<String>, val name: String)
 
-class ContextExecutor(private val context: Context) {
+class ContextExecutor(private val context: Context, val testResultChannel: Channel<TestResult>) {
 
     private val finishedContexts = mutableSetOf<List<String>>()
     private val testResults = mutableListOf<TestResult>()
@@ -132,15 +134,19 @@ class ContextExecutor(private val context: Context) {
             if (executedTests.contains(testDescriptor)) {
                 return
             } else if (!ranATest) {
-                executedTests.add(testDescriptor)
-                val testResult = try {
-                    function()
-                    Success(testDescriptor)
-                } catch (e: AssertionError) {
-                    Failed(testDescriptor, e)
-                }
-                testResults.add(testResult)
                 ranATest = true
+                executedTests.add(testDescriptor)
+                coroutineScope {
+                    launch {
+                        val testResult = try {
+                            function()
+                            Success(testDescriptor)
+                        } catch (e: AssertionError) {
+                            Failed(testDescriptor, e)
+                        }
+                        testResultChannel.send(testResult)
+                    }
+                }
             } else {
                 moreTestsLeft = true
             }
@@ -175,7 +181,7 @@ class ContextExecutor(private val context: Context) {
         }
     }
 
-    suspend fun execute(): List<TestResult> {
+    suspend fun execute(): Int {
         val function = context.function
         while (true) {
             val visitor = ContextVisitor(listOf(context.name))
@@ -184,7 +190,7 @@ class ContextExecutor(private val context: Context) {
             if (!visitor.moreTestsLeft)
                 break
         }
-        return testResults
+        return executedTests.size
     }
 }
 

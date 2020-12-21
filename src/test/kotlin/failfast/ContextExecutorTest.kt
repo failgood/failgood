@@ -1,7 +1,8 @@
 package failfast
 
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import strikt.api.expectThat
-import strikt.assertions.all
 import strikt.assertions.containsExactly
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
@@ -9,7 +10,7 @@ import strikt.assertions.isTrue
 
 object ContextExecutorTest {
     val context = context {
-        test("runs the optimal path to each test") {
+        test("returns the number of tests") {
             val events = mutableListOf<String>()
             val ctx = Context("root context") {
                 events.add("root context")
@@ -37,14 +38,21 @@ object ContextExecutorTest {
                 }
 
             }
-            val result: List<TestResult> = ContextExecutor(ctx).execute()
+
+            val testResultChannel = Channel<TestResult>(UNLIMITED)
+            expectThat(ContextExecutor(ctx, testResultChannel).execute()).isEqualTo(4)
             expectThat(events).containsExactly(
                 "root context", "test 1",
                 "root context", "test 2",
                 "root context", "context 1", "context 2", "test 3",
                 "root context", "context 4", "test 4"
             )
-            expectThat(result).all { isA<Success>() }
+
+            // we expect 4 times success
+            expectThat(testResultChannel.receive()).isA<Success>()
+            expectThat(testResultChannel.receive()).isA<Success>()
+            expectThat(testResultChannel.receive()).isA<Success>()
+            expectThat(testResultChannel.receive()).isA<Success>()
 
         }
         test("can close resources") {

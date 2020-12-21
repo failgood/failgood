@@ -54,7 +54,7 @@ fun main() {
             listOf(
                 SuiteTest.context,
                 ContextTest.context,
-                TestIsolationFunctionalTest.context,
+                TestLifecycleTest.context,
                 ContextExecutorTest.context,
                 ExceptionPrettyPrinterTest.context
             )

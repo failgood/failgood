@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     java
-    kotlin("jvm") version "1.4.20"
+    kotlin("jvm") version "1.4.21"
     id("com.github.ben-manes.versions") version "0.36.0"
     `maven-publish`
     id("com.jfrog.bintray") version "1.8.5"
@@ -18,7 +18,7 @@ repositories {
     jcenter()
 }
 dependencies {
-    implementation(enforcedPlatform("org.jetbrains.kotlin:kotlin-bom:1.4.20"))
+    implementation(enforcedPlatform("org.jetbrains.kotlin:kotlin-bom:1.4.21"))
     implementation(kotlin("stdlib-jdk8"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     testImplementation("io.strikt:strikt-core:0.28.1")

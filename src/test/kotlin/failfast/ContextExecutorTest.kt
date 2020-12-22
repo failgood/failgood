@@ -12,30 +12,20 @@ import strikt.assertions.isTrue
 
 object ContextExecutorTest {
     val context = context {
-        xtest("returns the number of tests") {
-            val events = mutableListOf<String>()
+        test("returns the number of tests") {
             val ctx = Context("root context") {
-                events.add("root context")
                 test("test 1") {
-                    events.add("test 1")
                 }
                 test("test 2") {
-                    events.add("test 2")
                 }
                 context("context 1") {
-                    events.add("context 1")
-
                     context("context 2") {
-                        events.add("context 2")
                         test("test 3") {
-                            events.add("test 3")
                         }
                     }
                 }
                 context("context 4") {
-                    events.add("context 4")
                     test("test 4") {
-                        events.add("test 4")
                     }
                 }
 
@@ -45,12 +35,6 @@ object ContextExecutorTest {
             runBlocking(Dispatchers.Unconfined) {
                 expectThat(ContextExecutor(ctx, testResultChannel, this).execute()).isEqualTo(4)
             }
-            expectThat(events).containsExactly(
-                "root context", "test 1",
-                "root context", "test 2",
-                "root context", "context 1", "context 2", "test 3",
-                "root context", "context 4", "test 4"
-            )
 
             // we expect 4 times success
             expectThat(testResultChannel.receive()).isA<Success>()

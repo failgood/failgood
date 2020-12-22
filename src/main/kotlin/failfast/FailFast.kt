@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.lang.management.ManagementFactory
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
@@ -18,10 +19,13 @@ class Suite(
     val contexts: Collection<Context>,
     private val parallelism: Int = Runtime.getRuntime().availableProcessors()
 ) {
+    constructor(context: Context, parallelism: Int = Runtime.getRuntime().availableProcessors()) : this(
+        listOf(context),
+        parallelism
+    )
+
     constructor(parallelism: Int = Runtime.getRuntime().availableProcessors(), function: ContextLambda) : this(
-        listOf(
-            Context("root", function)
-        ), parallelism
+        Context("root", function), parallelism
     )
 
     init {
@@ -140,8 +144,8 @@ class ContextExecutor(
     val executedTests = ConcurrentHashMap.newKeySet<TestDescriptor>()!!
 
 
-    inner class ContextVisitor(private val parentContexts: List<String>) : ContextDSL {
-        val closeables = mutableListOf<AutoCloseable>()
+    inner class ContextVisitor(private val parentContexts: List<String>, private val resourcesCloser: ResourcesCloser) :
+        ContextDSL {
         private var ranATest =
             false // we only run one test per instance so if this is true we don't invoke test lambdas
         var moreTestsLeft = false // are there more tests left to run?
@@ -153,10 +157,10 @@ class ContextExecutor(
             } else if (!ranATest) {
                 ranATest = true
                 executedTests.add(testDescriptor)
-                scope.launch() {
+                scope.launch {
                     val testResult = try {
                         function()
-                        closeables.forEach { it.close() }
+                        resourcesCloser.close()
                         Success(testDescriptor)
                     } catch (e: AssertionError) {
                         Failed(testDescriptor, e)
@@ -183,7 +187,7 @@ class ContextExecutor(
             val context = parentContexts + name
             if (finishedContexts.contains(context))
                 return
-            val visitor = ContextVisitor(context)
+            val visitor = ContextVisitor(context, resourcesCloser)
             visitor.function()
             if (visitor.moreTestsLeft)
                 moreTestsLeft = true
@@ -195,7 +199,7 @@ class ContextExecutor(
         }
 
         override fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T {
-            return wrapped.apply { closeables.add(AutoCloseable { closeFunction(wrapped) }) }
+            return wrapped.apply { resourcesCloser.add { closeFunction(wrapped) } }
         }
     }
 
@@ -203,13 +207,27 @@ class ContextExecutor(
         val function = context.function
         while (true) {
             print("X")
-            val visitor = ContextVisitor(listOf(context.name))
+            val resourcesCloser = ResourcesCloser()
+            val visitor = ContextVisitor(listOf(context.name), resourcesCloser)
             visitor.function()
             if (!visitor.moreTestsLeft)
                 break
         }
         return executedTests.size
     }
+}
+
+class ResourcesCloser {
+    fun add(autoCloseable: AutoCloseable) {
+        closeables.add(autoCloseable)
+    }
+
+    fun close() {
+        closeables.forEach { it.close() }
+    }
+
+    private val closeables = ConcurrentLinkedQueue<AutoCloseable>()
+
 }
 
 class ExceptionPrettyPrinter {

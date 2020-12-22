@@ -3,11 +3,16 @@ package failfast
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 
+fun main() {
+    Suite(TestLifecycleTest.context).run().check(false)
+}
 object TestLifecycleTest {
     val context = context {
-        xtest("test lifecycle") {
-            val events = mutableListOf<String>()
+        test("test lifecycle") {
+            val totalEvents = mutableListOf<List<String>>()
             Suite(1) {
+                val events = mutableListOf<String>()
+                totalEvents.add(events)
                 autoClose("nothing", { events.add("autoclosed") })
                 events.add("root context")
                 test("test 1") {
@@ -28,10 +33,10 @@ object TestLifecycleTest {
                 }
             }.run().check()
 
-            expectThat(events).containsExactly(
-                "root context", "test 1", "autoclosed",
-                "root context", "test 2", "autoclosed",
-                "root context", "context 1", "context 2", "test 3", "autoclosed"
+            expectThat(totalEvents).containsExactly(
+                listOf("root context", "test 1", "autoclosed"),
+                listOf("root context", "test 2", "autoclosed"),
+                listOf("root context", "context 1", "context 2", "test 3", "autoclosed")
             )
 
         }

@@ -10,7 +10,6 @@ object MultiThreadingPerformanceTest {
             test("sleeping test $it") {
                 @Suppress("BlockingMethodInNonBlockingContext")
                 Thread.sleep(1000)
-                print("T")
             }
         }
     }

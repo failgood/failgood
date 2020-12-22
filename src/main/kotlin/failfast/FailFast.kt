@@ -9,10 +9,14 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.lang.management.ManagementFactory
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
-class Suite(val contexts: Collection<Context>) {
+class Suite(
+    val contexts: Collection<Context>,
+    private val parallelism: Int = Runtime.getRuntime().availableProcessors()
+) {
     constructor(function: ContextLambda) : this(listOf(Context("root", function)))
 
     init {
@@ -21,7 +25,7 @@ class Suite(val contexts: Collection<Context>) {
 
     fun run(): SuiteResult {
         val testResultChannel = Channel<TestResult>(UNLIMITED)
-        val threadPool = Executors.newWorkStealingPool()
+        val threadPool = Executors.newWorkStealingPool(parallelism)
         return try {
             threadPool.asCoroutineDispatcher().use { dispatcher ->
                 runBlocking(dispatcher) {
@@ -96,8 +100,7 @@ data class SuiteResult(val allTests: List<TestResult>, val failedTests: Collecti
 }
 
 open class FailFastException(override val message: String) : RuntimeException(message)
-class SuiteFailedException(private val failedTests: Collection<Failed>) : FailFastException("test failed") {
-}
+class SuiteFailedException(private val failedTests: Collection<Failed>) : FailFastException("test failed")
 
 sealed class TestResult
 data class Success(val test: TestDescriptor) : TestResult()
@@ -117,11 +120,9 @@ data class TestDescriptor(val parentContexts: List<String>, val name: String)
 
 class ContextExecutor(private val context: Context, val testResultChannel: Channel<TestResult>) {
 
-    private val finishedContexts = mutableSetOf<List<String>>()
-    private val testResults = mutableListOf<TestResult>()
-    val executedTests = mutableSetOf<TestDescriptor>()
+    private val finishedContexts = ConcurrentHashMap.newKeySet<List<String>>()!!
+    val executedTests = ConcurrentHashMap.newKeySet<TestDescriptor>()!!
 
-    val contexts = mutableListOf<List<String>>()
 
     inner class ContextVisitor(private val parentContexts: List<String>) : ContextDSL {
         val closeables = mutableListOf<AutoCloseable>()
@@ -153,7 +154,9 @@ class ContextExecutor(private val context: Context, val testResultChannel: Chann
         }
 
         override suspend fun xtest(ignoredTestName: String, function: TestLambda) {
-            testResults.add(Ignored(TestDescriptor(parentContexts, ignoredTestName)))
+            val testDescriptor = TestDescriptor(parentContexts, ignoredTestName)
+            if (executedTests.add(testDescriptor))
+                testResultChannel.send(Ignored(testDescriptor))
         }
 
         override suspend fun context(name: String, function: ContextLambda) {
@@ -164,7 +167,6 @@ class ContextExecutor(private val context: Context, val testResultChannel: Chann
             val context = parentContexts + name
             if (finishedContexts.contains(context))
                 return
-            contexts.add(context)
             val visitor = ContextVisitor(context)
             visitor.function()
             if (visitor.moreTestsLeft)

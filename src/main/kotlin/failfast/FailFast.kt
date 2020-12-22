@@ -229,7 +229,6 @@ class ContextExecutor(
             val resourcesCloser = ResourcesCloser()
             val visitor = ContextVisitor(listOf(context.name), resourcesCloser)
             visitor.function()
-            println("x")
             if (!visitor.moreTestsLeft)
                 break
         }

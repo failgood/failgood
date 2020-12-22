@@ -71,6 +71,9 @@ typealias TestLambda = suspend () -> Unit
 fun Any.context(function: ContextLambda): Context =
     Context(this::class.simpleName ?: throw FailFastException("could not determine object name"), function)
 
+fun describe(subjectDescription: String, function: ContextLambda): Context =
+    Context(subjectDescription, function)
+
 interface ContextDSL {
     suspend fun test(name: String, function: TestLambda)
 
@@ -78,6 +81,7 @@ interface ContextDSL {
     suspend fun xtest(ignoredTestName: String, function: TestLambda)
     suspend fun context(name: String, function: ContextLambda)
     fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T
+    suspend fun it(behaviorDescription: String, function: TestLambda)
 }
 
 
@@ -201,12 +205,15 @@ class ContextExecutor(
         override fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T {
             return wrapped.apply { resourcesCloser.add { closeFunction(wrapped) } }
         }
+
+        override suspend fun it(behaviorDescription: String, function: TestLambda) {
+            test(behaviorDescription, function)
+        }
     }
 
     suspend fun execute(): Int {
         val function = context.function
         while (true) {
-            print("X")
             val resourcesCloser = ResourcesCloser()
             val visitor = ContextVisitor(listOf(context.name), resourcesCloser)
             visitor.function()

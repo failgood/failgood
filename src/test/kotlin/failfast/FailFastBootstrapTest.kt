@@ -56,7 +56,8 @@ fun main() {
                 ContextTest.context,
                 TestLifecycleTest.context,
                 ContextExecutorTest.context,
-                ExceptionPrettyPrinterTest.context
+                ExceptionPrettyPrinterTest.context,
+                DescribeTest.context
             )
         ).run()
 

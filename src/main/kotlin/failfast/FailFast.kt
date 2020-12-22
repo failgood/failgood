@@ -45,7 +45,7 @@ class Suite(
                         contexts.map {
                             async {
                                 try {
-                                    withTimeout(10000) {
+                                    withTimeout(20000) {
                                         ContextExecutor(it, testResultChannel, this).execute()
                                     }
                                 } catch (e: TimeoutCancellationException) {
@@ -229,9 +229,11 @@ class ContextExecutor(
             val resourcesCloser = ResourcesCloser()
             val visitor = ContextVisitor(listOf(context.name), resourcesCloser)
             visitor.function()
+            println("x")
             if (!visitor.moreTestsLeft)
                 break
         }
+        println()
         return executedTests.size
     }
 }

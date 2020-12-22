@@ -1,6 +1,7 @@
 package failfast
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -8,6 +9,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import java.lang.management.ManagementFactory
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -40,7 +42,17 @@ class Suite(
             threadPool.asCoroutineDispatcher().use { dispatcher ->
                 runBlocking(dispatcher) {
                     val totalTests =
-                        contexts.map { async { ContextExecutor(it, testResultChannel, this).execute() } }.awaitAll()
+                        contexts.map {
+                            async {
+                                try {
+                                    withTimeout(10000) {
+                                        ContextExecutor(it, testResultChannel, this).execute()
+                                    }
+                                } catch (e: TimeoutCancellationException) {
+                                    throw FailFastException("context ${it.name} timed out")
+                                }
+                            }
+                        }.awaitAll()
                             .sum()
                     println("total tests:$totalTests")
                     val results = (0 until totalTests).map {

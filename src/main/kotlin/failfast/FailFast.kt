@@ -1,23 +1,28 @@
 package failfast
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.lang.management.ManagementFactory
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.system.exitProcess
 
 class Suite(
     val contexts: Collection<Context>,
     private val parallelism: Int = Runtime.getRuntime().availableProcessors()
 ) {
-    constructor(function: ContextLambda) : this(listOf(Context("root", function)))
+    constructor(parallelism: Int = Runtime.getRuntime().availableProcessors(), function: ContextLambda) : this(
+        listOf(
+            Context("root", function)
+        ), parallelism
+    )
 
     init {
         if (contexts.isEmpty()) throw EmptySuiteException()
@@ -25,13 +30,20 @@ class Suite(
 
     fun run(): SuiteResult {
         val testResultChannel = Channel<TestResult>(UNLIMITED)
-        val threadPool = Executors.newWorkStealingPool(parallelism)
+        val threadPool =
+            if (parallelism > 1) Executors.newWorkStealingPool(parallelism) else Executors.newSingleThreadExecutor()
         return try {
             threadPool.asCoroutineDispatcher().use { dispatcher ->
                 runBlocking(dispatcher) {
                     val totalTests =
-                        contexts.map { async { ContextExecutor(it, testResultChannel).execute() } }.awaitAll().sum()
-                    val results = (0 until totalTests).map { testResultChannel.receive() }
+                        contexts.map { async { ContextExecutor(it, testResultChannel, this).execute() } }.awaitAll()
+                            .sum()
+                    println("total tests:$totalTests")
+                    val results = (0 until totalTests).map {
+                        print(".")
+                        System.out.flush()
+                        testResultChannel.receive()
+                    }
                     SuiteResult(results, results.filterIsInstance<Failed>())
                 }
             }
@@ -94,7 +106,7 @@ data class SuiteResult(val allTests: List<TestResult>, val failedTests: Collecti
                 "$testDescription failed with $exceptionInfo"
             }
             println(message)
-//            exitProcess(-1)
+            exitProcess(-1)
         }
     }
 }
@@ -118,7 +130,11 @@ class Failed(val test: TestDescriptor, val failure: AssertionError) : TestResult
 
 data class TestDescriptor(val parentContexts: List<String>, val name: String)
 
-class ContextExecutor(private val context: Context, val testResultChannel: Channel<TestResult>) {
+class ContextExecutor(
+    private val context: Context,
+    val testResultChannel: Channel<TestResult>,
+    val scope: CoroutineScope
+) {
 
     private val finishedContexts = ConcurrentHashMap.newKeySet<List<String>>()!!
     val executedTests = ConcurrentHashMap.newKeySet<TestDescriptor>()!!
@@ -137,17 +153,17 @@ class ContextExecutor(private val context: Context, val testResultChannel: Chann
             } else if (!ranATest) {
                 ranATest = true
                 executedTests.add(testDescriptor)
-                coroutineScope {
-                    launch {
-                        val testResult = try {
-                            function()
-                            Success(testDescriptor)
-                        } catch (e: AssertionError) {
-                            Failed(testDescriptor, e)
-                        }
-                        testResultChannel.send(testResult)
+                scope.launch() {
+                    val testResult = try {
+                        function()
+                        closeables.forEach { it.close() }
+                        Success(testDescriptor)
+                    } catch (e: AssertionError) {
+                        Failed(testDescriptor, e)
                     }
+                    testResultChannel.send(testResult)
                 }
+
             } else {
                 moreTestsLeft = true
             }
@@ -186,9 +202,9 @@ class ContextExecutor(private val context: Context, val testResultChannel: Chann
     suspend fun execute(): Int {
         val function = context.function
         while (true) {
+            print("X")
             val visitor = ContextVisitor(listOf(context.name))
             visitor.function()
-            visitor.closeables.forEach { it.close() }
             if (!visitor.moreTestsLeft)
                 break
         }

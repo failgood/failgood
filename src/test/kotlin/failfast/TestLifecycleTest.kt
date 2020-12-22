@@ -5,9 +5,9 @@ import strikt.assertions.containsExactly
 
 object TestLifecycleTest {
     val context = context {
-        test("test lifecycle") {
+        xtest("test lifecycle") {
             val events = mutableListOf<String>()
-            Suite {
+            Suite(1) {
                 autoClose("nothing", { events.add("autoclosed") })
                 events.add("root context")
                 test("test 1") {

@@ -1,7 +1,9 @@
 package failfast
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
+import kotlinx.coroutines.runBlocking
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.isA
@@ -10,7 +12,7 @@ import strikt.assertions.isTrue
 
 object ContextExecutorTest {
     val context = context {
-        test("returns the number of tests") {
+        xtest("returns the number of tests") {
             val events = mutableListOf<String>()
             val ctx = Context("root context") {
                 events.add("root context")
@@ -38,9 +40,11 @@ object ContextExecutorTest {
                 }
 
             }
-
             val testResultChannel = Channel<TestResult>(UNLIMITED)
-            expectThat(ContextExecutor(ctx, testResultChannel).execute()).isEqualTo(4)
+            @Suppress("BlockingMethodInNonBlockingContext")
+            runBlocking(Dispatchers.Unconfined) {
+                expectThat(ContextExecutor(ctx, testResultChannel, this).execute()).isEqualTo(4)
+            }
             expectThat(events).containsExactly(
                 "root context", "test 1",
                 "root context", "test 2",
@@ -53,6 +57,7 @@ object ContextExecutorTest {
             expectThat(testResultChannel.receive()).isA<Success>()
             expectThat(testResultChannel.receive()).isA<Success>()
             expectThat(testResultChannel.receive()).isA<Success>()
+
 
         }
         test("can close resources") {

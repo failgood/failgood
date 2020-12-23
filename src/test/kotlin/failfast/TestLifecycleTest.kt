@@ -6,6 +6,7 @@ import strikt.assertions.containsExactly
 fun main() {
     Suite(TestLifecycleTest.context).run().check(false)
 }
+
 object TestLifecycleTest {
     val context = context {
         test("test lifecycle") {
@@ -31,12 +32,16 @@ object TestLifecycleTest {
                         }
                     }
                 }
+                test("tests can be defined after contexts") {
+                    events.add("tests can be defined after contexts")
+                }
             }.run().check()
 
             expectThat(totalEvents).containsExactly(
                 listOf("root context", "test 1", "autoclosed"),
                 listOf("root context", "test 2", "autoclosed"),
-                listOf("root context", "context 1", "context 2", "test 3", "autoclosed")
+                listOf("root context", "context 1", "context 2", "test 3", "autoclosed"),
+                listOf("root context", "tests can be defined after contexts", "autoclosed")
             )
 
         }

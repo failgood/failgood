@@ -1,0 +1,4 @@
+* The test runner
+  - supports describe/it syntax
+  * contexts can be nested
+    subcontexts also contain tests

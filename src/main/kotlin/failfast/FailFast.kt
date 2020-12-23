@@ -89,11 +89,11 @@ fun describe(subjectDescription: String, function: ContextLambda): Context =
 interface ContextDSL {
     suspend fun test(name: String, function: TestLambda)
 
-    @Suppress("UNUSED_PARAMETER", "unused", "SpellCheckingInspection")
-    suspend fun xtest(ignoredTestName: String, function: TestLambda)
+    suspend fun test(ignoredTestName: String)
     suspend fun context(name: String, function: ContextLambda)
     fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T
     suspend fun it(behaviorDescription: String, function: TestLambda)
+    suspend fun it(behaviorDescription: String)
 }
 
 
@@ -189,7 +189,7 @@ class ContextExecutor(
             }
         }
 
-        override suspend fun xtest(ignoredTestName: String, function: TestLambda) {
+        override suspend fun test(ignoredTestName: String) {
             val testDescriptor = TestDescriptor(parentContexts, ignoredTestName)
             if (executedTests.add(testDescriptor))
                 testResultChannel.send(Ignored(testDescriptor))
@@ -220,6 +220,10 @@ class ContextExecutor(
 
         override suspend fun it(behaviorDescription: String, function: TestLambda) {
             test(behaviorDescription, function)
+        }
+
+        override suspend fun it(behaviorDescription: String) {
+            test(behaviorDescription)
         }
     }
 

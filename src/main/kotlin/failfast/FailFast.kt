@@ -26,9 +26,8 @@ class Suite(
         parallelism
     )
 
-    constructor(parallelism: Int = Runtime.getRuntime().availableProcessors(), function: ContextLambda) : this(
-        RootContext("root", function), parallelism
-    )
+    constructor(parallelism: Int = Runtime.getRuntime().availableProcessors(), function: ContextLambda)
+            : this(RootContext("root", function), parallelism)
 
     init {
         if (rootContexts.isEmpty()) throw EmptySuiteException()
@@ -99,18 +98,16 @@ data class SuiteResult(val allTests: List<TestResult>, val failedTests: Collecti
     val allOk = failedTests.isEmpty()
 
     fun check(throwException: Boolean = true) {
-        /*
         allTests.forEach {
             when (it) {
                 is Failed -> {
                     println("failed: " + it.test)
-                    println(it.throwable.stackTraceToString())
+                    println(it.failure.stackTraceToString())
                 }
                 is Success -> println("success: " + it.test)
                 is Ignored -> println("ignored: " + it.test)
             }
         }
-         */
         println("${allTests.size} tests")
         if (allOk)
             return
@@ -118,7 +115,7 @@ data class SuiteResult(val allTests: List<TestResult>, val failedTests: Collecti
             throw SuiteFailedException(failedTests)
         else {
             val message = failedTests.joinToString {
-                val testDescription = """${it.test.parentContexts.joinToString(">")} : ${it.test.testName}"""
+                val testDescription = it.test.toString()
                 val exceptionInfo = ExceptionPrettyPrinter().prettyPrint(it.failure)
 
                 "$testDescription failed with $exceptionInfo"
@@ -146,7 +143,15 @@ class Failed(val test: TestDescriptor, val failure: AssertionError) : TestResult
 }
 
 
-data class TestDescriptor(val parentContexts: List<String>, val testName: String)
+data class TestDescriptor(val parentContext: Context, val testName: String) {
+    override fun toString(): String {
+        return """$parentContext : $testName"""
+    }
+}
+
+data class Context(val name: String, val parent: Context?) {
+
+}
 
 class ContextExecutor(
     private val rootContext: RootContext,
@@ -154,18 +159,18 @@ class ContextExecutor(
     val scope: CoroutineScope
 ) {
 
-    private val finishedContexts = ConcurrentHashMap.newKeySet<List<String>>()!!
+    private val finishedContexts = ConcurrentHashMap.newKeySet<Context>()!!
     val executedTests = ConcurrentHashMap.newKeySet<TestDescriptor>()!!
 
 
-    inner class ContextVisitor(private val parentContexts: List<String>, private val resourcesCloser: ResourcesCloser) :
+    inner class ContextVisitor(private val parentContext: Context, private val resourcesCloser: ResourcesCloser) :
         ContextDSL {
         private var ranATest =
             false // we only run one test per instance so if this is true we don't invoke test lambdas
         var moreTestsLeft = false // are there more tests left to run?
 
         override suspend fun test(name: String, function: TestLambda) {
-            val testDescriptor = TestDescriptor(parentContexts, name)
+            val testDescriptor = TestDescriptor(parentContext, name)
             if (executedTests.contains(testDescriptor)) {
                 return
             } else if (!ranATest) {
@@ -188,7 +193,7 @@ class ContextExecutor(
         }
 
         override suspend fun test(ignoredTestName: String) {
-            val testDescriptor = TestDescriptor(parentContexts, ignoredTestName)
+            val testDescriptor = TestDescriptor(parentContext, ignoredTestName)
             if (executedTests.add(testDescriptor))
                 testResultChannel.send(Ignored(testDescriptor))
         }
@@ -198,7 +203,7 @@ class ContextExecutor(
                 moreTestsLeft = true // but we need to run the root context again to visit this child context
                 return
             }
-            val context = parentContexts + name
+            val context = Context(name, parentContext)
             if (finishedContexts.contains(context))
                 return
             val visitor = ContextVisitor(context, resourcesCloser)
@@ -229,7 +234,7 @@ class ContextExecutor(
         val function = rootContext.function
         while (true) {
             val resourcesCloser = ResourcesCloser()
-            val visitor = ContextVisitor(listOf(rootContext.name), resourcesCloser)
+            val visitor = ContextVisitor(Context(rootContext.name, null), resourcesCloser)
             visitor.function()
             if (!visitor.moreTestsLeft)
                 break

@@ -53,7 +53,7 @@ fun main() {
         Suite(
             listOf(
                 SuiteTest.context,
-                ContextTest.context,
+                RootContextTest.context,
                 TestLifecycleTest.context,
                 ContextExecutorTest.context,
                 ExceptionPrettyPrinterTest.context,

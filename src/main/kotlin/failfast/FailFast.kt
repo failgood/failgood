@@ -118,7 +118,7 @@ data class SuiteResult(val allTests: List<TestResult>, val failedTests: Collecti
             throw SuiteFailedException(failedTests)
         else {
             val message = failedTests.joinToString {
-                val testDescription = """${it.test.parentContexts.joinToString(">")} : ${it.test.name}"""
+                val testDescription = """${it.test.parentContexts.joinToString(">")} : ${it.test.testName}"""
                 val exceptionInfo = ExceptionPrettyPrinter().prettyPrint(it.failure)
 
                 "$testDescription failed with $exceptionInfo"
@@ -146,7 +146,7 @@ class Failed(val test: TestDescriptor, val failure: AssertionError) : TestResult
 }
 
 
-data class TestDescriptor(val parentContexts: List<String>, val name: String)
+data class TestDescriptor(val parentContexts: List<String>, val testName: String)
 
 class ContextExecutor(
     private val context: Context,

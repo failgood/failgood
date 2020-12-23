@@ -4,7 +4,7 @@ import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
 object ContextTest {
-    private val automaticallyNamedContext: Context = context {}
+    private val automaticallyNamedContext: RootContext = context {}
 
     val context = context {
         test("root context can get name from enclosing object") {

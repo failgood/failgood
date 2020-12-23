@@ -8,7 +8,7 @@ import strikt.assertions.isTrue
 
 object SuiteTest {
     val context = context {
-        val context = Context("one failing one passing test") {
+        val context = RootContext("one failing one passing test") {
             test("firstTest") {
                 expectThat(true).isTrue()
             }
@@ -31,7 +31,7 @@ object SuiteTest {
         test("Suite {} creates a root context") {
             expectThat(Suite {
                 test("test") {}
-            }.contexts.single().name).isEqualTo("root")
+            }.rootContexts.single().name).isEqualTo("root")
         }
 
     }

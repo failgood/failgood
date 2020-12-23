@@ -13,7 +13,7 @@ import strikt.assertions.isTrue
 object ContextExecutorTest {
     val context = context {
         test("returns the number of tests") {
-            val ctx = Context("root context") {
+            val ctx = RootContext("root context") {
                 test("test 1") {
                 }
                 test("test 2") {

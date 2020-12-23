@@ -18,20 +18,20 @@ import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
 
 class Suite(
-    val contexts: Collection<Context>,
+    val rootContexts: Collection<RootContext>,
     private val parallelism: Int = Runtime.getRuntime().availableProcessors()
 ) {
-    constructor(context: Context, parallelism: Int = Runtime.getRuntime().availableProcessors()) : this(
-        listOf(context),
+    constructor(rootContext: RootContext, parallelism: Int = Runtime.getRuntime().availableProcessors()) : this(
+        listOf(rootContext),
         parallelism
     )
 
     constructor(parallelism: Int = Runtime.getRuntime().availableProcessors(), function: ContextLambda) : this(
-        Context("root", function), parallelism
+        RootContext("root", function), parallelism
     )
 
     init {
-        if (contexts.isEmpty()) throw EmptySuiteException()
+        if (rootContexts.isEmpty()) throw EmptySuiteException()
     }
 
     fun run(): SuiteResult {
@@ -42,7 +42,7 @@ class Suite(
             threadPool.asCoroutineDispatcher().use { dispatcher ->
                 runBlocking(dispatcher) {
                     val totalTests =
-                        contexts.map {
+                        rootContexts.map {
                             async {
                                 try {
                                     withTimeout(20000) {
@@ -70,7 +70,7 @@ class Suite(
     }
 }
 
-data class Context(val name: String, val function: ContextLambda)
+data class RootContext(val name: String, val function: ContextLambda)
 
 class EmptySuiteException : FailFastException("suite can not be empty")
 
@@ -78,11 +78,11 @@ typealias ContextLambda = suspend ContextDSL.() -> Unit
 
 typealias TestLambda = suspend () -> Unit
 
-fun Any.context(function: ContextLambda): Context =
-    Context(this::class.simpleName ?: throw FailFastException("could not determine object name"), function)
+fun Any.context(function: ContextLambda): RootContext =
+    RootContext(this::class.simpleName ?: throw FailFastException("could not determine object name"), function)
 
-fun describe(subjectDescription: String, function: ContextLambda): Context =
-    Context(subjectDescription, function)
+fun describe(subjectDescription: String, function: ContextLambda): RootContext =
+    RootContext(subjectDescription, function)
 
 interface ContextDSL {
     suspend fun test(name: String, function: TestLambda)
@@ -149,7 +149,7 @@ class Failed(val test: TestDescriptor, val failure: AssertionError) : TestResult
 data class TestDescriptor(val parentContexts: List<String>, val testName: String)
 
 class ContextExecutor(
-    private val context: Context,
+    private val rootContext: RootContext,
     val testResultChannel: Channel<TestResult>,
     val scope: CoroutineScope
 ) {
@@ -226,10 +226,10 @@ class ContextExecutor(
     }
 
     suspend fun execute(): Int {
-        val function = context.function
+        val function = rootContext.function
         while (true) {
             val resourcesCloser = ResourcesCloser()
-            val visitor = ContextVisitor(listOf(context.name), resourcesCloser)
+            val visitor = ContextVisitor(listOf(rootContext.name), resourcesCloser)
             visitor.function()
             if (!visitor.moreTestsLeft)
                 break

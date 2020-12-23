@@ -54,7 +54,6 @@ class Suite(
                         }.awaitAll()
                             .sum()
                     val results = (0 until totalTests).map {
-                        System.out.flush()
                         testResultChannel.receive()
                     }
                     SuiteResult(results, results.filterIsInstance<Failed>())
@@ -145,12 +144,20 @@ class Failed(val test: TestDescriptor, val failure: AssertionError) : TestResult
 
 data class TestDescriptor(val parentContext: Context, val testName: String) {
     override fun toString(): String {
-        return """$parentContext : $testName"""
+        return """${parentContext.asStringWithPath()} : $testName"""
     }
 }
 
 data class Context(val name: String, val parent: Context?) {
-
+    fun asStringWithPath(): String {
+        val path = mutableListOf(this)
+        var ctx = this
+        while (true) {
+            ctx = ctx.parent ?: break
+            path.add(ctx)
+        }
+        return path.asReversed().joinToString(" > ") { it.name }
+    }
 }
 
 class ContextExecutor(

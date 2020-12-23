@@ -54,9 +54,7 @@ class Suite(
                             }
                         }.awaitAll()
                             .sum()
-                    println("total tests:$totalTests")
                     val results = (0 until totalTests).map {
-                        print(".")
                         System.out.flush()
                         testResultChannel.receive()
                     }
@@ -236,7 +234,6 @@ class ContextExecutor(
             if (!visitor.moreTestsLeft)
                 break
         }
-        println()
         return executedTests.size
     }
 }

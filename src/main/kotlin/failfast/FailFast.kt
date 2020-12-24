@@ -19,14 +19,14 @@ import kotlin.system.exitProcess
 
 class Suite(
     val rootContexts: Collection<RootContext>,
-    private val parallelism: Int = Runtime.getRuntime().availableProcessors()
+    private val parallelism: Int = cpus()
 ) {
-    constructor(rootContext: RootContext, parallelism: Int = Runtime.getRuntime().availableProcessors()) : this(
+    constructor(rootContext: RootContext, parallelism: Int = cpus()) : this(
         listOf(rootContext),
         parallelism
     )
 
-    constructor(parallelism: Int = Runtime.getRuntime().availableProcessors(), function: ContextLambda)
+    constructor(parallelism: Int = cpus(), function: ContextLambda)
             : this(RootContext("root", function), parallelism)
 
     init {
@@ -67,6 +67,8 @@ class Suite(
         }
     }
 }
+
+private fun cpus() = Runtime.getRuntime().availableProcessors() / 2
 
 data class RootContext(val name: String, val function: ContextLambda)
 

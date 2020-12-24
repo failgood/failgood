@@ -58,7 +58,8 @@ fun main() {
                 ContextExecutorTest.context,
                 ExceptionPrettyPrinterTest.context,
                 DescribeTest.context,
-                ContextTest.context
+                ContextTest.context,
+                TestFinderTest.context
             )
         ).run()
 

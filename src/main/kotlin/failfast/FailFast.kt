@@ -11,6 +11,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import java.lang.management.ManagementFactory
+import java.nio.file.FileVisitResult
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.nio.file.SimpleFileVisitor
+import java.nio.file.attribute.BasicFileAttributes
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
@@ -19,20 +25,34 @@ import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
 class Suite(
-    val rootContexts: Collection<RootContext>,
+    val rootContexts: Collection<ContextProvider>,
     private val parallelism: Int = cpus()
 ) {
+    companion object {
+        fun fromContexts(rootContexts: Collection<RootContext>, parallelism: Int = cpus()) = Suite(
+            rootContexts.map { ContextProvider { it } },
+            parallelism
+        )
+
+        fun fromClasses(classes: List<Class<*>>, parallelism: Int = cpus()) =
+            Suite(classes.map { ObjectContextProvider(it) }, parallelism)
+
+    }
+
+    init {
+        if (rootContexts.isEmpty()) throw EmptySuiteException()
+
+    }
+
+
     constructor(rootContext: RootContext, parallelism: Int = cpus()) : this(
-        listOf(rootContext),
+        listOf(ContextProvider { rootContext }),
         parallelism
     )
 
     constructor(parallelism: Int = cpus(), function: ContextLambda)
             : this(RootContext("root", function), parallelism)
 
-    init {
-        if (rootContexts.isEmpty()) throw EmptySuiteException()
-    }
 
     fun run(): SuiteResult {
         val testResultChannel = Channel<TestResult>(UNLIMITED)
@@ -44,12 +64,13 @@ class Suite(
                     val totalTests =
                         rootContexts.map {
                             async {
+                                val context = it.getContext()
                                 try {
                                     withTimeout(20000) {
-                                        ContextExecutor(it, testResultChannel, this).execute()
+                                        ContextExecutor(context, testResultChannel, this).execute()
                                     }
                                 } catch (e: TimeoutCancellationException) {
-                                    throw FailFastException("context ${it.name} timed out")
+                                    throw FailFastException("context ${context.name} timed out")
                                 }
                             }
                         }.awaitAll()
@@ -277,3 +298,23 @@ class ExceptionPrettyPrinter {
     }
 }
 
+
+object FailFast {
+    fun findTestClasses(suiteClass: KClass<*>, exclude: String? = null): List<Class<*>> {
+        val classloader = suiteClass.java.classLoader
+        val root = Paths.get(suiteClass.java.protectionDomain.codeSource.location.path)
+        val results = mutableListOf<Class<*>>()
+        Files.walkFileTree(root, object : SimpleFileVisitor<Path>() {
+            override fun visitFile(file: Path?, attrs: BasicFileAttributes?): FileVisitResult {
+                val path = root.relativize(file!!).toString()
+                if (path.endsWith("Test.class") && (exclude == null || !path.contains(exclude))) {
+                    val jClass = classloader.loadClass(path.substringBefore(".class").replace("/", "."))
+                    results.add(jClass)
+                }
+                return super.visitFile(file, attrs)
+            }
+
+        })
+        return results
+    }
+}

@@ -50,18 +50,8 @@ fun main() {
     println("bootstrapped after: ${uptime()}ms")
 
     val suiteResults =
-        Suite(
-            listOf(
-                SuiteTest.context,
-                RootContextTest.context,
-                TestLifecycleTest.context,
-                ContextExecutorTest.context,
-                ExceptionPrettyPrinterTest.context,
-                DescribeTest.context,
-                ContextTest.context,
-                TestFinderTest.context,
-                ObjectContextProviderTest.context
-            )
+        Suite.fromClasses(
+            FailFast.findTestClasses(RootContextTest::class, exclude = "MultiThreading")
         ).run()
 
     val uptime = uptime()

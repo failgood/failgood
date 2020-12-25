@@ -23,7 +23,7 @@ object SuiteTest {
             }
         }
         test("Suite is stateless") {
-            val suite = Suite(contexts)
+            val suite = Suite.fromContexts(contexts)
             // both run calls have to be on the same line to make the exception stacktrace equal
             val (firstRun, secondRun) = listOf(suite.run(), suite.run())
             expectThat(firstRun).isEqualTo(secondRun)
@@ -31,7 +31,7 @@ object SuiteTest {
         test("Suite {} creates a root context") {
             expectThat(Suite {
                 test("test") {}
-            }.rootContexts.single().name).isEqualTo("root")
+            }.rootContexts.single().getContext().name).isEqualTo("root")
         }
 
     }

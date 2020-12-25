@@ -63,9 +63,10 @@ fun main() {
             )
         ).run()
 
-    println("finished after: ${uptime()}ms. ran ${suiteResults.allTests.count()} main tests and ${results.allTests.count()} bootstrap tests")
-    expectThat(uptime()).isLessThan(1000) // lets see how far we can get with one second
+    val uptime = uptime()
+    expectThat(uptime).isLessThan(1000) // lets see how far we can get with one second
     suiteResults.check(false)
+    println("finished after: ${uptime}ms. ran ${suiteResults.allTests.count()} main tests and ${results.allTests.count()} bootstrap tests")
 }
 
 private fun uptime() = ManagementFactory.getRuntimeMXBean().uptime

@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
 class Suite(
@@ -83,6 +84,9 @@ fun Any.context(function: ContextLambda): RootContext =
 
 fun describe(subjectDescription: String, function: ContextLambda): RootContext =
     RootContext(subjectDescription, function)
+
+fun describe(subjectType: KClass<*>, function: ContextLambda): RootContext =
+    RootContext("the ${subjectType.simpleName!!}", function)
 
 interface ContextDSL {
     suspend fun test(name: String, function: TestLambda)

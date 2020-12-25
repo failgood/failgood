@@ -19,7 +19,7 @@ object TestFinderTest {
     val context = describe("test finder") {
         it("can find Test classes") {
             println(measureTimeMillis {
-                expectThat(findClasses(TestFinderTest::class)).hasSize(9)
+                expectThat(findClasses(TestFinderTest::class)).hasSize(10)
             })
         }
     }
@@ -35,8 +35,6 @@ fun findClasses(suiteClass: KClass<*>): List<KClass<*>> {
             if (path.endsWith("Test.class")) {
                 val kClass = classloader.loadClass(path.substringBefore(".class").replace("/", ".")).kotlin
                 results.add(kClass)
-//                @Suppress("UNUSED_VARIABLE") val contextField =
-//                    kClass.declaredMemberProperties.single { it.name == "context" }.call(kClass.objectInstance)
             }
             return super.visitFile(file, attrs)
         }

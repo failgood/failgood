@@ -12,7 +12,7 @@ object TestFinderTest {
     val context = describe("test finder") {
         it("can find Test classes") {
             println(measureTimeMillis {
-                expectThat(FailFast.findTestClasses(TestFinderTest::class)).hasSize(10)
+                expectThat(FailFast.findTestClasses(TestFinderTest::class)).hasSize(12)
             })
         }
     }

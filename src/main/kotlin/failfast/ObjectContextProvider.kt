@@ -6,13 +6,13 @@ fun interface ContextProvider {
 
 class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvider {
     override fun getContext(): RootContext {
-        try {
+        return try {
             val instanceField = jClass.getDeclaredField("INSTANCE")
             val obj = instanceField.get(null)
-            return jClass.getDeclaredMethod("getContext").invoke(obj) as RootContext
+            jClass.getDeclaredMethod("getContext").invoke(obj) as RootContext
         } catch (e: Exception) {
             try {
-                return jClass.getDeclaredMethod("getContext").invoke(null) as RootContext
+                jClass.getDeclaredMethod("getContext").invoke(null) as RootContext
             } catch (e: Exception) {
                 throw FailFastException("no idea how to find context in $jClass. declared fields:${jClass.declaredFields.joinToString { it.name }}")
             }

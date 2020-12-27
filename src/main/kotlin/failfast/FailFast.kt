@@ -78,6 +78,7 @@ class Suite(
                     val results = (0 until totalTests).map {
                         testResultChannel.receive()
                     }
+                    testResultChannel.close()
                     SuiteResult(results, results.filterIsInstance<Failed>())
                 }
             }

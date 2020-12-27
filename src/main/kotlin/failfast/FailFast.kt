@@ -14,10 +14,8 @@ import kotlin.system.exitProcess
 
 data class ContextInfo(val context: Context, val tests: Int)
 
-
 data class RootContext(val name: String, val function: ContextLambda)
 
-class EmptySuiteException : FailFastException("suite can not be empty")
 
 typealias ContextLambda = suspend ContextDSL.() -> Unit
 
@@ -81,29 +79,12 @@ data class SuiteResult(
     }
 }
 
-open class FailFastException(override val message: String) : RuntimeException(message)
-class SuiteFailedException : FailFastException("test failed")
 
-sealed class TestResult {
-    abstract val test: TestDescriptor
-}
-
-data class Success(override val test: TestDescriptor) : TestResult()
-data class Ignored(override val test: TestDescriptor) : TestResult()
-class Failed(override val test: TestDescriptor, val failure: AssertionError) : TestResult() {
-    override fun equals(other: Any?): Boolean {
-        return (other is Failed)
-                && test == other.test
-                && failure.stackTraceToString() == other.failure.stackTraceToString()
-    }
-
-    override fun hashCode(): Int = test.hashCode() * 31 + failure.stackTraceToString().hashCode()
-}
 
 
 data class TestDescriptor(val parentContext: Context, val testName: String) {
     override fun toString(): String {
-        return """${parentContext.asStringWithPath()} : $testName"""
+        return "${parentContext.asStringWithPath()} : $testName"
     }
 }
 

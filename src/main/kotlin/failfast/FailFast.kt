@@ -148,7 +148,7 @@ data class SuiteResult(
         if (allOk)
             return
         if (throwException)
-            throw SuiteFailedException(failedTests)
+            throw SuiteFailedException()
         else {
             val message = failedTests.joinToString {
                 val testDescription = it.test.toString()
@@ -163,7 +163,7 @@ data class SuiteResult(
 }
 
 open class FailFastException(override val message: String) : RuntimeException(message)
-class SuiteFailedException(private val failedTests: Collection<Failed>) : FailFastException("test failed")
+class SuiteFailedException : FailFastException("test failed")
 
 sealed class TestResult {
     abstract val test: TestDescriptor

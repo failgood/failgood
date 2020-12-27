@@ -1,16 +1,9 @@
 package failfast
 
+import failfast.internal.ExceptionPrettyPrinter
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
-import java.lang.management.ManagementFactory
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.Path
@@ -20,81 +13,12 @@ import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileTime
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
-class Suite(
-    val rootContexts: Collection<ContextProvider>,
-    private val parallelism: Int = cpus()
-) {
-    companion object {
-        fun fromContexts(rootContexts: Collection<RootContext>, parallelism: Int = cpus()) = Suite(
-            rootContexts.map { ContextProvider { it } },
-            parallelism
-        )
-
-        fun fromClasses(classes: List<Class<*>>, parallelism: Int = cpus()) =
-            Suite(classes.map { ObjectContextProvider(it) }, parallelism)
-
-    }
-
-    init {
-        if (rootContexts.isEmpty()) throw EmptySuiteException()
-    }
-
-
-    constructor(rootContext: RootContext, parallelism: Int = cpus()) : this(
-        listOf(ContextProvider { rootContext }),
-        parallelism
-    )
-
-    constructor(parallelism: Int = cpus(), function: ContextLambda)
-            : this(RootContext("root", function), parallelism)
-
-
-    fun run(): SuiteResult {
-        val threadPool =
-            if (parallelism > 1) Executors.newWorkStealingPool(parallelism) else Executors.newSingleThreadExecutor()
-        return try {
-            threadPool.asCoroutineDispatcher().use { dispatcher ->
-                runBlocking(dispatcher) {
-                    val testResultChannel = Channel<TestResult>(UNLIMITED)
-                    val contextInfos =
-                        rootContexts.map {
-                            async {
-                                val context = it.getContext()
-                                val tests = try {
-                                    withTimeout(20000) {
-                                        ContextExecutor(context, testResultChannel, this).execute()
-                                    }
-                                } catch (e: TimeoutCancellationException) {
-                                    throw FailFastException("context ${context.name} timed out")
-                                }
-                                ContextInfo(Context(context.name, null), tests)
-                            }
-                        }.awaitAll()
-                    val totalTests = contextInfos.sumBy { it.tests }
-                    val results = (0 until totalTests).map {
-                        testResultChannel.receive()
-                    }
-                    testResultChannel.close()
-                    SuiteResult(results, results.filterIsInstance<Failed>(), contextInfos)
-                }
-            }
-        } finally {
-            val threadPoolInfo = threadPool.toString()
-            threadPool.awaitTermination(100, TimeUnit.SECONDS)
-            threadPool.shutdown()
-            println("finished after: ${ManagementFactory.getRuntimeMXBean().uptime}. threadpool: $threadPoolInfo")
-        }
-    }
-}
-
 data class ContextInfo(val context: Context, val tests: Int)
 
-private fun cpus() = Runtime.getRuntime().availableProcessors() / 2
 
 data class RootContext(val name: String, val function: ContextLambda)
 
@@ -200,7 +124,7 @@ data class Context(val name: String, val parent: Context?) {
     }
 }
 
-class ContextExecutor(
+internal class ContextExecutor(
     private val rootContext: RootContext,
     val testResultChannel: Channel<TestResult>,
     val scope: CoroutineScope
@@ -305,14 +229,6 @@ class ResourcesCloser {
 
     private val closeables = ConcurrentLinkedQueue<AutoCloseable>()
 
-}
-
-class ExceptionPrettyPrinter {
-    fun prettyPrint(assertionError: AssertionError): String {
-        val stackTrace =
-            assertionError.stackTrace.filter { it.lineNumber > 0 }.dropLastWhile { it.fileName != "FailFast.kt" }
-        return "${assertionError.message} ${stackTrace.joinToString("\t\n")}"
-    }
 }
 
 

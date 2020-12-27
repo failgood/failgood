@@ -1,6 +1,7 @@
 package failfast
 
 import failfast.docs.ObjectTestContextTest
+import failfast.internal.ExceptionPrettyPrinterTest
 import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
 import kotlin.system.measureTimeMillis

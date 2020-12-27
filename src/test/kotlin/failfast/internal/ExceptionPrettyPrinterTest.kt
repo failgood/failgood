@@ -1,5 +1,6 @@
-package failfast
+package failfast.internal
 
+import failfast.describe
 import strikt.api.expectThat
 import strikt.assertions.matches
 import strikt.assertions.startsWith

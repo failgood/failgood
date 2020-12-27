@@ -21,7 +21,7 @@ object TestFinderTest {
                         ContextTest::class.java,
                         DescribeTest::class.java,
                         ExceptionPrettyPrinterTest::class.java,
-                        MultiThreadingPerformanceTest::class.java,
+//                        MultiThreadingPerformanceTestNotAlways::class.java,
                         RootContextTest::class.java,
                         SuiteTest::class.java,
                         TestFinderTest::class.java,

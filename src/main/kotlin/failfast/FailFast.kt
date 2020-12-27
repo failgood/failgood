@@ -17,6 +17,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
+import java.nio.file.attribute.FileTime
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
@@ -300,14 +301,18 @@ class ExceptionPrettyPrinter {
 
 
 object FailFast {
-    fun findTestClasses(suiteClass: KClass<*>, exclude: String? = null): List<Class<*>> {
+    private val oldestPossibleFileTime = FileTime.from(0, TimeUnit.SECONDS)!!
+    fun findTestClasses(suiteClass: KClass<*>, exclude: String? = null, newerThan: FileTime? = null): List<Class<*>> {
+        val compareTo = newerThan ?: oldestPossibleFileTime
         val classloader = suiteClass.java.classLoader
         val root = Paths.get(suiteClass.java.protectionDomain.codeSource.location.path)
         val results = mutableListOf<Class<*>>()
         Files.walkFileTree(root, object : SimpleFileVisitor<Path>() {
             override fun visitFile(file: Path?, attrs: BasicFileAttributes?): FileVisitResult {
                 val path = root.relativize(file!!).toString()
-                if (path.endsWith("Test.class") && (exclude == null || !path.contains(exclude))) {
+                if (path.endsWith("Test.class") && attrs!!.lastModifiedTime() > compareTo
+                    && (exclude == null || !path.contains(exclude))
+                ) {
                     val jClass = classloader.loadClass(path.substringBefore(".class").replace("/", "."))
                     results.add(jClass)
                 }

@@ -111,7 +111,7 @@ fun describe(subjectDescription: String, function: ContextLambda): RootContext =
     RootContext(subjectDescription, function)
 
 fun describe(subjectType: KClass<*>, function: ContextLambda): RootContext =
-    RootContext("the ${subjectType.simpleName!!}", function)
+    RootContext(subjectType.simpleName!!, function)
 
 interface ContextDSL {
     suspend fun test(name: String, function: TestLambda)

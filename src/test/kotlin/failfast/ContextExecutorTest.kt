@@ -11,7 +11,7 @@ import strikt.assertions.isEqualTo
 import strikt.assertions.isTrue
 
 object ContextExecutorTest {
-    val context = context {
+    val context = describe(ContextExecutor::class) {
         test("returns the number of tests") {
             val ctx = RootContext("root context") {
                 test("test 1") {

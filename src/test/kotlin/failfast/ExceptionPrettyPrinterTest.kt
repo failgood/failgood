@@ -5,7 +5,7 @@ import strikt.assertions.matches
 import strikt.assertions.startsWith
 
 object ExceptionPrettyPrinterTest {
-    val context = context {
+    val context = describe(ExceptionPrettyPrinter::class) {
         test("shortens assertion errors") {
             val epp = ExceptionPrettyPrinter()
             expectThat(epp.prettyPrint(AssertionError("cause"))) {

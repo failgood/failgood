@@ -59,7 +59,7 @@ publishing {
 tasks.wrapper { distributionType = Wrapper.DistributionType.ALL }
 
 val testMain = task("testMain", JavaExec::class) {
-    main = "failfast.FailFastBootstrapTestKt"
+    main = "failfast.FailFastBootstrapKt"
     classpath = sourceSets["test"].runtimeClasspath
 }
 

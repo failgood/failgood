@@ -11,3 +11,4 @@ out/
 /.idea/.*
 /.idea/*.xml
 /*.iml
+/.autotest.failfast

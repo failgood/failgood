@@ -125,6 +125,7 @@ data class SuiteResult(val allTests: List<TestResult>, val failedTests: Collecti
     val allOk = failedTests.isEmpty()
 
     fun check(throwException: Boolean = true) {
+        /*
         allTests.forEach {
             when (it) {
                 is Failed -> {
@@ -134,7 +135,8 @@ data class SuiteResult(val allTests: List<TestResult>, val failedTests: Collecti
                 is Success -> println("success: " + it.test)
                 is Ignored -> println("ignored: " + it.test)
             }
-        }
+        }*/
+        println(ContextTreeReporter(allTests).stringReport().joinToString("\n"))
         println("${allTests.size} tests")
         if (allOk)
             return

@@ -3,7 +3,6 @@ package failfast
 import strikt.api.expectThat
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
-import kotlin.system.measureTimeMillis
 
 fun main() {
     Suite(ObjectContextProviderTest.context).run()

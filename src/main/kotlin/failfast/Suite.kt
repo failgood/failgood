@@ -79,6 +79,13 @@ class Suite(
 
 }
 
-internal fun uptime() = ManagementFactory.getRuntimeMXBean().uptime
+internal fun uptime(): String {
+    val operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean() as com.sun.management.OperatingSystemMXBean
+    val uptime = ManagementFactory.getRuntimeMXBean().uptime
+    val cpuTime = operatingSystemMXBean.processCpuTime / 1000000
+    val percentage = cpuTime * 100 / uptime
+    return "total:${uptime} cpu:${cpuTime}ms, pct:${percentage}%"
+}
 
 private fun cpus() = Runtime.getRuntime().availableProcessors() / 2
+

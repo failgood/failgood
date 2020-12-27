@@ -65,8 +65,11 @@ data class SuiteResult(
             }
         }*/
         println(ContextTreeReporter(allTests, contextInfos.flatMap { it.contexts }).stringReport().joinToString("\n"))
-        if (allOk)
+        if (allOk) {
+            println("${allTests.size} tests. time: ${uptime()}")
             return
+
+        }
         if (throwException)
             throw SuiteFailedException()
         else {
@@ -77,7 +80,7 @@ data class SuiteResult(
                 "$testDescription failed with $exceptionInfo"
             }
             println(message)
-            println("${allTests.size} tests. ${failedTests.size} failed. uptime: ${uptime()}")
+            println("${allTests.size} tests. ${failedTests.size} failed. total time: ${uptime()}")
             exitProcess(-1)
         }
     }

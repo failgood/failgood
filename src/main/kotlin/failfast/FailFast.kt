@@ -42,7 +42,6 @@ class Suite(
 
     init {
         if (rootContexts.isEmpty()) throw EmptySuiteException()
-
     }
 
 
@@ -56,12 +55,12 @@ class Suite(
 
 
     fun run(): SuiteResult {
-        val testResultChannel = Channel<TestResult>(UNLIMITED)
         val threadPool =
             if (parallelism > 1) Executors.newWorkStealingPool(parallelism) else Executors.newSingleThreadExecutor()
         return try {
             threadPool.asCoroutineDispatcher().use { dispatcher ->
                 runBlocking(dispatcher) {
+                    val testResultChannel = Channel<TestResult>(UNLIMITED)
                     val totalTests =
                         rootContexts.map {
                             async {

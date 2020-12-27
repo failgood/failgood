@@ -61,25 +61,26 @@ class Suite(
             threadPool.asCoroutineDispatcher().use { dispatcher ->
                 runBlocking(dispatcher) {
                     val testResultChannel = Channel<TestResult>(UNLIMITED)
-                    val totalTests =
+                    val contextInfos =
                         rootContexts.map {
                             async {
                                 val context = it.getContext()
-                                try {
+                                val tests = try {
                                     withTimeout(20000) {
                                         ContextExecutor(context, testResultChannel, this).execute()
                                     }
                                 } catch (e: TimeoutCancellationException) {
                                     throw FailFastException("context ${context.name} timed out")
                                 }
+                                ContextInfo(Context(context.name, null), tests)
                             }
                         }.awaitAll()
-                            .sum()
+                    val totalTests = contextInfos.sumBy { it.tests }
                     val results = (0 until totalTests).map {
                         testResultChannel.receive()
                     }
                     testResultChannel.close()
-                    SuiteResult(results, results.filterIsInstance<Failed>())
+                    SuiteResult(results, results.filterIsInstance<Failed>(), contextInfos)
                 }
             }
         } finally {
@@ -90,6 +91,8 @@ class Suite(
         }
     }
 }
+
+data class ContextInfo(val context: Context, val tests: Int)
 
 private fun cpus() = Runtime.getRuntime().availableProcessors() / 2
 
@@ -121,7 +124,11 @@ interface ContextDSL {
 }
 
 
-data class SuiteResult(val allTests: List<TestResult>, val failedTests: Collection<Failed>) {
+data class SuiteResult(
+    val allTests: List<TestResult>,
+    val failedTests: Collection<Failed>,
+    val contextInfos: List<ContextInfo>
+) {
     val allOk = failedTests.isEmpty()
 
     fun check(throwException: Boolean = true) {
@@ -136,7 +143,7 @@ data class SuiteResult(val allTests: List<TestResult>, val failedTests: Collecti
                 is Ignored -> println("ignored: " + it.test)
             }
         }*/
-        println(ContextTreeReporter(allTests).stringReport().joinToString("\n"))
+        println(ContextTreeReporter(allTests, contextInfos.map { it.context }).stringReport().joinToString("\n"))
         println("${allTests.size} tests")
         if (allOk)
             return

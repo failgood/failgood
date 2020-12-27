@@ -13,7 +13,7 @@ object ContextTreeReporterTest {
                 listOf(
                     Success(TestDescriptor(rootContext, "supports describe/it syntax")),
                     Success(TestDescriptor(subContext, "subcontexts also contain tests"))
-                ), listOf(rootContext)
+                ), listOf(rootContext, subContext)
             )
             expectThat(reporter.stringReport()).containsExactly(
                 listOf(
@@ -28,7 +28,7 @@ object ContextTreeReporterTest {
             val reporter = ContextTreeReporter(
                 listOf(
                     Success(TestDescriptor(subContext, "subcontexts also contain tests"))
-                ), listOf(rootContext)
+                ), listOf(rootContext, subContext)
             )
             expectThat(reporter.stringReport()).containsExactly(
                 listOf(
@@ -38,11 +38,11 @@ object ContextTreeReporterTest {
                 )
             )
         }
-        itWill("output empty context") {
+        it("outputs empty context") {
             val reporter = ContextTreeReporter(
                 listOf(
                     Success(TestDescriptor(subSubContext, "subcontexts also contain tests"))
-                ), listOf(rootContext)
+                ), listOf(rootContext, subContext, subSubContext)
             )
             expectThat(reporter.stringReport()).containsExactly(
                 listOf(

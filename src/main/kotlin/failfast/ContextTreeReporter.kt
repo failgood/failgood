@@ -1,9 +1,10 @@
 package failfast
 
-class ContextTreeReporter(private val results: List<TestResult>, private val rootContexts: List<Context>) {
+class ContextTreeReporter(results: List<TestResult>, private val allContexts: List<Context>) {
+    private val contextMap = results.groupBy { it.test.parentContext }
     fun stringReport(): List<String> {
         val result = mutableListOf<String>()
-        val contextMap = results.groupBy { it.test.parentContext }
+        val rootContexts = allContexts.filter { it.parent == null }
         printContext(rootContexts, result, contextMap, 0)
         return result
 
@@ -22,7 +23,7 @@ class ContextTreeReporter(private val results: List<TestResult>, private val roo
             tests?.forEach { testResult ->
                 result.add("$indentString - ${testResult.test.testName}")
             }
-            val childContests = contextMap.keys.filter { it.parent == context }
+            val childContests = allContexts.filter { it.parent == context }
             if (childContests.isNotEmpty())
                 printContext(childContests, result, contextMap, indent + 1)
         }

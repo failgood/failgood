@@ -62,6 +62,10 @@ val testMain = task("testMain", JavaExec::class) {
     main = "failfast.FailFastBootstrapKt"
     classpath = sourceSets["test"].runtimeClasspath
 }
+task("autotest", JavaExec::class) {
+    main = "failfast.AutoTestMainKt"
+    classpath = sourceSets["test"].runtimeClasspath
+}
 
 tasks.check {
     dependsOn(testMain)

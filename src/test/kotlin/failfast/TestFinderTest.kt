@@ -26,7 +26,8 @@ object TestFinderTest {
                         SuiteTest::class.java,
                         TestFinderTest::class.java,
                         ObjectContextProviderTest::class.java,
-                        TestLifecycleTest::class.java
+                        TestLifecycleTest::class.java,
+                        ContextTreeReporterTest::class.java
                     )
             })
         }

@@ -156,10 +156,13 @@ data class SuiteResult(val allTests: List<TestResult>, val failedTests: Collecti
 open class FailFastException(override val message: String) : RuntimeException(message)
 class SuiteFailedException(private val failedTests: Collection<Failed>) : FailFastException("test failed")
 
-sealed class TestResult
-data class Success(val test: TestDescriptor) : TestResult()
-data class Ignored(val test: TestDescriptor) : TestResult()
-class Failed(val test: TestDescriptor, val failure: AssertionError) : TestResult() {
+sealed class TestResult {
+    abstract val test: TestDescriptor
+}
+
+data class Success(override val test: TestDescriptor) : TestResult()
+data class Ignored(override val test: TestDescriptor) : TestResult()
+class Failed(override val test: TestDescriptor, val failure: AssertionError) : TestResult() {
     override fun equals(other: Any?): Boolean {
         return (other is Failed)
                 && test == other.test

@@ -5,6 +5,6 @@ class ExceptionPrettyPrinter {
         val stackTrace =
             assertionError.stackTrace.filter { it.lineNumber > 0 }
                 .dropLastWhile { !it.className.startsWith("failfast") }
-        return "${assertionError.message} ${stackTrace.joinToString("\t\n")}"
+        return "${assertionError.javaClass.name} : ${assertionError.message}\n\tat ${stackTrace.joinToString("\n\tat ")}"
     }
 }

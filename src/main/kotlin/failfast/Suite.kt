@@ -73,9 +73,12 @@ class Suite(
             val threadPoolInfo = threadPool.toString()
             threadPool.awaitTermination(100, TimeUnit.SECONDS)
             threadPool.shutdown()
-            println("finished after: ${ManagementFactory.getRuntimeMXBean().uptime}. threadpool: $threadPoolInfo")
+            println("finished after: ${uptime()}. threadpool: $threadPoolInfo")
         }
     }
+
 }
+
+internal fun uptime() = ManagementFactory.getRuntimeMXBean().uptime
 
 private fun cpus() = Runtime.getRuntime().availableProcessors() / 2

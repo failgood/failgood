@@ -9,9 +9,10 @@ object ExceptionPrettyPrinterTest {
     val context = describe(ExceptionPrettyPrinter::class) {
         test("shortens assertion errors") {
             val epp = ExceptionPrettyPrinter()
-            expectThat(epp.prettyPrint(AssertionError("cause"))) {
+            val assertionError = AssertionError("cause")
+            expectThat(epp.prettyPrint(assertionError)) {
                 matches(Regex(".*ContextExecutor.kt:\\d*\\)$", RegexOption.DOT_MATCHES_ALL))
-                startsWith("cause")
+                startsWith(assertionError.javaClass.name)
 
             }
         }

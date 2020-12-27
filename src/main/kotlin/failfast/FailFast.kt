@@ -24,6 +24,10 @@ typealias TestLambda = suspend () -> Unit
 fun Any.context(function: ContextLambda): RootContext =
     RootContext(this::class.simpleName ?: throw FailFastException("could not determine object name"), function)
 
+fun context(description: String, function: ContextLambda): RootContext =
+    RootContext(description, function)
+
+
 fun describe(subjectDescription: String, function: ContextLambda): RootContext =
     RootContext(subjectDescription, function)
 

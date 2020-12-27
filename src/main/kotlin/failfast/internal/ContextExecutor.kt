@@ -5,7 +5,6 @@ import failfast.ContextDSL
 import failfast.ContextLambda
 import failfast.Failed
 import failfast.Ignored
-import failfast.ResourcesCloser
 import failfast.RootContext
 import failfast.Success
 import failfast.TestDescriptor

@@ -8,7 +8,6 @@ import java.nio.file.Paths
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileTime
-import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
@@ -118,19 +117,6 @@ data class Context(val name: String, val parent: Context?) {
         }
         return path.asReversed().joinToString(" > ") { it.name }
     }
-}
-
-class ResourcesCloser {
-    fun add(autoCloseable: AutoCloseable) {
-        closeables.add(autoCloseable)
-    }
-
-    fun close() {
-        closeables.forEach { it.close() }
-    }
-
-    private val closeables = ConcurrentLinkedQueue<AutoCloseable>()
-
 }
 
 

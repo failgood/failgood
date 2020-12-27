@@ -115,12 +115,12 @@ fun describe(subjectType: KClass<*>, function: ContextLambda): RootContext =
 
 interface ContextDSL {
     suspend fun test(name: String, function: TestLambda)
-
     suspend fun test(ignoredTestName: String)
     suspend fun context(name: String, function: ContextLambda)
     fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T
     suspend fun it(behaviorDescription: String, function: TestLambda)
-    suspend fun it(behaviorDescription: String)
+    suspend fun itWill(behaviorDescription: String)
+    suspend fun itWill(behaviorDescription: String, function: TestLambda)
 }
 
 
@@ -272,7 +272,11 @@ class ContextExecutor(
             test(behaviorDescription, function)
         }
 
-        override suspend fun it(behaviorDescription: String) {
+        override suspend fun itWill(behaviorDescription: String) {
+            test(behaviorDescription)
+        }
+
+        override suspend fun itWill(behaviorDescription: String, function: TestLambda) {
             test(behaviorDescription)
         }
     }

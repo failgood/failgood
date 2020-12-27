@@ -7,6 +7,7 @@ object ContextTreeReporterTest {
     val context = describe(ContextTreeReporter::class) {
         val rootContext = Context("the test runner", null)
         val subContext = Context("contexts can be nested", rootContext)
+        val subSubContext = Context("deeper", subContext)
         it("outputs test results in tree form") {
             val reporter = ContextTreeReporter(
                 listOf(
@@ -34,6 +35,21 @@ object ContextTreeReporterTest {
                     "* the test runner",
                     " * contexts can be nested",
                     "  - subcontexts also contain tests"
+                )
+            )
+        }
+        itWill("output empty context") {
+            val reporter = ContextTreeReporter(
+                listOf(
+                    Success(TestDescriptor(subSubContext, "subcontexts also contain tests"))
+                ), listOf(rootContext)
+            )
+            expectThat(reporter.stringReport()).containsExactly(
+                listOf(
+                    "* the test runner",
+                    " * contexts can be nested",
+                    "  * deeper",
+                    "   - subcontexts also contain tests"
                 )
             )
         }

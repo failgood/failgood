@@ -10,13 +10,13 @@ class ContextTreeReporter(private val results: List<TestResult>, private val roo
     }
 
     private fun printContext(
-        rootContexts: List<Context>,
+        contexts: List<Context>,
         result: MutableList<String>,
         contextMap: Map<Context, List<TestResult>>,
         indent: Int
     ) {
         val indentString = " ".repeat(indent)
-        rootContexts.forEach { context ->
+        contexts.forEach { context ->
             result.add("$indentString* ${context.name}")
             val tests = contextMap[context]
             tests?.forEach { testResult ->

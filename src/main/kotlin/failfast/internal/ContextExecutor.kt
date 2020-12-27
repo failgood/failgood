@@ -15,6 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedQueue
 
 internal class ContextExecutor(
     private val rootContext: RootContext,
@@ -26,7 +27,10 @@ internal class ContextExecutor(
     val executedTests = ConcurrentHashMap.newKeySet<TestDescriptor>()!!
 
 
-    inner class ContextVisitor(private val parentContext: Context, private val resourcesCloser: ResourcesCloser) :
+    private inner class ContextVisitor(
+        private val parentContext: Context,
+        private val resourcesCloser: ResourcesCloser
+    ) :
         ContextDSL {
         private var ranATest =
             false // we only run one test per instance so if this is true we don't invoke test lambdas
@@ -110,4 +114,16 @@ internal class ContextExecutor(
         finishedContexts.add(rootContext)
         return ContextInfo(finishedContexts, executedTests.size)
     }
+}
+
+private class ResourcesCloser {
+    fun add(autoCloseable: AutoCloseable) {
+        closeables.add(autoCloseable)
+    }
+
+    fun close() {
+        closeables.forEach { it.close() }
+    }
+
+    private val closeables = ConcurrentLinkedQueue<AutoCloseable>()
 }

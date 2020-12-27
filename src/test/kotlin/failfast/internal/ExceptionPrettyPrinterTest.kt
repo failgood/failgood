@@ -10,7 +10,7 @@ object ExceptionPrettyPrinterTest {
         test("shortens assertion errors") {
             val epp = ExceptionPrettyPrinter()
             expectThat(epp.prettyPrint(AssertionError("cause"))) {
-                matches(Regex(".*FailFast.kt:\\d*\\)$", RegexOption.DOT_MATCHES_ALL))
+                matches(Regex(".*ContextExecutor.kt:\\d*\\)$", RegexOption.DOT_MATCHES_ALL))
                 startsWith("cause")
 
             }

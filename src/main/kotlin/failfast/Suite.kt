@@ -1,5 +1,6 @@
 package failfast
 
+import failfast.internal.ContextExecutor
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async

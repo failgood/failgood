@@ -1,5 +1,6 @@
 package failfast
 
+import failfast.internal.ContextExecutor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED

@@ -52,14 +52,13 @@ class Suite(
                         rootContexts.map {
                             async {
                                 val context = it.getContext()
-                                val tests = try {
+                                try {
                                     withTimeout(20000) {
                                         ContextExecutor(context, testResultChannel, this).execute()
                                     }
                                 } catch (e: TimeoutCancellationException) {
                                     throw FailFastException("context ${context.name} timed out")
                                 }
-                                ContextInfo(Context(context.name, null), tests)
                             }
                         }.awaitAll()
                     val totalTests = contextInfos.sumBy { it.tests }

@@ -2,6 +2,7 @@ package failfast.internal
 
 import failfast.Context
 import failfast.ContextDSL
+import failfast.ContextInfo
 import failfast.ContextLambda
 import failfast.Failed
 import failfast.Ignored
@@ -96,15 +97,17 @@ internal class ContextExecutor(
         }
     }
 
-    suspend fun execute(): Int {
+    suspend fun execute(): ContextInfo {
         val function = rootContext.function
+        val rootContext = Context(rootContext.name, null)
         while (true) {
             val resourcesCloser = ResourcesCloser()
-            val visitor = ContextVisitor(Context(rootContext.name, null), resourcesCloser)
+            val visitor = ContextVisitor(rootContext, resourcesCloser)
             visitor.function()
             if (!visitor.moreTestsLeft)
                 break
         }
-        return executedTests.size
+        finishedContexts.add(rootContext)
+        return ContextInfo(finishedContexts, executedTests.size)
     }
 }

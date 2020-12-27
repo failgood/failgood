@@ -7,13 +7,14 @@ import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.runBlocking
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
+import strikt.assertions.containsExactlyInAnyOrder
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import strikt.assertions.isTrue
 
 object ContextExecutorTest {
     val context = describe(ContextExecutor::class) {
-        test("returns the number of tests") {
+        test("returns contexts and number of tests") {
             val ctx = RootContext("root context") {
                 test("test 1") {
                 }
@@ -34,7 +35,13 @@ object ContextExecutorTest {
             val testResultChannel = Channel<TestResult>(UNLIMITED)
             @Suppress("BlockingMethodInNonBlockingContext")
             runBlocking(Dispatchers.Unconfined) {
-                expectThat(ContextExecutor(ctx, testResultChannel, this).execute()).isEqualTo(4)
+                val rootContext = Context("root context", null)
+                val context1 = Context("context 1", rootContext)
+                val context2 = Context("context 2", context1)
+                val context4 = Context("context 4", rootContext)
+                val contextInfo = ContextExecutor(ctx, testResultChannel, this).execute()
+                expectThat(contextInfo.tests).isEqualTo(4)
+                expectThat(contextInfo.contexts).containsExactlyInAnyOrder(rootContext, context1, context2, context4)
             }
 
             // we expect 4 times success

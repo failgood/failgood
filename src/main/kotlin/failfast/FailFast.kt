@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
-data class ContextInfo(val context: Context, val tests: Int)
+data class ContextInfo(val contexts: Set<Context>, val tests: Int)
 
 data class RootContext(val name: String, val function: ContextLambda)
 
@@ -60,7 +60,7 @@ data class SuiteResult(
                 is Ignored -> println("ignored: " + it.test)
             }
         }*/
-        println(ContextTreeReporter(allTests, contextInfos.map { it.context }).stringReport().joinToString("\n"))
+        println(ContextTreeReporter(allTests, contextInfos.flatMap { it.contexts }).stringReport().joinToString("\n"))
         println("${allTests.size} tests")
         if (allOk)
             return
@@ -78,8 +78,6 @@ data class SuiteResult(
         }
     }
 }
-
-
 
 
 data class TestDescriptor(val parentContext: Context, val testName: String) {

@@ -1,6 +1,9 @@
 package failfast
 
 import failfast.internal.ExceptionPrettyPrinter
+import java.io.File
+import java.io.FileWriter
+import java.io.PrintWriter
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.Path
@@ -43,26 +46,20 @@ interface ContextDSL {
     suspend fun itWill(behaviorDescription: String, function: TestLambda)
 }
 
-
 data class SuiteResult(
     val allTests: List<TestResult>,
     val failedTests: Collection<Failed>,
     val contextInfos: List<ContextInfo>
 ) {
+    private val writer = PrintWriter(FileWriter(File("failfast.log"), true), true)
     val allOk = failedTests.isEmpty()
+    private fun println(message: Any) {
+        writer.println(message)
+        kotlin.io.println(message)
+    }
 
     fun check(throwException: Boolean = true) {
-        /*
-        allTests.forEach {
-            when (it) {
-                is Failed -> {
-                    println("failed: " + it.test)
-                    println(it.failure.stackTraceToString())
-                }
-                is Success -> println("success: " + it.test)
-                is Ignored -> println("ignored: " + it.test)
-            }
-        }*/
+
         println(ContextTreeReporter(allTests, contextInfos.flatMap { it.contexts }).stringReport().joinToString("\n"))
         if (allOk) {
             println("${allTests.size} tests. time: ${uptime()}")
@@ -84,7 +81,6 @@ data class SuiteResult(
         }
     }
 }
-
 
 data class TestDescriptor(val parentContext: Context, val testName: String) {
     override fun toString(): String {

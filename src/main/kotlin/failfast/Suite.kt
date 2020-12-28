@@ -70,10 +70,8 @@ class Suite(
                 }
             }
         } finally {
-            val threadPoolInfo = threadPool.toString()
             threadPool.awaitTermination(100, TimeUnit.SECONDS)
             threadPool.shutdown()
-            println("finished after: ${uptime()}. threadpool: $threadPoolInfo")
         }
     }
 

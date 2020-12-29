@@ -90,19 +90,8 @@ data class TestDescriptor(val parentContext: Context, val testName: String) {
 }
 
 data class Context(val name: String, val parent: Context?) {
-    fun stringPath(): String {
-        return path().joinToString(" > ")
-    }
-
-    fun path(): List<String> {
-        val path = mutableListOf(this.name)
-        var ctx = this
-        while (true) {
-            ctx = ctx.parent ?: break
-            path.add(ctx.name)
-        }
-        return path.asReversed()
-    }
+    val path: List<String> = parent?.path?.plus(name) ?: listOf(name)
+    fun stringPath(): String = path.joinToString(" > ")
 }
 
 

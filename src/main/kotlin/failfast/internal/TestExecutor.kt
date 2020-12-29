@@ -14,7 +14,7 @@ internal class TestExecutor(private val context: RootContext, private val test: 
     private val closeables = mutableListOf<AutoCloseable>()
     private var testResult: TestResult? = null
     suspend fun execute(): TestResult {
-        val dsl: ContextDSL = contextDSL(test.parentContext.path().drop(1))
+        val dsl: ContextDSL = contextDSL(test.parentContext.path.drop(1))
         dsl.(context.function)()
         closeables.forEach { it.close() }
         return testResult ?: throw FailFastException("no test found for test $test")

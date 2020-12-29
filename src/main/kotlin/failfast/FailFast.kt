@@ -16,7 +16,7 @@ import kotlin.system.exitProcess
 
 data class ContextInfo(val contexts: Set<Context>, val tests: Int)
 
-data class RootContext(val name: String, val function: ContextLambda)
+data class RootContext(val name: String = "root", val function: ContextLambda)
 
 
 typealias ContextLambda = suspend ContextDSL.() -> Unit

@@ -35,7 +35,7 @@ object TestLifecycleTest {
                 test("tests can be defined after contexts") {
                     events.add("tests can be defined after contexts")
                 }
-            }.run().check()
+            }.run()
 
             expectThat(totalEvents).containsExactly(
                 listOf("root context", "test 1", "autoclosed"),

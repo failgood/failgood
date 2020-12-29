@@ -5,6 +5,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.coroutineScope
 import strikt.api.expectThat
+import strikt.api.expectThrows
 import strikt.assertions.containsExactly
 import strikt.assertions.containsExactlyInAnyOrder
 import strikt.assertions.isA
@@ -13,6 +14,7 @@ import strikt.assertions.isTrue
 
 object ContextExecutorTest {
     val context = describe(ContextExecutor::class) {
+        val testResultChannel = autoClose(Channel<TestResult>(UNLIMITED)) { it.close() }
         describe("with a valid root context") {
             val ctx = RootContext("root context") {
                 test("test 1") {
@@ -31,7 +33,7 @@ object ContextExecutorTest {
                 }
 
             }
-            val testResultChannel = autoClose(Channel<TestResult>(UNLIMITED)) { it.close() }
+
             it("returns number of tests") {
                 coroutineScope {
                     val contextInfo = ContextExecutor(ctx, testResultChannel, this).execute()
@@ -66,6 +68,23 @@ object ContextExecutorTest {
             }
         }
 
+        describe("error handling") {
+            itWill("fail with duplicate context") {
+                val ctx = RootContext {
+                    test("duplicate test name") {
+                    }
+                    test("duplicate test name") {
+                    }
+                }
+                coroutineScope {
+                    expectThrows<FailFastException> {
+                        ContextExecutor(ctx, testResultChannel, this).execute()
+                    }
+                }
+
+            }
+
+        }
         it("can close resources") {
             val events = mutableListOf<String>()
             var closeCalled = false

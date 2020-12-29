@@ -52,6 +52,25 @@ object TestExecutorTest {
             )
             expectThat(result).isA<Success>()
         }
+        it("also supports describe / it") {
+            val context = describe(ContextExecutor::class) {
+                describe("with a valid root context") {
+                    it("returns number of tests") {
+                    }
+                    it("returns contexts") {
+                    }
+                }
+            }
+            val test = TestDescriptor(
+                Context(
+                    "with a valid root context",
+                    Context("ContextExecutor", null)
+                ),
+                "returns contexts"
+            )
+            val executor = TestExecutor(context, test)
+            executor.execute()
+        }
     }
 }
 

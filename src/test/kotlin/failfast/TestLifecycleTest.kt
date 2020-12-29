@@ -1,7 +1,7 @@
 package failfast
 
 import strikt.api.expectThat
-import strikt.assertions.containsExactly
+import strikt.assertions.containsExactlyInAnyOrder
 
 fun main() {
     Suite(TestLifecycleTest.context).run().check(false)
@@ -37,7 +37,7 @@ object TestLifecycleTest {
                 }
             }.run()
 
-            expectThat(totalEvents).containsExactly(
+            expectThat(totalEvents).containsExactlyInAnyOrder(
                 listOf("root context", "test 1", "autoclosed"),
                 listOf("root context", "test 2", "autoclosed"),
                 listOf("root context", "context 1", "context 2", "test 3", "autoclosed"),

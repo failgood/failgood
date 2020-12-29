@@ -2,6 +2,7 @@ package failfast.internal
 
 import failfast.ContextDSL
 import failfast.ContextLambda
+import failfast.FailFastException
 import failfast.Failed
 import failfast.RootContext
 import failfast.Success
@@ -16,10 +17,9 @@ internal class TestExecutor(private val context: RootContext, private val test: 
         val dsl: ContextDSL = contextDSL(test.parentContext.path().drop(1))
         dsl.(context.function)()
         closeables.forEach { it.close() }
-        return testResult!!
+        return testResult ?: throw FailFastException("no test found for test $test")
     }
 
-    //    @Suppress("RedundantSuspendModifier")
     open inner class Base : ContextDSL {
         override suspend fun test(name: String, function: TestLambda) {
         }
@@ -55,6 +55,10 @@ internal class TestExecutor(private val context: RootContext, private val test: 
                 return
 
             contextDSL(contexts.drop(1)).function()
+        }
+
+        override suspend fun describe(name: String, function: ContextLambda) {
+            context(name, function)
         }
     }
 

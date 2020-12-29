@@ -32,9 +32,9 @@ internal class ContextExecutor(
         private val resourcesCloser: ResourcesCloser
     ) :
         ContextDSL {
-        private var ranATest =
-            false // we only run one test per instance so if this is true we don't invoke test lambdas
-        var moreTestsLeft = false // are there more tests left to run?
+        // we only run one test per instance so if this is true we don't invoke test lambdas
+        private var ranATest = false
+        var contextsLeft = false // are there sub contexts left to run?
 
         override suspend fun test(name: String, function: TestLambda) {
             val testDescriptor = TestDescriptor(parentContext, name)
@@ -58,7 +58,10 @@ internal class ContextExecutor(
                 }
 
             } else {
-                moreTestsLeft = true
+                executedTests.add(testDescriptor)
+                scope.launch {
+                    testResultChannel.send(TestExecutor(rootContext, testDescriptor).execute())
+                }
             }
         }
 
@@ -70,7 +73,7 @@ internal class ContextExecutor(
 
         override suspend fun context(name: String, function: ContextLambda) {
             if (ranATest) { // if we already ran a test in this context we don't need to visit the child context now
-                moreTestsLeft = true // but we need to run the root context again to visit this child context
+                contextsLeft = true // but we need to run the root context again to visit this child context
                 return
             }
             val context = Context(name, parentContext)
@@ -78,8 +81,8 @@ internal class ContextExecutor(
                 return
             val visitor = ContextVisitor(context, resourcesCloser)
             visitor.function()
-            if (visitor.moreTestsLeft)
-                moreTestsLeft = true
+            if (visitor.contextsLeft)
+                contextsLeft = true
             else
                 finishedContexts.add(context)
 
@@ -115,7 +118,7 @@ internal class ContextExecutor(
             val resourcesCloser = ResourcesCloser()
             val visitor = ContextVisitor(rootContext, resourcesCloser)
             visitor.function()
-            if (!visitor.moreTestsLeft)
+            if (!visitor.contextsLeft)
                 break
         }
         finishedContexts.add(rootContext)

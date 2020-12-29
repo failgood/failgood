@@ -6,7 +6,7 @@ sealed class TestResult {
 
 data class Success(override val test: TestDescriptor) : TestResult()
 data class Ignored(override val test: TestDescriptor) : TestResult()
-class Failed(override val test: TestDescriptor, val failure: AssertionError) : TestResult() {
+class Failed(override val test: TestDescriptor, val failure: Throwable) : TestResult() {
     override fun equals(other: Any?): Boolean {
         return (other is Failed)
                 && test == other.test

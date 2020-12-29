@@ -70,13 +70,13 @@ data class SuiteResult(
         if (throwException)
             throw SuiteFailedException()
         else {
-            val message = failedTests.joinToString {
+            val message = failedTests.joinToString(separator = "\n") {
                 val testDescription = it.test.toString()
                 val exceptionInfo = ExceptionPrettyPrinter().prettyPrint(it.failure)
 
                 "$testDescription failed with $exceptionInfo"
             }
-            println(message)
+            println("failed tests:\n$message")
             println("${allTests.size} tests. ${failedTests.size} failed. total time: ${uptime()}")
             exitProcess(-1)
         }
@@ -85,19 +85,23 @@ data class SuiteResult(
 
 data class TestDescriptor(val parentContext: Context, val testName: String) {
     override fun toString(): String {
-        return "${parentContext.asStringWithPath()} : $testName"
+        return "${parentContext.stringPath()} : $testName"
     }
 }
 
 data class Context(val name: String, val parent: Context?) {
-    fun asStringWithPath(): String {
-        val path = mutableListOf(this)
+    fun stringPath(): String {
+        return path().joinToString(" > ")
+    }
+
+    fun path(): List<String> {
+        val path = mutableListOf(this.name)
         var ctx = this
         while (true) {
             ctx = ctx.parent ?: break
-            path.add(ctx)
+            path.add(ctx.name)
         }
-        return path.asReversed().joinToString(" > ") { it.name }
+        return path.asReversed()
     }
 }
 

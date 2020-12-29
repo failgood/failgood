@@ -50,7 +50,10 @@ internal class ContextExecutor(
                         Success(testDescriptor)
                     } catch (e: AssertionError) {
                         Failed(testDescriptor, e)
+                    } catch (e: Throwable) {
+                        Failed(testDescriptor, e)
                     }
+
                     testResultChannel.send(testResult)
                 }
 

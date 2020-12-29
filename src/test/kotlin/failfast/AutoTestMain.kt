@@ -1,6 +1,7 @@
 package failfast
 
 import failfast.FailFast.findTestClasses
+import failfast.internal.ContextExecutorTest
 import java.nio.file.Files
 import java.nio.file.NoSuchFileException
 import java.nio.file.Paths

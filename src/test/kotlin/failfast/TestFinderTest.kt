@@ -1,6 +1,7 @@
 package failfast
 
 import failfast.docs.ObjectTestContextTest
+import failfast.internal.ContextExecutorTest
 import failfast.internal.ExceptionPrettyPrinterTest
 import failfast.internal.TestExecutorTest
 import strikt.api.expectThat

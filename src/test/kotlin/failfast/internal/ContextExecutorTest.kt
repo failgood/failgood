@@ -1,6 +1,12 @@
-package failfast
+package failfast.internal
 
-import failfast.internal.ContextExecutor
+import failfast.Context
+import failfast.FailFastException
+import failfast.RootContext
+import failfast.Success
+import failfast.Suite
+import failfast.TestResult
+import failfast.describe
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.coroutineScope

@@ -40,6 +40,7 @@ interface ContextDSL {
     suspend fun test(name: String, function: TestLambda)
     suspend fun test(ignoredTestName: String)
     suspend fun context(name: String, function: ContextLambda)
+    suspend fun describe(name: String, function: ContextLambda)
     fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T
     suspend fun it(behaviorDescription: String, function: TestLambda)
     suspend fun itWill(behaviorDescription: String)
@@ -102,21 +103,29 @@ data class Context(val name: String, val parent: Context?) {
 
 
 object FailFast {
-    fun findTestClasses(suiteClass: KClass<*>, exclude: String? = null, newerThan: FileTime? = null): List<Class<*>> {
-
-        val classloader = suiteClass.java.classLoader
-        val root = Paths.get(suiteClass.java.protectionDomain.codeSource.location.path)
+    /**
+     * finds test classes
+     * @param anyTestClass you can pass any test class here, its just used to find the classloader and source root
+     * @param excludePattern if not null, classes that match this pattern are excluded
+     * @param newerThan only return classes that are newer than this
+     */
+    fun findTestClasses(
+        anyTestClass: KClass<*>,
+        excludePattern: String? = null,
+        newerThan: FileTime? = null
+    ): List<Class<*>> {
+        val classloader = anyTestClass.java.classLoader
+        val root = Paths.get(anyTestClass.java.protectionDomain.codeSource.location.path)
         val results = mutableListOf<Class<*>>()
         Files.walkFileTree(root, object : SimpleFileVisitor<Path>() {
             override fun visitFile(file: Path?, attrs: BasicFileAttributes?): FileVisitResult {
                 val path = root.relativize(file!!).toString()
                 if (path.endsWith("Test.class") && (newerThan == null || attrs!!.lastModifiedTime() > newerThan)
-                    && (exclude == null || !path.contains(exclude))
+                    && (excludePattern == null || !path.contains(excludePattern))
                 ) {
-                    val jClass = classloader.loadClass(path.substringBefore(".class").replace("/", "."))
-                    results.add(jClass)
+                    results.add(classloader.loadClass(path.substringBefore(".class").replace("/", ".")))
                 }
-                return super.visitFile(file, attrs)
+                return FileVisitResult.CONTINUE
             }
 
         })

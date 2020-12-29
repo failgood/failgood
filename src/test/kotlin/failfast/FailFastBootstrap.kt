@@ -51,16 +51,13 @@ fun main() {
 
     val suiteResults =
         Suite.fromClasses(
-            FailFast.findTestClasses(RootContextTest::class, exclude = "MultiThreading")
+            FailFast.findTestClasses(RootContextTest::class)
         ).run()
 
-    val uptime = uptime()
+    val uptime = ManagementFactory.getRuntimeMXBean().uptime
     expectThat(uptime).isLessThan(1000) // lets see how far we can get with one second
     suiteResults.check(false)
-    println("finished after: ${uptime}ms. ran ${suiteResults.allTests.count()} main tests and ${results.allTests.count()} bootstrap tests")
 }
-
-private fun uptime() = ManagementFactory.getRuntimeMXBean().uptime
 
 
 

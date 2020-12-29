@@ -12,14 +12,14 @@ import failfast.TestDescriptor
 import failfast.TestLambda
 import failfast.TestResult
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 
 internal class ContextExecutor(
     private val rootContext: RootContext,
-    val testResultChannel: Channel<TestResult>,
+    val testResultChannel: SendChannel<TestResult>,
     val scope: CoroutineScope
 ) {
 
@@ -82,6 +82,10 @@ internal class ContextExecutor(
 
             if (visitor.ranATest)
                 ranATest = true
+        }
+
+        override suspend fun describe(name: String, function: ContextLambda) {
+            context(name, function)
         }
 
         override fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T {

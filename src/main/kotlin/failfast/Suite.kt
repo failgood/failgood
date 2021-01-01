@@ -38,7 +38,7 @@ class Suite(
     )
 
     constructor(parallelism: Int = cpus(), function: ContextLambda)
-            : this(RootContext("root", function), parallelism)
+            : this(RootContext("root", false, function), parallelism)
 
 
     fun run(): SuiteResult {
@@ -52,13 +52,15 @@ class Suite(
                         rootContexts.map {
                             async {
                                 val context = it.getContext()
-                                try {
-                                    withTimeout(20000) {
-                                        ContextExecutor(context, testResultChannel, this).execute()
+                                if (!context.disabled) {
+                                    try {
+                                        withTimeout(20000) {
+                                            ContextExecutor(context, testResultChannel, this).execute()
+                                        }
+                                    } catch (e: TimeoutCancellationException) {
+                                        throw FailFastException("context ${context.name} timed out")
                                     }
-                                } catch (e: TimeoutCancellationException) {
-                                    throw FailFastException("context ${context.name} timed out")
-                                }
+                                } else ContextInfo(emptySet(), 0)
                             }
                         }.awaitAll()
                     val totalTests = contextInfos.sumBy { it.tests }

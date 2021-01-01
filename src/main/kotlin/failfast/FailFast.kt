@@ -16,25 +16,29 @@ import kotlin.system.exitProcess
 
 data class ContextInfo(val contexts: Set<Context>, val tests: Int)
 
-data class RootContext(val name: String = "root", val function: ContextLambda)
+data class RootContext(val name: String = "root", val disabled: Boolean = false, val function: ContextLambda)
 
 
 typealias ContextLambda = suspend ContextDSL.() -> Unit
 
 typealias TestLambda = suspend () -> Unit
 
-fun Any.context(function: ContextLambda): RootContext =
-    RootContext(this::class.simpleName ?: throw FailFastException("could not determine object name"), function)
+fun Any.context(disabled: Boolean = false, function: ContextLambda): RootContext =
+    RootContext(
+        this::class.simpleName ?: throw FailFastException("could not determine object name"),
+        disabled,
+        function
+    )
 
-fun context(description: String, function: ContextLambda): RootContext =
-    RootContext(description, function)
+fun context(description: String, disabled: Boolean = false, function: ContextLambda): RootContext =
+    RootContext(description, disabled, function)
 
 
-fun describe(subjectDescription: String, function: ContextLambda): RootContext =
-    RootContext(subjectDescription, function)
+fun describe(subjectDescription: String, disabled: Boolean = false, function: ContextLambda): RootContext =
+    RootContext(subjectDescription, disabled, function)
 
-fun describe(subjectType: KClass<*>, function: ContextLambda): RootContext =
-    RootContext(subjectType.simpleName!!, function)
+fun describe(subjectType: KClass<*>, disabled: Boolean = false, function: ContextLambda): RootContext =
+    RootContext(subjectType.simpleName!!, disabled, function)
 
 interface ContextDSL {
     suspend fun test(name: String, function: TestLambda)

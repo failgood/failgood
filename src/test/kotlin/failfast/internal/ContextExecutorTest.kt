@@ -87,8 +87,8 @@ object ContextExecutorTest {
         }
 
 
-        describe("error handling") {
-            itWill("fail with duplicate context") {
+        describe("detects duplicated tests") {
+            it("fails with duplicate tests in one context") {
                 val ctx = RootContext {
                     test("duplicate test name") {
                     }
@@ -99,6 +99,19 @@ object ContextExecutorTest {
                     expectThrows<FailFastException> {
                         ContextExecutor(ctx, testResultChannel, this).execute()
                     }
+                }
+            }
+            it("different contexts can contain tests with the same name") {
+                val ctx = RootContext {
+                    test("duplicate test name") {
+                    }
+                    context("context") {
+                        test("duplicate test name") {
+                        }
+                    }
+                }
+                coroutineScope {
+                    ContextExecutor(ctx, testResultChannel, this).execute()
                 }
 
             }

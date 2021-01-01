@@ -4,6 +4,7 @@ import failfast.Context
 import failfast.ContextDSL
 import failfast.ContextInfo
 import failfast.ContextLambda
+import failfast.FailFastException
 import failfast.Failed
 import failfast.Ignored
 import failfast.RootContext
@@ -32,11 +33,15 @@ internal class ContextExecutor(
         private val resourcesCloser: ResourcesCloser
     ) :
         ContextDSL {
-        // we only run one test per instance so if this is true we don't invoke test lambdas
+        private val testsInThisContexts = mutableSetOf<String>() // to find duplicates
+
+        // we only run the first new test that we find ourselves. the further tests of the context run with the TestExecutor.
         private var ranATest = false
         var contextsLeft = false // are there sub contexts left to run?
 
         override suspend fun test(name: String, function: TestLambda) {
+            if (!testsInThisContexts.add(name))
+                throw FailFastException("duplicate test name $name in context $parentContext")
             val testDescriptor = TestDescriptor(parentContext, name)
             if (executedTests.contains(testDescriptor)) {
                 return

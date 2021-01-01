@@ -26,16 +26,14 @@ class FailFastTestPluginFactory : TestPluginFactory {
 }
 
 class FailFastConfiguration : Configuration {
-    override fun testUnitFinder(): TestUnitFinder {
-        TODO("Not yet implemented")
-    }
+    override fun testUnitFinder(): TestUnitFinder = FailFastTestUnitFinder
 
     override fun testSuiteFinder(): TestSuiteFinder {
         return FailFastTestSuiteFinder
     }
 
     override fun verifyEnvironment(): Optional<PitHelpError> {
-        TODO("Not yet implemented")
+        return Optional.empty()
     }
 
 }

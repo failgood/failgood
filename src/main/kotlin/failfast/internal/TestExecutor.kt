@@ -13,6 +13,7 @@ import failfast.TestResult
 internal class TestExecutor(private val context: RootContext, private val test: TestDescriptor) {
     private val closeables = mutableListOf<AutoCloseable>()
     private var testResult: TestResult? = null
+    private val startTime = System.nanoTime()
     suspend fun execute(): TestResult {
         val dsl: ContextDSL = contextDSL(test.parentContext.path.drop(1))
         dsl.(context.function)()
@@ -76,7 +77,7 @@ internal class TestExecutor(private val context: RootContext, private val test: 
             if (test.testName == name)
                 testResult = try {
                     function()
-                    Success(test)
+                    Success(test, (System.nanoTime() - startTime) / 1000)
                 } catch (e: Throwable) {
                     Failed(test, e)
                 }

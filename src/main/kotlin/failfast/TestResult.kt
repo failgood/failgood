@@ -4,7 +4,7 @@ sealed class TestResult {
     abstract val test: TestDescriptor
 }
 
-data class Success(override val test: TestDescriptor) : TestResult()
+data class Success(override val test: TestDescriptor, val timeMicro: Long) : TestResult()
 data class Ignored(override val test: TestDescriptor) : TestResult()
 class Failed(override val test: TestDescriptor, val failure: Throwable) : TestResult() {
     override fun equals(other: Any?): Boolean {

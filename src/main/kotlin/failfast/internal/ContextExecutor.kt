@@ -22,7 +22,7 @@ internal class ContextExecutor(
     val testResultChannel: SendChannel<TestResult>,
     val scope: CoroutineScope
 ) {
-
+    private val startTime = System.nanoTime()
     private val finishedContexts = ConcurrentHashMap.newKeySet<Context>()!!
     val executedTests = ConcurrentHashMap.newKeySet<TestDescriptor>()!!
 
@@ -47,7 +47,7 @@ internal class ContextExecutor(
                     val testResult = try {
                         function()
                         resourcesCloser.close()
-                        Success(testDescriptor)
+                        Success(testDescriptor, (System.nanoTime() - startTime) / 1000)
                     } catch (e: AssertionError) {
                         Failed(testDescriptor, e)
                     } catch (e: Throwable) {

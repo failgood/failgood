@@ -16,6 +16,7 @@ import strikt.assertions.containsExactly
 import strikt.assertions.containsExactlyInAnyOrder
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
+import strikt.assertions.isGreaterThan
 import strikt.assertions.isTrue
 
 object ContextExecutorTest {
@@ -72,7 +73,19 @@ object ContextExecutorTest {
                     expectThat(testResultChannel.receive()).isA<Success>()
                 }
             }
+            it("measures time") {
+                coroutineScope {
+                    ContextExecutor(ctx, testResultChannel, this).execute()
+
+                    // we expect 4 times success
+                    expectThat(testResultChannel.receive()).isA<Success>().get { timeMicro }.isGreaterThan(1)
+                    expectThat(testResultChannel.receive()).isA<Success>().get { timeMicro }.isGreaterThan(1)
+                    expectThat(testResultChannel.receive()).isA<Success>().get { timeMicro }.isGreaterThan(1)
+                    expectThat(testResultChannel.receive()).isA<Success>().get { timeMicro }.isGreaterThan(1)
+                }
+            }
         }
+
 
         describe("error handling") {
             itWill("fail with duplicate context") {

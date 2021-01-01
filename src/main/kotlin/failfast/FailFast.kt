@@ -63,9 +63,11 @@ data class SuiteResult(
 
         println(ContextTreeReporter(allTests, contextInfos.flatMap { it.contexts }).stringReport().joinToString("\n"))
         if (allOk) {
-            println("${allTests.size} tests. time: ${uptime()}")
+            val slowTests = allTests.filterIsInstance<Success>().sortedBy { -it.timeMicro }.take(5)
+            println("slowest tests:")
+            slowTests.forEach { println("${ContextTreeReporter.time(it.timeMicro)}ms ${it.test}") }
+            println("\n${allTests.size} tests. time: ${uptime()}")
             return
-
         }
         if (throwException)
             throw SuiteFailedException()

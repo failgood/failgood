@@ -5,7 +5,6 @@ import java.text.DecimalFormatSymbols
 import java.util.*
 
 class ContextTreeReporter(results: List<TestResult>, private val allContexts: List<Context>) {
-    val timeFormat = DecimalFormat("#,##0.0#", DecimalFormatSymbols(Locale.US))
     private val contextMap = results.groupBy { it.test.parentContext }
     fun stringReport(): List<String> {
         val result = mutableListOf<String>()
@@ -26,7 +25,10 @@ class ContextTreeReporter(results: List<TestResult>, private val allContexts: Li
             val tests = contextMap[context]
             tests?.forEach { testResult ->
                 val line = when (testResult) {
-                    is Success -> "$indentString - ${testResult.test.testName} (${timeFormat.format(testResult.timeMicro.toDouble() / 1000)}ms)"
+                    is Success -> {
+                        val timeMicro = testResult.timeMicro
+                        "$indentString - ${testResult.test.testName} (${time(timeMicro)}ms)"
+                    }
                     is Failed -> "$indentString - ${testResult.test.testName}"
                     is Ignored -> "$indentString - ${testResult.test.testName}"
                 }
@@ -37,6 +39,12 @@ class ContextTreeReporter(results: List<TestResult>, private val allContexts: Li
             if (childContests.isNotEmpty())
                 printContext(childContests, result, contextMap, indent + 1)
         }
+    }
+
+
+    companion object {
+        fun time(timeMicro: Long): String = timeFormat.format(timeMicro.toDouble() / 1000)!!
+        private val timeFormat = DecimalFormat("#,##0.0#", DecimalFormatSymbols(Locale.US))
     }
 
 }

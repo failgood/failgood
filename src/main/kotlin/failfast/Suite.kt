@@ -84,8 +84,8 @@ internal fun uptime(): String {
     val uptime = ManagementFactory.getRuntimeMXBean().uptime
     val cpuTime = operatingSystemMXBean.processCpuTime / 1000000
     val percentage = cpuTime * 100 / uptime
-    return "total:${uptime} cpu:${cpuTime}ms, pct:${percentage}%"
+    return "total:${uptime}ms cpu:${cpuTime}ms, pct:${percentage}%"
 }
 
-private fun cpus() = Runtime.getRuntime().availableProcessors() / 2
+private fun cpus() = Runtime.getRuntime().availableProcessors()
 

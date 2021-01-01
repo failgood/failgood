@@ -1,3 +1,4 @@
+import info.solidsoft.gradle.pitest.PitestPluginExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -6,6 +7,8 @@ plugins {
     id("com.github.ben-manes.versions") version "0.36.0"
     `maven-publish`
     id("com.jfrog.bintray") version "1.8.5"
+    id("info.solidsoft.pitest") version "1.5.2"
+
 }
 
 group = "failfast"
@@ -71,3 +74,21 @@ task("autotest", JavaExec::class) {
 tasks.check {
     dependsOn(testMain)
 }
+
+plugins.withId("info.solidsoft.pitest") {
+    configure<PitestPluginExtension> {
+        //        verbose.set(true)
+        jvmArgs.set(listOf("-Xmx512m"))
+        //        testPlugin.set("junit5")
+        testPlugin.set("failfast")
+        avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))
+        targetClasses.set(setOf("failfast.*")) //by default "${project.group}.*"
+        targetTests.set(setOf("failfast.*Test", "failfast.**.*Test"))
+        pitestVersion.set("1.6.2")
+        threads.set(
+            System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()
+        )
+        outputFormats.set(setOf("XML", "HTML"))
+    }
+}
+

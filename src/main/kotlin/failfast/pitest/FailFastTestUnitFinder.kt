@@ -14,8 +14,13 @@ import org.pitest.testapi.TestUnitFinder
 
 object FailFastTestUnitFinder : TestUnitFinder {
     override fun findTestUnits(clazz: Class<*>): List<TestUnit> {
-        val description = Description("fail fast context")
-        return listOf(FailFastTestUnit(ObjectContextProvider(clazz).getContext(), description))
+
+        val description = Description("fail fast context", clazz)
+        return try {
+            listOf(FailFastTestUnit(ObjectContextProvider(clazz).getContext(), description))
+        } catch (e: Exception) {
+            listOf()
+        }
     }
 
     class FailFastTestUnit(val context: RootContext, description: Description) : AbstractTestUnit(description) {

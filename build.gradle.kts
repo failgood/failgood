@@ -20,6 +20,7 @@ repositories {
 dependencies {
     implementation(enforcedPlatform("org.jetbrains.kotlin:kotlin-bom:1.4.21"))
     implementation(kotlin("stdlib-jdk8"))
+    implementation("org.pitest:pitest:1.6.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     testImplementation("io.strikt:strikt-core:0.28.1")
 }

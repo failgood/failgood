@@ -4,6 +4,8 @@ import failfast.docs.ObjectTestContextTest
 import failfast.internal.ContextExecutorTest
 import failfast.internal.ExceptionPrettyPrinterTest
 import failfast.internal.TestExecutorTest
+import failfast.pitest.FailFastTestPluginFactoryTest
+import failfast.pitest.FailFastTestUnitFinderTest
 import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
 import kotlin.system.measureTimeMillis
@@ -31,7 +33,9 @@ object TestFinderTest {
                         ObjectContextProviderTest::class.java,
                         TestLifecycleTest::class.java,
                         ContextTreeReporterTest::class.java,
-                        TestExecutorTest::class.java
+                        TestExecutorTest::class.java,
+                        FailFastTestUnitFinderTest::class.java,
+                        FailFastTestPluginFactoryTest::class.java
                     )
             })
         }

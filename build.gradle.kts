@@ -27,6 +27,7 @@ dependencies {
     compileOnly("org.pitest:pitest:1.6.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     testImplementation("io.strikt:strikt-core:0.28.1")
+    testImplementation("org.pitest:pitest:1.6.2")
 }
 
 tasks {

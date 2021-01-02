@@ -5,19 +5,23 @@ import failfast.FailFastException
 import failfast.RootContext
 import failfast.Success
 import failfast.Suite
+import failfast.TestDescriptor
 import failfast.TestResult
 import failfast.describe
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.coroutineScope
 import strikt.api.expectThat
 import strikt.api.expectThrows
+import strikt.assertions.all
 import strikt.assertions.containsExactly
 import strikt.assertions.containsExactlyInAnyOrder
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import strikt.assertions.isGreaterThan
 import strikt.assertions.isTrue
+import strikt.assertions.map
 
 object ContextExecutorTest {
     val context = describe(ContextExecutor::class) {
@@ -41,18 +45,37 @@ object ContextExecutorTest {
 
             }
 
-            it("returns number of tests") {
+            val rootContext = Context("root context", null)
+            val context1 = Context("context 1", rootContext)
+            val context2 = Context("context 2", context1)
+            val context4 = Context("context 4", rootContext)
+            it("returns tests") {
                 coroutineScope {
                     val contextInfo = ContextExecutor(ctx, testResultChannel, this).execute()
-                    expectThat(contextInfo.tests).isEqualTo(4)
+                    expectThat(contextInfo.tests.keys).containsExactlyInAnyOrder(TestDescriptor(rootContext, "test 1"),
+                        TestDescriptor(rootContext, "test 2"),
+                        TestDescriptor(context2, "test 3"),
+                        TestDescriptor(context4, "test 4")
+                    )
                 }
             }
+            it("returns deferred test results") {
+                coroutineScope {
+                    val contextInfo = ContextExecutor(ctx, testResultChannel, this).execute()
+                    val testResults = contextInfo.tests.values.awaitAll()
+                    expectThat(testResults).all { isA<Success>() }
+
+
+                    expectThat(testResults.map { it.test }).containsExactlyInAnyOrder(TestDescriptor(rootContext, "test 1"),
+                        TestDescriptor(rootContext, "test 2"),
+                        TestDescriptor(context2, "test 3"),
+                        TestDescriptor(context4, "test 4")
+                    )
+                }
+            }
+
             it("returns contexts") {
                 coroutineScope {
-                    val rootContext = Context("root context", null)
-                    val context1 = Context("context 1", rootContext)
-                    val context2 = Context("context 2", context1)
-                    val context4 = Context("context 4", rootContext)
                     val contextInfo = ContextExecutor(ctx, testResultChannel, this).execute()
                     expectThat(contextInfo.contexts).containsExactlyInAnyOrder(
                         rootContext,

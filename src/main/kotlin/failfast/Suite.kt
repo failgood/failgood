@@ -60,10 +60,10 @@ class Suite(
                                     } catch (e: TimeoutCancellationException) {
                                         throw FailFastException("context ${context.name} timed out")
                                     }
-                                } else ContextInfo(emptySet(), 0)
+                                } else ContextInfo(emptySet(), mapOf())
                             }
                         }.awaitAll()
-                    val totalTests = contextInfos.sumBy { it.tests }
+                    val totalTests = contextInfos.sumBy { it.tests.size }
                     val results = (0 until totalTests).map {
                         testResultChannel.receive()
                     }

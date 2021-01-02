@@ -1,6 +1,7 @@
 package failfast
 
 import failfast.internal.ExceptionPrettyPrinter
+import kotlinx.coroutines.Deferred
 import java.io.File
 import java.io.FileWriter
 import java.io.PrintWriter
@@ -11,10 +12,11 @@ import java.nio.file.Paths
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileTime
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
-data class ContextInfo(val contexts: Set<Context>, val tests: Int)
+data class ContextInfo(val contexts: Set<Context>, val tests: Map<TestDescriptor, Deferred<TestResult>>)
 
 data class RootContext(val name: String = "root", val disabled: Boolean = false, val function: ContextLambda)
 

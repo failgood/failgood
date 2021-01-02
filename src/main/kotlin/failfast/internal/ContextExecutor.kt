@@ -17,7 +17,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 
@@ -132,7 +131,7 @@ internal class ContextExecutor(
                 break
         }
         finishedContexts.add(rootContext)
-        return ContextInfo(finishedContexts, executedTests.size)
+        return ContextInfo(finishedContexts, executedTests)
     }
 }
 

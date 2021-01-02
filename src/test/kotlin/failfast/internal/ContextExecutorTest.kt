@@ -21,11 +21,9 @@ import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import strikt.assertions.isGreaterThan
 import strikt.assertions.isTrue
-import strikt.assertions.map
 
 object ContextExecutorTest {
     val context = describe(ContextExecutor::class) {
-        val testResultChannel = autoClose(Channel<TestResult>(UNLIMITED)) { it.close() }
         describe("with a valid root context") {
             val ctx = RootContext("root context") {
                 test("test 1") {
@@ -51,7 +49,7 @@ object ContextExecutorTest {
             val context4 = Context("context 4", rootContext)
             it("returns tests") {
                 coroutineScope {
-                    val contextInfo = ContextExecutor(ctx, testResultChannel, this).execute()
+                    val contextInfo = ContextExecutor(ctx, this).execute()
                     expectThat(contextInfo.tests.keys).containsExactlyInAnyOrder(TestDescriptor(rootContext, "test 1"),
                         TestDescriptor(rootContext, "test 2"),
                         TestDescriptor(context2, "test 3"),
@@ -61,11 +59,9 @@ object ContextExecutorTest {
             }
             it("returns deferred test results") {
                 coroutineScope {
-                    val contextInfo = ContextExecutor(ctx, testResultChannel, this).execute()
+                    val contextInfo = ContextExecutor(ctx, this).execute()
                     val testResults = contextInfo.tests.values.awaitAll()
                     expectThat(testResults).all { isA<Success>() }
-
-
                     expectThat(testResults.map { it.test }).containsExactlyInAnyOrder(TestDescriptor(rootContext, "test 1"),
                         TestDescriptor(rootContext, "test 2"),
                         TestDescriptor(context2, "test 3"),
@@ -76,7 +72,7 @@ object ContextExecutorTest {
 
             it("returns contexts") {
                 coroutineScope {
-                    val contextInfo = ContextExecutor(ctx, testResultChannel, this).execute()
+                    val contextInfo = ContextExecutor(ctx, this).execute()
                     expectThat(contextInfo.contexts).containsExactlyInAnyOrder(
                         rootContext,
                         context1,
@@ -85,26 +81,13 @@ object ContextExecutorTest {
                     )
                 }
             }
-            it("writes results to a channel") {
-                coroutineScope {
-                    ContextExecutor(ctx, testResultChannel, this).execute()
-
-                    // we expect 4 times success
-                    expectThat(testResultChannel.receive()).isA<Success>()
-                    expectThat(testResultChannel.receive()).isA<Success>()
-                    expectThat(testResultChannel.receive()).isA<Success>()
-                    expectThat(testResultChannel.receive()).isA<Success>()
-                }
-            }
             it("measures time") {
                 coroutineScope {
-                    ContextExecutor(ctx, testResultChannel, this).execute()
+                    val results = ContextExecutor(ctx, this).execute()
 
-                    // we expect 4 times success
-                    expectThat(testResultChannel.receive()).isA<Success>().get { timeMicro }.isGreaterThan(1)
-                    expectThat(testResultChannel.receive()).isA<Success>().get { timeMicro }.isGreaterThan(1)
-                    expectThat(testResultChannel.receive()).isA<Success>().get { timeMicro }.isGreaterThan(1)
-                    expectThat(testResultChannel.receive()).isA<Success>().get { timeMicro }.isGreaterThan(1)
+                    expectThat(results.tests.values.awaitAll()).all {
+                        isA<Success>().get { timeMicro }.isGreaterThan(1)
+                    }
                 }
             }
             describe("lazy execution") {
@@ -125,7 +108,7 @@ object ContextExecutorTest {
                 }
                 coroutineScope {
                     expectThrows<FailFastException> {
-                        ContextExecutor(ctx, testResultChannel, this).execute()
+                        ContextExecutor(ctx, this).execute()
                     }
                 }
             }
@@ -139,7 +122,7 @@ object ContextExecutorTest {
                     }
                 }
                 coroutineScope {
-                    ContextExecutor(ctx, testResultChannel, this).execute()
+                    ContextExecutor(ctx, this).execute()
                 }
 
             }

@@ -5,7 +5,6 @@ import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import java.lang.management.ManagementFactory
@@ -47,7 +46,6 @@ class Suite(
         return try {
             threadPool.asCoroutineDispatcher().use { dispatcher ->
                 runBlocking(dispatcher) {
-                    val testResultChannel = Channel<TestResult>(Channel.UNLIMITED)
                     val contextInfos =
                         rootContexts.map {
                             async {
@@ -55,7 +53,7 @@ class Suite(
                                 if (!context.disabled) {
                                     try {
                                         withTimeout(20000) {
-                                            ContextExecutor(context, testResultChannel, this).execute()
+                                            ContextExecutor(context, this).execute()
                                         }
                                     } catch (e: TimeoutCancellationException) {
                                         throw FailFastException("context ${context.name} timed out")
@@ -63,11 +61,7 @@ class Suite(
                                 } else ContextInfo(emptySet(), mapOf())
                             }
                         }.awaitAll()
-                    val totalTests = contextInfos.sumBy { it.tests.size }
-                    val results = (0 until totalTests).map {
-                        testResultChannel.receive()
-                    }
-                    testResultChannel.close()
+                    val results = contextInfos.flatMap { it.tests.values }.awaitAll()
                     SuiteResult(results, results.filterIsInstance<Failed>(), contextInfos)
                 }
             }

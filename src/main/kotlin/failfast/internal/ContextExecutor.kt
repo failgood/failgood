@@ -16,13 +16,11 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.SendChannel
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 
 internal class ContextExecutor(
     private val rootContext: RootContext,
-    val testResultChannel: SendChannel<TestResult>,
     val scope: CoroutineScope
 ) {
     private val startTime = System.nanoTime()
@@ -60,14 +58,12 @@ internal class ContextExecutor(
                         Failed(testDescriptor, e)
                     }
 
-                    testResultChannel.send(testResult)
                     testResult
                 }
                 executedTests[testDescriptor] = deferred
             } else {
                 val deferred = scope.async {
                     val testResult = TestExecutor(rootContext, testDescriptor).execute()
-                    testResultChannel.send(testResult)
                     testResult
                 }
                 executedTests[testDescriptor] = deferred
@@ -76,8 +72,7 @@ internal class ContextExecutor(
 
         override suspend fun test(ignoredTestName: String) {
             val testDescriptor = TestDescriptor(parentContext, ignoredTestName)
-            if (executedTests.putIfAbsent(testDescriptor, CompletableDeferred(Ignored(testDescriptor))) == null)
-                testResultChannel.send(Ignored(testDescriptor))
+            executedTests.computeIfAbsent(testDescriptor) { CompletableDeferred(Ignored(testDescriptor)) }
         }
 
         override suspend fun context(name: String, function: ContextLambda) {

@@ -14,7 +14,9 @@ object FailFastTestUnitFinderTest {
             val testUnit: FailFastTestUnitFinder.FailFastTestUnit =
                 finder.findTestUnits(FailFastTestPluginFactoryTest::class.java)
                     .single() as FailFastTestUnitFinder.FailFastTestUnit
-            expectThat(testUnit.context).isEqualTo(FailFastTestPluginFactoryTest.context)
+            val context = FailFastTestPluginFactoryTest.context
+            expectThat(testUnit.context).isEqualTo(context)
+            expectThat(testUnit.description.name).isEqualTo(context.name)
             testUnit.execute(TestResultCollector())
         }
     }

@@ -14,21 +14,19 @@ import org.pitest.testapi.TestUnitFinder
 
 object FailFastTestUnitFinder : TestUnitFinder {
     override fun findTestUnits(clazz: Class<*>): List<TestUnit> {
-
-        val description = Description("fail fast context", clazz)
         return try {
-            listOf(FailFastTestUnit(ObjectContextProvider(clazz).getContext(), description))
+            listOf(FailFastTestUnit(clazz, ObjectContextProvider(clazz).getContext()))
         } catch (e: Exception) {
             listOf()
         }
     }
 
-    class FailFastTestUnit(val context: RootContext, description: Description) : AbstractTestUnit(description) {
+    class FailFastTestUnit(val clazz: Class<*>, val context: RootContext) : AbstractTestUnit(Description(context.name, clazz)) {
 
         override fun execute(rc: ResultCollector) {
             val result = Suite(context, 1).run()
             result.allTests.forEach {
-                val description = Description(it.test.toString())
+                val description = Description(it.test.toString(), clazz)
                 rc.notifyStart(description)
                 when (it) {
                     is Success -> rc.notifyEnd(description)

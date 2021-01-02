@@ -12,7 +12,10 @@ import failfast.Success
 import failfast.TestDescriptor
 import failfast.TestLambda
 import failfast.TestResult
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
@@ -25,7 +28,7 @@ internal class ContextExecutor(
 ) {
     private val startTime = System.nanoTime()
     private val finishedContexts = ConcurrentHashMap.newKeySet<Context>()!!
-    val executedTests = ConcurrentHashMap.newKeySet<TestDescriptor>()!!
+    val executedTests = ConcurrentHashMap<TestDescriptor, Deferred<TestResult>>()
 
 
     private inner class ContextVisitor(
@@ -43,12 +46,11 @@ internal class ContextExecutor(
             if (!testsInThisContexts.add(name))
                 throw FailFastException("duplicate test name $name in context $parentContext")
             val testDescriptor = TestDescriptor(parentContext, name)
-            if (executedTests.contains(testDescriptor)) {
+            if (executedTests.containsKey(testDescriptor)) {
                 return
             } else if (!ranATest) {
                 ranATest = true
-                executedTests.add(testDescriptor)
-                scope.launch {
+                val deferred = scope.async {
                     val testResult = try {
                         function()
                         resourcesCloser.close()
@@ -60,19 +62,22 @@ internal class ContextExecutor(
                     }
 
                     testResultChannel.send(testResult)
+                    testResult
                 }
-
+                executedTests[testDescriptor] = deferred
             } else {
-                executedTests.add(testDescriptor)
-                scope.launch {
-                    testResultChannel.send(TestExecutor(rootContext, testDescriptor).execute())
+                val deferred = scope.async {
+                    val testResult = TestExecutor(rootContext, testDescriptor).execute()
+                    testResultChannel.send(testResult)
+                    testResult
                 }
+                executedTests[testDescriptor] = deferred
             }
         }
 
         override suspend fun test(ignoredTestName: String) {
             val testDescriptor = TestDescriptor(parentContext, ignoredTestName)
-            if (executedTests.add(testDescriptor))
+            if (executedTests.putIfAbsent(testDescriptor, CompletableDeferred(Ignored(testDescriptor))) == null)
                 testResultChannel.send(Ignored(testDescriptor))
         }
 

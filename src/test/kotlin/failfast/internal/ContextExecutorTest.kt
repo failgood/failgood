@@ -84,10 +84,15 @@ object ContextExecutorTest {
                     expectThat(testResultChannel.receive()).isA<Success>().get { timeMicro }.isGreaterThan(1)
                 }
             }
+            describe("lazy execution") {
+                itWill("find tests without executing them") {
+                }
+            }
+
         }
 
 
-        describe("detects duplicated tests") {
+        describe("duplicated test detection") {
             it("fails with duplicate tests in one context") {
                 val ctx = RootContext {
                     test("duplicate test name") {

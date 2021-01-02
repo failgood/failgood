@@ -21,7 +21,7 @@ object FailFastTestUnitFinder : TestUnitFinder {
         }
     }
 
-    class FailFastTestUnit(val clazz: Class<*>, val context: RootContext) : AbstractTestUnit(Description(context.name, clazz)) {
+    class FailFastTestUnit(private val clazz: Class<*>, val context: RootContext) : AbstractTestUnit(Description(context.name, clazz)) {
 
         override fun execute(rc: ResultCollector) {
             val result = Suite(context, 1).run()

@@ -16,7 +16,7 @@ object ContextTreeReporterTest {
                         10
                     ),
                     Success(
-                        TestDescriptor(subContext, "subcontexts also contain tests"),
+                        TestDescriptor(subContext, "sub-contexts also contain tests"),
                         20
                     )
                 ), listOf(rootContext, subContext)
@@ -26,7 +26,7 @@ object ContextTreeReporterTest {
                     "* the test runner",
                     " - supports describe/it syntax (0.01ms)",
                     " * contexts can be nested",
-                    "  - subcontexts also contain tests (0.02ms)"
+                    "  - sub-contexts also contain tests (0.02ms)"
                 )
             )
         }
@@ -34,7 +34,7 @@ object ContextTreeReporterTest {
             val reporter = ContextTreeReporter(
                 listOf(
                     Success(
-                        TestDescriptor(subContext, "subcontexts also contain tests"),
+                        TestDescriptor(subContext, "sub-contexts also contain tests"),
                         10
                     )
                 ), listOf(rootContext, subContext)
@@ -43,7 +43,7 @@ object ContextTreeReporterTest {
                 listOf(
                     "* the test runner",
                     " * contexts can be nested",
-                    "  - subcontexts also contain tests (0.01ms)"
+                    "  - sub-contexts also contain tests (0.01ms)"
                 )
             )
         }
@@ -51,7 +51,7 @@ object ContextTreeReporterTest {
             val reporter = ContextTreeReporter(
                 listOf(
                     Success(
-                        TestDescriptor(subSubContext, "subcontexts also contain tests"),
+                        TestDescriptor(subSubContext, "sub-contexts also contain tests"),
                         10
                     )
                 ), listOf(rootContext, subContext, subSubContext)
@@ -61,7 +61,7 @@ object ContextTreeReporterTest {
                     "* the test runner",
                     " * contexts can be nested",
                     "  * deeper",
-                    "   - subcontexts also contain tests (0.01ms)"
+                    "   - sub-contexts also contain tests (0.01ms)"
                 )
             )
         }

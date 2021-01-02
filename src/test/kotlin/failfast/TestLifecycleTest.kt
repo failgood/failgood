@@ -14,7 +14,7 @@ object TestLifecycleTest {
             Suite(1) {
                 val events = mutableListOf<String>()
                 totalEvents.add(events)
-                autoClose("nothing", { events.add("autoclosed") })
+                autoClose("nothing", { events.add("autoClosed") })
                 events.add("root context")
                 test("test 1") {
                     events.add("test 1")
@@ -38,10 +38,10 @@ object TestLifecycleTest {
             }.run()
 
             expectThat(totalEvents).containsExactlyInAnyOrder(
-                listOf("root context", "test 1", "autoclosed"),
-                listOf("root context", "test 2", "autoclosed"),
-                listOf("root context", "context 1", "context 2", "test 3", "autoclosed"),
-                listOf("root context", "tests can be defined after contexts", "autoclosed")
+                listOf("root context", "test 1", "autoClosed"),
+                listOf("root context", "test 2", "autoClosed"),
+                listOf("root context", "context 1", "context 2", "test 3", "autoClosed"),
+                listOf("root context", "tests can be defined after contexts", "autoClosed")
             )
 
         }

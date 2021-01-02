@@ -6,11 +6,8 @@ import failfast.RootContext
 import failfast.Success
 import failfast.Suite
 import failfast.TestDescriptor
-import failfast.TestResult
 import failfast.describe
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.coroutineScope
 import strikt.api.expectThat
 import strikt.api.expectThrows
@@ -50,7 +47,8 @@ object ContextExecutorTest {
             it("returns tests") {
                 coroutineScope {
                     val contextInfo = ContextExecutor(ctx, this).execute()
-                    expectThat(contextInfo.tests.keys).containsExactlyInAnyOrder(TestDescriptor(rootContext, "test 1"),
+                    expectThat(contextInfo.tests.keys).containsExactlyInAnyOrder(
+                        TestDescriptor(rootContext, "test 1"),
                         TestDescriptor(rootContext, "test 2"),
                         TestDescriptor(context2, "test 3"),
                         TestDescriptor(context4, "test 4")
@@ -62,7 +60,8 @@ object ContextExecutorTest {
                     val contextInfo = ContextExecutor(ctx, this).execute()
                     val testResults = contextInfo.tests.values.awaitAll()
                     expectThat(testResults).all { isA<Success>() }
-                    expectThat(testResults.map { it.test }).containsExactlyInAnyOrder(TestDescriptor(rootContext, "test 1"),
+                    expectThat(testResults.map { it.test }).containsExactlyInAnyOrder(
+                        TestDescriptor(rootContext, "test 1"),
                         TestDescriptor(rootContext, "test 2"),
                         TestDescriptor(context2, "test 3"),
                         TestDescriptor(context4, "test 4")

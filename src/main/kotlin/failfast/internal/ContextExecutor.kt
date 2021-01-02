@@ -72,6 +72,7 @@ internal class ContextExecutor(
 
         override suspend fun test(ignoredTestName: String) {
             val testDescriptor = TestDescriptor(parentContext, ignoredTestName)
+            @Suppress("DeferredResultUnused")
             executedTests.computeIfAbsent(testDescriptor) { CompletableDeferred(Ignored(testDescriptor)) }
         }
 

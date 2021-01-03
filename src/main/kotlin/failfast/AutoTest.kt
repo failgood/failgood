@@ -21,7 +21,7 @@ fun autoTest(anyTestClass: KClass<*>) {
         } catch (e: NoSuchFileException) {
             null
         }
-    Files.writeString(timeStampPath, "")
+    Files.write(timeStampPath, byteArrayOf())
     println("last run:$lastRun")
     val classes = FailFast.findTestClasses(anyTestClass, newerThan = lastRun)
     println("will run: ${classes.joinToString { it.simpleName }}")

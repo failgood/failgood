@@ -16,10 +16,15 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 
-internal class ContextExecutor(private val rootContext: RootContext, val scope: CoroutineScope) {
+internal class ContextExecutor(
+    private val rootContext: RootContext,
+    val scope: CoroutineScope,
+    val coroutineStart: CoroutineStart = CoroutineStart.DEFAULT
+) {
     private val startTime = System.nanoTime()
     private val finishedContexts = ConcurrentHashMap.newKeySet<Context>()!!
     val executedTests = ConcurrentHashMap<TestDescriptor, Deferred<TestResult>>()
@@ -44,7 +49,7 @@ internal class ContextExecutor(private val rootContext: RootContext, val scope: 
             } else if (!ranATest) {
                 ranATest = true
                 val deferred =
-                    scope.async {
+                    scope.async(start = coroutineStart) {
                         val testResult =
                             try {
                                 function()
@@ -61,7 +66,7 @@ internal class ContextExecutor(private val rootContext: RootContext, val scope: 
                 executedTests[testDescriptor] = deferred
             } else {
                 val deferred =
-                    scope.async {
+                    scope.async(start = coroutineStart) {
                         val testResult = TestExecutor(rootContext, testDescriptor).execute()
                         testResult
                     }

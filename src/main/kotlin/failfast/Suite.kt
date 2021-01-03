@@ -5,6 +5,7 @@ import java.lang.management.ManagementFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
@@ -53,25 +54,31 @@ class Suite(val rootContexts: Collection<ContextProvider>, private val paralleli
         }
     }
 
-    private suspend fun findTests(coroutineScope: CoroutineScope): List<ContextInfo> {
-        return rootContexts
-            .map {
-                coroutineScope.async {
-                    val context = it.getContext()
-                    if (!context.disabled) {
-                        try {
-                            withTimeout(20000) {
-                                ContextExecutor(context, coroutineScope).execute()
+    suspend fun findTests(coroutineScope: CoroutineScope, executeTests: Boolean = true):
+        List<ContextInfo> {
+            val coroutineStart = if (executeTests) CoroutineStart.DEFAULT else CoroutineStart.LAZY
+            return rootContexts
+                .map {
+                    coroutineScope.async {
+                        val context = it.getContext()
+                        if (!context.disabled) {
+                            try {
+                                withTimeout(20000) {
+                                    ContextExecutor(
+                                        context,
+                                        coroutineScope,
+                                        coroutineStart = coroutineStart
+                                    ).execute()
+                                }
+                            } catch (e: TimeoutCancellationException) {
+                                throw FailFastException("context ${context.name} timed out")
                             }
-                        } catch (e: TimeoutCancellationException) {
-                            throw FailFastException("context ${context.name} timed out")
-                        }
-                    } else
-                        ContextInfo(emptySet(), mapOf())
+                        } else
+                            ContextInfo(emptySet(), mapOf())
+                    }
                 }
-            }
-            .awaitAll()
-    }
+                .awaitAll()
+        }
 }
 
 internal fun uptime(): String {

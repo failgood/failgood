@@ -5,20 +5,21 @@ import org.pitest.testapi.Description
 import org.pitest.testapi.ResultCollector
 import org.pitest.testapi.TestUnitFinder
 import strikt.api.expectThat
-import strikt.assertions.isEqualTo
+import strikt.assertions.hasSize
 
 object FailFastTestUnitFinderTest {
     val context =
         describe(FailFastTestUnitFinder::class) {
-            test("finds test contexts") {
+            test("creates a test unit for each test") {
                 val finder: TestUnitFinder = FailFastTestUnitFinder
-                val testUnit: FailFastTestUnitFinder.FailFastTestUnit =
-                    finder.findTestUnits(FailFastTestPluginFactoryTest::class.java).single() as
-                        FailFastTestUnitFinder.FailFastTestUnit
-                val context = FailFastTestPluginFactoryTest.context
-                expectThat(testUnit.context).isEqualTo(context)
-                expectThat(testUnit.description.name).isEqualTo(context.name)
-                testUnit.execute(TestResultCollector())
+                val testUnits = finder.findTestUnits(FailFastTestPluginFactoryTest::class.java)
+                expectThat(testUnits).hasSize(3)
+                /* val testUnit: FailFastTestUnitFinder.FailFastTestUnit =
+                 * testUnits.single() as
+                 * FailFastTestUnitFinder.FailFastTestUnit
+                 *                val context = FailFastTestPluginFactoryTest.context
+                 * expectThat(testUnit.description.name).isEqualTo(context.name)
+                 * testUnit.execute(TestResultCollector()) */
             }
         }
 }

@@ -8,36 +8,47 @@ fun main() {
 }
 
 object TestLifecycleTest {
+    const val ROOT_CONTEXT_EXECUTED = "root context executed"
+    const val DEPENDENCY_CLOSED = "autoClose callback called"
+    const val TEST_1_EXECUTED = "test 1 executed"
+    const val TEST_2_EXECUTED = "test 2 executed"
+    const val CONTEXT_1_EXECUTED = "context 1 executed"
+    const val CONTEXT_2_EXECUTED = "context 2"
+    const val TEST_3_EXECUTED = "test 3 executed"
+    const val TEST_4_EXECUTED = "test 4 executed"
     val context =
-        context {
-            test("test lifecycle") {
+        describe("test dependencies") {
+            it("are recreated for each test") {
+
+                // the total order of events is not defined because tests run in parallel.
+                // so we track events in a list of a list and record the events that lead to each test execution
                 val totalEvents = mutableListOf<List<String>>()
-                Suite(1) {
-                    val events = mutableListOf<String>()
-                    totalEvents.add(events)
-                    autoClose("nothing", { events.add("autoClosed") })
-                    events.add("root context")
-                    test("test 1") { events.add("test 1") }
-                    test("test 2") { events.add("test 2") }
+                Suite {
+                    val testEvents = mutableListOf<String>()
+                    totalEvents.add(testEvents)
+                    testEvents.add(ROOT_CONTEXT_EXECUTED)
+                    autoClose("dependency", closeFunction = { testEvents.add(DEPENDENCY_CLOSED) })
+                    test("test 1") { testEvents.add(TEST_1_EXECUTED) }
+                    test("test 2") { testEvents.add(TEST_2_EXECUTED) }
                     context("context 1") {
-                        events.add("context 1")
+                        testEvents.add(CONTEXT_1_EXECUTED)
 
                         context("context 2") {
-                            events.add("context 2")
-                            test("test 3") { events.add("test 3") }
+                            testEvents.add(CONTEXT_2_EXECUTED)
+                            test("test 3") { testEvents.add(TEST_3_EXECUTED) }
                         }
                     }
-                    test("tests can be defined after contexts") {
-                        events.add("tests can be defined after contexts")
+                    test("test4: tests can be defined after contexts") {
+                        testEvents.add(TEST_4_EXECUTED)
                     }
                 }.run()
 
                 expectThat(totalEvents)
                     .containsExactlyInAnyOrder(
-                        listOf("root context", "test 1", "autoClosed"),
-                        listOf("root context", "test 2", "autoClosed"),
-                        listOf("root context", "context 1", "context 2", "test 3", "autoClosed"),
-                        listOf("root context", "tests can be defined after contexts", "autoClosed")
+                        listOf(ROOT_CONTEXT_EXECUTED, TEST_1_EXECUTED, DEPENDENCY_CLOSED),
+                        listOf(ROOT_CONTEXT_EXECUTED, TEST_2_EXECUTED, DEPENDENCY_CLOSED),
+                        listOf(ROOT_CONTEXT_EXECUTED, CONTEXT_1_EXECUTED, CONTEXT_2_EXECUTED, TEST_3_EXECUTED, DEPENDENCY_CLOSED),
+                        listOf(ROOT_CONTEXT_EXECUTED, TEST_4_EXECUTED, DEPENDENCY_CLOSED)
                     )
             }
         }

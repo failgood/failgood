@@ -45,7 +45,7 @@ fun main() {
             }
         get(SuiteResult::allTests).hasSize(3)
     }
-    expectThrows<RuntimeException> { results.check() }
+    expectThrows<RuntimeException> { results.check(true) }
     testFinished.get(1, TimeUnit.SECONDS)
     println("bootstrapped after: ${uptime()}ms")
 
@@ -53,5 +53,5 @@ fun main() {
 
     val uptime = ManagementFactory.getRuntimeMXBean().uptime
     expectThat(uptime).isLessThan(1000) // lets see how far we can get with one second
-    suiteResults.check(false)
+    suiteResults.check()
 }

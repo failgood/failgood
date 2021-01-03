@@ -54,7 +54,7 @@ class Suite(val rootContexts: Collection<ContextProvider>, private val paralleli
         }
     }
 
-    suspend fun findTests(coroutineScope: CoroutineScope, executeTests: Boolean = true):
+    internal suspend fun findTests(coroutineScope: CoroutineScope, executeTests: Boolean = true):
         List<ContextInfo> {
             val coroutineStart = if (executeTests) CoroutineStart.DEFAULT else CoroutineStart.LAZY
             return rootContexts

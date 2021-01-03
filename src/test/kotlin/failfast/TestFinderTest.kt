@@ -10,9 +10,9 @@ import kotlin.system.measureTimeMillis
 import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
 
-fun main() {
-    Suite(TestFinderTest.context).run().check()
-}
+    fun main() {
+        Suite(TestFinderTest.context).run().check()
+    }
 
 object TestFinderTest {
     val context =
@@ -28,7 +28,7 @@ object TestFinderTest {
                                     .loadClass("failfast.docs.TestContextOnTopLevelTest"),
                                 ContextExecutorTest::class.java,
                                 ContextTest::class.java,
-                                DescribeTest::class.java,
+                                FailFastTest::class.java,
                                 ExceptionPrettyPrinterTest::class.java,
                                 //                        MultiThreadingPerformanceTestNotAlways::class.java,
                                 RootContextTest::class.java,

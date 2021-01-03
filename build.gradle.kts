@@ -1,4 +1,5 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import com.jfrog.bintray.gradle.BintrayExtension
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -59,6 +60,25 @@ publishing {
         }
     }
 }
+// BINTRAY_API_KEY= ... ./gradlew clean build publish bintrayUpload
+bintray {
+    user = "christophsturm"
+    key = System.getenv("BINTRAY_API_KEY")
+    publish = true
+    setPublications("mavenJava")
+    pkg(
+        delegateClosureOf<BintrayExtension.PackageConfig> {
+            repo = "maven"
+            name = "failfast"
+            version(
+                delegateClosureOf<BintrayExtension.VersionConfig> {
+                    name = project.version as String
+                }
+            )
+        }
+    )
+}
+
 
 tasks.wrapper { distributionType = Wrapper.DistributionType.ALL }
 

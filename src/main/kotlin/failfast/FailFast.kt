@@ -69,7 +69,7 @@ data class SuiteResult(
         kotlin.io.println(message)
     }
 
-    fun check(throwException: Boolean = true) {
+    fun check(throwException: Boolean = false) {
 
         println(
             ContextTreeReporter(allTests, contextInfos.flatMap { it.contexts }).stringReport()

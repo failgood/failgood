@@ -5,12 +5,11 @@
 
 multi threaded test runner for kotlin focusing on simplicity and speed.
 
-## why?
+## goals
 
-* rspec like syntax implemented to work without any pitfalls.
-* really fast (own test suite runs in < 1 second)
+* spec syntax implemented to work just [as expected](https://en.wikipedia.org/wiki/Principle_of_least_astonishment)
+* speed and parallel execution (own test suite runs in < 1 second)
 * really simple. no dependencies and not a lot of code
-* it's the perfect test runner if you know what you are doing and care about the speed of your tests.
 
 ## how it looks like
 
@@ -53,13 +52,10 @@ object FailFastTest {
 
 ## test lifecycle
 
-Just declare your dependencies in the context blocks. they will be recreated for every test. it just works as expected.
-note that this was not invented by
-me,[kotest also supports this and calls it instance per leaf](https://github.com/kotest/kotest/blob/master/doc/isolation_mode.md#instanceperleaf)
-It feels a bit like magic but the implementation is actually really simple.
+Just declare your dependencies in the context blocks. they will be recreated for every test. it just works as expected. 
+I think ScalaTest has a mode that works like that and kotest also supports it,and calls it  [instance per leaf](https://github.com/kotest/kotest/blob/master/doc/isolation_mode.md#instanceperleaf)
 
-I have tried every test runner and every testing style and I like this style the best. its combines the power of a dsl
-with the simplicity of junit 4.
+its combines the power of a dsl with the simplicity of junit 4. 
 
 this is from the test isolation unit test:
 
@@ -113,7 +109,7 @@ It's pretty fast. its own test suite runs in less than one second:
 
 ## running
 
-Currently there is no gradle plugin and no idea plugin.
+Currently, there is no gradle plugin and no idea plugin.
 
 just create a main method in your test sources
 
@@ -139,7 +135,7 @@ tasks.check { dependsOn(testMain) }
 
 ## autotest
 
-add a autotest main method, and pass a random test class to it.
+add a autotest main method, and pass a random test class to it. the class is just used to get the test classloader.
 
 ```kotlin
 fun main() {
@@ -156,15 +152,19 @@ task("autotest", JavaExec::class) {
 }
 ```
 
-run it with `./gradlew -t autotest`
-anytime a test file is recompiled it will run.
+run it with `./gradlew -t autotest`anytime a test file is recompiled it will run.
+This works pretty well, but it's not perfect, because not every change to a tested class triggers a compile of the test class.
+fixing this by reading dependencies from the test classes' constant pool is on the road map.
 
 ## even faster tests, best practices
 
-* avoid heavyweight dependencies the failfast test suite runs in < 1000ms. that's a lot of time for a computer, and a
-  great target for your test suite. slow tests are a code smell.
+* avoid heavyweight dependencies.
+  the failfast test suite runs in < 1000ms. that's a lot of time for a computer, and a
+  great target for your test suite. slow tests are a code smell. An unexpected example for a heavyweight dependency is mockk,
+  it takes about 2 seconds at first invocation.
+  
 
-* spin up slow dependencies at start-up in a separate thread (if you have to). for example this is the main test method
+* spin up slow dependencies at start-up in a separate thread (if you have to use them). for example this is the main test method
   of another open source project of mine:
 
 ```kotlin

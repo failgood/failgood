@@ -16,7 +16,7 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
             } catch (e: Exception) {
                 throw FailFastException(
                     "no idea how to find context in $jClass. declared fields:" +
-                            jClass.declaredFields.joinToString { it.name }
+                        jClass.declaredFields.joinToString { it.name }
                 )
             }
         }

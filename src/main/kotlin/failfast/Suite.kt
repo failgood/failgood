@@ -4,6 +4,7 @@ import failfast.internal.ContextExecutor
 import java.lang.management.ManagementFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
@@ -40,26 +41,8 @@ class Suite(val rootContexts: Collection<ContextProvider>, private val paralleli
             threadPool.asCoroutineDispatcher()
                 .use { dispatcher ->
                     runBlocking(dispatcher) {
-                        val contextInfos =
-                            rootContexts
-                                .map {
-                                    async {
-                                        val context = it.getContext()
-                                        if (!context.disabled) {
-                                            try {
-                                                withTimeout(20000) {
-                                                    ContextExecutor(context, this).execute()
-                                                }
-                                            } catch (e: TimeoutCancellationException) {
-                                                throw FailFastException(
-                                                    "context ${context.name} timed out"
-                                                )
-                                            }
-                                        } else
-                                            ContextInfo(emptySet(), mapOf())
-                                    }
-                                }
-                                .awaitAll()
+                        val contextInfos = findTests(this)
+
                         val results = contextInfos.flatMap { it.tests.values }.awaitAll()
                         SuiteResult(results, results.filterIsInstance<Failed>(), contextInfos)
                     }
@@ -68,6 +51,26 @@ class Suite(val rootContexts: Collection<ContextProvider>, private val paralleli
             threadPool.awaitTermination(100, TimeUnit.SECONDS)
             threadPool.shutdown()
         }
+    }
+
+    private suspend fun findTests(coroutineScope: CoroutineScope): List<ContextInfo> {
+        return rootContexts
+            .map {
+                coroutineScope.async {
+                    val context = it.getContext()
+                    if (!context.disabled) {
+                        try {
+                            withTimeout(20000) {
+                                ContextExecutor(context, coroutineScope).execute()
+                            }
+                        } catch (e: TimeoutCancellationException) {
+                            throw FailFastException("context ${context.name} timed out")
+                        }
+                    } else
+                        ContextInfo(emptySet(), mapOf())
+                }
+            }
+            .awaitAll()
     }
 }
 

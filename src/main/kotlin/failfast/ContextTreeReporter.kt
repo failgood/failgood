@@ -30,8 +30,8 @@ class ContextTreeReporter(results: List<TestResult>, private val allContexts: Li
                             val timeMicro = testResult.timeMicro
                             "$indentString - ${testResult.test.testName} (${time(timeMicro)}ms)"
                         }
-                        is Failed -> "$indentString - ${testResult.test.testName}"
-                        is Ignored -> "$indentString - ${testResult.test.testName}"
+                        is Failed -> "$indentString - ${testResult.test.testName} FAILED"
+                        is Ignored -> "$indentString - ${testResult.test.testName} PENDING"
                     }
 
                 result.add(line)

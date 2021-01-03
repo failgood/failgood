@@ -52,6 +52,29 @@ artifacts {
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
+            pom {
+                name.set("Fail Fast")
+                description.set("a fast test runner for kotlin")
+                url.set("https://github.com/christophsturm/failfast")
+                licenses {
+                    license {
+                        name.set("MIT")
+                        url.set("https://opensource.org/licenses/MIT")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("christophsturm")
+                        name.set("Christoph Sturm")
+                        email.set("me@christophsturm.com")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:https://github.com/christophsturm/failfast.git")
+                    developerConnection.set("scm:git:git@github.com:christophsturm/failfast.git")
+                    url.set("https://github.com/christophsturm/failfast/")
+                }
+            }
             from(components["java"])
             artifact(tasks["sourceJar"])
             groupId = project.group as String
@@ -70,6 +93,7 @@ bintray {
         delegateClosureOf<BintrayExtension.PackageConfig> {
             repo = "maven"
             name = "failfast"
+            setLicenses("MIT")
             version(
                 delegateClosureOf<BintrayExtension.VersionConfig> {
                     name = project.version as String

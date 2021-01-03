@@ -14,10 +14,14 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
             try {
                 jClass.getDeclaredMethod("getContext").invoke(null) as RootContext
             } catch (e: Exception) {
-                throw FailFastException("no idea how to find context in $jClass. declared fields:${jClass.declaredFields.joinToString { it.name }}")
+                throw FailFastException(
+                    "no idea how to find context in $jClass. declared fields:" +
+                            jClass.declaredFields.joinToString { it.name }
+                )
             }
         }
-// slow failsafe version that uses kotlin reflect:
-        //        return kClass.declaredMemberProperties.single { it.name == "context" }.call(kClass.objectInstance) as RootContext
+        // slow failsafe version that uses kotlin reflect:
+        //        return kClass.declaredMemberProperties.single { it.name == "context"
+        // }.call(kClass.objectInstance) as RootContext
     }
 }

@@ -12,30 +12,26 @@ import failfast.Success
 import failfast.TestDescriptor
 import failfast.TestLambda
 import failfast.TestResult
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedQueue
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentLinkedQueue
 
-internal class ContextExecutor(
-    private val rootContext: RootContext,
-    val scope: CoroutineScope
-) {
+internal class ContextExecutor(private val rootContext: RootContext, val scope: CoroutineScope) {
     private val startTime = System.nanoTime()
     private val finishedContexts = ConcurrentHashMap.newKeySet<Context>()!!
     val executedTests = ConcurrentHashMap<TestDescriptor, Deferred<TestResult>>()
 
-
     private inner class ContextVisitor(
         private val parentContext: Context,
         private val resourcesCloser: ResourcesCloser
-    ) :
-        ContextDSL {
+    ) : ContextDSL {
         private val testsInThisContexts = mutableSetOf<String>() // to find duplicates
 
-        // we only run the first new test that we find ourselves. the further tests of the context run with the TestExecutor.
+        // we only run the first new test that we find here. the remaining tests of the context
+        // run with the TestExecutor.
         private var ranATest = false
         var contextsLeft = false // are there sub contexts left to run?
 
@@ -47,25 +43,28 @@ internal class ContextExecutor(
                 return
             } else if (!ranATest) {
                 ranATest = true
-                val deferred = scope.async {
-                    val testResult = try {
-                        function()
-                        resourcesCloser.close()
-                        Success(testDescriptor, (System.nanoTime() - startTime) / 1000)
-                    } catch (e: AssertionError) {
-                        Failed(testDescriptor, e)
-                    } catch (e: Throwable) {
-                        Failed(testDescriptor, e)
-                    }
+                val deferred =
+                    scope.async {
+                        val testResult =
+                            try {
+                                function()
+                                resourcesCloser.close()
+                                Success(testDescriptor, (System.nanoTime() - startTime) / 1000)
+                            } catch (e: AssertionError) {
+                                Failed(testDescriptor, e)
+                            } catch (e: Throwable) {
+                                Failed(testDescriptor, e)
+                            }
 
-                    testResult
-                }
+                        testResult
+                    }
                 executedTests[testDescriptor] = deferred
             } else {
-                val deferred = scope.async {
-                    val testResult = TestExecutor(rootContext, testDescriptor).execute()
-                    testResult
-                }
+                val deferred =
+                    scope.async {
+                        val testResult = TestExecutor(rootContext, testDescriptor).execute()
+                        testResult
+                    }
                 executedTests[testDescriptor] = deferred
             }
         }
@@ -73,26 +72,25 @@ internal class ContextExecutor(
         override suspend fun test(ignoredTestName: String) {
             val testDescriptor = TestDescriptor(parentContext, ignoredTestName)
             @Suppress("DeferredResultUnused")
-            executedTests.computeIfAbsent(testDescriptor) { CompletableDeferred(Ignored(testDescriptor)) }
+            executedTests.computeIfAbsent(testDescriptor) {
+                CompletableDeferred(Ignored(testDescriptor))
+            }
         }
 
         override suspend fun context(name: String, function: ContextLambda) {
-            if (ranATest) { // if we already ran a test in this context we don't need to visit the child context now
-                contextsLeft = true // but we need to run the root context again to visit this child context
+            // if we already ran a test in this context we don't need to visit the child context now
+            if (ranATest) {
+                contextsLeft = true
+                // but we need to run the root context again to visit this child context
                 return
             }
             val context = Context(name, parentContext)
-            if (finishedContexts.contains(context))
-                return
+            if (finishedContexts.contains(context)) return
             val visitor = ContextVisitor(context, resourcesCloser)
             visitor.function()
-            if (visitor.contextsLeft)
-                contextsLeft = true
-            else
-                finishedContexts.add(context)
+            if (visitor.contextsLeft) contextsLeft = true else finishedContexts.add(context)
 
-            if (visitor.ranATest)
-                ranATest = true
+            if (visitor.ranATest) ranATest = true
         }
 
         override suspend fun describe(name: String, function: ContextLambda) {
@@ -123,8 +121,7 @@ internal class ContextExecutor(
             val resourcesCloser = ResourcesCloser()
             val visitor = ContextVisitor(rootContext, resourcesCloser)
             visitor.function()
-            if (!visitor.contextsLeft)
-                break
+            if (!visitor.contextsLeft) break
         }
         finishedContexts.add(rootContext)
         return ContextInfo(finishedContexts, executedTests)

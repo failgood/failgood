@@ -21,22 +21,21 @@ object FailFastTestUnitFinder : TestUnitFinder {
         }
     }
 
-    class FailFastTestUnit(private val clazz: Class<*>, val context: RootContext) : AbstractTestUnit(Description(context.name, clazz)) {
+    class FailFastTestUnit(private val clazz: Class<*>, val context: RootContext) :
+        AbstractTestUnit(Description(context.name, clazz)) {
 
         override fun execute(rc: ResultCollector) {
             val result = Suite(context, 1).run()
-            result.allTests.forEach {
-                val description = Description(it.test.toString(), clazz)
-                rc.notifyStart(description)
-                when (it) {
-                    is Success -> rc.notifyEnd(description)
-                    is Failed -> rc.notifyEnd(description, it.failure)
-                    is Ignored -> rc.notifySkipped(description)
+            result.allTests
+                .forEach {
+                    val description = Description(it.test.toString(), clazz)
+                    rc.notifyStart(description)
+                    when (it) {
+                        is Success -> rc.notifyEnd(description)
+                        is Failed -> rc.notifyEnd(description, it.failure)
+                        is Ignored -> rc.notifySkipped(description)
+                    }
                 }
-            }
         }
-
     }
-
 }
-

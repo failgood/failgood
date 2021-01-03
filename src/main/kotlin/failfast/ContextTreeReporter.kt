@@ -24,14 +24,15 @@ class ContextTreeReporter(results: List<TestResult>, private val allContexts: Li
             result.add("$indentString* ${context.name}")
             val tests = contextMap[context]
             tests?.forEach { testResult ->
-                val line = when (testResult) {
-                    is Success -> {
-                        val timeMicro = testResult.timeMicro
-                        "$indentString - ${testResult.test.testName} (${time(timeMicro)}ms)"
+                val line =
+                    when (testResult) {
+                        is Success -> {
+                            val timeMicro = testResult.timeMicro
+                            "$indentString - ${testResult.test.testName} (${time(timeMicro)}ms)"
+                        }
+                        is Failed -> "$indentString - ${testResult.test.testName}"
+                        is Ignored -> "$indentString - ${testResult.test.testName}"
                     }
-                    is Failed -> "$indentString - ${testResult.test.testName}"
-                    is Ignored -> "$indentString - ${testResult.test.testName}"
-                }
 
                 result.add(line)
             }
@@ -41,10 +42,8 @@ class ContextTreeReporter(results: List<TestResult>, private val allContexts: Li
         }
     }
 
-
     companion object {
         fun time(timeMicro: Long): String = timeFormat.format(timeMicro.toDouble() / 1000)!!
         private val timeFormat = DecimalFormat("#,##0.0#", DecimalFormatSymbols(Locale.US))
     }
-
 }

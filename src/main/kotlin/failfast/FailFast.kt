@@ -1,7 +1,6 @@
 package failfast
 
 import failfast.internal.ExceptionPrettyPrinter
-import kotlinx.coroutines.Deferred
 import java.io.File
 import java.io.FileWriter
 import java.io.PrintWriter
@@ -12,14 +11,20 @@ import java.nio.file.Paths
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileTime
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
+import kotlinx.coroutines.Deferred
 
-data class ContextInfo(val contexts: Set<Context>, val tests: Map<TestDescriptor, Deferred<TestResult>>)
+data class ContextInfo(
+    val contexts: Set<Context>,
+    val tests: Map<TestDescriptor, Deferred<TestResult>>
+)
 
-data class RootContext(val name: String = "root", val disabled: Boolean = false, val function: ContextLambda)
-
+data class RootContext(
+    val name: String = "root",
+    val disabled: Boolean = false,
+    val function: ContextLambda
+)
 
 typealias ContextLambda = suspend ContextDSL.() -> Unit
 
@@ -35,12 +40,11 @@ fun Any.context(disabled: Boolean = false, function: ContextLambda): RootContext
 fun context(description: String, disabled: Boolean = false, function: ContextLambda): RootContext =
     RootContext(description, disabled, function)
 
+fun describe(subjectDescription: String, disabled: Boolean = false, function: ContextLambda):
+    RootContext = RootContext(subjectDescription, disabled, function)
 
-fun describe(subjectDescription: String, disabled: Boolean = false, function: ContextLambda): RootContext =
-    RootContext(subjectDescription, disabled, function)
-
-fun describe(subjectType: KClass<*>, disabled: Boolean = false, function: ContextLambda): RootContext =
-    RootContext(subjectType.simpleName!!, disabled, function)
+fun describe(subjectType: KClass<*>, disabled: Boolean = false, function: ContextLambda):
+    RootContext = RootContext(subjectType.simpleName!!, disabled, function)
 
 interface ContextDSL {
     suspend fun test(name: String, function: TestLambda)
@@ -67,7 +71,10 @@ data class SuiteResult(
 
     fun check(throwException: Boolean = true) {
 
-        println(ContextTreeReporter(allTests, contextInfos.flatMap { it.contexts }).stringReport().joinToString("\n"))
+        println(
+            ContextTreeReporter(allTests, contextInfos.flatMap { it.contexts }).stringReport()
+                .joinToString("\n")
+        )
         if (allOk) {
             val slowTests = allTests.filterIsInstance<Success>().sortedBy { -it.timeMicro }.take(5)
             println("slowest tests:")
@@ -75,15 +82,14 @@ data class SuiteResult(
             println("\n${allTests.size} tests. time: ${uptime()}")
             return
         }
-        if (throwException)
-            throw SuiteFailedException()
-        else {
-            val message = failedTests.joinToString(separator = "\n") {
-                val testDescription = it.test.toString()
-                val exceptionInfo = ExceptionPrettyPrinter().prettyPrint(it.failure)
+        if (throwException) throw SuiteFailedException() else {
+            val message =
+                failedTests.joinToString(separator = "\n") {
+                    val testDescription = it.test.toString()
+                    val exceptionInfo = ExceptionPrettyPrinter().prettyPrint(it.failure)
 
-                "$testDescription failed with $exceptionInfo"
-            }
+                    "$testDescription failed with $exceptionInfo"
+                }
             println("failed tests:\n$message")
             println("${allTests.size} tests. ${failedTests.size} failed. total time: ${uptime()}")
             exitProcess(-1)
@@ -102,11 +108,12 @@ data class Context(val name: String, val parent: Context?) {
     fun stringPath(): String = path.joinToString(" > ")
 }
 
-
 object FailFast {
     /**
      * finds test classes
-     * @param anyTestClass you can pass any test class here, its just used to find the classloader and source root
+     *
+     * @param anyTestClass you can pass any test class here, its just used to find the classloader
+     *     and source root
      * @param excludePattern if not null, classes that match this pattern are excluded
      * @param newerThan only return classes that are newer than this
      */
@@ -118,18 +125,23 @@ object FailFast {
         val classloader = anyTestClass.java.classLoader
         val root = Paths.get(anyTestClass.java.protectionDomain.codeSource.location.path)
         val results = mutableListOf<Class<*>>()
-        Files.walkFileTree(root, object : SimpleFileVisitor<Path>() {
-            override fun visitFile(file: Path?, attrs: BasicFileAttributes?): FileVisitResult {
-                val path = root.relativize(file!!).toString()
-                if (path.endsWith("Test.class") && (newerThan == null || attrs!!.lastModifiedTime() > newerThan)
-                    && (excludePattern == null || !path.contains(excludePattern))
-                ) {
-                    results.add(classloader.loadClass(path.substringBefore(".class").replace("/", ".")))
+        Files.walkFileTree(
+            root,
+            object : SimpleFileVisitor<Path>() {
+                override fun visitFile(file: Path?, attrs: BasicFileAttributes?): FileVisitResult {
+                    val path = root.relativize(file!!).toString()
+                    if (path.endsWith("Test.class") &&
+                        (newerThan == null || attrs!!.lastModifiedTime() > newerThan) &&
+                        (excludePattern == null || !path.contains(excludePattern))
+                    ) {
+                        results.add(
+                            classloader.loadClass(path.substringBefore(".class").replace("/", "."))
+                        )
+                    }
+                    return FileVisitResult.CONTINUE
                 }
-                return FileVisitResult.CONTINUE
             }
-
-        })
+        )
         return results
     }
 }

@@ -9,13 +9,12 @@ fun main() {
 }
 
 object ObjectContextProviderTest {
-    val context = describe(ObjectContextProvider::class) {
-        it("provides a context from an object") {
-            expectThat(ObjectContextProvider(TestFinderTest::class.java).getContext()).isA<RootContext>().and {
-                get(RootContext::name).isEqualTo("test finder")
+    val context =
+        describe(ObjectContextProvider::class) {
+            it("provides a context from an object") {
+                expectThat(ObjectContextProvider(TestFinderTest::class.java).getContext())
+                    .isA<RootContext>()
+                    .and { get(RootContext::name).isEqualTo("test finder") }
             }
         }
-    }
-
 }
-

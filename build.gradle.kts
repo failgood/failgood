@@ -9,7 +9,7 @@ plugins {
     `maven-publish`
     id("com.jfrog.bintray") version "1.8.5"
     id("info.solidsoft.pitest") version "1.5.2"
-
+    id("tech.formatter-kt.formatter") version "0.6.15"
 }
 
 group = "failfast"
@@ -42,9 +42,7 @@ tasks.withType<JavaCompile> {
     targetCompatibility = "1.8"
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-}
+tasks.withType<KotlinCompile> { kotlinOptions.jvmTarget = "1.8" }
 
 artifacts {
     add("archives", tasks["jar"])
@@ -64,18 +62,17 @@ publishing {
 
 tasks.wrapper { distributionType = Wrapper.DistributionType.ALL }
 
-val testMain = task("testMain", JavaExec::class) {
-    main = "failfast.FailFastBootstrapKt"
-    classpath = sourceSets["test"].runtimeClasspath
-}
+val testMain =
+    task("testMain", JavaExec::class) {
+        main = "failfast.FailFastBootstrapKt"
+        classpath = sourceSets["test"].runtimeClasspath
+    }
 task("autotest", JavaExec::class) {
     main = "failfast.AutoTestMainKt"
     classpath = sourceSets["test"].runtimeClasspath
 }
 
-tasks.check {
-    dependsOn(testMain)
-}
+tasks.check { dependsOn(testMain) }
 
 plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
@@ -113,4 +110,3 @@ tasks.named<DependencyUpdatesTask>("dependencyUpdates") {
         reportfileName = "report"
     }
 }
-

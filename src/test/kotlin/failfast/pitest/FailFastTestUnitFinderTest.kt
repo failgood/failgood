@@ -8,18 +8,19 @@ import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
 object FailFastTestUnitFinderTest {
-    val context = describe(FailFastTestUnitFinder::class) {
-        test("finds test contexts") {
-            val finder: TestUnitFinder = FailFastTestUnitFinder
-            val testUnit: FailFastTestUnitFinder.FailFastTestUnit =
-                finder.findTestUnits(FailFastTestPluginFactoryTest::class.java)
-                    .single() as FailFastTestUnitFinder.FailFastTestUnit
-            val context = FailFastTestPluginFactoryTest.context
-            expectThat(testUnit.context).isEqualTo(context)
-            expectThat(testUnit.description.name).isEqualTo(context.name)
-            testUnit.execute(TestResultCollector())
+    val context =
+        describe(FailFastTestUnitFinder::class) {
+            test("finds test contexts") {
+                val finder: TestUnitFinder = FailFastTestUnitFinder
+                val testUnit: FailFastTestUnitFinder.FailFastTestUnit =
+                    finder.findTestUnits(FailFastTestPluginFactoryTest::class.java).single() as
+                        FailFastTestUnitFinder.FailFastTestUnit
+                val context = FailFastTestPluginFactoryTest.context
+                expectThat(testUnit.context).isEqualTo(context)
+                expectThat(testUnit.description.name).isEqualTo(context.name)
+                testUnit.execute(TestResultCollector())
+            }
         }
-    }
 }
 
 class TestResultCollector : ResultCollector {
@@ -36,6 +37,4 @@ class TestResultCollector : ResultCollector {
     }
 
     override fun shouldExit() = false
-
 }
-

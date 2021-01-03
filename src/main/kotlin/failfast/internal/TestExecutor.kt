@@ -31,7 +31,6 @@ internal class TestExecutor(private val context: RootContext, private val test: 
         override suspend fun context(name: String, function: ContextLambda) {
         }
 
-
         override suspend fun describe(name: String, function: ContextLambda) {
         }
 
@@ -52,8 +51,7 @@ internal class TestExecutor(private val context: RootContext, private val test: 
 
     inner class ContextFinder(private val contexts: List<String>) : ContextDSL, Base() {
         override suspend fun context(name: String, function: ContextLambda) {
-            if (contexts.first() != name)
-                return
+            if (contexts.first() != name) return
 
             contextDSL(contexts.drop(1)).function()
         }
@@ -63,10 +61,8 @@ internal class TestExecutor(private val context: RootContext, private val test: 
         }
     }
 
-    private fun contextDSL(parentContexts: List<String>): ContextDSL = if (parentContexts.isEmpty())
-        TestFinder()
-    else
-        ContextFinder(parentContexts)
+    private fun contextDSL(parentContexts: List<String>): ContextDSL =
+        if (parentContexts.isEmpty()) TestFinder() else ContextFinder(parentContexts)
 
     inner class TestFinder : Base() {
         override suspend fun it(behaviorDescription: String, function: TestLambda) {
@@ -75,12 +71,13 @@ internal class TestExecutor(private val context: RootContext, private val test: 
 
         override suspend fun test(name: String, function: TestLambda) {
             if (test.testName == name)
-                testResult = try {
-                    function()
-                    Success(test, (System.nanoTime() - startTime) / 1000)
-                } catch (e: Throwable) {
-                    Failed(test, e)
-                }
+                testResult =
+                    try {
+                        function()
+                        Success(test, (System.nanoTime() - startTime) / 1000)
+                    } catch (e: Throwable) {
+                        Failed(test, e)
+                    }
         }
     }
 }

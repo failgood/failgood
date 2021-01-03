@@ -103,7 +103,6 @@ bintray {
     )
 }
 
-
 tasks.wrapper { distributionType = Wrapper.DistributionType.ALL }
 
 val testMain =

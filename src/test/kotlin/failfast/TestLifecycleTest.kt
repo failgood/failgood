@@ -4,7 +4,7 @@ import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
 
 fun main() {
-    Suite(TestLifecycleTest.context).run().check(false)
+    Suite(TestLifecycleTest.context).run().check()
 }
 
 object TestLifecycleTest {
@@ -16,12 +16,10 @@ object TestLifecycleTest {
     const val CONTEXT_2_EXECUTED = "context 2"
     const val TEST_3_EXECUTED = "test 3 executed"
     const val TEST_4_EXECUTED = "test 4 executed"
-    val context =
-        describe("test dependencies") {
+    val context = describe("test dependencies") {
             it("are recreated for each test") {
-
-                // the total order of events is not defined because tests run in parallel.
-                // so we track events in a list of a list and record the events that lead to each test execution
+                // tests run in parallel, so the total order of events is not defined.
+                // we track events in a list of lists and record the events that lead to each test
                 val totalEvents = mutableListOf<List<String>>()
                 Suite {
                     val testEvents = mutableListOf<String>()
@@ -47,7 +45,13 @@ object TestLifecycleTest {
                     .containsExactlyInAnyOrder(
                         listOf(ROOT_CONTEXT_EXECUTED, TEST_1_EXECUTED, DEPENDENCY_CLOSED),
                         listOf(ROOT_CONTEXT_EXECUTED, TEST_2_EXECUTED, DEPENDENCY_CLOSED),
-                        listOf(ROOT_CONTEXT_EXECUTED, CONTEXT_1_EXECUTED, CONTEXT_2_EXECUTED, TEST_3_EXECUTED, DEPENDENCY_CLOSED),
+                        listOf(
+                            ROOT_CONTEXT_EXECUTED,
+                            CONTEXT_1_EXECUTED,
+                            CONTEXT_2_EXECUTED,
+                            TEST_3_EXECUTED,
+                            DEPENDENCY_CLOSED
+                        ),
                         listOf(ROOT_CONTEXT_EXECUTED, TEST_4_EXECUTED, DEPENDENCY_CLOSED)
                     )
             }

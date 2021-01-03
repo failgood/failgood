@@ -9,9 +9,9 @@ import kotlin.reflect.KClass
 
 /**
  * runs all changes tests. use with ./gradle -t or run it manually from idea
- * @param anyTestClass you can pass any test class here, its just used to find the classloader
- * and source root
-
+ *
+ * @param anyTestClass you can pass any test class here, its just used to find the classloader and
+ *     source root
  */
 fun autoTest(anyTestClass: KClass<*>) {
     val timeStampPath = Paths.get(".autotest.failfast")

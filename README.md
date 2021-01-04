@@ -60,7 +60,7 @@ repositories {
 }
 
 dependencies {
-    testImplementation("failfast:failfast:0.1")
+    testImplementation("com.christophsturm:failfast:0.1.1")
 }
 ```
 

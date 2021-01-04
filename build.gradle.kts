@@ -13,8 +13,8 @@ plugins {
     id("tech.formatter-kt.formatter") version "0.6.15"
 }
 
-group = "failfast"
-version = "0.1"
+group = "com.christophsturm"
+version = "0.1.1"
 
 val coroutinesVersion = "1.4.2"
 

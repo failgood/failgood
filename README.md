@@ -5,11 +5,15 @@
 
 multi threaded test runner for kotlin focusing on simplicity and speed.
 
-## goals
+## goals / features
 
 * spec syntax implemented to work just [as expected](https://en.wikipedia.org/wiki/Principle_of_least_astonishment)
-* speed and parallel execution (own test suite runs in < 1 second)
+* speed and parallel execution.  (own test suite runs in < 1 second)
+* configuration via api. just create a class with a main method vor each test configuration, and run it in gradle or idea
+* run your tests so fast that you can run all the tests on every change
+* autotest to run only changed tests (or tests that test changed classes (planned))  
 * really simple. no dependencies and not a lot of code
+* pitest plugin (see the build file)
 
 ## how it looks like
 
@@ -26,9 +30,7 @@ object FailFastTest {
                 test("tests without body are pending")
             }
             context("context/test syntax is also supported") {
-                test(
-                    "i prefer describe/it but if there is no subject to describe I use " +
-                            "context/test"
+                test( "i prefer describe/it but if there is no subject to describe I use context/test"
                 ) {}
             }
 
@@ -49,6 +51,7 @@ object FailFastTest {
 }
 
 ```
+to see it in action check out [the r2dbcfun test suite](https://github.com/christophsturm/r2dbcfun/blob/main/src/test/kotlin/r2dbcfun/test/AllTests.kt)
 
 ## gradle build
 
@@ -56,7 +59,6 @@ object FailFastTest {
 repositories {
     jcenter()
     mavenCentral()
-    maven("https://dl.bintray.com/christophsturm/maven/")
 }
 
 dependencies {

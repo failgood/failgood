@@ -1,10 +1,14 @@
 package failfast
 
+import kotlin.reflect.KClass
+
 fun interface ContextProvider {
     fun getContext(): RootContext
 }
 
 class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvider {
+    constructor(kClass: KClass<*>) : this(kClass.java)
+
     override fun getContext(): RootContext {
         return try {
             val instanceField = jClass.getDeclaredField("INSTANCE")

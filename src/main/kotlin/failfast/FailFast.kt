@@ -121,10 +121,10 @@ object FailFast {
         anyTestClass: KClass<*>,
         excludePattern: String? = null,
         newerThan: FileTime? = null
-    ): List<Class<*>> {
+    ): MutableList<KClass<*>> {
         val classloader = anyTestClass.java.classLoader
         val root = Paths.get(anyTestClass.java.protectionDomain.codeSource.location.path)
-        val results = mutableListOf<Class<*>>()
+        val results = mutableListOf<KClass<*>>()
         Files.walkFileTree(
             root,
             object : SimpleFileVisitor<Path>() {
@@ -135,7 +135,7 @@ object FailFast {
                         (excludePattern == null || !path.contains(excludePattern))
                     ) {
                         results.add(
-                            classloader.loadClass(path.substringBefore(".class").replace("/", "."))
+                            classloader.loadClass(path.substringBefore(".class").replace("/", ".")).kotlin
                         )
                     }
                     return FileVisitResult.CONTINUE

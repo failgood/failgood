@@ -13,13 +13,14 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import kotlin.reflect.KClass
 
 class Suite(val rootContexts: Collection<ContextProvider>, private val parallelism: Int = cpus()) {
     companion object {
         fun fromContexts(rootContexts: Collection<RootContext>, parallelism: Int = cpus()) =
             Suite(rootContexts.map { ContextProvider { it } }, parallelism)
 
-        fun fromClasses(classes: List<Class<*>>, parallelism: Int = cpus()) =
+        fun fromClasses(classes: List<KClass<*>>, parallelism: Int = cpus()) =
             Suite(classes.map { ObjectContextProvider(it) }, parallelism)
     }
 

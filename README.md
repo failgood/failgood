@@ -68,17 +68,31 @@ dependencies {
 
 ## running
 
-Currently, there is no gradle plugin and no idea plugin. just create a main method in your test sources
+Currently, there is no gradle plugin and no idea plugin. Just create a main method in your test sources
 
 ```kotlin
 fun main() {
-    // this will find all tests that are in the same source root as TransactionFunctionalTest
+    // this will find tests in all files named *Test in the same source root as TransactionFunctionalTest
     Suite.fromClasses(findTestClasses(TransactionFunctionalTest::class)).run().check()
 }
 
 ```
+alternatively you can also just manually list all test contexts:
+```kotlin
+fun main() {
+  Suite.fromContexts(listOf(MyTest.context, MyOtherTest.context)).run().check()
+}
+```
 
-add this to your gradle file:
+
+or all test classes (possibly slightly faster than listing contexts, because more work is done in parallel)
+```kotlin
+fun main() {
+  Suite.fromClasses(listOf(MyTest::class, MyOtherTest::class)).run().check()
+}
+```
+
+then add a gradle task file that calls it with the test classpath:
 
 ```kotlin
 val testMain =
@@ -92,13 +106,13 @@ tasks.check { dependsOn(testMain) }
 
 `./gradlew check` will then run the tests.
 
-you can also skip test detection alltogether and just create a suite from a list of root contexts. Look at the test
+you can also skip test detection and just create a suite from a list of root contexts. Look at the test
 suite for more info
 
 ## test lifecycle
 
 Just declare your dependencies in the context blocks. they will be recreated for every test. it just works as expected.
-I think ScalaTest has a mode that works like that and kotest also supports it,and calls
+I think ScalaTest has a mode that works like that and kotest also supports it, and calls
 it  [instance per leaf](https://github.com/kotest/kotest/blob/master/doc/isolation_mode.md#instanceperleaf)
 
 It combines the power of a dsl with the simplicity of junit 4.
@@ -162,7 +176,7 @@ expectThat(uptime).isLessThan(1000) // lets see how far we can get with one seco
 
 ## autotest
 
-add a autotest main method, and pass a random test class to it. the class is just used to get the test classloader.
+add an autotest main method, and pass a random test class to it. the class is just used to get the test classloader.
 
 ```kotlin
 fun main() {
@@ -211,4 +225,4 @@ dependencies from the test classes' constant pool is on the road map.
 * if you need a web server run it on a random port.
 * if you need a database create a db with a random name for each
   test. [like here](https://github.com/christophsturm/r2dbcfun/blob/main/src/test/kotlin/r2dbcfun/test/TestUtil.kt#L18)
-  (or run the test in a transaction that you rollback at the end)
+  (or run the test in a transaction that is rolled back at the end)

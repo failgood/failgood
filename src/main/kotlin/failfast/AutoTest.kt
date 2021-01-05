@@ -24,6 +24,6 @@ fun autoTest(anyTestClass: KClass<*>) {
     Files.write(timeStampPath, byteArrayOf())
     println("last run:$lastRun")
     val classes = FailFast.findTestClasses(anyTestClass, newerThan = lastRun)
-    println("will run: ${classes.joinToString { it.simpleName }}")
+    println("will run: ${classes.joinToString { it.simpleName!! }}")
     if (classes.isNotEmpty()) Suite(classes.map { ObjectContextProvider(it) }).run().check(false)
 }

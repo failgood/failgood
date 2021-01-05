@@ -1,10 +1,15 @@
-package failfast
+package failfast.internal
 
+import failfast.Context
+import failfast.Failed
+import failfast.Ignored
+import failfast.Success
+import failfast.TestResult
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.*
 
-class ContextTreeReporter(results: List<TestResult>, private val allContexts: List<Context>) {
+internal class ContextTreeReporter(results: List<TestResult>, private val allContexts: List<Context>) {
     private val contextMap = results.groupBy { it.test.parentContext }
     fun stringReport(): List<String> {
         val result = mutableListOf<String>()

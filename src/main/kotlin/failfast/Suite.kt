@@ -1,6 +1,7 @@
 package failfast
 
 import failfast.internal.ContextExecutor
+import failfast.internal.ContextInfo
 import java.lang.management.ManagementFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -45,7 +46,7 @@ class Suite(val rootContexts: Collection<ContextProvider>, private val paralleli
                         val contextInfos = findTests(this)
 
                         val results = contextInfos.flatMap { it.tests.values }.awaitAll()
-                        SuiteResult(results, results.filterIsInstance<Failed>(), contextInfos)
+                        SuiteResult(results, results.filterIsInstance<Failed>(), contextInfos.flatMap { it.contexts })
                     }
                 }
         } finally {

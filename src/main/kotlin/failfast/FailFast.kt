@@ -1,5 +1,6 @@
 package failfast
 
+import failfast.internal.ContextTreeReporter
 import failfast.internal.ExceptionPrettyPrinter
 import java.io.File
 import java.io.FileWriter
@@ -13,12 +14,6 @@ import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileTime
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
-import kotlinx.coroutines.Deferred
-
-data class ContextInfo(
-    val contexts: Set<Context>,
-    val tests: Map<TestDescriptor, Deferred<TestResult>>
-)
 
 data class RootContext(
     val name: String = "root",
@@ -51,6 +46,11 @@ interface ContextDSL {
     suspend fun test(ignoredTestName: String)
     suspend fun context(name: String, function: ContextLambda)
     suspend fun describe(name: String, function: ContextLambda)
+
+    /**
+     * start a test dependency that should be closed after the a test run
+     * use this instead of beforeEach/afterEach
+     */
     fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T
     suspend fun it(behaviorDescription: String, function: TestLambda)
     suspend fun itWill(behaviorDescription: String)
@@ -60,7 +60,7 @@ interface ContextDSL {
 data class SuiteResult(
     val allTests: List<TestResult>,
     val failedTests: Collection<Failed>,
-    val contextInfos: List<ContextInfo>
+    val contexts: List<Context>
 ) {
     private val writer = PrintWriter(FileWriter(File("failfast.log"), true), true)
     val allOk = failedTests.isEmpty()
@@ -72,7 +72,7 @@ data class SuiteResult(
     fun check(throwException: Boolean = false) {
 
         println(
-            ContextTreeReporter(allTests, contextInfos.flatMap { it.contexts }).stringReport()
+            ContextTreeReporter(allTests, contexts ).stringReport()
                 .joinToString("\n")
         )
         if (allOk) {

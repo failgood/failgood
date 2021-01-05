@@ -1,5 +1,6 @@
 package failfast
 
+import failfast.internal.ContextTreeReporter
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 

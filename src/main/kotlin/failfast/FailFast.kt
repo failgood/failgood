@@ -36,10 +36,10 @@ fun context(description: String, disabled: Boolean = false, function: ContextLam
     RootContext(description, disabled, function)
 
 fun describe(subjectDescription: String, disabled: Boolean = false, function: ContextLambda):
-    RootContext = RootContext(subjectDescription, disabled, function)
+        RootContext = RootContext(subjectDescription, disabled, function)
 
 fun describe(subjectType: KClass<*>, disabled: Boolean = false, function: ContextLambda):
-    RootContext = RootContext(subjectType.simpleName!!, disabled, function)
+        RootContext = RootContext(subjectType.simpleName!!, disabled, function)
 
 interface ContextDSL {
     suspend fun test(name: String, function: TestLambda)
@@ -72,7 +72,7 @@ data class SuiteResult(
     fun check(throwException: Boolean = false) {
 
         println(
-            ContextTreeReporter(allTests, contexts ).stringReport()
+            ContextTreeReporter(allTests, contexts).stringReport()
                 .joinToString("\n")
         )
         if (allOk) {
@@ -114,14 +114,15 @@ object FailFast {
      *
      * @param anyTestClass you can pass any test class here, its just used to find the classloader
      *     and source root
-     * @param excludePattern if not null, classes that match this pattern are excluded
-     * @param newerThan only return classes that are newer than this
+     * @param classIncludeRegex regex that included classes must match
+     *        you can also call findTestClasses multiple times to run unit tests before integration tests.
+     *        for example Suite.fromClasses(findTestClasses(TestClass::class, Regex(".*Test.class\$)+findTestClasses(TestClass::class, Regex(".*IT.class\$))
+     * @param newerThan only return classes that are newer than this. used by autotest
      */
     fun findTestClasses(
         anyTestClass: KClass<*>,
-        excludePattern: String? = null,
-        newerThan: FileTime? = null,
-        classIncludeRegex: Regex = Regex(".*Test.class\$")
+        classIncludeRegex: Regex = Regex(".*Test.class\$"),
+        newerThan: FileTime? = null
     ): MutableList<KClass<*>> {
         val classloader = anyTestClass.java.classLoader
         val root = Paths.get(anyTestClass.java.protectionDomain.codeSource.location.path)
@@ -131,10 +132,7 @@ object FailFast {
             object : SimpleFileVisitor<Path>() {
                 override fun visitFile(file: Path?, attrs: BasicFileAttributes?): FileVisitResult {
                     val path = root.relativize(file!!).toString()
-                    if (path.matches(classIncludeRegex) &&
-                        (newerThan == null || attrs!!.lastModifiedTime() > newerThan) &&
-                        (excludePattern == null || !path.contains(excludePattern))
-                    ) {
+                    if (path.matches(classIncludeRegex) && (newerThan == null || attrs!!.lastModifiedTime() > newerThan)) {
                         results.add(
                             classloader.loadClass(path.substringBefore(".class").replace("/", ".")).kotlin
                         )

@@ -120,7 +120,8 @@ object FailFast {
     fun findTestClasses(
         anyTestClass: KClass<*>,
         excludePattern: String? = null,
-        newerThan: FileTime? = null
+        newerThan: FileTime? = null,
+        classIncludeRegex: Regex = Regex(".*Test.class\$")
     ): MutableList<KClass<*>> {
         val classloader = anyTestClass.java.classLoader
         val root = Paths.get(anyTestClass.java.protectionDomain.codeSource.location.path)
@@ -130,7 +131,7 @@ object FailFast {
             object : SimpleFileVisitor<Path>() {
                 override fun visitFile(file: Path?, attrs: BasicFileAttributes?): FileVisitResult {
                     val path = root.relativize(file!!).toString()
-                    if (path.endsWith("Test.class") &&
+                    if (path.matches(classIncludeRegex) &&
                         (newerThan == null || attrs!!.lastModifiedTime() > newerThan) &&
                         (excludePattern == null || !path.contains(excludePattern))
                     ) {

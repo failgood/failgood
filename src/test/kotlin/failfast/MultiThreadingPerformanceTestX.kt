@@ -1,12 +1,12 @@
 package failfast
 
 fun main() {
-    Suite(MultiThreadingPerformanceTestNotAlways.context).run(1000).check()
+    Suite(MultiThreadingPerformanceTestX.context).run(1000).check()
 }
 
-object MultiThreadingPerformanceTestNotAlways {
+object MultiThreadingPerformanceTestX {
     val context =
-        context {
+        describe("multi threaded test running") {
             repeat(1000) {
                 test("sleeping test $it") {
                     @Suppress("BlockingMethodInNonBlockingContext")

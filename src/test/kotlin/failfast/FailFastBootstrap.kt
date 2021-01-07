@@ -1,8 +1,5 @@
 package failfast
 
-import java.lang.management.ManagementFactory
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.TimeUnit
 import strikt.api.expectThat
 import strikt.api.expectThrows
 import strikt.assertions.all
@@ -12,12 +9,15 @@ import strikt.assertions.isEqualTo
 import strikt.assertions.isFalse
 import strikt.assertions.isLessThan
 import strikt.assertions.isTrue
+import java.lang.management.ManagementFactory
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 
 fun main() {
     val testFinished = CompletableFuture<Unit>()
     val failingTestFinished = CompletableFuture<Throwable>()
     val results =
-        Suite {
+        Suite() {
             test("firstTest") {
                 expectThat(true).isTrue()
                 testFinished.complete(Unit)

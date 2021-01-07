@@ -1,7 +1,7 @@
 package failfast
 
 fun main() {
-    Suite(MultiThreadingPerformanceTestNotAlways.context, 1000).run().check()
+    Suite(MultiThreadingPerformanceTestNotAlways.context).run(1000).check()
 }
 
 object MultiThreadingPerformanceTestNotAlways {

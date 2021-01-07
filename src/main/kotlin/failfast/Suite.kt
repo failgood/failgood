@@ -15,26 +15,26 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 
-class Suite(val rootContexts: Collection<ContextProvider>, private val parallelism: Int = cpus()) {
+class Suite(val rootContexts: Collection<ContextProvider>) {
     companion object {
-        fun fromContexts(rootContexts: Collection<RootContext>, parallelism: Int = cpus()) =
-            Suite(rootContexts.map { ContextProvider { it } }, parallelism)
+        fun fromContexts(rootContexts: Collection<RootContext>) =
+            Suite(rootContexts.map { ContextProvider { it } })
 
-        fun fromClasses(classes: List<KClass<*>>, parallelism: Int = cpus()) =
-            Suite(classes.map { ObjectContextProvider(it) }, parallelism)
+        fun fromClasses(classes: List<KClass<*>>) =
+            Suite(classes.map { ObjectContextProvider(it) })
     }
 
     init {
         if (rootContexts.isEmpty()) throw EmptySuiteException()
     }
 
-    constructor(rootContext: RootContext, parallelism: Int = cpus()) :
-        this(listOf(ContextProvider { rootContext }), parallelism)
+    constructor(rootContext: RootContext) :
+            this(listOf(ContextProvider { rootContext }))
 
-    constructor(parallelism: Int = cpus(), function: ContextLambda) :
-        this(RootContext("root", false, function), parallelism)
+    constructor(function: ContextLambda) :
+            this(RootContext("root", false, function))
 
-    fun run(): SuiteResult {
+    fun run(parallelism: Int = cpus()): SuiteResult {
         val threadPool =
             if (parallelism > 1)
                 Executors.newWorkStealingPool(parallelism)

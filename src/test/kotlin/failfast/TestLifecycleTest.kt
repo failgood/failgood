@@ -25,7 +25,7 @@ object TestLifecycleTest {
             // tests run in parallel, so the total order of events is not defined.
             // we track events in a list of lists and record the events that lead to each test
             val totalEvents = mutableListOf<List<Event>>()
-            Suite {
+            Suite() {
                 val testEvents = mutableListOf<Event>()
                 totalEvents.add(testEvents)
                 testEvents.add(ROOT_CONTEXT_EXECUTED)

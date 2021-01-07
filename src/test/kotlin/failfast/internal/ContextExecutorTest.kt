@@ -105,7 +105,7 @@ object ContextExecutorTest {
                 var closeCalled = false
                 val closable = AutoCloseable { closeCalled = true }
                 var resource: AutoCloseable? = null
-                Suite {
+                Suite() {
                     resource = autoClose(closable) {
                         it.close()
                         events.add("close callback")

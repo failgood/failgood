@@ -110,12 +110,17 @@ val testMain =
         main = "failfast.FailFastBootstrapKt"
         classpath = sourceSets["test"].runtimeClasspath
     }
+val multiThreadedTest =
+    task("multiThreadedTest", JavaExec::class) {
+        main = "failfast.MultiThreadingPerformanceTestNotAlwaysKt"
+        classpath = sourceSets["test"].runtimeClasspath
+    }
 task("autotest", JavaExec::class) {
     main = "failfast.AutoTestMainKt"
     classpath = sourceSets["test"].runtimeClasspath
 }
 
-tasks.check { dependsOn(testMain) }
+tasks.check { dependsOn(testMain, multiThreadedTest) }
 
 plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {

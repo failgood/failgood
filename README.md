@@ -3,7 +3,7 @@
 
 # Failfast
 
-multi threaded test runner for kotlin focusing on simplicity and speed.
+multithreaded test runner for kotlin focusing on simplicity and speed.
 
 ## goals / features
 
@@ -106,8 +106,8 @@ tasks.check { dependsOn(testMain) }
 
 `./gradlew check` will then run the tests.
 
-you can also skip test detection and just create a suite from a list of root contexts. Look at the test
-suite for more info
+you can also skip test detection and just create a suite from a list of root contexts. Look at the test suite for more
+info.
 
 ## test lifecycle
 

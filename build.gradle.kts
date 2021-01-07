@@ -112,7 +112,7 @@ val testMain =
     }
 val multiThreadedTest =
     task("multiThreadedTest", JavaExec::class) {
-        main = "failfast.MultiThreadingPerformanceTestNotAlwaysKt"
+        main = "failfast.MultiThreadingPerformanceTestXKt"
         classpath = sourceSets["test"].runtimeClasspath
     }
 task("autotest", JavaExec::class) {

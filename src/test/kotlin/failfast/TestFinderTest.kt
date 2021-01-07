@@ -1,14 +1,15 @@
 package failfast
 
+import failfast.docs.ContractsTest
 import failfast.docs.ObjectTestContextTest
 import failfast.internal.ContextExecutorTest
 import failfast.internal.ExceptionPrettyPrinterTest
 import failfast.internal.TestExecutorTest
 import failfast.pitest.FailFastTestPluginFactoryTest
 import failfast.pitest.FailFastTestUnitFinderTest
-import kotlin.system.measureTimeMillis
 import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
+import kotlin.system.measureTimeMillis
 
 fun main() {
     Suite(TestFinderTest.context).run().check()
@@ -39,7 +40,8 @@ object TestFinderTest {
                                 ContextTreeReporterTest::class,
                                 TestExecutorTest::class,
                                 FailFastTestUnitFinderTest::class,
-                                FailFastTestPluginFactoryTest::class
+                                FailFastTestPluginFactoryTest::class,
+                                ContractsTest::class
                             )
                     }
                 )

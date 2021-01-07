@@ -2,9 +2,6 @@ package failfast
 
 import failfast.internal.ContextExecutor
 import failfast.internal.ContextInfo
-import java.lang.management.ManagementFactory
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.TimeoutCancellationException
@@ -13,6 +10,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import java.lang.management.ManagementFactory
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 
 class Suite(val rootContexts: Collection<ContextProvider>, private val parallelism: Int = cpus()) {
@@ -89,7 +89,7 @@ internal fun uptime(): String {
     val uptime = ManagementFactory.getRuntimeMXBean().uptime
     val cpuTime = operatingSystemMXBean.processCpuTime / 1000000
     val percentage = cpuTime * 100 / uptime
-    return "total:${uptime}ms cpu:${cpuTime}ms, pct:${percentage}%"
+    return "total:${uptime}ms cpu:${cpuTime}ms, load:${percentage}%"
 }
 
 private fun cpus() = Runtime.getRuntime().availableProcessors()

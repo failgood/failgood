@@ -8,16 +8,18 @@ import strikt.assertions.containsExactly
 
 object Junit4ReporterTest {
     val context = describe(Junit4Reporter::class) {
-        val control = Junit4Reporter(testResults).stringReport()
+        it("reports test results") {
+            val control = Junit4Reporter(testResults).stringReport()
 
-        expectThat(control).containsExactly(
-            listOf(
-                """<testsuite tests="2">""",
-                """<testcase classname="the test runner" name="supports describe/it syntax"/>""",
-                """<testcase classname="the test runner > contexts can be nested" name="sub-contexts also contain tests"/>""",
-                """</testsuite>"""
+            expectThat(control).containsExactly(
+                listOf(
+                    """<testsuite tests="2">""",
+                    """<testcase classname="the test runner" name="supports describe/it syntax"/>""",
+                    """<testcase classname="the test runner > contexts can be nested" name="sub-contexts also contain tests"/>""",
+                    """</testsuite>"""
+                )
             )
-        )
+        }
     }
 }
 

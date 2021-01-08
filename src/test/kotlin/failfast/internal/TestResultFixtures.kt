@@ -9,6 +9,7 @@ object TestResultFixtures {
     val rootContext = Context("the test runner", null)
     val subContext = Context("contexts can be nested", rootContext)
     val subSubContext = Context("deeper", subContext)
+    val failure = RuntimeException("failure message\nwith newline")
     val testResults = listOf(
         Success(TestDescriptor(rootContext, "supports describe/it syntax"), 10),
         Success(
@@ -16,7 +17,7 @@ object TestResultFixtures {
             20
         ),
         Failed(
-            TestDescriptor(subContext, "failed test"), RuntimeException("failure message")
+            TestDescriptor(subContext, "failed test"), failure
         )
     )
 }

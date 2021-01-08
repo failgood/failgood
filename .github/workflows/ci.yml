@@ -23,7 +23,16 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
           restore-keys: ${{ runner.os }}-gradle
       - name: Build with Gradle
+        continue-on-error: true
         env:
           CI: true
         run: |
-          ./gradlew check build
+          ./gradlew build
+      - name: Test Report ${{matrix.java}}
+        uses: ScaCap/action-surefire-report@v1.0.5
+        with:
+          check_name: Test Report ${{matrix.java}}
+          report_paths: '**/build/test-results/test/TEST-*.xml'
+          fail_on_test_failures: true
+          fail_if_no_tests: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -3,7 +3,9 @@ package failfast
 import failfast.docs.ContractsTest
 import failfast.docs.ObjectTestContextTest
 import failfast.internal.ContextExecutorTest
+import failfast.internal.ContextTreeReporterTest
 import failfast.internal.ExceptionPrettyPrinterTest
+import failfast.internal.Junit4ReporterTest
 import failfast.internal.TestExecutorTest
 import failfast.pitest.FailFastTestPluginFactoryTest
 import failfast.pitest.FailFastTestUnitFinderTest
@@ -41,7 +43,8 @@ object TestFinderTest {
                                 TestExecutorTest::class,
                                 FailFastTestUnitFinderTest::class,
                                 FailFastTestPluginFactoryTest::class,
-                                ContractsTest::class
+                                ContractsTest::class,
+                                Junit4ReporterTest::class
                             )
                     }
                 )

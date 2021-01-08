@@ -1,25 +1,30 @@
-package failfast
+package failfast.internal
 
-import failfast.internal.ContextTreeReporter
+import failfast.Context
+import failfast.Success
+import failfast.TestDescriptor
+import failfast.describe
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
+
+val rootContext = Context("the test runner", null)
+val subContext = Context("contexts can be nested", rootContext)
+val subSubContext = Context("deeper", subContext)
+val testResults = listOf(
+    Success(TestDescriptor(rootContext, "supports describe/it syntax"), 10),
+    Success(
+        TestDescriptor(subContext, "sub-contexts also contain tests"),
+        20
+    )
+)
 
 object ContextTreeReporterTest {
     val context =
         describe(ContextTreeReporter::class) {
-            val rootContext = Context("the test runner", null)
-            val subContext = Context("contexts can be nested", rootContext)
-            val subSubContext = Context("deeper", subContext)
             it("outputs test results in tree form") {
                 val reporter =
                     ContextTreeReporter(
-                        listOf(
-                            Success(TestDescriptor(rootContext, "supports describe/it syntax"), 10),
-                            Success(
-                                TestDescriptor(subContext, "sub-contexts also contain tests"),
-                                20
-                            )
-                        ),
+                        testResults,
                         listOf(rootContext, subContext)
                     )
                 expectThat(reporter.stringReport())

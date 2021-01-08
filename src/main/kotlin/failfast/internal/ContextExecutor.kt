@@ -101,7 +101,7 @@ internal class ContextExecutor(
             test(behaviorDescription, function)
         }
 
-        override suspend fun itWill(behaviorDescription: String, function: TestLambda) {
+        override fun itWill(behaviorDescription: String, function: TestLambda) {
             val testDescriptor = TestDescriptor(parentContext, behaviorDescription)
             @Suppress("DeferredResultUnused")
             executedTests.computeIfAbsent(testDescriptor) {

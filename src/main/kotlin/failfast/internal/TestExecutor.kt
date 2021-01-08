@@ -39,7 +39,7 @@ internal class TestExecutor(private val context: RootContext, private val test: 
         override suspend fun it(behaviorDescription: String, function: TestLambda) {
         }
 
-        override suspend fun itWill(behaviorDescription: String, function: TestLambda) {
+        override fun itWill(behaviorDescription: String, function: TestLambda) {
         }
     }
 

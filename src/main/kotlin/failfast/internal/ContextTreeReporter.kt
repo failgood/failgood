@@ -35,7 +35,7 @@ internal class ContextTreeReporter(results: List<TestResult>, private val allCon
                             val timeMicro = testResult.timeMicro
                             "$indentString - ${testResult.test.testName} (${time(timeMicro)}ms)"
                         }
-                        is Failed -> "$indentString - ${testResult.test.testName} FAILED"
+                        is Failed -> "$indentString - ${testResult.test.testName} FAILED (${testResult.failure.message})"
                         is Ignored -> "$indentString - ${testResult.test.testName} PENDING"
                     }
 

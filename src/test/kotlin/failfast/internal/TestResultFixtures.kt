@@ -16,7 +16,7 @@ object TestResultFixtures {
             20
         ),
         Failed(
-            TestDescriptor(subContext, "failed test"), RuntimeException("this is the message")
+            TestDescriptor(subContext, "failed test"), RuntimeException("failure message")
         )
     )
 }

@@ -1,6 +1,6 @@
 package failfast.internal
 
-class ExceptionPrettyPrinter(val throwable: Throwable) {
+class ExceptionPrettyPrinter(private val throwable: Throwable) {
     val stackTrace =
         throwable.stackTrace
             .filter { it.lineNumber > 0 }

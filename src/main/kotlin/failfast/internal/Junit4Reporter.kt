@@ -5,7 +5,7 @@ import failfast.Ignored
 import failfast.Success
 import failfast.TestResult
 
-private fun String.xmlEscape() = this.replace("\n", "&#13;&#10;")
+private fun String.xmlEscape() = this.replace(Regex("[^\\x00-\\x7F]"), "").replace("\n", "&#13;&#10;")
 
 class Junit4Reporter(private val testResults: List<TestResult>) {
     fun stringReport(): List<String> {

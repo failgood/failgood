@@ -10,7 +10,11 @@ import failfast.TestDescriptor
 import failfast.TestLambda
 import failfast.TestResult
 
-internal class TestExecutor(private val context: RootContext, private val test: TestDescriptor) {
+/**
+ * Executes a single test with all its parent contexts
+ * Async Called by ContextExecutor to execute all tests that it does not have to execute itself
+ */
+internal class SingleTestExecutor(private val context: RootContext, private val test: TestDescriptor) {
     private val closeables = mutableListOf<AutoCloseable>()
     private var testResult: TestResult? = null
     private val startTime = System.nanoTime()

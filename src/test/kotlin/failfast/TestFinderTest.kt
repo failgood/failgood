@@ -6,7 +6,7 @@ import failfast.internal.ContextExecutorTest
 import failfast.internal.ContextTreeReporterTest
 import failfast.internal.ExceptionPrettyPrinterTest
 import failfast.internal.Junit4ReporterTest
-import failfast.internal.TestExecutorTest
+import failfast.internal.SingleTestExecutorTest
 import failfast.pitest.FailFastTestPluginFactoryTest
 import failfast.pitest.FailFastTestUnitFinderTest
 import strikt.api.expectThat
@@ -40,7 +40,7 @@ object TestFinderTest {
                                 ObjectContextProviderTest::class,
                                 TestLifecycleTest::class,
                                 ContextTreeReporterTest::class,
-                                TestExecutorTest::class,
+                                SingleTestExecutorTest::class,
                                 FailFastTestUnitFinderTest::class,
                                 FailFastTestPluginFactoryTest::class,
                                 ContractsTest::class,

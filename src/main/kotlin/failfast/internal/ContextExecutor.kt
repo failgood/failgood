@@ -66,7 +66,7 @@ internal class ContextExecutor(
             } else {
                 val deferred =
                     scope.async(start = coroutineStart) {
-                        val testResult = TestExecutor(rootContext, testDescriptor).execute()
+                        val testResult = SingleTestExecutor(rootContext, testDescriptor).execute()
                         testResult
                     }
                 executedTests[testDescriptor] = deferred

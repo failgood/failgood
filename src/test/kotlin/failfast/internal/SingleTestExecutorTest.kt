@@ -9,9 +9,9 @@ import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.isA
 
-object TestExecutorTest {
+object SingleTestExecutorTest {
     val context =
-        describe(TestExecutor::class) {
+        describe(SingleTestExecutor::class) {
             val events = mutableListOf<String>()
             val ctx =
                 RootContext("root context") {
@@ -32,17 +32,17 @@ object TestExecutorTest {
             val context2 = Context("context 2", context1)
 
             it("executes a single test (1)") {
-                val result = TestExecutor(ctx, TestDescriptor(rootContext, "test 1")).execute()
+                val result = SingleTestExecutor(ctx, TestDescriptor(rootContext, "test 1")).execute()
                 expectThat(events).containsExactly("root context", "test 1")
                 expectThat(result).isA<Success>()
             }
             it("executes a single test (2)") {
-                val result = TestExecutor(ctx, TestDescriptor(rootContext, "test 2")).execute()
+                val result = SingleTestExecutor(ctx, TestDescriptor(rootContext, "test 2")).execute()
                 expectThat(events).containsExactly("root context", "test 2")
                 expectThat(result).isA<Success>()
             }
             it("executes a single test (3)") {
-                val result = TestExecutor(ctx, TestDescriptor(context2, "test 3")).execute()
+                val result = SingleTestExecutor(ctx, TestDescriptor(context2, "test 3")).execute()
                 expectThat(events)
                     .containsExactly("root context", "context 1", "context 2", "test 3")
                 expectThat(result).isA<Success>()
@@ -60,7 +60,7 @@ object TestExecutorTest {
                         Context("with a valid root context", Context("ContextExecutor", null)),
                         "returns contexts"
                     )
-                val executor = TestExecutor(context, test)
+                val executor = SingleTestExecutor(context, test)
                 executor.execute()
             }
         }

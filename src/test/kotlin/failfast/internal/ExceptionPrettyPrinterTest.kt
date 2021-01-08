@@ -2,19 +2,24 @@ package failfast.internal
 
 import failfast.describe
 import strikt.api.expectThat
-import strikt.assertions.matches
 import strikt.assertions.startsWith
+import strikt.assertions.trim
 
 object ExceptionPrettyPrinterTest {
     val context =
         describe(ExceptionPrettyPrinter::class) {
-            test("shortens assertion errors") {
-                val assertionError = AssertionError("cause")
-                val epp = ExceptionPrettyPrinter(assertionError)
+            val assertionError = AssertionError("message")
+            val epp = ExceptionPrettyPrinter(assertionError)
+            it("pretty prints the exception with stack trace") {
                 expectThat(epp.prettyPrint()) {
-                    matches(Regex(".*ContextExecutor.kt:\\d*\\)$", RegexOption.DOT_MATCHES_ALL))
-                    startsWith(assertionError.javaClass.name)
+                    startsWith(assertionError.javaClass.name) // first line
+
+                    // last line
+                    get { split("\n").last() }.trim().startsWith("at failfast")
                 }
+            }
+            it("shortens the stack trace") {
+                expectThat(epp.stackTrace.last().className).startsWith("failfast")
             }
         }
 }

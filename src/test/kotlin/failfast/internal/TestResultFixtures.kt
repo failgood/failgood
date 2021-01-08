@@ -1,6 +1,7 @@
 package failfast.internal
 
 import failfast.Context
+import failfast.Failed
 import failfast.Success
 import failfast.TestDescriptor
 
@@ -13,6 +14,9 @@ object TestResultFixtures {
         Success(
             TestDescriptor(subContext, "sub-contexts also contain tests"),
             20
+        ),
+        Failed(
+            TestDescriptor(subContext, "failed test"), RuntimeException("this is the message")
         )
     )
 }

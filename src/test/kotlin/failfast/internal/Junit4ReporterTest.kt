@@ -16,7 +16,7 @@ object Junit4ReporterTest {
                     """<testcase classname="the test runner" name="supports describe/it syntax"/>""",
                     """<testcase classname="the test runner > contexts can be nested" name="sub-contexts also contain tests"/>""",
                     """<testcase classname="the test runner > contexts can be nested" name="failed test">""",
-                    """<failure message="failure message">""",
+                    """<failure message="failure message&#13;&#10;with newline">""",
                     ExceptionPrettyPrinter(TestResultFixtures.failure).stackTrace.joinToString("\n"),
                     """</failure>""",
                     """</testcase>""",

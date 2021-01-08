@@ -26,7 +26,7 @@ object ContextTreeReporterTest {
                             " - supports describe/it syntax (0.01ms)",
                             " * contexts can be nested",
                             "  - sub-contexts also contain tests (0.02ms)",
-                            "  - failed test FAILED (failure message)"
+                            "  - failed test FAILED (failure message\\nwith newline)"
                         )
                     )
             }

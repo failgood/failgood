@@ -5,6 +5,8 @@ import failfast.Ignored
 import failfast.Success
 import failfast.TestResult
 
+private fun String.xmlEscape() = this.replace("\n", "&#13;&#10;")
+
 class Junit4Reporter(private val testResults: List<TestResult>) {
     fun stringReport(): List<String> {
         val result = mutableListOf("<testsuite tests=\"${testResults.size}\">")
@@ -16,7 +18,7 @@ class Junit4Reporter(private val testResults: List<TestResult>) {
                 is Failed -> {
                     listOf(
                         """<testcase classname="${it.test.parentContext.stringPath()}" name="${it.test.testName}">""",
-                        """<failure message="${it.failure.message}">""",
+                        """<failure message="${it.failure.message?.xmlEscape()}">""",
                         ExceptionPrettyPrinter(it.failure).stackTrace.joinToString("\n"),
                         """</failure>""",
                         """</testcase>"""

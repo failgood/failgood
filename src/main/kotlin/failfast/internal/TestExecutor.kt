@@ -25,9 +25,6 @@ internal class TestExecutor(private val context: RootContext, private val test: 
         override suspend fun test(name: String, function: TestLambda) {
         }
 
-        override suspend fun test(ignoredTestName: String) {
-        }
-
         override suspend fun context(name: String, function: ContextLambda) {
         }
 

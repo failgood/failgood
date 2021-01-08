@@ -43,7 +43,6 @@ fun describe(subjectType: KClass<*>, disabled: Boolean = false, function: Contex
 
 interface ContextDSL {
     suspend fun test(name: String, function: TestLambda)
-    suspend fun test(ignoredTestName: String)
     suspend fun context(name: String, function: ContextLambda)
     suspend fun describe(name: String, function: ContextLambda)
 

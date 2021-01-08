@@ -73,14 +73,6 @@ internal class ContextExecutor(
             }
         }
 
-        override suspend fun test(ignoredTestName: String) {
-            val testDescriptor = TestDescriptor(parentContext, ignoredTestName)
-            @Suppress("DeferredResultUnused")
-            executedTests.computeIfAbsent(testDescriptor) {
-                CompletableDeferred(Ignored(testDescriptor))
-            }
-        }
-
         override suspend fun context(name: String, function: ContextLambda) {
             // if we already ran a test in this context we don't need to visit the child context now
             if (ranATest) {
@@ -110,7 +102,11 @@ internal class ContextExecutor(
         }
 
         override suspend fun itWill(behaviorDescription: String, function: TestLambda) {
-            test(behaviorDescription)
+            val testDescriptor = TestDescriptor(parentContext, behaviorDescription)
+            @Suppress("DeferredResultUnused")
+            executedTests.computeIfAbsent(testDescriptor) {
+                CompletableDeferred(Ignored(testDescriptor))
+            }
         }
     }
 

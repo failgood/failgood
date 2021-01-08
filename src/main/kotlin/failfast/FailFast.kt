@@ -53,8 +53,7 @@ interface ContextDSL {
      */
     fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T
     suspend fun it(behaviorDescription: String, function: TestLambda)
-    suspend fun itWill(behaviorDescription: String)
-    suspend fun itWill(behaviorDescription: String, function: TestLambda)
+    suspend fun itWill(behaviorDescription: String, function: TestLambda = {})
 }
 
 data class SuiteResult(

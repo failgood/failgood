@@ -11,13 +11,13 @@ import failfast.Success
 import failfast.TestDescriptor
 import failfast.TestLambda
 import failfast.TestResult
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentLinkedQueue
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedQueue
 
 internal class ContextExecutor(
     private val rootContext: RootContext,
@@ -107,10 +107,6 @@ internal class ContextExecutor(
 
         override suspend fun it(behaviorDescription: String, function: TestLambda) {
             test(behaviorDescription, function)
-        }
-
-        override suspend fun itWill(behaviorDescription: String) {
-            test(behaviorDescription)
         }
 
         override suspend fun itWill(behaviorDescription: String, function: TestLambda) {

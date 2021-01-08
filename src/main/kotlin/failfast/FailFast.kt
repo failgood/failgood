@@ -84,7 +84,7 @@ data class SuiteResult(
             val message =
                 failedTests.joinToString(separator = "\n") {
                     val testDescription = it.test.toString()
-                    val exceptionInfo = ExceptionPrettyPrinter().prettyPrint(it.failure)
+                    val exceptionInfo = ExceptionPrettyPrinter(it.failure).prettyPrint()
 
                     "$testDescription failed with $exceptionInfo"
                 }

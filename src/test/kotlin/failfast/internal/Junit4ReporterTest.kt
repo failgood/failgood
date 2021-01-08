@@ -9,7 +9,7 @@ import strikt.assertions.containsExactly
 object Junit4ReporterTest {
     val context = describe(Junit4Reporter::class) {
         it("reports test results") {
-            val control = Junit4Reporter(testResults).stringReport()
+            val control = Junit4Reporter(TestResultFixtures.testResults).stringReport()
 
             expectThat(control).containsExactly(
                 listOf(

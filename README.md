@@ -27,7 +27,6 @@ object FailFastTest {
             describe("disabled/pending tests") {
                 itWill("itWill can be used to mark pending tests") {}
                 itWill("for pending tests the test body is optional")
-                test("tests without body are pending")
             }
             context("context/test syntax is also supported") {
                 test( "i prefer describe/it but if there is no subject to describe I use context/test"

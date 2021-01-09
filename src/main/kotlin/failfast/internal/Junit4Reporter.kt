@@ -5,8 +5,20 @@ import failfast.Ignored
 import failfast.Success
 import failfast.TestResult
 
-private fun String.xmlEscape() =
-    this.replace(Regex("[^\\x00-\\x7F]"), "").replace("\n", "&#13;&#10;").replace("\"", "&quot;")
+// based on a snippet by Ben Woodworth on the kotlin slack
+fun String.xmlEscape(): String = buildString(length + 30) {
+    for (char in this@xmlEscape) {
+        when (char) {
+            '\n' -> append("&#13;&#10;")
+            '&' -> append("&amp;")
+            '<' -> append("&lt;")
+            '>' -> append("&gt;")
+            '"' -> append("&quot;")
+            '\'' -> append("&apos;")
+            else -> append(char)
+        }
+    }
+}
 
 class Junit4Reporter(private val testResults: List<TestResult>) {
     fun stringReport(): List<String> {

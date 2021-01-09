@@ -68,19 +68,21 @@ data class SuiteResult(
         kotlin.io.println(message)
     }
 
-    fun check(throwException: Boolean = false) {
+    fun check(throwException: Boolean = false, writeReport: Boolean = false) {
 
         println(
             ContextTreeReporter(allTests, contexts).stringReport()
                 .joinToString("\n")
         )
         //**/build/test-results/test/TEST-*.xml'
-        val reportDir = Paths.get("build", "test-results", "test")
-        Files.createDirectories(reportDir)
-        Files.write(
-            reportDir.resolve("TEST-failfast.xml"),
-            Junit4Reporter(allTests).stringReport().joinToString("\n").encodeToByteArray()
-        )
+        if (writeReport) {
+            val reportDir = Paths.get("build", "test-results", "test")
+            Files.createDirectories(reportDir)
+            Files.write(
+                reportDir.resolve("TEST-failfast.xml"),
+                Junit4Reporter(allTests).stringReport().joinToString("\n").encodeToByteArray()
+            )
+        }
         if (allOk) {
             val slowTests = allTests.filterIsInstance<Success>().sortedBy { -it.timeMicro }.take(5)
             println("slowest tests:")

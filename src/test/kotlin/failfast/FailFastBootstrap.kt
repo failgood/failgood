@@ -53,5 +53,5 @@ fun main() {
 
     val uptime = ManagementFactory.getRuntimeMXBean().uptime
     expectThat(uptime).isLessThan(1000) // lets see how far we can get with one second
-    suiteResults.check()
+    suiteResults.check(writeReport = true)
 }

@@ -8,6 +8,6 @@ class ExceptionPrettyPrinter(private val throwable: Throwable) {
 
     fun prettyPrint(): String {
         return "${throwable.javaClass.name} : ${throwable.message}\n\tat " +
-                stackTrace.joinToString("\n\tat ")
+                stackTrace.joinToString("\n\tat ") + throwable.cause?.let { "\ncause: $it\n${it.stackTraceToString()}" }
     }
 }

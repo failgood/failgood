@@ -1,6 +1,6 @@
 package failfast
 
-import failfast.Event.*
+import failfast.TestLifecycleTest.Event.*
 import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
 
@@ -8,24 +8,25 @@ fun main() {
     Suite(TestLifecycleTest.context).run().check()
 }
 
-enum class Event {
-    ROOT_CONTEXT_EXECUTED,
-    DEPENDENCY_CLOSED,
-    TEST_1_EXECUTED,
-    TEST_2_EXECUTED,
-    CONTEXT_1_EXECUTED,
-    CONTEXT_2_EXECUTED,
-    TEST_3_EXECUTED,
-    TEST_4_EXECUTED
-}
 
 object TestLifecycleTest {
+    private enum class Event {
+        ROOT_CONTEXT_EXECUTED,
+        DEPENDENCY_CLOSED,
+        TEST_1_EXECUTED,
+        TEST_2_EXECUTED,
+        CONTEXT_1_EXECUTED,
+        CONTEXT_2_EXECUTED,
+        TEST_3_EXECUTED,
+        TEST_4_EXECUTED
+    }
+
     val context = describe("test dependencies") {
         it("are recreated for each test") {
             // tests run in parallel, so the total order of events is not defined.
             // we track events in a list of lists and record the events that lead to each test
             val totalEvents = mutableListOf<List<Event>>()
-            Suite() {
+            Suite {
                 val testEvents = mutableListOf<Event>()
                 totalEvents.add(testEvents)
                 testEvents.add(ROOT_CONTEXT_EXECUTED)

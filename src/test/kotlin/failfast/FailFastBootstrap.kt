@@ -17,7 +17,7 @@ fun main() {
     val testFinished = CompletableFuture<Unit>()
     val failingTestFinished = CompletableFuture<Throwable>()
     val results =
-        Suite() {
+        Suite {
             test("firstTest") {
                 expectThat(true).isTrue()
                 testFinished.complete(Unit)

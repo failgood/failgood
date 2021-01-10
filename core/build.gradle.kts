@@ -1,20 +1,14 @@
-import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import com.jfrog.bintray.gradle.BintrayExtension
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     java
-    kotlin("jvm") version "1.4.21-2"
-    id("com.github.ben-manes.versions") version "0.36.0"
+    kotlin("jvm")
     `maven-publish`
-    id("com.jfrog.bintray") version "1.8.5"
-    id("info.solidsoft.pitest") version "1.5.2"
-    id("tech.formatter-kt.formatter") version "0.6.15"
+    id("com.jfrog.bintray")
+    id("info.solidsoft.pitest")
 }
-
-group = "com.christophsturm"
-version = "0.1.1"
 
 val coroutinesVersion = "1.4.2"
 
@@ -138,22 +132,3 @@ plugins.withId("info.solidsoft.pitest") {
     }
 }
 
-tasks.named<DependencyUpdatesTask>("dependencyUpdates") {
-    val filtered =
-        listOf("alpha", "beta", "rc", "cr", "m", "preview", "dev", "eap")
-            .map { qualifier -> Regex("(?i).*[.-]$qualifier[.\\d-]*.*") }
-    resolutionStrategy {
-        componentSelection {
-            all {
-                if (filtered.any { it.matches(candidate.version) }) {
-                    reject("Release candidate")
-                }
-            }
-        }
-        // optional parameters
-        checkForGradleUpdate = true
-        outputFormatter = "json"
-        outputDir = "build/dependencyUpdates"
-        reportfileName = "report"
-    }
-}

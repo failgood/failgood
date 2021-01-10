@@ -1,10 +1,10 @@
 package failfast
 
-import java.util.concurrent.Executors
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
+import java.util.concurrent.Executors
 
 fun main() {
     val threadPool = Executors.newWorkStealingPool(1000)

@@ -6,4 +6,4 @@ pluginManagement {
     }
 }
 rootProject.name = "failfast"
-include("core")
+include("failfast")

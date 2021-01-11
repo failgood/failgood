@@ -71,8 +71,8 @@ Currently, there is no gradle plugin and no idea plugin. Just create a main meth
 
 ```kotlin
 fun main() {
-    // this will find tests in all files named *Test in the same source root as TransactionFunctionalTest
-    Suite.fromClasses(findTestClasses(TransactionFunctionalTest::class)).run().check()
+  // this will find tests in all files named *Test in the same source root as the main class
+  Suite.fromClasses(findTestClasses()).run().check()
 }
 
 ```
@@ -175,11 +175,11 @@ expectThat(uptime).isLessThan(1000) // lets see how far we can get with one seco
 
 ## autotest
 
-add an autotest main method, and pass a random test class to it. the class is just used to get the test classloader.
+add a main method that just runs autotest:
 
 ```kotlin
 fun main() {
-    autoTest(anyTestClass = ContextExecutorTest::class)
+  autoTest()
 }
 ```
 

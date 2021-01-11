@@ -10,10 +10,10 @@ import kotlin.reflect.KClass
 /**
  * runs all changes tests. use with ./gradle -t or run it manually from idea
  *
- * @param anyTestClass you can pass any test class here, its just used to find the classloader and
- *     source root
+ * @param randomTestClass usually not needed but you can pass any test class here,
+ *        and it will be used to find the classloader and source root
  */
-fun autoTest(anyTestClass: KClass<*>) {
+fun autoTest(randomTestClass: KClass<*> = FailFast.findCaller()) {
     val timeStampPath = Paths.get(".autotest.failfast")
     val lastRun: FileTime? =
         try {
@@ -23,7 +23,7 @@ fun autoTest(anyTestClass: KClass<*>) {
         }
     Files.write(timeStampPath, byteArrayOf())
     println("last run:$lastRun")
-    val classes = FailFast.findTestClasses(newerThan = lastRun, randomTestClass = anyTestClass)
+    val classes = FailFast.findTestClasses(newerThan = lastRun, randomTestClass = randomTestClass)
     println("will run: ${classes.joinToString { it.simpleName!! }}")
     if (classes.isNotEmpty()) Suite(classes.map { ObjectContextProvider(it) }).run().check(false)
 }

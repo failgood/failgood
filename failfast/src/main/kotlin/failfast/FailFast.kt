@@ -125,7 +125,7 @@ object FailFast {
     fun findTestClasses(
         classIncludeRegex: Regex = Regex(".*Test.class\$"),
         newerThan: FileTime? = null,
-        randomTestClass: KClass<*> = javaClass.classLoader.loadClass(Throwable().stackTrace[2].className).kotlin
+        randomTestClass: KClass<*> = findCaller()
     ): MutableList<KClass<*>> {
         val classloader = randomTestClass.java.classLoader
         val root = Paths.get(randomTestClass.java.protectionDomain.codeSource.location.path)
@@ -146,4 +146,6 @@ object FailFast {
         )
         return results
     }
+
+    fun findCaller() = javaClass.classLoader.loadClass(Throwable().stackTrace[2].className).kotlin
 }

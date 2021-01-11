@@ -113,20 +113,22 @@ object FailFast {
     /**
      * finds test classes
      *
-     * @param anyTestClass you can pass any test class here, its just used to find the classloader
-     *     and source root
      * @param classIncludeRegex regex that included classes must match
      *        you can also call findTestClasses multiple times to run unit tests before integration tests.
      *        for example Suite.fromClasses(findTestClasses(TestClass::class, Regex(".*Test.class\$)+findTestClasses(TestClass::class, Regex(".*IT.class\$))
+     *
      * @param newerThan only return classes that are newer than this. used by autotest
+     *
+     * @param randomTestClass usually not needed but you can pass any test class here,
+     *        and it will be used to find the classloader and source root
      */
     fun findTestClasses(
-        anyTestClass: KClass<*>,
         classIncludeRegex: Regex = Regex(".*Test.class\$"),
-        newerThan: FileTime? = null
+        newerThan: FileTime? = null,
+        randomTestClass: KClass<*> = javaClass.classLoader.loadClass(Throwable().stackTrace[2].className).kotlin
     ): MutableList<KClass<*>> {
-        val classloader = anyTestClass.java.classLoader
-        val root = Paths.get(anyTestClass.java.protectionDomain.codeSource.location.path)
+        val classloader = randomTestClass.java.classLoader
+        val root = Paths.get(randomTestClass.java.protectionDomain.codeSource.location.path)
         val results = mutableListOf<KClass<*>>()
         Files.walkFileTree(
             root,

@@ -23,7 +23,7 @@ object TestFinderTest {
             it("can find Test classes") {
                 println(
                     measureTimeMillis {
-                        expectThat(FailFast.findTestClasses(TestFinderTest::class))
+                        expectThat(FailFast.findTestClasses(randomTestClass = TestFinderTest::class))
                             .containsExactlyInAnyOrder(
                                 ObjectTestContextTest::class,
                                 TestFinderTest::class.java

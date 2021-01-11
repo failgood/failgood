@@ -1,6 +1,5 @@
 package failfast.pitest
 
-import java.util.*
 import org.pitest.classinfo.ClassByteArraySource
 import org.pitest.help.PitHelpError
 import org.pitest.testapi.Configuration
@@ -8,6 +7,7 @@ import org.pitest.testapi.TestGroupConfig
 import org.pitest.testapi.TestPluginFactory
 import org.pitest.testapi.TestSuiteFinder
 import org.pitest.testapi.TestUnitFinder
+import java.util.*
 
 class FailFastTestPluginFactory : TestPluginFactory {
     override fun description(): String = "fail-fast pitest plugin"

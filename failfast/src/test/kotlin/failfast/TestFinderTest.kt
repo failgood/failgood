@@ -34,7 +34,6 @@ object TestFinderTest {
                                 FailFastTest::class,
                                 ExceptionPrettyPrinterTest::class,
                                 //                        MultiThreadingPerformanceTestNotAlways::class,
-                                RootContextTest::class,
                                 SuiteTest::class,
                                 TestFinderTest::class,
                                 ObjectContextProviderTest::class,

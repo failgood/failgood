@@ -49,7 +49,7 @@ fun main() {
     testFinished.get(1, TimeUnit.SECONDS)
     println("bootstrapped after: ${uptime()}ms")
 
-    val suiteResults = Suite.fromClasses(FailFast.findTestClasses(RootContextTest::class)).run()
+    val suiteResults = Suite.fromClasses(FailFast.findTestClasses(FailFastTest::class)).run()
 
     val uptime = ManagementFactory.getRuntimeMXBean().uptime
     expectThat(uptime).isLessThan(1000) // lets see how far we can get with one second

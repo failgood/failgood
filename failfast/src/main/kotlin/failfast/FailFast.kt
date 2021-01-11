@@ -26,13 +26,6 @@ typealias ContextLambda = suspend ContextDSL.() -> Unit
 
 typealias TestLambda = suspend () -> Unit
 
-fun Any.context(disabled: Boolean = false, function: ContextLambda): RootContext =
-    RootContext(
-        this::class.simpleName ?: throw FailFastException("could not determine object name"),
-        disabled,
-        function
-    )
-
 fun context(description: String, disabled: Boolean = false, function: ContextLambda): RootContext =
     RootContext(description, disabled, function)
 

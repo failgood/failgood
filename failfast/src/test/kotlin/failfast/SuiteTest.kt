@@ -8,7 +8,7 @@ import strikt.assertions.isTrue
 
 object SuiteTest {
     val context =
-        context {
+        describe(Suite::class) {
             val context =
                 RootContext("one failing one passing test") {
                     test("firstTest") { expectThat(true).isTrue() }

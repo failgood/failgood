@@ -11,6 +11,9 @@ plugins {
 }
 
 val coroutinesVersion = "1.4.2"
+group = "com.christophsturm"
+version = "0.2.0"
+
 
 repositories {
     mavenCentral()

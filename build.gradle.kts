@@ -8,8 +8,6 @@ plugins {
     id("tech.formatter-kt.formatter") version "0.6.15"
 }
 
-group = "com.christophsturm"
-version = "0.2.0"
 
 
 tasks.named<DependencyUpdatesTask>("dependencyUpdates") {

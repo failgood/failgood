@@ -5,5 +5,5 @@ pluginManagement {
 //        maven("https://dl.bintray.com/kotlin/kotlin-eap")
     }
 }
-rootProject.name = "failfast"
+rootProject.name = "failfast-root"
 include("failfast", "failfast-examples")

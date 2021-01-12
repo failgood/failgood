@@ -32,6 +32,9 @@ fun context(description: String, disabled: Boolean = false, function: ContextLam
 fun describe(subjectDescription: String, disabled: Boolean = false, function: ContextLambda):
         RootContext = RootContext(subjectDescription, disabled, function)
 
+inline fun <reified T> describe(disabled: Boolean = false, noinline function: ContextLambda):
+        RootContext = describe(T::class, disabled, function)
+
 fun describe(subjectType: KClass<*>, disabled: Boolean = false, function: ContextLambda):
         RootContext = RootContext(subjectType.simpleName!!, disabled, function)
 

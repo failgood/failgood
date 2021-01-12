@@ -30,14 +30,13 @@ tasks {
         from(sourceSets.main.get().allSource)
         archiveClassifier.set("sources")
     }
+    withType<Test> { enabled = false }
+    withType<JavaCompile> {
+        sourceCompatibility = "1.8"
+        targetCompatibility = "1.8"
+    }
+    withType<KotlinCompile> { kotlinOptions.jvmTarget = "1.8" }
 }
-
-tasks.withType<JavaCompile> {
-    sourceCompatibility = "1.8"
-    targetCompatibility = "1.8"
-}
-
-tasks.withType<KotlinCompile> { kotlinOptions.jvmTarget = "1.8" }
 
 artifacts {
     add("archives", tasks["jar"])
@@ -118,8 +117,7 @@ tasks.check { dependsOn(testMain, multiThreadedTest) }
 plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
         //        verbose.set(true)
-        jvmArgs.set(listOf("-Xmx512m"))
-        //        testPlugin.set("junit5")
+        jvmArgs.set(listOf("-Xmx512m")) // necessary on CI
         testPlugin.set("failfast")
         avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))
         targetClasses.set(setOf("failfast.*")) //by default "${project.group}.*"

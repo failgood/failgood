@@ -11,6 +11,7 @@ plugins {
 group = "com.christophsturm"
 version = "0.2.0"
 
+
 tasks.named<DependencyUpdatesTask>("dependencyUpdates") {
     val filtered =
         listOf("alpha", "beta", "rc", "cr", "m", "preview", "dev", "eap")

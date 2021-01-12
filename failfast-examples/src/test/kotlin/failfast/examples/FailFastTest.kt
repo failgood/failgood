@@ -1,5 +1,6 @@
-package failfast
+package failfast.examples
 
+import failfast.describe
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 import strikt.assertions.isLessThan

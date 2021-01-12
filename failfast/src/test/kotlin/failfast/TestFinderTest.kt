@@ -31,7 +31,6 @@ object TestFinderTest {
                                     .loadClass("failfast.docs.TestContextOnTopLevelTest").kotlin,
                                 ContextExecutorTest::class,
                                 ContextTest::class,
-                                FailFastTest::class,
                                 ExceptionPrettyPrinterTest::class,
                                 //                        MultiThreadingPerformanceTestNotAlways::class,
                                 SuiteTest::class,

@@ -1,4 +1,4 @@
-package failfast.docs
+package failfast.examples
 
 import failfast.ContextDSL
 import failfast.Suite
@@ -11,6 +11,7 @@ fun main() {
     Suite(ContractsTest.context).run().check()
 }
 
+// a port of https://github.com/dmcg/minutest/blob/master/core/src/test/kotlin/dev/minutest/examples/ContractsExampleTests.kt
 object ContractsTest {
     val context = describe("Contracts") {
         describe("ArrayList") {

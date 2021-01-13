@@ -7,7 +7,7 @@ class ExceptionPrettyPrinter(private val throwable: Throwable) {
             .dropLastWhile { !it.className.startsWith("failfast") }
 
     fun prettyPrint(): String {
-        return "${throwable.javaClass.name} : ${throwable.message}\n\tat " +
+        return "${throwable::class.qualifiedName} : ${throwable.message}\n\tat " +
                 stackTrace.joinToString("\n\tat ") + throwable.cause?.let { "\ncause: $it\n${it.stackTraceToString()}" }
     }
 }

@@ -21,5 +21,6 @@ object ExceptionPrettyPrinterTest {
             it("shortens the stack trace") {
                 expectThat(epp.stackTrace.last().className).startsWith("failfast")
             }
+            itWill("only print the stacktrace lines that correspond to the test case")
         }
 }

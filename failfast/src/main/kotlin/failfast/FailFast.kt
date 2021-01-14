@@ -35,20 +35,43 @@ fun describe(subjectDescription: String, disabled: Boolean = false, function: Co
 inline fun <reified T> describe(disabled: Boolean = false, noinline function: ContextLambda):
         RootContext = describe(T::class, disabled, function)
 
+/**
+ *
+ */
 fun describe(subjectType: KClass<*>, disabled: Boolean = false, function: ContextLambda):
         RootContext = RootContext(subjectType.simpleName!!, disabled, function)
 
 interface ContextDSL {
-    suspend fun test(name: String, function: TestLambda)
+    /**
+     * define a test context. A test context contains tests and/or sub contexts
+     */
     suspend fun context(name: String, function: ContextLambda)
+
+    /**
+     * define a test
+     */
+    suspend fun test(name: String, function: TestLambda)
+
+
+    /**
+     * define a test context that describes a subject. for use with [ContextDSL.it]
+     */
     suspend fun describe(name: String, function: ContextLambda)
 
     /**
-     * start a test dependency that should be closed after the a test run
+     * create a test dependency that should be closed after the a test run
      * use this instead of beforeEach/afterEach
      */
     fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T
+
+    /**
+     * define a test that describes a subject. for use with [ContextDSL.describe]
+     */
     suspend fun it(behaviorDescription: String, function: TestLambda)
+
+    /**
+     * define a pending test that is not implemented yet.
+     */
     fun itWill(behaviorDescription: String, function: TestLambda = {})
 }
 

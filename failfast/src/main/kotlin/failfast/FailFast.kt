@@ -102,11 +102,22 @@ data class SuiteResult(
                 Junit4Reporter(allTests).stringReport().joinToString("\n").encodeToByteArray()
             )
         }
+        val totalTests = allTests.size
         if (allOk) {
             val slowTests = allTests.filterIsInstance<Success>().sortedBy { -it.timeMicro }.take(5)
-            println("slowest tests:")
+            println("Slowest tests:")
             slowTests.forEach { println("${ContextTreeReporter.time(it.timeMicro)}ms ${it.test}") }
-            println("\n${allTests.size} tests. time: ${uptime()}")
+            val ignoredTests = allTests.filterIsInstance<Ignored>()
+            if (ignoredTests.isNotEmpty()) {
+                println("\nIgnored tests:")
+                ignoredTests.forEach { println(it.test) }
+                val ignored = ignoredTests.size
+                println("\n$totalTests tests. ${totalTests - ignored} ok, $ignored ignored. time: ${uptime()}")
+                return
+            }
+            println("\n$totalTests tests. time: ${uptime()}")
+
+
             return
         }
         if (throwException) throw SuiteFailedException() else {
@@ -118,7 +129,7 @@ data class SuiteResult(
                     "$testDescription failed with $exceptionInfo"
                 }
             println("failed tests:\n$message")
-            println("${allTests.size} tests. ${failedTests.size} failed. total time: ${uptime()}")
+            println("$totalTests tests. ${failedTests.size} failed. total time: ${uptime()}")
             exitProcess(-1)
         }
     }

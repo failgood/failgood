@@ -77,7 +77,8 @@ object ContextExecutorTest {
                             .all { isA<Success>().get { timeMicro }.isGreaterThan(1) }
                     }
                 }
-                describe("lazy execution") { itWill("find tests without executing them") {} }
+                itWill("report file name and line number to all tests")
+                describe("supports lazy execution") { itWill("find tests without executing them") {} }
             }
 
             describe("duplicated test detection") {

@@ -50,7 +50,14 @@ object FailFastTest {
 }
 
 ```
-to see it in action check out [the r2dbcfun test suite](https://github.com/christophsturm/r2dbcfun/blob/main/src/test/kotlin/r2dbcfun/test/AllTests.kt)
+
+to see it in action check out the failfast-example project or a project that uses failfast, for example
+[the r2dbcfun test suite](https://github.com/christophsturm/r2dbcfun/blob/main/src/test/kotlin/r2dbcfun/test/AllTests.kt)
+
+## running the test suite
+
+to run FailFast's test suite just run `./gradlew check` or if you want to run it via idea just run
+the `FailFastBootstrap.kt` class.
 
 ## gradle build
 
@@ -72,7 +79,7 @@ Currently, there is no gradle plugin and no idea plugin. Just create a main meth
 ```kotlin
 fun main() {
   // this will find tests in all files named *Test in the same source root as the main class
-  Suite.fromClasses(findTestClasses()).run().check()
+  runAllTests()
 }
 
 ```
@@ -219,7 +226,13 @@ dependencies from the test classes' constant pool is on the road map.
 }
 ```
 
-## avoiding global state
+## Test coverage
+
+You can get a quick overview of your test coverage by running your test main method with the idea coverage runner.
+
+There is also a pitest plugin if you want to measure mutation coverage, see the example project for configuration.
+
+## Avoiding Global State
 
 * if you need a web server run it on a random port.
 * if you need a database create a db with a random name for each

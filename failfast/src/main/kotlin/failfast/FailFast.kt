@@ -6,15 +6,15 @@ import failfast.internal.Junit4Reporter
 import java.io.File
 import java.io.FileWriter
 import java.io.PrintWriter
-import java.nio.file.FileVisitResult
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.nio.file.SimpleFileVisitor
+import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileTime
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
+
+fun runAllTests() {
+    Suite.fromClasses(FailFast.findTestClasses()).run().check()
+}
 
 data class RootContext(
     val name: String = "root",
@@ -184,5 +184,7 @@ object FailFast {
         return results
     }
 
-    fun findCaller() = javaClass.classLoader.loadClass(Throwable().stackTrace[2].className).kotlin
+    fun findCaller() = javaClass.classLoader.loadClass(Throwable().stackTrace.first {
+        !(it.fileName?.endsWith("FailFast.kt") ?: true)
+    }.className).kotlin
 }

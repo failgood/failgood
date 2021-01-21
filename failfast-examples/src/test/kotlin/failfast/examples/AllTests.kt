@@ -1,8 +1,8 @@
 package failfast.examples
 
-import failfast.FailFast.findTestClasses
-import failfast.Suite
+import failfast.runAllTests
 
 fun main() {
-    Suite.fromClasses(findTestClasses()).run().check()
+    runAllTests()
 }
+

@@ -17,7 +17,7 @@ object FailFastTest {
             }
             context("context/test syntax is also supported") {
                 test(
-                    "i prefer describe/it but if there is no subject to describe I use " +
+                    "I prefer describe/it but if there is no subject to describe I use " +
                             "context/test"
                 ) {}
             }

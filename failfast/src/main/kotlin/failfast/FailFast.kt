@@ -184,7 +184,30 @@ object FailFast {
         return results
     }
 
-    fun findCaller() = javaClass.classLoader.loadClass(Throwable().stackTrace.first {
+    /**
+     * runs all changes tests. use with ./gradle -t or run it manually from idea
+     *
+     * @param randomTestClass usually not needed but you can pass any test class here,
+     *        and it will be used to find the classloader and source root
+     */
+    fun autoTest(randomTestClass: KClass<*> = findCaller()) {
+        val timeStampPath = Paths.get(".autotest.failfast")
+        val lastRun: FileTime? =
+            try {
+                Files.readAttributes(timeStampPath, BasicFileAttributes::class.java).lastModifiedTime()
+            } catch (e: NoSuchFileException) {
+                null
+            }
+        Files.write(timeStampPath, byteArrayOf())
+        println("last run:$lastRun")
+        val classes = findTestClasses(newerThan = lastRun, randomTestClass = randomTestClass)
+        println("will run: ${classes.joinToString { it.simpleName!! }}")
+        if (classes.isNotEmpty()) Suite(classes.map { ObjectContextProvider(it) }).run().check(false)
+    }
+
+
+    // find first class that is not defined in this file.
+    private fun findCaller() = javaClass.classLoader.loadClass(Throwable().stackTrace.first {
         !(it.fileName?.endsWith("FailFast.kt") ?: true)
     }.className).kotlin
 }

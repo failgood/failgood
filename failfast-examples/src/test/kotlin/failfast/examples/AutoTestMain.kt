@@ -1,6 +1,7 @@
 package failfast.examples
 
-import failfast.autoTest
+import failfast.FailFast.autoTest
+
 
 fun main() {
     autoTest()

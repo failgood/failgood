@@ -2,14 +2,8 @@ package failfast
 
 import failfast.internal.ContextExecutor
 import failfast.internal.ContextInfo
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
+import failfast.internal.SingleTestExecutor
+import kotlinx.coroutines.*
 import java.lang.management.ManagementFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -80,7 +74,23 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
                     }
                 }
                 .awaitAll()
+    }
+
+    fun runSingle(test: String) {
+        val contextName = test.substringBefore(">").trim()
+        val context = rootContexts.map { it.getContext() }.single {
+            it.name == contextName
         }
+        val desc = TestDescriptor.fromString(test)
+        val result = runBlocking {
+            SingleTestExecutor(context, desc).execute()
+        }
+        if (result is Failed) {
+            println(result.prettyPrint())
+        } else
+            println("${result.test} OK")
+
+    }
 }
 
 internal fun uptime(): String {

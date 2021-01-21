@@ -130,6 +130,25 @@ object MyTestClass {
 
 and run that.
 
+## running a single test
+
+sometimes a test keeps failing and you want to run only that single test until it is fixed, for easier debugging.
+
+just take the test description from the test output:
+
+```
+failed tests:
+Test Running > a failed test > can be run again: failed with strikt.internal.opentest4j.MappingFailed ....
+```
+
+and add it to the run test line.
+
+```kotlin
+fun main() {
+  FailFast.runTest("Test Running > a failed test > can be run again")
+}
+```
+
 ## test lifecycle
 
 Just declare your dependencies in the context blocks. they will be recreated for every test. it just works as expected.

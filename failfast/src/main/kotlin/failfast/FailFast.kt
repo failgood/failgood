@@ -1,7 +1,6 @@
 package failfast
 
 import failfast.internal.ContextTreeReporter
-import failfast.internal.ExceptionPrettyPrinter
 import failfast.internal.Junit4Reporter
 import java.io.File
 import java.io.FileWriter
@@ -118,12 +117,10 @@ data class SuiteResult(
             return
         }
         if (throwException) throw SuiteFailedException() else {
+
             val message =
                 failedTests.joinToString(separator = "\n") {
-                    val testDescription = it.test.toString()
-                    val exceptionInfo = ExceptionPrettyPrinter(it.failure).prettyPrint()
-
-                    "$testDescription failed with $exceptionInfo"
+                    it.prettyPrint()
                 }
             println("failed tests:\n$message")
             println("$totalTests tests. ${failedTests.size} failed. total time: ${uptime()}")
@@ -133,12 +130,25 @@ data class SuiteResult(
 }
 
 data class TestDescriptor(val parentContext: Context, val testName: String) {
+    companion object {
+        fun fromString(path: String): TestDescriptor {
+            val pathElements = path.split(">").map { it.trim() }
+            return TestDescriptor(Context.fromPath(pathElements.dropLast(1)), pathElements.last())
+        }
+    }
+
     override fun toString(): String {
         return "${parentContext.stringPath()} > $testName"
     }
 }
 
 data class Context(val name: String, val parent: Context?) {
+    companion object {
+        fun fromPath(path: List<String>): Context {
+            return Context(path.last(), if (path.size == 1) null else fromPath(path.dropLast(1)))
+        }
+    }
+
     val path: List<String> = parent?.path?.plus(name) ?: listOf(name)
     fun stringPath(): String = path.joinToString(" > ")
 }
@@ -206,9 +216,13 @@ object FailFast {
         Suite.fromClasses(findTestClasses()).run().check(writeReport = writeReport)
     }
 
-    fun runTest() {
+    fun runTest(singleTest: String? = null) {
         val classes = listOf(javaClass.classLoader.loadClass((findCallerName().substringBefore("Kt"))).kotlin)
-        Suite.fromClasses(classes).run().check()
+        val suite = Suite.fromClasses(classes)
+        if (singleTest == null)
+            suite.run().check()
+        else
+            suite.runSingle(singleTest)
     }
 
     // find first class that is not defined in this file.

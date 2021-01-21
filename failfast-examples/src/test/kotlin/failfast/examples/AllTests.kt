@@ -1,8 +1,9 @@
 package failfast.examples
 
-import failfast.runAllTests
+import failfast.FailFast
+
 
 fun main() {
-    runAllTests()
+    FailFast.runAllTests()
 }
 

@@ -12,9 +12,6 @@ import java.nio.file.attribute.FileTime
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
-fun runAllTests() {
-    Suite.fromClasses(FailFast.findTestClasses()).run().check()
-}
 
 data class RootContext(
     val name: String = "root",
@@ -137,7 +134,7 @@ data class SuiteResult(
 
 data class TestDescriptor(val parentContext: Context, val testName: String) {
     override fun toString(): String {
-        return "${parentContext.stringPath()} : $testName"
+        return "${parentContext.stringPath()} > $testName"
     }
 }
 
@@ -205,9 +202,19 @@ object FailFast {
         if (classes.isNotEmpty()) Suite(classes.map { ObjectContextProvider(it) }).run().check(false)
     }
 
+    fun runAllTests(writeReport: Boolean = false) {
+        Suite.fromClasses(findTestClasses()).run().check(writeReport = writeReport)
+    }
+
+    fun runTest() {
+        val classes = listOf(javaClass.classLoader.loadClass((findCallerName().substringBefore("Kt"))).kotlin)
+        Suite.fromClasses(classes).run().check()
+    }
 
     // find first class that is not defined in this file.
-    private fun findCaller() = javaClass.classLoader.loadClass(Throwable().stackTrace.first {
+    private fun findCaller() = javaClass.classLoader.loadClass(findCallerName()).kotlin
+
+    private fun findCallerName(): String = Throwable().stackTrace.first {
         !(it.fileName?.endsWith("FailFast.kt") ?: true)
-    }.className).kotlin
+    }.className
 }

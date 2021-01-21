@@ -39,17 +39,17 @@ object FailFastTestUnitFinderTest {
                         Event(testUnits[1].description, Type.START, null),
                         Event(testUnits[2].description, Type.START, null),
                         Event(
-                            Description("tests with different results : failing test", Tests::class.java),
+                            Description("tests with different results > failing test", Tests::class.java),
                             Type.END,
                             failure
                         ),
                         Event(
-                            Description("tests with different results : skipped test", Tests::class.java),
+                            Description("tests with different results > skipped test", Tests::class.java),
                             Type.SKIPPED,
                             null
                         ),
                         Event(
-                            Description("tests with different results : successful test", Tests::class.java),
+                            Description("tests with different results > successful test", Tests::class.java),
                             Type.END,
                             null
                         )

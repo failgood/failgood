@@ -79,19 +79,19 @@ Currently, there is no gradle plugin and no idea plugin. Just create a main meth
 ```kotlin
 fun main() {
   // this will find tests in all files named *Test in the same source root as the main class
-  runAllTests()
+  FailFast.runAllTests() // or runAllTests(true) to write a junit test report
 }
 
 ```
-alternatively you can also just manually list all test contexts:
+
+alternatively you can also just manually list test contexts:
 ```kotlin
 fun main() {
   Suite.fromContexts(listOf(MyTest.context, MyOtherTest.context)).run().check()
 }
 ```
 
-
-or all test classes (possibly slightly faster than listing contexts, because more work is done in parallel)
+or test classes (possibly slightly faster than listing contexts, because more work is done in parallel)
 ```kotlin
 fun main() {
   Suite.fromClasses(listOf(MyTest::class, MyOtherTest::class)).run().check()
@@ -102,18 +102,33 @@ then add a gradle task file that calls it with the test classpath:
 
 ```kotlin
 val testMain =
-    task("testMain", JavaExec::class) {
-        main = "<my-package>.FailFastMainKt"
-        classpath = sourceSets["test"].runtimeClasspath
-    }
+  task("testMain", JavaExec::class) {
+    main = "<my-package>.FailFastMainKt"
+    classpath = sourceSets["test"].runtimeClasspath
+  }
 
 tasks.check { dependsOn(testMain) }
 ```
 
 `./gradlew check` will then run the tests.
 
-you can also skip test detection and just create a suite from a list of root contexts. Look at the test suite for more
-info.
+## running a single test file
+
+if you want to run a single test file just add a main method to it:
+
+```kotlin 
+fun main() {
+  FailFast.runTest() // will run tests in the current file 
+}
+object MyTestClass {
+  val context = describe("my favorite class") {
+  ...
+  }
+}
+
+```
+
+and run that.
 
 ## test lifecycle
 

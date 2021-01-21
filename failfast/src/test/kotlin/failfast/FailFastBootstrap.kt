@@ -2,13 +2,7 @@ package failfast
 
 import strikt.api.expectThat
 import strikt.api.expectThrows
-import strikt.assertions.all
-import strikt.assertions.hasSize
-import strikt.assertions.isA
-import strikt.assertions.isEqualTo
-import strikt.assertions.isFalse
-import strikt.assertions.isLessThan
-import strikt.assertions.isTrue
+import strikt.assertions.*
 import java.lang.management.ManagementFactory
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
@@ -49,9 +43,7 @@ fun main() {
     testFinished.get(1, TimeUnit.SECONDS)
     println("bootstrapped after: ${uptime()}ms")
 
-    val suiteResults = Suite.fromClasses(FailFast.findTestClasses()).run()
+    FailFast.runAllTests(true)
 
-    val uptime = ManagementFactory.getRuntimeMXBean().uptime
-    expectThat(uptime).isLessThan(1000) // lets see how far we can get with one second
-    suiteResults.check(writeReport = true)
+    expectThat(ManagementFactory.getRuntimeMXBean().uptime).isLessThan(1000) // lets see how far we can get with one second
 }

@@ -1,4 +1,5 @@
 import info.solidsoft.gradle.pitest.PitestPluginExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm")
@@ -27,7 +28,16 @@ dependencies {
 }
 
 tasks {
+    create<Jar>("sourceJar") {
+        from(sourceSets.main.get().allSource)
+        archiveClassifier.set("sources")
+    }
     withType<Test> { enabled = false }
+    withType<JavaCompile> {
+        sourceCompatibility = "1.8"
+        targetCompatibility = "1.8"
+    }
+    withType<KotlinCompile> { kotlinOptions.jvmTarget = "1.8" }
 }
 
 val testMain =

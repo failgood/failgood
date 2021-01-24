@@ -1,7 +1,6 @@
 package failfast
 
 import strikt.api.expectThat
-import strikt.api.expectThrows
 import strikt.assertions.*
 import java.lang.management.ManagementFactory
 import java.util.concurrent.CompletableFuture
@@ -39,7 +38,6 @@ fun main() {
             }
         get(SuiteResult::allTests).hasSize(3)
     }
-    expectThrows<RuntimeException> { results.check(true) }
     testFinished.get(1, TimeUnit.SECONDS)
     println("bootstrapped after: ${uptime()}ms")
 

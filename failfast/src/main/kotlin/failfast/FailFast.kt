@@ -81,6 +81,7 @@ data class SuiteResult(
             ContextTreeReporter(allTests, contexts).stringReport()
                 .joinToString("\n")
         )
+
         //**/build/test-results/test/TEST-*.xml'
         if (writeReport) {
             val reportDir = Paths.get("build", "test-results", "test")

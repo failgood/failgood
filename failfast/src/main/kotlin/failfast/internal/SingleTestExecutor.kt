@@ -1,14 +1,6 @@
 package failfast.internal
 
-import failfast.ContextDSL
-import failfast.ContextLambda
-import failfast.FailFastException
-import failfast.Failed
-import failfast.RootContext
-import failfast.Success
-import failfast.TestDescriptor
-import failfast.TestLambda
-import failfast.TestResult
+import failfast.*
 
 /**
  * Executes a single test with all its parent contexts
@@ -16,13 +8,17 @@ import failfast.TestResult
  */
 internal class SingleTestExecutor(private val context: RootContext, private val test: TestDescriptor) {
     private val closeables = mutableListOf<AutoCloseable>()
-    private var testResult: TestResult? = null
     private val startTime = System.nanoTime()
     suspend fun execute(): TestResult {
         val dsl: ContextDSL = contextDSL(test.parentContext.path.drop(1))
-        dsl.(context.function)()
+        val testResult = try {
+            dsl.(context.function)()
+            throw FailFastException("specified test not found: $test")
+        } catch (e: TestResultAvailable) {
+            e.testResult
+        }
         closeables.forEach { it.close() }
-        return testResult ?: throw FailFastException("no test found for test $test")
+        return testResult
     }
 
     open inner class Base : ContextDSL {
@@ -69,13 +65,18 @@ internal class SingleTestExecutor(private val context: RootContext, private val 
 
         override suspend fun test(name: String, function: TestLambda) {
             if (test.testName == name)
-                testResult =
+                throw TestResultAvailable(
                     try {
                         function()
                         Success(test, (System.nanoTime() - startTime) / 1000)
                     } catch (e: Throwable) {
                         Failed(test, e)
                     }
+                )
         }
+    }
+
+    private class TestResultAvailable(val testResult: TestResult) : RuntimeException() {
+
     }
 }

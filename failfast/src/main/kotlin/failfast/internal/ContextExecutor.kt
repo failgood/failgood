@@ -1,21 +1,7 @@
 package failfast.internal
 
-import failfast.Context
-import failfast.ContextDSL
-import failfast.ContextLambda
-import failfast.FailFastException
-import failfast.Failed
-import failfast.Ignored
-import failfast.RootContext
-import failfast.Success
-import failfast.TestDescriptor
-import failfast.TestLambda
-import failfast.TestResult
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
+import failfast.*
+import kotlinx.coroutines.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 
@@ -102,7 +88,7 @@ internal class ContextExecutor(
         }
 
         override fun itWill(behaviorDescription: String, function: TestLambda) {
-            val testDescriptor = TestDescriptor(parentContext, behaviorDescription)
+            val testDescriptor = TestDescriptor(parentContext, "will $behaviorDescription")
             @Suppress("DeferredResultUnused")
             executedTests.computeIfAbsent(testDescriptor) {
                 CompletableDeferred(Ignored(testDescriptor))

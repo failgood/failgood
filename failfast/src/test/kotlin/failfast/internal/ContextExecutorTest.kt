@@ -1,23 +1,11 @@
 package failfast.internal
 
-import failfast.Context
-import failfast.FailFastException
-import failfast.RootContext
-import failfast.Success
-import failfast.Suite
-import failfast.TestDescriptor
-import failfast.describe
+import failfast.*
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import strikt.api.expectThat
 import strikt.api.expectThrows
-import strikt.assertions.all
-import strikt.assertions.containsExactly
-import strikt.assertions.containsExactlyInAnyOrder
-import strikt.assertions.isA
-import strikt.assertions.isEqualTo
-import strikt.assertions.isGreaterThan
-import strikt.assertions.isTrue
+import strikt.assertions.*
 
 object ContextExecutorTest {
     val context =
@@ -81,7 +69,7 @@ object ContextExecutorTest {
                 describe("supports lazy execution") { itWill("find tests without executing them") {} }
             }
 
-            describe("duplicated test detection") {
+            describe("detects duplicated tests") {
                 it("fails with duplicate tests in one context") {
                     val ctx =
                         RootContext {
@@ -92,7 +80,7 @@ object ContextExecutorTest {
                         expectThrows<FailFastException> { ContextExecutor(ctx, this).execute() }
                     }
                 }
-                it("different contexts can contain tests with the same name") {
+                it("does not fail when the tests with the same name are in different contexts") {
                     val ctx =
                         RootContext {
                             test("duplicate test name") {}

@@ -17,7 +17,7 @@ object FailFastTestUnitFinderTest {
                 failure = AssertionError("failed")
                 throw failure!!
             }
-            itWill("skipped test")
+            itWill("skip this test")
             test("successful test") {
             }
         }
@@ -44,7 +44,7 @@ object FailFastTestUnitFinderTest {
                             failure
                         ),
                         Event(
-                            Description("tests with different results > skipped test", Tests::class.java),
+                            Description("tests with different results > will skip this test", Tests::class.java),
                             Type.SKIPPED,
                             null
                         ),

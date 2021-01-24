@@ -4,6 +4,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm")
     id("info.solidsoft.pitest")
+    `maven-publish`
+    id("com.jfrog.bintray")
+
 }
 
 
@@ -68,4 +71,58 @@ plugins.withId("info.solidsoft.pitest") {
         outputFormats.set(setOf("XML", "HTML"))
     }
 }
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            pom {
+                name.set("Fail Fast")
+                description.set("a fast test runner for kotlin")
+                url.set("https://github.com/christophsturm/failfast")
+                licenses {
+                    license {
+                        name.set("MIT")
+                        url.set("https://opensource.org/licenses/MIT")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("christophsturm")
+                        name.set("Christoph Sturm")
+                        email.set("me@christophsturm.com")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:https://github.com/christophsturm/failfast.git")
+                    developerConnection.set("scm:git:git@github.com:christophsturm/failfast.git")
+                    url.set("https://github.com/christophsturm/failfast/")
+                }
+            }
+            from(components["java"])
+            artifact(tasks["sourceJar"])
+            groupId = project.group as String
+            artifactId = "failfast-r2dbc"
+            version = project.version as String
+        }
+    }
+}
+// BINTRAY_API_KEY= ... ./gradlew clean build publish bintrayUpload
+bintray {
+    user = "christophsturm"
+    key = System.getenv("BINTRAY_API_KEY")
+    publish = true
+    setPublications("mavenJava")
+    pkg(
+        delegateClosureOf<com.jfrog.bintray.gradle.BintrayExtension.PackageConfig> {
+            repo = "maven"
+            name = "failfast"
+            setLicenses("MIT")
+            version(
+                delegateClosureOf<com.jfrog.bintray.gradle.BintrayExtension.VersionConfig> {
+                    name = project.version as String
+                }
+            )
+        }
+    )
+}
+
 

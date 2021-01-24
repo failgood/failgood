@@ -2,9 +2,6 @@ package failfast
 
 import failfast.internal.ContextTreeReporter
 import failfast.internal.Junit4Reporter
-import java.io.File
-import java.io.FileWriter
-import java.io.PrintWriter
 import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileTime
@@ -76,12 +73,7 @@ data class SuiteResult(
     val failedTests: Collection<Failed>,
     val contexts: List<Context>
 ) {
-    private val writer = PrintWriter(FileWriter(File("failfast.log"), true), true)
     val allOk = failedTests.isEmpty()
-    private fun println(message: Any) {
-        writer.println(message)
-        kotlin.io.println(message)
-    }
 
     fun check(throwException: Boolean = false, writeReport: Boolean = false) {
 

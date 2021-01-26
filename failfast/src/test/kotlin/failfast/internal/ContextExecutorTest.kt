@@ -10,6 +10,10 @@ import strikt.assertions.*
 object ContextExecutorTest {
     val context =
         describe(ContextExecutor::class) {
+            val rootContext = Context("root context", null)
+            val context1 = Context("context 1", rootContext)
+            val context2 = Context("context 2", context1)
+            val context4 = Context("context 4", rootContext)
             describe("with a valid root context") {
                 val ctx =
                     RootContext("root context") {
@@ -20,10 +24,6 @@ object ContextExecutorTest {
                         context("context 4") { test("test 4") {} }
                     }
 
-                val rootContext = Context("root context", null)
-                val context1 = Context("context 1", rootContext)
-                val context2 = Context("context 2", context1)
-                val context4 = Context("context 4", rootContext)
                 it("returns tests") {
                     coroutineScope {
                         val contextInfo = ContextExecutor(ctx, this).execute()
@@ -74,14 +74,34 @@ object ContextExecutorTest {
                         val results = ContextExecutor(ctx, this).execute()
 
                         expectThat(results.tests.values.awaitAll().filterIsInstance<Failed>()).single().and {
-                            get { stackTraceElement }.endsWith("ContextExecutorTest.kt:18)")
+                            get { stackTraceElement }.endsWith("ContextExecutorTest.kt:22)")
                         }
                     }
 
                 }
                 describe("supports lazy execution") { itWill("find tests without executing them") {} }
             }
+            describe("handles failing contexts") {
+                val ctx =
+                    RootContext("root context") {
+                        test("test 1") {}
+                        test("test 2") {}
+                        context("context 1") { throw RuntimeException("oops context creation failed") }
+                        context("context 4") { test("test 4") {} }
+                    }
 
+                it("reports a failing context as a failing test") {
+                    coroutineScope {
+                        val results = ContextExecutor(ctx, this).execute()
+
+                        expectThat(results.tests.values.awaitAll().filterIsInstance<Failed>()).single().and {
+                            get { test }.isEqualTo(TestDescriptor(rootContext, "context 1"))
+                            get { stackTraceElement }.endsWith("ContextExecutorTest.kt:89)")
+                        }
+                    }
+
+                }
+            }
             describe("detects duplicated tests") {
                 it("fails with duplicate tests in one context") {
                     val ctx =

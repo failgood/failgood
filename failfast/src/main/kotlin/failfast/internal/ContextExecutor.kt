@@ -33,6 +33,8 @@ internal class ContextExecutor(
                 return
             } else if (!ranATest) {
                 ranATest = true
+
+                // create the tests stacktrace element outside of the async block to get a better stacktrace
                 val stackTraceElement =
                     RuntimeException().stackTrace.first { !(it.fileName?.endsWith("ContextExecutor.kt") ?: true) }
                 val deferred =
@@ -68,7 +70,18 @@ internal class ContextExecutor(
             val context = Context(name, parentContext)
             if (finishedContexts.contains(context)) return
             val visitor = ContextVisitor(context, resourcesCloser)
-            visitor.function()
+            try {
+                visitor.function()
+            } catch (e: Exception) {
+                val testDescriptor = TestDescriptor(parentContext, name)
+                val stackTraceElement =
+                    RuntimeException().stackTrace.first { !(it.fileName?.endsWith("ContextExecutor.kt") ?: true) }
+                        .toString()
+
+                executedTests[testDescriptor] = CompletableDeferred(Failed(testDescriptor, e, stackTraceElement))
+                finishedContexts.add(context)
+                ranATest = true
+            }
             if (visitor.contextsLeft) contextsLeft = true else finishedContexts.add(context)
 
             if (visitor.ranATest) ranATest = true

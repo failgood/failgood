@@ -13,13 +13,11 @@ import strikt.assertions.containsExactly
 object ContextTreeReporterTest {
     val context =
         describe(ContextTreeReporter::class) {
+            val reporter = ContextTreeReporter()
             it("outputs test results in tree form") {
-                val reporter =
-                    ContextTreeReporter(
-                        testResults,
-                        listOf(rootContext, subContext)
-                    )
-                expectThat(reporter.stringReport())
+                expectThat(
+                    reporter.stringReport(testResults, listOf(rootContext, subContext))
+                )
                     .containsExactly(
                         listOf(
                             "* the test runner",
@@ -33,17 +31,18 @@ object ContextTreeReporterTest {
                     )
             }
             it("outputs empty root context") {
-                val reporter =
-                    ContextTreeReporter(
+                expectThat(
+                    reporter.stringReport(
                         listOf(
                             Success(
-                                TestDescriptor(subContext, "sub-contexts also contain tests"),
-                                10
+                                TestDescriptor(
+                                    subContext,
+                                    "sub-contexts also contain tests"
+                                ), 10
                             )
-                        ),
-                        listOf(rootContext, subContext)
+                        ), listOf(rootContext, subContext)
                     )
-                expectThat(reporter.stringReport())
+                )
                     .containsExactly(
                         listOf(
                             "* the test runner",
@@ -53,8 +52,8 @@ object ContextTreeReporterTest {
                     )
             }
             it("outputs empty context") {
-                val reporter =
-                    ContextTreeReporter(
+                expectThat(
+                    reporter.stringReport(
                         listOf(
                             Success(
                                 TestDescriptor(subSubContext, "sub-contexts also contain tests"),
@@ -63,7 +62,7 @@ object ContextTreeReporterTest {
                         ),
                         listOf(rootContext, subContext, subSubContext)
                     )
-                expectThat(reporter.stringReport())
+                )
                     .containsExactly(
                         listOf(
                             "* the test runner",
@@ -74,15 +73,15 @@ object ContextTreeReporterTest {
                     )
             }
             it("outputs time") {
-                val reporter =
-                    ContextTreeReporter(
+                expectThat(
+                    reporter.stringReport(
                         listOf(
                             Success(TestDescriptor(rootContext, "test"), 10),
                             Success(TestDescriptor(rootContext, "slow test"), 1010001)
                         ),
                         listOf(rootContext)
                     )
-                expectThat(reporter.stringReport())
+                )
                     .containsExactly(
                         listOf(
                             "* the test runner",

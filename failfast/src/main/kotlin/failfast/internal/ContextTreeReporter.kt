@@ -5,17 +5,18 @@ import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.*
 
-internal class ContextTreeReporter(results: List<TestResult>, private val allContexts: List<Context>) {
-    private val contextMap = results.groupBy { it.test.parentContext }
-    fun stringReport(): List<String> {
+internal class ContextTreeReporter {
+    fun stringReport(results: List<TestResult>, allContexts: List<Context>): List<String> {
+        val contextMap = results.groupBy { it.test.parentContext }
         val result = mutableListOf<String>()
         val rootContexts = allContexts.filter { it.parent == null }
-        printContext(rootContexts, result, contextMap, 0)
+        printContext(rootContexts, allContexts, result, contextMap, 0)
         return result
     }
 
     private fun printContext(
         contexts: List<Context>,
+        allContexts: List<Context>,
         result: MutableList<String>,
         contextMap: Map<Context, List<TestResult>>,
         indent: Int
@@ -46,7 +47,7 @@ internal class ContextTreeReporter(results: List<TestResult>, private val allCon
             }
             val childContests = allContexts.filter { it.parent == context }
             if (childContests.isNotEmpty())
-                printContext(childContests, result, contextMap, indent + 1)
+                printContext(childContests, allContexts, result, contextMap, indent + 1)
         }
     }
 

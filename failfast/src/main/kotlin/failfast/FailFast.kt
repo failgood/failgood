@@ -78,7 +78,7 @@ data class SuiteResult(
     fun check(throwException: Boolean = false, writeReport: Boolean = false) {
 
         println(
-            ContextTreeReporter(allTests, contexts).stringReport()
+            ContextTreeReporter().stringReport(allTests, contexts)
                 .joinToString("\n")
         )
 

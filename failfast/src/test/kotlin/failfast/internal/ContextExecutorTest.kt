@@ -8,6 +8,7 @@ import strikt.api.expectThrows
 import strikt.assertions.*
 
 object ContextExecutorTest {
+    var assertionError: AssertionError? = null
     val context =
         describe(ContextExecutor::class) {
             val rootContext = Context("root context", null)
@@ -19,7 +20,10 @@ object ContextExecutorTest {
                     RootContext("root context") {
                         test("test 1") {}
                         test("test 2") {}
-                        test("failed test") { throw AssertionError("failed") }
+                        test("failed test") {
+                            assertionError = AssertionError("failed")
+                            throw assertionError!!
+                        }
                         context("context 1") { context("context 2") { test("test 3") {} } }
                         context("context 4") { test("test 4") {} }
                     }
@@ -61,7 +65,7 @@ object ContextExecutorTest {
                 }
                 it("reports file name and line number for failed tests") {
                     expectThat(contextInfo.tests.values.awaitAll().filterIsInstance<Failed>()).single().and {
-                        get { stackTraceElement }.endsWith("ContextExecutorTest.kt:22)")
+                        get { stackTraceElement }.endsWith("ContextExecutorTest.kt:${getLineNumber(assertionError) - 1})")
                     }
 
                 }
@@ -69,11 +73,16 @@ object ContextExecutorTest {
             }
             describe("handles failing contexts")
             {
+                var runtimeException: RuntimeException? = null
+
                 val ctx =
                     RootContext("root context") {
                         test("test 1") {}
                         test("test 2") {}
-                        context("context 1") { throw RuntimeException("oops context creation failed") }
+                        context("context 1") {
+                            runtimeException = RuntimeException("oops context creation failed")
+                            throw runtimeException!!
+                        }
                         context("context 4") { test("test 4") {} }
                     }
 
@@ -83,7 +92,7 @@ object ContextExecutorTest {
 
                         expectThat(results.tests.values.awaitAll().filterIsInstance<Failed>()).single().and {
                             get { test }.isEqualTo(TestDescriptor(rootContext, "context 1"))
-                            get { stackTraceElement }.endsWith("ContextExecutorTest.kt:76)")
+                            get { stackTraceElement }.endsWith("ContextExecutorTest.kt:${getLineNumber(runtimeException) - 1})")
                         }
                     }
 
@@ -128,4 +137,7 @@ object ContextExecutorTest {
                 expectThat(closeCalled).isTrue()
             }
         }
+
+    private fun getLineNumber(runtimeException: Throwable?): Int =
+        runtimeException!!.stackTrace.first().lineNumber
 }

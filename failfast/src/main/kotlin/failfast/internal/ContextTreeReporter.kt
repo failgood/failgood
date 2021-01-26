@@ -51,8 +51,6 @@ internal class ContextTreeReporter {
         }
     }
 
-    companion object {
-        fun time(timeMicro: Long): String = timeFormat.format(timeMicro.toDouble() / 1000)!!
-        private val timeFormat = DecimalFormat("#,##0.0#", DecimalFormatSymbols(Locale.US))
-    }
+    fun time(timeMicro: Long): String = timeFormat.format(timeMicro.toDouble() / 1000)!!
+    private val timeFormat = DecimalFormat("#,##0.0#", DecimalFormatSymbols(Locale.US))
 }

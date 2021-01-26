@@ -33,6 +33,8 @@ internal class ContextExecutor(
                 return
             } else if (!ranATest) {
                 ranATest = true
+                val stackTraceElement =
+                    RuntimeException().stackTrace.first { !(it.fileName?.endsWith("ContextExecutor.kt") ?: true) }
                 val deferred =
                     scope.async(start = coroutineStart) {
                         val testResult =
@@ -40,10 +42,8 @@ internal class ContextExecutor(
                                 function()
                                 resourcesCloser.close()
                                 Success(testDescriptor, (System.nanoTime() - startTime) / 1000)
-                            } catch (e: AssertionError) {
-                                Failed(testDescriptor, e)
                             } catch (e: Throwable) {
-                                Failed(testDescriptor, e)
+                                Failed(testDescriptor, e, stackTraceElement.toString())
                             }
 
                         testResult
@@ -52,8 +52,7 @@ internal class ContextExecutor(
             } else {
                 val deferred =
                     scope.async(start = coroutineStart) {
-                        val testResult = SingleTestExecutor(rootContext, testDescriptor).execute()
-                        testResult
+                        SingleTestExecutor(rootContext, testDescriptor).execute()
                     }
                 executedTests[testDescriptor] = deferred
             }

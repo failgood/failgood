@@ -15,6 +15,7 @@ object ContextExecutorTest {
                     RootContext("root context") {
                         test("test 1") {}
                         test("test 2") {}
+                        test("failed test") { throw AssertionError("failed") }
                         context("context 1") { context("context 2") { test("test 3") {} } }
                         context("context 4") { test("test 4") {} }
                     }
@@ -30,6 +31,7 @@ object ContextExecutorTest {
                             .containsExactlyInAnyOrder(
                                 TestDescriptor(rootContext, "test 1"),
                                 TestDescriptor(rootContext, "test 2"),
+                                TestDescriptor(rootContext, "failed test"),
                                 TestDescriptor(context2, "test 3"),
                                 TestDescriptor(context4, "test 4")
                             )
@@ -39,14 +41,16 @@ object ContextExecutorTest {
                     coroutineScope {
                         val contextInfo = ContextExecutor(ctx, this).execute()
                         val testResults = contextInfo.tests.values.awaitAll()
-                        expectThat(testResults).all { isA<Success>() }
-                        expectThat(testResults.map { it.test })
+                        val successful = testResults.filterIsInstance<Success>()
+                        val failed = testResults - successful
+                        expectThat(successful.map { it.test })
                             .containsExactlyInAnyOrder(
                                 TestDescriptor(rootContext, "test 1"),
                                 TestDescriptor(rootContext, "test 2"),
                                 TestDescriptor(context2, "test 3"),
                                 TestDescriptor(context4, "test 4")
                             )
+                        expectThat(failed).map { it.test }.containsExactly(TestDescriptor(rootContext, "failed test"))
                     }
                 }
 
@@ -57,15 +61,24 @@ object ContextExecutorTest {
                             .containsExactlyInAnyOrder(rootContext, context1, context2, context4)
                     }
                 }
-                it("measures time") {
+                it("reports time of successful tests") {
                     coroutineScope {
                         val results = ContextExecutor(ctx, this).execute()
 
-                        expectThat(results.tests.values.awaitAll())
-                            .all { isA<Success>().get { timeMicro }.isGreaterThan(1) }
+                        expectThat(results.tests.values.awaitAll().filterIsInstance<Success>())
+                            .all { get { timeMicro }.isGreaterThan(1) }
                     }
                 }
-                itWill("report file name and line number to all tests")
+                it("reports file name and line number for failed tests") {
+                    coroutineScope {
+                        val results = ContextExecutor(ctx, this).execute()
+
+                        expectThat(results.tests.values.awaitAll().filterIsInstance<Failed>()).single().and {
+                            get { stackTraceElement }.endsWith("ContextExecutorTest.kt:18)")
+                        }
+                    }
+
+                }
                 describe("supports lazy execution") { itWill("find tests without executing them") {} }
             }
 

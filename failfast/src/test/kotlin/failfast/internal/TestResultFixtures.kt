@@ -17,7 +17,9 @@ object TestResultFixtures {
             20
         ),
         Failed(
-            TestDescriptor(subContext, "failed test"), failure
+            TestDescriptor(subContext, "failed test"),
+            failure,
+            "failfast.internal.ContextTreeReporterTest.invokeSuspend(ContextTreeReporterTest.kt:16"
         )
     )
 }

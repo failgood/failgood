@@ -8,7 +8,7 @@ sealed class TestResult {
 
 data class Success(override val test: TestDescriptor, val timeMicro: Long) : TestResult()
 data class Ignored(override val test: TestDescriptor) : TestResult()
-class Failed(override val test: TestDescriptor, val failure: Throwable) : TestResult() {
+class Failed(override val test: TestDescriptor, val failure: Throwable, val stackTraceElement: String) : TestResult() {
     override fun equals(other: Any?): Boolean {
         return (other is Failed) && test == other.test &&
                 failure.stackTraceToString() == other.failure.stackTraceToString()
@@ -19,7 +19,7 @@ class Failed(override val test: TestDescriptor, val failure: Throwable) : TestRe
         val testDescription = test.toString()
         val exceptionInfo = ExceptionPrettyPrinter(failure).prettyPrint()
 
-        return "$testDescription: failed with $exceptionInfo"
+        return "$testDescription: failed with $exceptionInfo. $stackTraceElement"
     }
 
 }

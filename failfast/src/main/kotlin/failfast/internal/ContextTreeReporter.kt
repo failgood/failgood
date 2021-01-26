@@ -1,10 +1,6 @@
 package failfast.internal
 
-import failfast.Context
-import failfast.Failed
-import failfast.Ignored
-import failfast.Success
-import failfast.TestResult
+import failfast.*
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.*
@@ -40,7 +36,7 @@ internal class ContextTreeReporter(results: List<TestResult>, private val allCon
                                 "\n",
                                 "\\n"
                             )
-                        })"
+                        } ${testResult.stackTraceElement})"
                         is Ignored -> "$indentString - ${testResult.test.testName} PENDING"
                     }
 

@@ -3,28 +3,32 @@
 
 # Failfast
 
-multithreaded test runner for kotlin focusing on simplicity and speed.
+Multi-threaded test runner for kotlin focusing on simplicity, usability and speed.
 
 ## goals / features
 
-* spec syntax implemented to work just [as expected](https://en.wikipedia.org/wiki/Principle_of_least_astonishment)
-* speed and parallel execution.  (own test suite runs in < 1 second)
-* configuration via api. just create a class with a main method vor each test configuration, and run it in gradle or idea
-* run your tests so fast that you can run all the tests on every change
-* autotest to run only changed tests (or tests that test changed classes (planned))  
-* really simple. no dependencies and not a lot of code
-* pitest plugin (see the build file)
+Every design decision is only influenced by what's best for a short test feedback loop, and to make simple things simple
+and complex things possible. No feature exists "because that's how junit works". Everything is driven by the needs of
+people who write tests daily and iterate fast.
+
+* Spec syntax implemented to work just [as expected](https://en.wikipedia.org/wiki/Principle_of_least_astonishment).
+* Speed and parallel execution. Failfast's own test suite runs in < 1 second.
+* Configuration via api. Your test config is just a main method that runs via idea or gradle.
+* Run your tests so fast that you can run all the tests on every change.
+* Autotest to run only changed tests.
+* Pitest plugin (see the build file).
+* Junit compatible reports
 
 ## how it looks like
 
 ```kotlin
 object FailFastTest {
-    val context = describe("The test runner") {
-        it("supports describe/it syntax") { expectThat(true).isEqualTo(true) }
-        describe("nested contexts") {
-            it("can contain tests too") { expectThat(true).isEqualTo(true) }
+  val context = describe("The test runner") {
+    it("supports describe/it syntax") { expectThat(true).isEqualTo(true) }
+    describe("nested contexts") {
+      it("can contain tests too") { expectThat(true).isEqualTo(true) }
 
-            describe("disabled/pending tests") {
+      describe("disabled/pending tests") {
                 itWill("itWill can be used to mark pending tests") {}
                 itWill("for pending tests the test body is optional")
             }

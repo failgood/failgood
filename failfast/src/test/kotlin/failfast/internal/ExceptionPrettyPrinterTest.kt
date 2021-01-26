@@ -22,5 +22,6 @@ object ExceptionPrettyPrinterTest {
                 expectThat(epp.stackTrace.last().className).startsWith("failfast")
             }
             itWill("only print the stacktrace lines that correspond to the test case")
+            itWill("ignore the exception class name if it is an exception")
         }
 }

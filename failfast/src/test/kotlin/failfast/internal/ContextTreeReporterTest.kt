@@ -23,12 +23,12 @@ object ContextTreeReporterTest {
                     .containsExactly(
                         listOf(
                             "* the test runner",
-                            " - supports describe/it syntax (0.01ms)",
-                            " * contexts can be nested",
-                            "  - sub-contexts also contain tests (0.02ms)",
-                            "  - failed test FAILED",
-                            "    failure message\\nwith newline",
-                            "    failfast.internal.ContextTreeReporterTest.invokeSuspend(ContextTreeReporterTest.kt:16)"
+                            "  - supports describe/it syntax (0.01ms)",
+                            "  * contexts can be nested",
+                            "    - sub-contexts also contain tests (0.02ms)",
+                            "    - failed test FAILED",
+                            "      failure message\\nwith newline",
+                            "      failfast.internal.ContextTreeReporterTest.invokeSuspend(ContextTreeReporterTest.kt:16)"
                         )
                     )
             }
@@ -47,8 +47,8 @@ object ContextTreeReporterTest {
                     .containsExactly(
                         listOf(
                             "* the test runner",
-                            " * contexts can be nested",
-                            "  - sub-contexts also contain tests (0.01ms)"
+                            "  * contexts can be nested",
+                            "    - sub-contexts also contain tests (0.01ms)"
                         )
                     )
             }
@@ -67,9 +67,9 @@ object ContextTreeReporterTest {
                     .containsExactly(
                         listOf(
                             "* the test runner",
-                            " * contexts can be nested",
-                            "  * deeper",
-                            "   - sub-contexts also contain tests (0.01ms)"
+                            "  * contexts can be nested",
+                            "    * deeper",
+                            "      - sub-contexts also contain tests (0.01ms)"
                         )
                     )
             }
@@ -84,7 +84,11 @@ object ContextTreeReporterTest {
                     )
                 expectThat(reporter.stringReport())
                     .containsExactly(
-                        listOf("* the test runner", " - test (0.01ms)", " - slow test (1,010.0ms)")
+                        listOf(
+                            "* the test runner",
+                            "  - test (0.01ms)",
+                            "  - slow test (1,010.0ms)"
+                        )
                     )
             }
         }

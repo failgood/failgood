@@ -20,7 +20,7 @@ internal class ContextTreeReporter(results: List<TestResult>, private val allCon
         contextMap: Map<Context, List<TestResult>>,
         indent: Int
     ) {
-        val indentString = " ".repeat(indent)
+        val indentString = "  ".repeat(indent)
         contexts.forEach { context ->
             result.add("$indentString* ${context.name}")
             val tests = contextMap[context]
@@ -29,17 +29,17 @@ internal class ContextTreeReporter(results: List<TestResult>, private val allCon
                     when (testResult) {
                         is Success -> {
                             val timeMicro = testResult.timeMicro
-                            listOf("$indentString - ${testResult.test.testName} (${time(timeMicro)}ms)")
+                            listOf("$indentString  - ${testResult.test.testName} (${time(timeMicro)}ms)")
                         }
                         is Failed -> listOf(
-                            "$indentString - ${testResult.test.testName} FAILED", "$indentString   ${
+                            "$indentString  - ${testResult.test.testName} FAILED", "$indentString    ${
                                 testResult.failure.message?.replace(
                                     "\n",
                                     "\\n"
                                 )
-                            }", "$indentString   ${testResult.stackTraceElement})"
+                            }", "$indentString    ${testResult.stackTraceElement})"
                         )
-                        is Ignored -> listOf("$indentString - ${testResult.test.testName} PENDING")
+                        is Ignored -> listOf("$indentString- ${testResult.test.testName} PENDING")
                     }
 
                 result.addAll(lines)

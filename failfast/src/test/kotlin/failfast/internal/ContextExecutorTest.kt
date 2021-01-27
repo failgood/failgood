@@ -89,17 +89,17 @@ object ContextExecutorTest {
                         }
                         context("context 4") { test("test 4") {} }
                     }
-
+                val results = coroutineScope {
+                    ContextExecutor(ctx, this).execute()
+                }
                 it("reports a failing context as a failing test") {
-                    coroutineScope {
-                        val results = ContextExecutor(ctx, this).execute()
-
-                        expectThat(results.tests.values.awaitAll().filterIsInstance<Failed>()).single().and {
-                            get { test }.isEqualTo(TestDescriptor(rootContext, "context 1"))
-                            get { stackTraceElement }.endsWith("ContextExecutorTest.kt:${getLineNumber(runtimeException) - 1})")
-                        }
+                    expectThat(results.tests.values.awaitAll().filterIsInstance<Failed>()).single().and {
+                        get { test }.isEqualTo(TestDescriptor(rootContext, "context 1"))
+                        get { stackTraceElement }.endsWith("ContextExecutorTest.kt:${getLineNumber(runtimeException) - 1})")
                     }
-
+                }
+                itWill("not report a failing context as a context") {
+                    expectThat(results.contexts).doesNotContain(context1)
                 }
             }
             describe("detects duplicated tests")

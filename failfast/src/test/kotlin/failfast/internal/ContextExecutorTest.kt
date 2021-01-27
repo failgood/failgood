@@ -98,7 +98,7 @@ object ContextExecutorTest {
                         get { stackTraceElement }.endsWith("ContextExecutorTest.kt:${getLineNumber(runtimeException) - 1})")
                     }
                 }
-                itWill("not report a failing context as a context") {
+                it("does not report a failing context as a context") {
                     expectThat(results.contexts).doesNotContain(context1)
                 }
             }

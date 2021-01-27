@@ -12,6 +12,7 @@ internal class ContextExecutor(
     private val startTime = System.nanoTime()
 
     // no need for concurrent structures here because the context is crawled in a single thread
+    private val failedContexts = LinkedHashSet<Context>()
     private val finishedContexts = LinkedHashSet<Context>()
     val executedTests = LinkedHashMap<TestDescriptor, Deferred<TestResult>>()
 
@@ -83,6 +84,7 @@ internal class ContextExecutor(
 
                 executedTests[testDescriptor] = CompletableDeferred(Failed(testDescriptor, e, stackTraceElement))
                 finishedContexts.add(context)
+                failedContexts.add(context)
                 ranATest = true
             }
             if (visitor.contextsLeft) contextsLeft = true else finishedContexts.add(context)
@@ -120,7 +122,7 @@ internal class ContextExecutor(
             visitor.function()
             if (!visitor.contextsLeft) break
         }
-        return ContextInfo(listOf(rootContext) + finishedContexts, executedTests)
+        return ContextInfo(listOf(rootContext) + finishedContexts - failedContexts, executedTests)
     }
 }
 

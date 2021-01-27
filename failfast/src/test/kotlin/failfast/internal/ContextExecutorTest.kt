@@ -119,6 +119,37 @@ object ContextExecutorTest {
                     coroutineScope { ContextExecutor(ctx, this).execute() }
                 }
             }
+            describe("detects duplicate contexts") {
+                it("fails with duplicate contexts in one context") {
+                    val ctx =
+                        RootContext {
+                            context("duplicate test name") {}
+                            context("duplicate test name") {}
+                        }
+                    coroutineScope {
+                        expectThrows<FailFastException> { ContextExecutor(ctx, this).execute() }
+                    }
+                }
+                it("does not fail when the contexts with the same name are in different contexts") {
+                    val ctx =
+                        RootContext {
+                            test("same context name") {}
+                            context("context") { test("same context name") {} }
+                        }
+                    coroutineScope { ContextExecutor(ctx, this).execute() }
+                }
+                it("fails when a context has the same name as a test in the same contexts") {
+                    val ctx =
+                        RootContext {
+                            test("same name") {}
+                            context("same name") {}
+                        }
+                    coroutineScope {
+                        expectThrows<FailFastException> { ContextExecutor(ctx, this).execute() }
+                    }
+                }
+
+            }
             it("can close resources")
             {
                 val events = mutableListOf<String>()

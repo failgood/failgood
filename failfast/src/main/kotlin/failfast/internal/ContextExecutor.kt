@@ -27,7 +27,7 @@ internal class ContextExecutor(
 
         override suspend fun test(name: String, function: TestLambda) {
             if (!testsInThisContexts.add(name))
-                throw FailFastException("duplicate test name $name in context $parentContext")
+                throw FailFastException("duplicate name $name in context $parentContext")
             val testDescriptor = TestDescriptor(parentContext, name)
             if (executedTests.containsKey(testDescriptor)) {
                 return
@@ -61,6 +61,8 @@ internal class ContextExecutor(
         }
 
         override suspend fun context(name: String, function: ContextLambda) {
+            if (!testsInThisContexts.add(name))
+                throw FailFastException("duplicate name $name in context $parentContext")
             // if we already ran a test in this context we don't need to visit the child context now
             if (ranATest) {
                 contextsLeft = true

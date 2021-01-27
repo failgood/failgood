@@ -12,7 +12,7 @@ internal class ContextExecutor(
 ) {
     private val startTime = System.nanoTime()
     private val finishedContexts = ConcurrentHashMap.newKeySet<Context>()!!
-    val executedTests = ConcurrentHashMap<TestDescriptor, Deferred<TestResult>>()
+    val executedTests = LinkedHashMap<TestDescriptor, Deferred<TestResult>>()
 
     private inner class ContextVisitor(
         private val parentContext: Context,

@@ -31,9 +31,9 @@ object ContextExecutorTest {
                 val contextInfo = coroutineScope {
                     ContextExecutor(ctx, this).execute()
                 }
-                it("returns tests") {
+                it("returns tests in the same order as they are declared in the file") {
                     expectThat(contextInfo.tests.keys)
-                        .containsExactlyInAnyOrder(
+                        .containsExactly(
                             TestDescriptor(rootContext, "test 1"),
                             TestDescriptor(rootContext, "test 2"),
                             TestDescriptor(rootContext, "failed test"),

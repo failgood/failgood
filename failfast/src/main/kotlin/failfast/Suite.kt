@@ -70,7 +70,7 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
                                 throw FailFastException("context ${context.name} timed out")
                             }
                         } else
-                            ContextInfo(emptySet(), mapOf())
+                            ContextInfo(emptyList(), mapOf())
                     }
                 }
                 .awaitAll()

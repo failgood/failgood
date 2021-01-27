@@ -59,6 +59,10 @@ object ContextExecutorTest {
                     expectThat(contextInfo.contexts)
                         .containsExactlyInAnyOrder(rootContext, context1, context2, context4)
                 }
+                itWill("return contexts in the same order as they appear in the file") {
+                    expectThat(contextInfo.contexts)
+                        .containsExactly(rootContext, context1, context2, context4)
+                }
                 it("reports time of successful tests") {
                     expectThat(contextInfo.tests.values.awaitAll().filterIsInstance<Success>())
                         .all { get { timeMicro }.isGreaterThan(1) }

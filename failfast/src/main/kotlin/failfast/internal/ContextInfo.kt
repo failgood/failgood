@@ -6,6 +6,6 @@ import failfast.TestResult
 import kotlinx.coroutines.Deferred
 
 internal data class ContextInfo(
-    val contexts: Set<Context>,
+    val contexts: List<Context>,
     val tests: Map<TestDescriptor, Deferred<TestResult>>
 )

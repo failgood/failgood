@@ -3,10 +3,10 @@ package failfast.internal
 import failfast.Success
 import failfast.TestDescriptor
 import failfast.describe
-import failfast.internal.ContextTreeReporter.Companion.FAILED
-import failfast.internal.ContextTreeReporter.Companion.RED
-import failfast.internal.ContextTreeReporter.Companion.RESET
-import failfast.internal.ContextTreeReporter.Companion.SUCCESS
+import failfast.internal.Colors.FAILED
+import failfast.internal.Colors.RED
+import failfast.internal.Colors.RESET
+import failfast.internal.Colors.SUCCESS
 import failfast.internal.TestResultFixtures.rootContext
 import failfast.internal.TestResultFixtures.subContext
 import failfast.internal.TestResultFixtures.subSubContext

@@ -1,6 +1,12 @@
 package failfast.internal
 
 import failfast.*
+import failfast.internal.Colors.FAILED
+import failfast.internal.Colors.IGNORED
+import failfast.internal.Colors.RED
+import failfast.internal.Colors.RESET
+import failfast.internal.Colors.SUCCESS
+import failfast.internal.Colors.YELLOW
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.*
@@ -54,16 +60,4 @@ internal class ContextTreeReporter {
     fun time(timeMicro: Long): String = timeFormat.format(timeMicro.toDouble() / 1000)!!
     private val timeFormat = DecimalFormat("#,##0.0#", DecimalFormatSymbols(Locale.US))
 
-    companion object {
-        internal const val GREEN = "\u001B[32m"
-        internal const val RED = "\u001B[31m"
-        internal const val YELLOW = "\u001B[33m"
-        internal const val RESET = "\u001B[0m"
-        internal val SUCCESS = GREEN + (if (isWindows) "√" else "✔") + RESET
-        internal val FAILED = RED + (if (isWindows) "X" else "✘") + RESET
-        internal const val IGNORED = "$YELLOW-$RESET"
-
-        private val isWindows: Boolean
-            get() = System.getProperty("os.name").startsWith("Windows")
-    }
 }

@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- color output in test report (robfletcher)
 - a changelog
 - Display a stacktrace entry that leads to the test method for failed tests.
 - Report errors in contexts as failing tests.

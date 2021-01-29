@@ -48,7 +48,7 @@ internal class ContextExecutor(
                                 resourcesCloser.close()
                                 Success(testDescriptor, (System.nanoTime() - startTime) / 1000)
                             } catch (e: Throwable) {
-                                Failed(testDescriptor, e, stackTraceElement.toString())
+                                Failed(testDescriptor, e, stackTraceElement)
                             }
 
                         testResult
@@ -80,9 +80,8 @@ internal class ContextExecutor(
             } catch (e: Exception) {
                 val testDescriptor = TestDescriptor(parentContext, name)
                 val stackTraceElement = getStackTraceElement()
-                val stackTraceElementString = stackTraceElement.toString()
 
-                executedTests[testDescriptor] = CompletableDeferred(Failed(testDescriptor, e, stackTraceElementString))
+                executedTests[testDescriptor] = CompletableDeferred(Failed(testDescriptor, e, stackTraceElement))
                 finishedContexts[context] =
                     stackTraceElement.lineNumber // this line number is going to be ignored but since we know it we put it there
                 failedContexts.add(context)

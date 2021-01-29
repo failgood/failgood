@@ -71,7 +71,7 @@ internal class SingleTestExecutor(private val context: RootContext, private val 
                         function()
                         Success(test, (System.nanoTime() - startTime) / 1000)
                     } catch (e: Throwable) {
-                        Failed(test, e, stackTrace.toString())
+                        Failed(test, e, stackTrace)
                     }
                 )
             }

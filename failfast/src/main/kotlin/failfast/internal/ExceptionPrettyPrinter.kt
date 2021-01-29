@@ -1,12 +1,14 @@
 package failfast.internal
 
-class ExceptionPrettyPrinter(private val throwable: Throwable) {
+class ExceptionPrettyPrinter(private val throwable: Throwable, testStackTrace: StackTraceElement? = null) {
     val stackTrace = run {
         val onlyElementsWithLineNumber = throwable.stackTrace
             .filter { it.lineNumber > 0 }
 
-        val onlyFailfast = onlyElementsWithLineNumber.dropLastWhile { !it.className.startsWith("failfast") }
-        onlyFailfast.ifEmpty { onlyElementsWithLineNumber }
+        val onlyFromFailFastUp = onlyElementsWithLineNumber.dropLastWhile { !it.className.startsWith("failfast") }
+        val onlyInTest =
+            onlyFromFailFastUp.filter { testStackTrace == null || it.className.contains(testStackTrace.className) }
+        onlyInTest.ifEmpty { onlyFromFailFastUp.ifEmpty { onlyElementsWithLineNumber } }
     }
 
     fun prettyPrint(): String {

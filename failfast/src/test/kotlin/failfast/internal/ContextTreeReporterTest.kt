@@ -30,7 +30,7 @@ object ContextTreeReporterTest {
                             "    $SUCCESS sub-contexts also contain tests (0.02ms)",
                             "    $FAILED failed test ${RED}FAILED${RESET}",
                             "      failure message\\nwith newline",
-                            "      failfast.internal.ContextTreeReporterTest.invokeSuspend(ContextTreeReporterTest.kt:16)"
+                            "      ClassName.method(file:123)"
                         )
                     )
             }
@@ -72,7 +72,7 @@ object ContextTreeReporterTest {
                             "* the test runner",
                             "  * contexts can be nested",
                             "    * deeper",
-                            "      $SUCCESS ub-contexts also contain tests (0.01ms)"
+                            "      $SUCCESS sub-contexts also contain tests (0.01ms)"
                         )
                     )
             }

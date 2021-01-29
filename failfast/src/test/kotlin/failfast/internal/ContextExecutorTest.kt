@@ -69,7 +69,13 @@ object ContextExecutorTest {
                 }
                 it("reports file name and line number for failed tests") {
                     expectThat(contextInfo.tests.values.awaitAll().filterIsInstance<Failed>()).single().and {
-                        get { stackTraceElement }.endsWith("ContextExecutorTest.kt:${getLineNumber(assertionError) - 1})")
+                        get { stackTraceElement.toString() }.endsWith(
+                            "ContextExecutorTest.kt:${
+                                getLineNumber(
+                                    assertionError
+                                ) - 1
+                            })"
+                        )
                     }
 
                 }
@@ -114,7 +120,13 @@ object ContextExecutorTest {
                 it("reports a failing context as a failing test") {
                     expectThat(results.tests.values.awaitAll().filterIsInstance<Failed>()).single().and {
                         get { test }.isEqualTo(TestDescriptor(rootContext, "context 1"))
-                        get { stackTraceElement }.endsWith("ContextExecutorTest.kt:${getLineNumber(runtimeException) - 1})")
+                        get { stackTraceElement.toString() }.endsWith(
+                            "ContextExecutorTest.kt:${
+                                getLineNumber(
+                                    runtimeException
+                                ) - 1
+                            })"
+                        )
                     }
                 }
                 it("does not report a failing context as a context") {

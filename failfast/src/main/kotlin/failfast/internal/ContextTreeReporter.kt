@@ -39,12 +39,14 @@ internal class ContextTreeReporter {
                             listOf("$indentString  $SUCCESS ${testResult.test.testName} (${time(timeMicro)}ms)")
                         }
                         is Failed -> listOf(
-                            "$indentString  $FAILED ${testResult.test.testName} ${RED}FAILED$RESET", "$indentString    ${
+                            "$indentString  $FAILED ${testResult.test.testName} ${RED}FAILED$RESET",
+                            "$indentString    ${
                                 testResult.failure.message?.replace(
                                     "\n",
                                     "\\n"
                                 )
-                            }", "$indentString    ${testResult.stackTraceElement})"
+                            }",
+                            "$indentString    ${testResult.stackTraceElement}"
                         )
                         is Ignored -> listOf("$indentString  $IGNORED ${testResult.test.testName} ${YELLOW}PENDING$RESET")
                     }

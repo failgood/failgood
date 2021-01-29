@@ -30,17 +30,17 @@ internal class ContextTreeReporter {
                     when (testResult) {
                         is Success -> {
                             val timeMicro = testResult.timeMicro
-                            listOf("$indentString  - ${testResult.test.testName} (${time(timeMicro)}ms)")
+                            listOf("$indentString  $SUCCESS ${testResult.test.testName} (${time(timeMicro)}ms)")
                         }
                         is Failed -> listOf(
-                            "$indentString  - ${testResult.test.testName} FAILED", "$indentString    ${
+                            "$indentString  $FAILED ${testResult.test.testName} ${RED}FAILED$RESET", "$indentString    ${
                                 testResult.failure.message?.replace(
                                     "\n",
                                     "\\n"
                                 )
                             }", "$indentString    ${testResult.stackTraceElement})"
                         )
-                        is Ignored -> listOf("$indentString- ${testResult.test.testName} PENDING")
+                        is Ignored -> listOf("$indentString  $IGNORED ${testResult.test.testName} ${YELLOW}PENDING$RESET")
                     }
 
                 result.addAll(lines)
@@ -53,4 +53,17 @@ internal class ContextTreeReporter {
 
     fun time(timeMicro: Long): String = timeFormat.format(timeMicro.toDouble() / 1000)!!
     private val timeFormat = DecimalFormat("#,##0.0#", DecimalFormatSymbols(Locale.US))
+
+    companion object {
+        internal const val GREEN = "\u001B[32m"
+        internal const val RED = "\u001B[31m"
+        internal const val YELLOW = "\u001B[33m"
+        internal const val RESET = "\u001B[0m"
+        internal val SUCCESS = GREEN + (if (isWindows) "√" else "✔") + RESET
+        internal val FAILED = RED + (if (isWindows) "X" else "✘") + RESET
+        internal const val IGNORED = "$YELLOW-$RESET"
+
+        private val isWindows: Boolean
+            get() = System.getProperty("os.name").startsWith("Windows")
+    }
 }

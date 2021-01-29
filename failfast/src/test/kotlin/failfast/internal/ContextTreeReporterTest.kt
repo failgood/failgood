@@ -3,6 +3,10 @@ package failfast.internal
 import failfast.Success
 import failfast.TestDescriptor
 import failfast.describe
+import failfast.internal.ContextTreeReporter.Companion.FAILED
+import failfast.internal.ContextTreeReporter.Companion.RED
+import failfast.internal.ContextTreeReporter.Companion.RESET
+import failfast.internal.ContextTreeReporter.Companion.SUCCESS
 import failfast.internal.TestResultFixtures.rootContext
 import failfast.internal.TestResultFixtures.subContext
 import failfast.internal.TestResultFixtures.subSubContext
@@ -21,10 +25,10 @@ object ContextTreeReporterTest {
                     .containsExactly(
                         listOf(
                             "* the test runner",
-                            "  - supports describe/it syntax (0.01ms)",
+                            "  $SUCCESS supports describe/it syntax (0.01ms)",
                             "  * contexts can be nested",
-                            "    - sub-contexts also contain tests (0.02ms)",
-                            "    - failed test FAILED",
+                            "    $SUCCESS sub-contexts also contain tests (0.02ms)",
+                            "    $FAILED failed test ${RED}FAILED${RESET}",
                             "      failure message\\nwith newline",
                             "      failfast.internal.ContextTreeReporterTest.invokeSuspend(ContextTreeReporterTest.kt:16)"
                         )
@@ -47,7 +51,7 @@ object ContextTreeReporterTest {
                         listOf(
                             "* the test runner",
                             "  * contexts can be nested",
-                            "    - sub-contexts also contain tests (0.01ms)"
+                            "    $SUCCESS sub-contexts also contain tests (0.01ms)"
                         )
                     )
             }
@@ -68,7 +72,7 @@ object ContextTreeReporterTest {
                             "* the test runner",
                             "  * contexts can be nested",
                             "    * deeper",
-                            "      - sub-contexts also contain tests (0.01ms)"
+                            "      $SUCCESS sub-contexts also contain tests (0.01ms)"
                         )
                     )
             }
@@ -85,8 +89,8 @@ object ContextTreeReporterTest {
                     .containsExactly(
                         listOf(
                             "* the test runner",
-                            "  - test (0.01ms)",
-                            "  - slow test (1,010.0ms)"
+                            "  $SUCCESS test (0.01ms)",
+                            "  $SUCCESS slow test (1,010.0ms)"
                         )
                     )
             }

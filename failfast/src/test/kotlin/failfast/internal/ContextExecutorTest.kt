@@ -75,7 +75,7 @@ object ContextExecutorTest {
                 }
             }
             describe("supports lazy execution") {
-                itWill("postpone test execution until the deferred is awaited when lazy is set to true") {
+                it("postpones test execution until the deferred is awaited when lazy is set to true") {
                     var testExecuted = false
                     val ctx =
                         RootContext("root context") {
@@ -83,13 +83,13 @@ object ContextExecutorTest {
                                 testExecuted = true
                             }
                         }
-                    val contextInfo = coroutineScope {
-                        ContextExecutor(ctx, this, lazy = true).execute()
+                    coroutineScope {
+                        val contextInfo = ContextExecutor(ctx, this, lazy = true).execute()
+                        expectThat(testExecuted).isEqualTo(false)
+                        val deferred = contextInfo.tests.values.single()
+                        expectThat(deferred.await()).isA<Success>()
+                        expectThat(testExecuted).isEqualTo(true)
                     }
-                    expectThat(testExecuted).isEqualTo(false)
-                    val deferred = contextInfo.tests.values.single()
-                    expectThat(deferred.await()).isA<Success>()
-                    expectThat(testExecuted).isEqualTo(true)
 
                 }
             }

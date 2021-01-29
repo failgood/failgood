@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- display test failures in a more compact way. stacktraces are shortened to only show lines from the test. the exception
+  name is not added to the output when it is an assertion error. those usually have a error message that speaks for
+  itself
 - color output in test report (robfletcher)
 - a changelog
 - Display a stacktrace entry that leads to the test method for failed tests.
@@ -16,7 +19,9 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Duplicate contexts fail the suite.
+- don't output slow tests and pending tests separately for now. need to find a more useful way of showing this
+- Duplicate contexts fail the suite. failfast always needed contexts and tests to have unique names. before duplicate
+  tests would just be ignored, now this is detected
 - Contexts with the same name as a test in the same context fail the suite.
 
 ### Fixed

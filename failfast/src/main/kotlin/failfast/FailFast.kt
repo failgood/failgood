@@ -32,7 +32,7 @@ inline fun <reified T> describe(disabled: Boolean = false, noinline function: Co
  *
  */
 fun describe(subjectType: KClass<*>, disabled: Boolean = false, function: ContextLambda):
-        RootContext = RootContext("the ${subjectType.simpleName}", disabled, function)
+        RootContext = RootContext("The ${subjectType.simpleName}", disabled, function)
 
 interface ContextDSL {
     /**

@@ -1,5 +1,7 @@
 package failfast
 
+import failfast.internal.Colors.RED
+import failfast.internal.Colors.RESET
 import failfast.internal.ExceptionPrettyPrinter
 
 sealed class TestResult {
@@ -19,7 +21,7 @@ class Failed(override val test: TestDescriptor, val failure: Throwable, val stac
         val testDescription = test.toString()
         val exceptionInfo = ExceptionPrettyPrinter(failure).prettyPrint()
 
-        return "$testDescription: failed with $exceptionInfo. $stackTraceElement"
+        return "$testDescription:$RED failed$RESET with $exceptionInfo.\ntest: $stackTraceElement"
     }
 
 }

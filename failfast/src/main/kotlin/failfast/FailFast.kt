@@ -1,5 +1,7 @@
 package failfast
 
+import failfast.internal.Colors.RED
+import failfast.internal.Colors.RESET
 import failfast.internal.ContextTreeReporter
 import failfast.internal.Junit4Reporter
 import java.nio.file.*
@@ -114,22 +116,23 @@ data class SuiteResult(
                 failedTests.joinToString(separator = "\n") {
                     it.prettyPrint()
                 }
-            println("failed tests:\n$message")
+            @Suppress("unused")
+            println("${RED}FAILED:${RESET}\n$message")
             println("$totalTests tests. ${failedTests.size} failed. total time: ${uptime()}")
             exitProcess(-1)
         }
+        fun printIgnoredTests(ignoredTests: List<Ignored>) {
+            println("\nIgnored tests:")
+            ignoredTests.forEach { println(it.test) }
+        }
+
+        fun printSlowestTests() {
+            val slowTests = allTests.filterIsInstance<Success>().sortedBy { -it.timeMicro }.take(5)
+            println("Slowest tests:")
+            slowTests.forEach { println("${contextTreeReporter.time(it.timeMicro)}ms ${it.test}") }
+        }
     }
 
-    private fun printIgnoredTests(ignoredTests: List<Ignored>) {
-        println("\nIgnored tests:")
-        ignoredTests.forEach { println(it.test) }
-    }
-
-    private fun printSlowestTests() {
-        val slowTests = allTests.filterIsInstance<Success>().sortedBy { -it.timeMicro }.take(5)
-        println("Slowest tests:")
-        slowTests.forEach { println("${contextTreeReporter.time(it.timeMicro)}ms ${it.test}") }
-    }
 }
 
 data class TestDescriptor(val parentContext: Context, val testName: String) {

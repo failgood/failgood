@@ -6,14 +6,12 @@ class ExceptionPrettyPrinter(private val throwable: Throwable) {
             .filter { it.lineNumber > 0 }
 
         val onlyFailfast = onlyElementsWithLineNumber.dropLastWhile { !it.className.startsWith("failfast") }
-        if (onlyFailfast.isEmpty())
-            onlyElementsWithLineNumber
-        else
-            onlyFailfast
+        onlyFailfast.ifEmpty { onlyElementsWithLineNumber }
     }
 
     fun prettyPrint(): String {
+        val cause = (throwable.cause?.let { "\ncause: $it\n${it.stackTraceToString()}" }) ?: ""
         return "${throwable::class.qualifiedName} : ${throwable.message}\n\tat " +
-                stackTrace.joinToString("\n\tat ") + throwable.cause?.let { "\ncause: $it\n${it.stackTraceToString()}" }
+                stackTrace.joinToString("\n\tat ") + cause
     }
 }

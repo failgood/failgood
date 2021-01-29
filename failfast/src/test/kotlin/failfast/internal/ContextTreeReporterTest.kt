@@ -72,7 +72,7 @@ object ContextTreeReporterTest {
                             "* the test runner",
                             "  * contexts can be nested",
                             "    * deeper",
-                            "      $SUCCESS sub-contexts also contain tests (0.01ms)"
+                            "      $SUCCESS ub-contexts also contain tests (0.01ms)"
                         )
                     )
             }

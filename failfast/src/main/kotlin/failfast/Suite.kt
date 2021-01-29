@@ -52,7 +52,6 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
 
     internal suspend fun findTests(coroutineScope: CoroutineScope, executeTests: Boolean = true):
         List<ContextInfo> {
-            val coroutineStart = if (executeTests) CoroutineStart.DEFAULT else CoroutineStart.LAZY
             return rootContexts
                 .map {
                     coroutineScope.async {
@@ -63,7 +62,7 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
                                     ContextExecutor(
                                         context,
                                         coroutineScope,
-                                        coroutineStart = coroutineStart
+                                        !executeTests
                                     ).execute()
                                 }
                             } catch (e: TimeoutCancellationException) {

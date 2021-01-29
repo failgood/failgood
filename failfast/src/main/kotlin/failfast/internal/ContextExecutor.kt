@@ -7,8 +7,9 @@ import java.util.concurrent.ConcurrentLinkedQueue
 internal class ContextExecutor(
     private val rootContext: RootContext,
     val scope: CoroutineScope,
-    val coroutineStart: CoroutineStart = CoroutineStart.DEFAULT
+    lazy: Boolean = false
 ) {
+    val coroutineStart: CoroutineStart = if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT
     private val startTime = System.nanoTime()
 
     // no need for concurrent structures here because the context is crawled in a single thread

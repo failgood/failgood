@@ -73,8 +73,27 @@ object ContextExecutorTest {
                     }
 
                 }
-                describe("supports lazy execution") { itWill("find tests without executing them") {} }
             }
+            describe("supports lazy execution") {
+                itWill("postpone test execution until the deferred is awaited when lazy is set to true") {
+                    var testExecuted = false
+                    val ctx =
+                        RootContext("root context") {
+                            test("test 1") {
+                                testExecuted = true
+                            }
+                        }
+                    val contextInfo = coroutineScope {
+                        ContextExecutor(ctx, this, lazy = true).execute()
+                    }
+                    expectThat(testExecuted).isEqualTo(false)
+                    val deferred = contextInfo.tests.values.single()
+                    expectThat(deferred.await()).isA<Success>()
+                    expectThat(testExecuted).isEqualTo(true)
+
+                }
+            }
+
             describe("handles failing contexts")
             {
                 var runtimeException: RuntimeException? = null

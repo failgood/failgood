@@ -24,7 +24,11 @@ object ContextExecutorTest {
                             assertionError = AssertionError("failed")
                             throw assertionError!!
                         }
-                        context("context 1") { context("context 2") { test("test 3") {} } }
+                        context("context 1")
+                        {
+                            context("context 2")
+                            { test("test 3") {} }
+                        }
                         context("context 4") { test("test 4") {} }
                     }
 
@@ -55,11 +59,7 @@ object ContextExecutorTest {
                     expectThat(failed).map { it.test }.containsExactly(TestDescriptor(rootContext, "failed test"))
                 }
 
-                it("returns contexts") {
-                    expectThat(contextInfo.contexts)
-                        .containsExactlyInAnyOrder(rootContext, context1, context2, context4)
-                }
-                itWill("return contexts in the same order as they appear in the file") {
+                it("returns contexts in the same order as they appear in the file") {
                     expectThat(contextInfo.contexts)
                         .containsExactly(rootContext, context1, context2, context4)
                 }

@@ -13,8 +13,8 @@ internal class ContextExecutor(
 
     // no need for concurrent structures here because the context is crawled in a single thread
     private val failedContexts = LinkedHashSet<Context>()
-    private val finishedContexts = LinkedHashSet<Context>()
-    val executedTests = LinkedHashMap<TestDescriptor, Deferred<TestResult>>()
+    private val finishedContexts = LinkedHashMap<Context, Int>()
+    private val executedTests = LinkedHashMap<TestDescriptor, Deferred<TestResult>>()
 
     private inner class ContextVisitor(
         private val parentContext: Context,
@@ -78,19 +78,23 @@ internal class ContextExecutor(
                 visitor.function()
             } catch (e: Exception) {
                 val testDescriptor = TestDescriptor(parentContext, name)
-                val stackTraceElement =
-                    RuntimeException().stackTrace.first { !(it.fileName?.endsWith("ContextExecutor.kt") ?: true) }
-                        .toString()
+                val stackTraceElement = getStackTraceElement()
+                val stackTraceElementString = stackTraceElement.toString()
 
-                executedTests[testDescriptor] = CompletableDeferred(Failed(testDescriptor, e, stackTraceElement))
-                finishedContexts.add(context)
+                executedTests[testDescriptor] = CompletableDeferred(Failed(testDescriptor, e, stackTraceElementString))
+                finishedContexts[context] =
+                    stackTraceElement.lineNumber // this line number is going to be ignored but since we know it we put it there
                 failedContexts.add(context)
                 ranATest = true
             }
-            if (visitor.contextsLeft) contextsLeft = true else finishedContexts.add(context)
+            if (visitor.contextsLeft) contextsLeft = true else finishedContexts[context] =
+                getStackTraceElement().lineNumber
 
             if (visitor.ranATest) ranATest = true
         }
+
+        private fun getStackTraceElement() =
+            RuntimeException().stackTrace.first { !(it.fileName?.endsWith("ContextExecutor.kt") ?: true) }!!
 
         override suspend fun describe(name: String, function: ContextLambda) {
             context(name, function)
@@ -122,7 +126,10 @@ internal class ContextExecutor(
             visitor.function()
             if (!visitor.contextsLeft) break
         }
-        return ContextInfo(listOf(rootContext) + finishedContexts - failedContexts, executedTests)
+        // contexts: root context, subcontexts ordered by line number, minus failed contexts (those are reported as tests)
+        val contexts = listOf(rootContext) + finishedContexts.entries.sortedBy { it.value }
+            .map { it.key } - failedContexts
+        return ContextInfo(contexts, executedTests)
     }
 }
 

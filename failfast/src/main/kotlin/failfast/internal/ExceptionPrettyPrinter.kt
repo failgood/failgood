@@ -13,7 +13,8 @@ class ExceptionPrettyPrinter(private val throwable: Throwable, testStackTrace: S
 
     fun prettyPrint(): String {
         val cause = (throwable.cause?.let { "\ncause: $it\n${it.stackTraceToString()}" }) ?: ""
-        return "${throwable::class.qualifiedName} : ${throwable.message}\n\tat " +
+        val throwableName = if (throwable is AssertionError) "" else "${throwable::class.qualifiedName} : "
+        return "${throwableName}${throwable.message}\n\tat " +
                 stackTrace.joinToString("\n\tat ") + cause
     }
 }

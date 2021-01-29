@@ -1,3 +1,5 @@
+@file:Suppress("NAME_SHADOWING")
+
 package failfast.internal
 
 import failfast.describe
@@ -14,7 +16,7 @@ object ExceptionPrettyPrinterTest {
             val epp = ExceptionPrettyPrinter(assertionError)
             it("pretty prints the exception with stack trace") {
                 expectThat(epp.prettyPrint()) {
-                    startsWith(assertionError.javaClass.name) // first line
+                    startsWith("message") // first line
 
                     // last line
                     get { split("\n").last() }.trim().startsWith("at failfast")
@@ -35,7 +37,5 @@ object ExceptionPrettyPrinterTest {
             it("shortens the stack trace") {
                 expectThat(epp.stackTrace.last().className).startsWith("failfast")
             }
-            itWill("only print the stacktrace lines that correspond to the test case")
-            itWill("ignore the exception class name if it is an exception")
         }
 }

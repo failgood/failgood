@@ -38,7 +38,7 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
             threadPool.asCoroutineDispatcher()
                 .use { dispatcher ->
                     runBlocking(dispatcher) {
-                        val contextInfos = findTests(this)
+                        val contextInfos = findTests(this).awaitAll()
 
                         val results = contextInfos.flatMap { it.tests.values }.awaitAll()
                         SuiteResult(results, results.filterIsInstance<Failed>(), contextInfos.flatMap { it.contexts })
@@ -51,17 +51,17 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
     }
 
     internal suspend fun findTests(coroutineScope: CoroutineScope, executeTests: Boolean = true):
-        List<ContextInfo> {
-            return rootContexts
-                .map {
-                    coroutineScope.async {
-                        val context = it.getContext()
-                        if (!context.disabled) {
-                            try {
-                                withTimeout(20000) {
-                                    ContextExecutor(
-                                        context,
-                                        coroutineScope,
+            List<Deferred<ContextInfo>> {
+        return rootContexts
+            .map {
+                coroutineScope.async {
+                    val context = it.getContext()
+                    if (!context.disabled) {
+                        try {
+                            withTimeout(20000) {
+                                ContextExecutor(
+                                    context,
+                                    coroutineScope,
                                         !executeTests
                                     ).execute()
                                 }
@@ -72,7 +72,6 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
                             ContextInfo(emptyList(), mapOf())
                     }
                 }
-                .awaitAll()
     }
 
     fun runSingle(test: String) {

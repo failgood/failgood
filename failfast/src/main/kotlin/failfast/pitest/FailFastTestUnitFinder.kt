@@ -1,20 +1,12 @@
 package failfast.pitest
 
-import failfast.Failed
-import failfast.Ignored
-import failfast.ObjectContextProvider
-import failfast.Success
-import failfast.Suite
-import failfast.TestDescriptor
+import failfast.*
 import failfast.TestResult
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
-import org.pitest.testapi.AbstractTestUnit
-import org.pitest.testapi.Description
-import org.pitest.testapi.ResultCollector
-import org.pitest.testapi.TestUnit
-import org.pitest.testapi.TestUnitFinder
+import org.pitest.testapi.*
 
 object FailFastTestUnitFinder : TestUnitFinder {
     override fun findTestUnits(clazz: Class<*>): List<TestUnit> {
@@ -24,7 +16,7 @@ object FailFastTestUnitFinder : TestUnitFinder {
             } catch (e: Exception) {
                 return listOf()
             }
-        val tests = runBlocking { Suite(rootContext).findTests(GlobalScope, false) }
+        val tests = runBlocking { Suite(rootContext).findTests(GlobalScope, false).awaitAll() }
         return tests.flatMap { it.tests.entries }.map { FailFastTestUnit(it.key, it.value, clazz) }
     }
 

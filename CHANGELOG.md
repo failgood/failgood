@@ -6,9 +6,9 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- display test failures in a more compact way. stacktraces are shortened to only show lines from the test. the exception
-  name is not added to the output when it is an assertion error. those usually have a error message that speaks for
-  itself
+- display test failures in a more compact way. Stack traces are shortened to only show lines from the test. the
+  exception name is not added to the output when it is an assertion error. those usually have a error message that
+  speaks for itself
 - color output in test report (robfletcher)
 - a changelog
 - Display a stacktrace entry that leads to the test method for failed tests.

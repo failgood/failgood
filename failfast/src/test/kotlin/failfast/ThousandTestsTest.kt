@@ -13,7 +13,7 @@ object ThousandTestsTest {
 
                     }
                 }
-            }).run()
+            }).run(silent = true)
         }
     }
 }

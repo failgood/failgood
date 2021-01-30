@@ -25,7 +25,9 @@ fun main() {
             }
             context("child context") {
                 context("grandchild context") {
-                    test("failing test") { expectThat(true).isFalse() }
+                    test("failing test") {
+                        expectThat(true).isFalse()
+                    }
                 }
             }
         }.run()

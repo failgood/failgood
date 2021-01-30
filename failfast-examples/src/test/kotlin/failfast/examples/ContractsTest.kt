@@ -1,14 +1,14 @@
 package failfast.examples
 
 import failfast.ContextDSL
-import failfast.Suite
+import failfast.FailFast
 import failfast.describe
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 import java.util.*
 
 fun main() {
-    Suite(ContractsTest.context).run().check()
+    FailFast.runTest()
 }
 
 // a port of https://github.com/dmcg/minutest/blob/master/core/src/test/kotlin/dev/minutest/examples/ContractsExampleTests.kt

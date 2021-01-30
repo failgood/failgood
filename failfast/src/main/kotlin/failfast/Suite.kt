@@ -29,7 +29,7 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
     constructor(function: ContextLambda) :
             this(RootContext("root", false, function))
 
-    fun run(parallelism: Int = cpus()): SuiteResult {
+    fun run(parallelism: Int = cpus(), silent: Boolean = false): SuiteResult {
 
         val threadPool =
             if (parallelism > 1)
@@ -41,18 +41,21 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
                 .use { dispatcher ->
                     runBlocking(dispatcher) {
                         val contextInfos = findTests(this)
-                        contextInfos.asSequence().forEach {
-                            launch {
-                                val context = it.await()
-                                val contextTreeReporter = ContextTreeReporter()
-                                println(
-                                    contextTreeReporter.stringReport(context.tests.values.awaitAll(), context.contexts)
-                                        .joinToString("\n")
-                                )
+                        if (!silent) {
+                            contextInfos.asSequence().forEach {
+                                launch {
+                                    val context = it.await()
+                                    val contextTreeReporter = ContextTreeReporter()
+                                    println(
+                                        contextTreeReporter.stringReport(
+                                            context.tests.values.awaitAll(),
+                                            context.contexts
+                                        )
+                                            .joinToString("\n")
+                                    )
+                                }
                             }
                         }
-
-
                         val resolvedContexts = contextInfos.awaitAll()
                         val results = resolvedContexts.flatMap { it.tests.values }.awaitAll()
                         SuiteResult(

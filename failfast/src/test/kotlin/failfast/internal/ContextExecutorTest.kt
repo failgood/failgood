@@ -197,7 +197,7 @@ object ContextExecutorTest {
                         events.add("close callback")
                     }
                     test("a test") { events.add("test") }
-                }.run()
+                }.run(silent = true)
                 expectThat(events).containsExactly("test", "close callback")
                 expectThat(resource).isEqualTo(closable)
                 expectThat(closeCalled).isTrue()

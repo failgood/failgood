@@ -80,7 +80,8 @@ class FailFastJunitTestEngine : TestEngine {
         junitListener.executionStarted(root)
         val executionListener = root.executionListener
         var running = true
-        runBlocking(Dispatchers.Default) {
+        val allOk = runBlocking(Dispatchers.Default) {
+            // report results in async block
             launch {
                 while (running || !executionListener.started.isEmpty || !executionListener.finished.isEmpty) {
                     select<Unit> {
@@ -108,18 +109,22 @@ class FailFastJunitTestEngine : TestEngine {
 
                 }
             }
-            root.testResult.awaitAll().flatMap<ContextInfo, Deferred<TestResult>> { it.tests.values }.awaitAll()
+            // and wait for the results
+            val allTests = root.testResult.awaitAll().flatMap { it.tests.values }.awaitAll()
             running = false
-
+            allTests.all { it is Success }
         }
-        junitListener.executionFinished(root, TestExecutionResult.successful())
+        junitListener.executionFinished(
+            root,
+            if (allOk) TestExecutionResult.successful() else TestExecutionResult.failed(SuiteFailedException())
+        )
     }
 
     @OptIn(ExperimentalPathApi::class)
     private fun findContexts(discoveryRequest: EngineDiscoveryRequest): List<ContextProvider> {
         val classPathSelector = discoveryRequest.getSelectorsByType(ClasspathRootSelector::class.java).singleOrNull()
         val singleClassSelector = discoveryRequest.getSelectorsByType(ClassSelector::class.java).singleOrNull()
-        val providers: List<ContextProvider> = if (classPathSelector != null) {
+        return if (classPathSelector != null) {
             val uri = classPathSelector.classpathRoot
             findClassesInPath(uri.toPath(), Thread.currentThread().contextClassLoader).map { ObjectContextProvider(it) }
         } else if (singleClassSelector != null) {
@@ -128,7 +133,6 @@ class FailFastJunitTestEngine : TestEngine {
             listOf(ObjectContextProvider(singleClassSelector.javaClass))
         } else
             throw RuntimeException()
-        return providers
     }
 }
 

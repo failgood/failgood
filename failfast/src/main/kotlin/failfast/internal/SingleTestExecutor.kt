@@ -78,7 +78,5 @@ internal class SingleTestExecutor(private val context: RootContext, private val 
         }
     }
 
-    private class TestResultAvailable(val testResult: TestResult) : RuntimeException() {
-
-    }
+    private class TestResultAvailable(val testResult: TestResult) : RuntimeException()
 }

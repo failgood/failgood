@@ -3,6 +3,8 @@ package failfast.junit
 import failfast.*
 import failfast.FailFast.findClassesInPath
 import failfast.FailFast.findTestClasses
+import failfast.internal.ContextInfo
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.platform.engine.*
@@ -22,29 +24,34 @@ class FailFastJunitTestEngine : TestEngine {
     override fun getId(): String = FailFastJunitTestEngineConstants.id
 
     override fun discover(discoveryRequest: EngineDiscoveryRequest, uniqueId: UniqueId): TestDescriptor {
-        val result = FailFastEngineDescriptor(discoveryRequest, uniqueId)
         val providers: List<ContextProvider> = findContexts(discoveryRequest)
-        runBlocking(Dispatchers.Default) {
+        return runBlocking(Dispatchers.Default) {
             val testResult = Suite(providers).findTests(
                 coroutineScope = this,
                 executeTests = true
             )
+            val result = FailFastEngineDescriptor(discoveryRequest, uniqueId, testResult)
             testResult.forEach { defcontext ->
-                val context = defcontext.await()
-                val rootContext = context.contexts.single { it.parent == null }
-                val tests = context.tests
-                val testsInThisContext = tests.keys.filter { it.parentContext == rootContext }
-                val rootContextNode = FailFastTestDescriptor(
-                    TestDescriptor.Type.CONTAINER,
-                    uniqueId.append("container", rootContext.name),
-                    rootContext.name
-                )
-                testsInThisContext.forEach { rootContextNode.addChild(it.toTestDescriptor(uniqueId)) }
-                result.addChild(rootContextNode)
-            }
-        }
-        return result
+                val contextInfo = defcontext.await()
+                val rootContext = contextInfo.contexts.single { it.parent == null }
+                val tests = contextInfo.tests.entries
+                fun addChildren(node: TestDescriptor, context: Context) {
+                    val contextNode = FailFastTestDescriptor(
+                        TestDescriptor.Type.CONTAINER,
+                        uniqueId.append("container", context.name),
+                        context.name
+                    )
+                    val testsInThisContext = tests.filter { it.key.parentContext == context }
+                    testsInThisContext.forEach { contextNode.addChild(it.key.toTestDescriptor(uniqueId, it.value)) }
+                    val contextsInThisContext = contextInfo.contexts.filter { it.parent == context }
+                    contextsInThisContext.forEach { addChildren(contextNode, it) }
+                    node.addChild(contextNode)
+                }
 
+                addChildren(result, rootContext)
+            }
+            result
+        }
     }
 
     override fun execute(request: ExecutionRequest) {
@@ -52,33 +59,9 @@ class FailFastJunitTestEngine : TestEngine {
         if (root !is FailFastEngineDescriptor)
             return
 
-        val providers: List<ContextProvider> = findContexts(root.discoveryRequest)
-
         val listener = request.engineExecutionListener
         listener.executionStarted(root)
-        runBlocking {
-            val result = Suite(providers).findTests(
-                coroutineScope = this,
-                executeTests = true
-            )
-            result.forEach { defcontext ->
-                val context = defcontext.await()
-                val descriptor = FailFastTestDescriptor(
-                    TestDescriptor.Type.CONTAINER,
-                    root.uniqueId.append("container", context.toString()),
-                    context.toString()
-                )
-                listener.executionStarted(
-                    descriptor
-                )
-//                listener.executionFinished(descriptor, context)
-            }
-            listener.executionFinished(
-                root,
-                if (true) TestExecutionResult.successful() else TestExecutionResult.failed(SuiteFailedException())
-            )
-        }
-
+        listener.executionFinished(root, TestExecutionResult.successful())
     }
 
     @OptIn(ExperimentalPathApi::class)
@@ -98,11 +81,21 @@ class FailFastJunitTestEngine : TestEngine {
     }
 }
 
-private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor {
-    return FailFastTestDescriptor(TestDescriptor.Type.TEST, uniqueId.append("Test", this.testName), this.testName)
+private fun TestDescription.toTestDescriptor(uniqueId: UniqueId, value: Deferred<TestResult>): TestDescriptor {
+    return FailFastTestDescriptor(
+        TestDescriptor.Type.TEST,
+        uniqueId.append("Test", this.testName),
+        this.testName,
+        value
+    )
 }
 
-class FailFastTestDescriptor(private val type: TestDescriptor.Type, id: UniqueId, name: String) :
+class FailFastTestDescriptor(
+    private val type: TestDescriptor.Type,
+    id: UniqueId,
+    name: String,
+    val result: Deferred<TestResult>? = null
+) :
     AbstractTestDescriptor(id, name) {
     override fun getType(): TestDescriptor.Type {
         return type
@@ -114,5 +107,9 @@ class JunitListenerWrapper(val listener: EngineExecutionListener) : ExecutionLis
 
 }
 
-class FailFastEngineDescriptor(val discoveryRequest: EngineDiscoveryRequest, uniqueId: UniqueId) :
+internal class FailFastEngineDescriptor(
+    val discoveryRequest: EngineDiscoveryRequest,
+    uniqueId: UniqueId,
+    val testResult: List<Deferred<ContextInfo>>
+) :
     EngineDescriptor(uniqueId, FailFastJunitTestEngineConstants.displayName)

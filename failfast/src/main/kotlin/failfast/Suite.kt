@@ -29,7 +29,11 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
     constructor(function: ContextLambda) :
             this(RootContext("root", false, function))
 
-    fun run(parallelism: Int = cpus(), silent: Boolean = false): SuiteResult {
+    fun run(
+        parallelism: Int = cpus(),
+        silent: Boolean = false,
+        listener: ExecutionListener = NullExecutionListener
+    ): SuiteResult {
 
         val threadPool =
             if (parallelism > 1)
@@ -110,6 +114,8 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
 
     }
 }
+
+object NullExecutionListener : ExecutionListener
 
 internal fun uptime(): String {
     val operatingSystemMXBean =

@@ -1,0 +1,5 @@
+package failfast
+
+interface ExecutionListener {
+
+}

@@ -124,7 +124,7 @@ data class SuiteResult(
 
         val contextTreeReporter = ContextTreeReporter()
         fun printSlowestTests() {
-            val slowTests = allTests.filterIsInstance<Success>().sortedBy { -it.timeMicro }.take(5)
+            val slowTests = allTests.filterIsInstance<Success>().sortedBy { 0 - it.timeMicro }.take(5)
             println("Slowest tests:")
             slowTests.forEach { println("${contextTreeReporter.time(it.timeMicro)}ms ${it.test}") }
         }
@@ -154,6 +154,7 @@ data class Context(val name: String, val parent: Context?) {
 
     val path: List<String> = parent?.path?.plus(name) ?: listOf(name)
     fun stringPath(): String = path.joinToString(" > ")
+    override fun toString() = stringPath() + " > " + name
 }
 
 object FailFast {

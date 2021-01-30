@@ -31,8 +31,7 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
 
     fun run(
         parallelism: Int = cpus(),
-        silent: Boolean = false,
-        listener: ExecutionListener = NullExecutionListener
+        silent: Boolean = false
     ): SuiteResult {
 
         val threadPool =
@@ -74,7 +73,11 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
         }
     }
 
-    internal suspend fun findTests(coroutineScope: CoroutineScope, executeTests: Boolean = true):
+    internal suspend fun findTests(
+        coroutineScope: CoroutineScope,
+        executeTests: Boolean = true,
+        listener: ExecutionListener = NullExecutionListener
+    ):
             List<Deferred<ContextInfo>> {
         return rootContexts
             .map {
@@ -86,16 +89,17 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
                                 ContextExecutor(
                                     context,
                                     coroutineScope,
-                                        !executeTests
-                                    ).execute()
-                                }
-                            } catch (e: TimeoutCancellationException) {
-                                throw FailFastException("context ${context.name} timed out")
+                                    !executeTests,
+                                    listener
+                                ).execute()
                             }
-                        } else
-                            ContextInfo(emptyList(), mapOf())
-                    }
+                        } catch (e: TimeoutCancellationException) {
+                            throw FailFastException("context ${context.name} timed out")
+                        }
+                    } else
+                        ContextInfo(emptyList(), mapOf())
                 }
+            }
     }
 
     fun runSingle(test: String) {
@@ -115,7 +119,10 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
     }
 }
 
-object NullExecutionListener : ExecutionListener
+object NullExecutionListener : ExecutionListener {
+    override suspend fun testStarted(testDescriptor: TestDescription) {}
+    override suspend fun testFinished(testDescriptor: TestDescription, testResult: TestResult) {}
+}
 
 internal fun uptime(): String {
     val operatingSystemMXBean =

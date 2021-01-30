@@ -33,7 +33,7 @@ object ContextExecutorTest {
                     }
 
                 val contextInfo = coroutineScope {
-                    ContextExecutor(ctx, this).execute()
+                    ContextExecutor(ctx, this, listener = NullExecutionListener).execute()
                 }
                 it("returns tests in the same order as they are declared in the file") {
                     expectThat(contextInfo.tests.keys)
@@ -90,7 +90,8 @@ object ContextExecutorTest {
                             }
                         }
                     coroutineScope {
-                        val contextInfo = ContextExecutor(ctx, this, lazy = true).execute()
+                        val contextInfo =
+                            ContextExecutor(ctx, this, lazy = true, listener = NullExecutionListener).execute()
                         expectThat(testExecuted).isEqualTo(false)
                         val deferred = contextInfo.tests.values.single()
                         expectThat(deferred.await()).isA<Success>()
@@ -115,7 +116,7 @@ object ContextExecutorTest {
                         context("context 4") { test("test 4") {} }
                     }
                 val results = coroutineScope {
-                    ContextExecutor(ctx, this).execute()
+                    ContextExecutor(ctx, this, listener = NullExecutionListener).execute()
                 }
                 it("reports a failing context as a failing test") {
                     expectThat(results.tests.values.awaitAll().filterIsInstance<Failed>()).single().and {
@@ -142,7 +143,13 @@ object ContextExecutorTest {
                             test("duplicate test name") {}
                         }
                     coroutineScope {
-                        expectThrows<FailFastException> { ContextExecutor(ctx, this).execute() }
+                        expectThrows<FailFastException> {
+                            ContextExecutor(
+                                ctx,
+                                this,
+                                listener = NullExecutionListener
+                            ).execute()
+                        }
                     }
                 }
                 it("does not fail when the tests with the same name are in different contexts") {
@@ -151,7 +158,7 @@ object ContextExecutorTest {
                             test("duplicate test name") {}
                             context("context") { test("duplicate test name") {} }
                         }
-                    coroutineScope { ContextExecutor(ctx, this).execute() }
+                    coroutineScope { ContextExecutor(ctx, this, listener = NullExecutionListener).execute() }
                 }
             }
             describe("detects duplicate contexts") {
@@ -162,7 +169,13 @@ object ContextExecutorTest {
                             context("duplicate test name") {}
                         }
                     coroutineScope {
-                        expectThrows<FailFastException> { ContextExecutor(ctx, this).execute() }
+                        expectThrows<FailFastException> {
+                            ContextExecutor(
+                                ctx,
+                                this,
+                                listener = NullExecutionListener
+                            ).execute()
+                        }
                     }
                 }
                 it("does not fail when the contexts with the same name are in different contexts") {
@@ -171,7 +184,7 @@ object ContextExecutorTest {
                             test("same context name") {}
                             context("context") { test("same context name") {} }
                         }
-                    coroutineScope { ContextExecutor(ctx, this).execute() }
+                    coroutineScope { ContextExecutor(ctx, this, listener = NullExecutionListener).execute() }
                 }
                 it("fails when a context has the same name as a test in the same contexts") {
                     val ctx =
@@ -180,7 +193,13 @@ object ContextExecutorTest {
                             context("same name") {}
                         }
                     coroutineScope {
-                        expectThrows<FailFastException> { ContextExecutor(ctx, this).execute() }
+                        expectThrows<FailFastException> {
+                            ContextExecutor(
+                                ctx,
+                                this,
+                                listener = NullExecutionListener
+                            ).execute()
+                        }
                     }
                 }
 

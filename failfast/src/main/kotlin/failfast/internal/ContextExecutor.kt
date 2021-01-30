@@ -7,7 +7,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
 internal class ContextExecutor(
     private val rootContext: RootContext,
     val scope: CoroutineScope,
-    lazy: Boolean = false
+    lazy: Boolean = false,
+    val listener: ExecutionListener
 ) {
     val coroutineStart: CoroutineStart = if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT
     private val startTime = System.nanoTime()
@@ -42,6 +43,7 @@ internal class ContextExecutor(
                     RuntimeException().stackTrace.first { !(it.fileName?.endsWith("ContextExecutor.kt") ?: true) }
                 val deferred =
                     scope.async(start = coroutineStart) {
+                        listener.testStarted(testDescriptor)
                         val testResult =
                             try {
                                 function()
@@ -50,14 +52,17 @@ internal class ContextExecutor(
                             } catch (e: Throwable) {
                                 Failed(testDescriptor, e, stackTraceElement)
                             }
-
+                        listener.testFinished(testDescriptor, testResult)
                         testResult
                     }
                 executedTests[testDescriptor] = deferred
             } else {
                 val deferred =
                     scope.async(start = coroutineStart) {
-                        SingleTestExecutor(rootContext, testDescriptor).execute()
+                        listener.testStarted(testDescriptor)
+                        val result = SingleTestExecutor(rootContext, testDescriptor).execute()
+                        listener.testFinished(testDescriptor, result)
+                        result
                     }
                 executedTests[testDescriptor] = deferred
             }

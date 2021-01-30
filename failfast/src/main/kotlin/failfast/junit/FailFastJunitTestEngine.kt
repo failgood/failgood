@@ -4,9 +4,10 @@ import failfast.*
 import failfast.FailFast.findClassesInPath
 import failfast.FailFast.findTestClasses
 import failfast.internal.ContextInfo
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
+import kotlinx.coroutines.selects.select
 import org.junit.platform.engine.*
 import org.junit.platform.engine.discovery.ClassSelector
 import org.junit.platform.engine.discovery.ClasspathRootSelector
@@ -26,11 +27,9 @@ class FailFastJunitTestEngine : TestEngine {
     override fun discover(discoveryRequest: EngineDiscoveryRequest, uniqueId: UniqueId): TestDescriptor {
         val providers: List<ContextProvider> = findContexts(discoveryRequest)
         return runBlocking(Dispatchers.Default) {
-            val testResult = Suite(providers).findTests(
-                coroutineScope = this,
-                executeTests = true
-            )
-            val result = FailFastEngineDescriptor(discoveryRequest, uniqueId, testResult)
+            val executionListener = JunitExecutionListener()
+            val testResult = Suite(providers).findTests(this, true, executionListener)
+            val result = FailFastEngineDescriptor(discoveryRequest, uniqueId, testResult, executionListener)
             testResult.forEach { defcontext ->
                 val contextInfo = defcontext.await()
                 val rootContext = contextInfo.contexts.single { it.parent == null }
@@ -42,7 +41,12 @@ class FailFastJunitTestEngine : TestEngine {
                         context.name
                     )
                     val testsInThisContext = tests.filter { it.key.parentContext == context }
-                    testsInThisContext.forEach { contextNode.addChild(it.key.toTestDescriptor(uniqueId, it.value)) }
+                    testsInThisContext.forEach {
+                        val testDescription = it.key
+                        val testDescriptor = testDescription.toTestDescriptor(uniqueId)
+                        contextNode.addChild(testDescriptor)
+                        result.addMapping(testDescription, testDescriptor)
+                    }
                     val contextsInThisContext = contextInfo.contexts.filter { it.parent == context }
                     contextsInThisContext.forEach { addChildren(contextNode, it) }
                     node.addChild(contextNode)
@@ -54,14 +58,61 @@ class FailFastJunitTestEngine : TestEngine {
         }
     }
 
+    class JunitExecutionListener : ExecutionListener {
+        val started = Channel<TestDescription>(UNLIMITED)
+        val finished = Channel<TestResult>(UNLIMITED)
+        override suspend fun testStarted(testDescriptor: TestDescription) {
+            started.send(testDescriptor)
+        }
+
+        override suspend fun testFinished(testDescriptor: TestDescription, testResult: TestResult) {
+            finished.send(testResult)
+        }
+
+    }
+
     override fun execute(request: ExecutionRequest) {
         val root = request.rootTestDescriptor
         if (root !is FailFastEngineDescriptor)
             return
 
-        val listener = request.engineExecutionListener
-        listener.executionStarted(root)
-        listener.executionFinished(root, TestExecutionResult.successful())
+        val junitListener = request.engineExecutionListener
+        junitListener.executionStarted(root)
+        val executionListener = root.executionListener
+        var running = true
+        runBlocking(Dispatchers.Default) {
+            launch {
+                while (running || !executionListener.started.isEmpty || !executionListener.finished.isEmpty) {
+                    select<Unit> {
+                        executionListener.started.onReceive {
+                            junitListener.executionStarted(root.getMapping(it))
+                        }
+                        executionListener.finished.onReceive {
+                            val mapping = root.getMapping(it.test)
+                            when (it) {
+                                is Failed -> junitListener.executionFinished(
+                                    mapping,
+                                    TestExecutionResult.failed(it.failure)
+                                )
+
+                                is Success -> junitListener.executionFinished(
+                                    mapping,
+                                    TestExecutionResult.successful()
+                                )
+
+                                is Ignored -> junitListener.executionSkipped(mapping, null)
+                            }
+                        }
+
+                    }
+
+                }
+            }
+            root.testResult.awaitAll().flatMap<ContextInfo, Deferred<TestResult>> { it.tests.values }.awaitAll()
+            running = false
+
+        }
+        junitListener.executionFinished(root, TestExecutionResult.successful())
     }
 
     @OptIn(ExperimentalPathApi::class)
@@ -81,12 +132,11 @@ class FailFastJunitTestEngine : TestEngine {
     }
 }
 
-private fun TestDescription.toTestDescriptor(uniqueId: UniqueId, value: Deferred<TestResult>): TestDescriptor {
+private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor {
     return FailFastTestDescriptor(
         TestDescriptor.Type.TEST,
         uniqueId.append("Test", this.testName),
-        this.testName,
-        value
+        this.testName
     )
 }
 
@@ -103,13 +153,18 @@ class FailFastTestDescriptor(
 
 }
 
-class JunitListenerWrapper(val listener: EngineExecutionListener) : ExecutionListener {
-
-}
 
 internal class FailFastEngineDescriptor(
     val discoveryRequest: EngineDiscoveryRequest,
     uniqueId: UniqueId,
-    val testResult: List<Deferred<ContextInfo>>
+    val testResult: List<Deferred<ContextInfo>>,
+    val executionListener: FailFastJunitTestEngine.JunitExecutionListener
 ) :
-    EngineDescriptor(uniqueId, FailFastJunitTestEngineConstants.displayName)
+    EngineDescriptor(uniqueId, FailFastJunitTestEngineConstants.displayName) {
+    private val testDescription2JunitUniqueId = mutableMapOf<TestDescription, TestDescriptor>()
+    fun addMapping(testDescription: TestDescription, testDescriptor: TestDescriptor) {
+        testDescription2JunitUniqueId[testDescription] = testDescriptor
+    }
+
+    fun getMapping(testDescription: TestDescription) = testDescription2JunitUniqueId[testDescription]
+}

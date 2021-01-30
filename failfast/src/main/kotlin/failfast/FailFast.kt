@@ -77,14 +77,10 @@ data class SuiteResult(
 ) {
     val allOk = failedTests.isEmpty()
 
-    private val contextTreeReporter = ContextTreeReporter()
 
+    @Suppress("UNREACHABLE_CODE")
     fun check(throwException: Boolean = false, writeReport: Boolean = false) {
 
-        println(
-            contextTreeReporter.stringReport(allTests, contexts)
-                .joinToString("\n")
-        )
 
         //**/build/test-results/test/TEST-*.xml'
         if (writeReport) {
@@ -126,6 +122,7 @@ data class SuiteResult(
             ignoredTests.forEach { println(it.test) }
         }
 
+        val contextTreeReporter = ContextTreeReporter()
         fun printSlowestTests() {
             val slowTests = allTests.filterIsInstance<Success>().sortedBy { -it.timeMicro }.take(5)
             println("Slowest tests:")

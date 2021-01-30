@@ -2,6 +2,7 @@ package failfast
 
 import failfast.internal.ContextExecutor
 import failfast.internal.ContextInfo
+import failfast.internal.ContextTreeReporter
 import failfast.internal.SingleTestExecutor
 import kotlinx.coroutines.*
 import java.lang.management.ManagementFactory
@@ -29,6 +30,7 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
             this(RootContext("root", false, function))
 
     fun run(parallelism: Int = cpus()): SuiteResult {
+
         val threadPool =
             if (parallelism > 1)
                 Executors.newWorkStealingPool(parallelism)
@@ -38,10 +40,25 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
             threadPool.asCoroutineDispatcher()
                 .use { dispatcher ->
                     runBlocking(dispatcher) {
-                        val contextInfos = findTests(this).awaitAll()
+                        val contextInfos = findTests(this)
+                        contextInfos.asSequence().forEach {
+                            launch {
+                                val context = it.await()
+                                val contextTreeReporter = ContextTreeReporter()
+                                println(
+                                    contextTreeReporter.stringReport(context.tests.values.awaitAll(), context.contexts)
+                                        .joinToString("\n")
+                                )
+                            }
+                        }
 
-                        val results = contextInfos.flatMap { it.tests.values }.awaitAll()
-                        SuiteResult(results, results.filterIsInstance<Failed>(), contextInfos.flatMap { it.contexts })
+
+                        val resolvedContexts = contextInfos.awaitAll()
+                        val results = resolvedContexts.flatMap { it.tests.values }.awaitAll()
+                        SuiteResult(
+                            results,
+                            results.filterIsInstance<Failed>(),
+                            resolvedContexts.flatMap { it.contexts })
                     }
                 }
         } finally {

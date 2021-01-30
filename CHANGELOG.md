@@ -6,11 +6,12 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- display test failures in a more compact way. Stack traces are shortened to only show lines from the test. the
+- Print each context result as soon as the context is finished.
+- Display test failures in a more compact way. Stack traces are shortened to only show lines from the test. the
   exception name is not added to the output when it is an assertion error. those usually have a error message that
   speaks for itself
-- color output in test report (robfletcher)
-- a changelog
+- Color output in test report (robfletcher)
+- A changelog
 - Display a stacktrace entry that leads to the test method for failed tests.
 - Report errors in contexts as failing tests.
 - Tests are reported in the same order as they appear in the file.

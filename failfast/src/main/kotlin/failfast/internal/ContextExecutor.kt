@@ -15,7 +15,7 @@ internal class ContextExecutor(
     // no need for concurrent structures here because the context is crawled in a single thread
     private val failedContexts = LinkedHashSet<Context>()
     private val finishedContexts = LinkedHashMap<Context, Int>()
-    private val executedTests = LinkedHashMap<TestDescriptor, Deferred<TestResult>>()
+    private val executedTests = LinkedHashMap<TestDescription, Deferred<TestResult>>()
 
     private inner class ContextVisitor(
         private val parentContext: Context,
@@ -31,7 +31,7 @@ internal class ContextExecutor(
         override suspend fun test(name: String, function: TestLambda) {
             if (!namesInThisContext.add(name))
                 throw FailFastException("duplicate name $name in context $parentContext")
-            val testDescriptor = TestDescriptor(parentContext, name)
+            val testDescriptor = TestDescription(parentContext, name)
             if (executedTests.containsKey(testDescriptor)) {
                 return
             } else if (!ranATest) {
@@ -78,7 +78,7 @@ internal class ContextExecutor(
             try {
                 visitor.function()
             } catch (e: Exception) {
-                val testDescriptor = TestDescriptor(parentContext, name)
+                val testDescriptor = TestDescription(parentContext, name)
                 val stackTraceElement = getStackTraceElement()
 
                 executedTests[testDescriptor] = CompletableDeferred(Failed(testDescriptor, e, stackTraceElement))
@@ -109,7 +109,7 @@ internal class ContextExecutor(
         }
 
         override fun itWill(behaviorDescription: String, function: TestLambda) {
-            val testDescriptor = TestDescriptor(parentContext, "will $behaviorDescription")
+            val testDescriptor = TestDescription(parentContext, "will $behaviorDescription")
             @Suppress("DeferredResultUnused")
             executedTests.computeIfAbsent(testDescriptor) {
                 CompletableDeferred(Ignored(testDescriptor))

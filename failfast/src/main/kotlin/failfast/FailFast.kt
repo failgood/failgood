@@ -132,11 +132,11 @@ data class SuiteResult(
 
 }
 
-data class TestDescriptor(val parentContext: Context, val testName: String) {
+data class TestDescription(val parentContext: Context, val testName: String) {
     companion object {
-        fun fromString(path: String): TestDescriptor {
+        fun fromString(path: String): TestDescription {
             val pathElements = path.split(">").map { it.trim() }
-            return TestDescriptor(Context.fromPath(pathElements.dropLast(1)), pathElements.last())
+            return TestDescription(Context.fromPath(pathElements.dropLast(1)), pathElements.last())
         }
     }
 

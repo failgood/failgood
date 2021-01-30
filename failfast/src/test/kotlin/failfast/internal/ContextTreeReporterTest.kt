@@ -1,7 +1,7 @@
 package failfast.internal
 
 import failfast.Success
-import failfast.TestDescriptor
+import failfast.TestDescription
 import failfast.describe
 import failfast.internal.Colors.FAILED
 import failfast.internal.Colors.RED
@@ -39,7 +39,7 @@ object ContextTreeReporterTest {
                     reporter.stringReport(
                         listOf(
                             Success(
-                                TestDescriptor(
+                                TestDescription(
                                     subContext,
                                     "sub-contexts also contain tests"
                                 ), 10
@@ -60,7 +60,7 @@ object ContextTreeReporterTest {
                     reporter.stringReport(
                         listOf(
                             Success(
-                                TestDescriptor(subSubContext, "sub-contexts also contain tests"),
+                                TestDescription(subSubContext, "sub-contexts also contain tests"),
                                 10
                             )
                         ),
@@ -80,8 +80,8 @@ object ContextTreeReporterTest {
                 expectThat(
                     reporter.stringReport(
                         listOf(
-                            Success(TestDescriptor(rootContext, "test"), 10),
-                            Success(TestDescriptor(rootContext, "slow test"), 1010001)
+                            Success(TestDescription(rootContext, "test"), 10),
+                            Success(TestDescription(rootContext, "slow test"), 1010001)
                         ),
                         listOf(rootContext)
                     )

@@ -38,11 +38,11 @@ object ContextExecutorTest {
                 it("returns tests in the same order as they are declared in the file") {
                     expectThat(contextInfo.tests.keys)
                         .containsExactly(
-                            TestDescriptor(rootContext, "test 1"),
-                            TestDescriptor(rootContext, "test 2"),
-                            TestDescriptor(rootContext, "failed test"),
-                            TestDescriptor(context2, "test 3"),
-                            TestDescriptor(context4, "test 4")
+                            TestDescription(rootContext, "test 1"),
+                            TestDescription(rootContext, "test 2"),
+                            TestDescription(rootContext, "failed test"),
+                            TestDescription(context2, "test 3"),
+                            TestDescription(context4, "test 4")
                         )
                 }
                 it("returns deferred test results") {
@@ -51,12 +51,12 @@ object ContextExecutorTest {
                     val failed = testResults - successful
                     expectThat(successful.map { it.test })
                         .containsExactlyInAnyOrder(
-                            TestDescriptor(rootContext, "test 1"),
-                            TestDescriptor(rootContext, "test 2"),
-                            TestDescriptor(context2, "test 3"),
-                            TestDescriptor(context4, "test 4")
+                            TestDescription(rootContext, "test 1"),
+                            TestDescription(rootContext, "test 2"),
+                            TestDescription(context2, "test 3"),
+                            TestDescription(context4, "test 4")
                         )
-                    expectThat(failed).map { it.test }.containsExactly(TestDescriptor(rootContext, "failed test"))
+                    expectThat(failed).map { it.test }.containsExactly(TestDescription(rootContext, "failed test"))
                 }
 
                 it("returns contexts in the same order as they appear in the file") {
@@ -119,7 +119,7 @@ object ContextExecutorTest {
                 }
                 it("reports a failing context as a failing test") {
                     expectThat(results.tests.values.awaitAll().filterIsInstance<Failed>()).single().and {
-                        get { test }.isEqualTo(TestDescriptor(rootContext, "context 1"))
+                        get { test }.isEqualTo(TestDescription(rootContext, "context 1"))
                         get { stackTraceElement.toString() }.endsWith(
                             "ContextExecutorTest.kt:${
                                 getLineNumber(

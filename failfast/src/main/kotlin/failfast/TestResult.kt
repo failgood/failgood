@@ -5,12 +5,12 @@ import failfast.internal.Colors.RESET
 import failfast.internal.ExceptionPrettyPrinter
 
 sealed class TestResult {
-    abstract val test: TestDescriptor
+    abstract val test: TestDescription
 }
 
-data class Success(override val test: TestDescriptor, val timeMicro: Long) : TestResult()
-data class Ignored(override val test: TestDescriptor) : TestResult()
-class Failed(override val test: TestDescriptor, val failure: Throwable, val stackTraceElement: StackTraceElement) :
+data class Success(override val test: TestDescription, val timeMicro: Long) : TestResult()
+data class Ignored(override val test: TestDescription) : TestResult()
+class Failed(override val test: TestDescription, val failure: Throwable, val stackTraceElement: StackTraceElement) :
     TestResult() {
     override fun equals(other: Any?): Boolean {
         return (other is Failed) && test == other.test &&

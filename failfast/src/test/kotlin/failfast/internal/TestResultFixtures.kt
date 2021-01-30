@@ -3,7 +3,7 @@ package failfast.internal
 import failfast.Context
 import failfast.Failed
 import failfast.Success
-import failfast.TestDescriptor
+import failfast.TestDescription
 
 object TestResultFixtures {
     val rootContext = Context("the test runner", null)
@@ -11,13 +11,13 @@ object TestResultFixtures {
     val subSubContext = Context("deeper", subContext)
     val failure = RuntimeException("failure message\nwith newline")
     val testResults = listOf(
-        Success(TestDescriptor(rootContext, "supports describe/it syntax"), 10),
+        Success(TestDescription(rootContext, "supports describe/it syntax"), 10),
         Success(
-            TestDescriptor(subContext, "sub-contexts also contain tests"),
+            TestDescription(subContext, "sub-contexts also contain tests"),
             20
         ),
         Failed(
-            TestDescriptor(subContext, "failed test"),
+            TestDescription(subContext, "failed test"),
             failure,
             StackTraceElement("ClassName", "method", "file", 123)
         )

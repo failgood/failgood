@@ -6,7 +6,7 @@ import failfast.*
  * Executes a single test with all its parent contexts
  * Async Called by ContextExecutor to execute all tests that it does not have to execute itself
  */
-internal class SingleTestExecutor(private val context: RootContext, private val test: TestDescriptor) {
+internal class SingleTestExecutor(private val context: RootContext, private val test: TestDescription) {
     private val closeables = mutableListOf<AutoCloseable>()
     private val startTime = System.nanoTime()
     suspend fun execute(): TestResult {

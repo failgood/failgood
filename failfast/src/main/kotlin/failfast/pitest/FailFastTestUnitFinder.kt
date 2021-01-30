@@ -21,7 +21,7 @@ object FailFastTestUnitFinder : TestUnitFinder {
     }
 
     class FailFastTestUnit(
-        test: TestDescriptor,
+        test: TestDescription,
         private val deferredResult: Deferred<TestResult>,
         clazz: Class<*>
     ) : AbstractTestUnit(Description(test.toString(), clazz)) {

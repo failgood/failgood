@@ -35,7 +35,7 @@ fun main() {
         get(SuiteResult::allOk).isFalse()
         get(SuiteResult::failedTests).hasSize(2)
             .all {
-                get(Failed::test).get(TestDescriptor::testName).isEqualTo("failing test")
+                get(Failed::test).get(TestDescription::testName).isEqualTo("failing test")
                 get(Failed::failure).isA<AssertionError>()
             }
         get(SuiteResult::allTests).hasSize(3)

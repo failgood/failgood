@@ -13,7 +13,14 @@ import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 import org.junit.platform.launcher.core.LauncherFactory
 
 @Testable
+class RunAllTests {
+    @Testable
+    fun tests() {
+    }
+}
+
 object JunitTest {
+    @Testable
     val context = describe("The Junit Runner") {
         it("probably does something") {
             val discoveryRequest = LauncherDiscoveryRequestBuilder.request()
@@ -25,6 +32,10 @@ object JunitTest {
         }
     }
 }
+
+@Testable
+fun context() = describe("blah") {}
+
 
 object Listener : TestExecutionListener {
     override fun testPlanExecutionStarted(testPlan: TestPlan?) {
@@ -55,6 +66,7 @@ object Listener : TestExecutionListener {
         super.reportingEntryPublished(testIdentifier, entry)
     }
 }
+
 
 object MyTestClass {
     val context = describe("root context") {

@@ -177,6 +177,15 @@ object FailFast {
     ): MutableList<KClass<*>> {
         val classloader = randomTestClass.java.classLoader
         val root = Paths.get(randomTestClass.java.protectionDomain.codeSource.location.path)
+        return findClassesInPath(root, classloader, classIncludeRegex, newerThan)
+    }
+
+    fun findClassesInPath(
+        root: Path,
+        classloader: ClassLoader,
+        classIncludeRegex: Regex = Regex(".*Test.class\$"),
+        newerThan: FileTime? = null
+    ): MutableList<KClass<*>> {
         val results = mutableListOf<KClass<*>>()
         Files.walkFileTree(
             root,

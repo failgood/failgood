@@ -6,4 +6,4 @@ pluginManagement {
     }
 }
 rootProject.name = "failfast-root"
-include("failfast", "failfast-junit-runner", "failfast-r2dbc", "failfast-examples")
+include("failfast", "failfast-r2dbc", "failfast-examples")

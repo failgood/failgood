@@ -6,7 +6,6 @@ import failfast.FailFast.findTestClasses
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.platform.engine.*
-import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.discovery.ClassSelector
 import org.junit.platform.engine.discovery.ClasspathRootSelector
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
@@ -32,14 +31,16 @@ class FailFastJunitTestEngine : TestEngine {
             )
             testResult.forEach { defcontext ->
                 val context = defcontext.await()
+                val rootContext = context.contexts.single { it.parent == null }
+                val tests = context.tests
+                val testsInThisContext = tests.keys.filter { it.parentContext == rootContext }
                 val rootContextNode = FailFastTestDescriptor(
                     TestDescriptor.Type.CONTAINER,
-                    uniqueId.append("container", context.toString()),
-                    context.toString()
+                    uniqueId.append("container", rootContext.name),
+                    rootContext.name
                 )
-                result.addChild(
-                    rootContextNode
-                )
+                testsInThisContext.forEach { rootContextNode.addChild(it.toTestDescriptor(uniqueId)) }
+                result.addChild(rootContextNode)
             }
         }
         return result
@@ -95,6 +96,10 @@ class FailFastJunitTestEngine : TestEngine {
             throw RuntimeException()
         return providers
     }
+}
+
+private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor {
+    return FailFastTestDescriptor(TestDescriptor.Type.TEST, uniqueId.append("Test", this.testName), this.testName)
 }
 
 class FailFastTestDescriptor(private val type: TestDescriptor.Type, id: UniqueId, name: String) :

@@ -2,7 +2,6 @@ package failfast.junit
 
 import failfast.*
 import failfast.FailFast.findClassesInPath
-import failfast.FailFast.findTestClasses
 import failfast.internal.ContextInfo
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -20,7 +19,6 @@ private object FailFastJunitTestEngineConstants {
     const val displayName = "FailFast"
 }
 
-@ExperimentalCoroutinesApi
 class FailFastJunitTestEngine : TestEngine {
     override fun getId(): String = FailFastJunitTestEngineConstants.id
 
@@ -80,6 +78,7 @@ class FailFastJunitTestEngine : TestEngine {
 
     }
 
+    @ExperimentalCoroutinesApi
     override fun execute(request: ExecutionRequest) {
         val root = request.rootTestDescriptor
         if (root !is FailFastEngineDescriptor)
@@ -151,8 +150,6 @@ class FailFastJunitTestEngine : TestEngine {
                 }
             }
             singleClassSelector != null -> {
-                if (singleClassSelector.className.contains("RunAllTests"))
-                    listOf(findTestClasses(randomTestClass = singleClassSelector.javaClass.kotlin))
                 listOf(ObjectContextProvider(singleClassSelector.javaClass))
             }
             else -> throw FailFastException("unknown selector in discovery request: $discoveryRequest")
@@ -181,7 +178,6 @@ class FailFastTestDescriptor(
 }
 
 
-@ExperimentalCoroutinesApi
 internal class FailFastEngineDescriptor(
     uniqueId: UniqueId,
     val testResult: List<Deferred<ContextInfo>>,

@@ -158,7 +158,7 @@ data class TestDescription(val parentContext: Context, val testName: String) {
     }
 }
 
-data class Context(val name: String, val parent: Context?) {
+data class Context(val name: String, val parent: Context?, val nodeLocation: NodeLocation? = null) {
     companion object {
         fun fromPath(path: List<String>): Context {
             return Context(path.last(), if (path.size == 1) null else fromPath(path.dropLast(1)))
@@ -169,6 +169,8 @@ data class Context(val name: String, val parent: Context?) {
     fun stringPath(): String = path.joinToString(" > ")
     override fun toString() = stringPath() + " > " + name
 }
+
+data class NodeLocation(val clazz: Class<*>, val line: Int)
 
 object FailFast {
     /**

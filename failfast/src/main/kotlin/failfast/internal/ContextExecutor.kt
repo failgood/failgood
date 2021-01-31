@@ -13,8 +13,6 @@ internal class ContextExecutor(
     val coroutineStart: CoroutineStart = if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT
     private val startTime = System.nanoTime()
 
-    // no need for concurrent structures here because the context is crawled in a single thread
-    private val failedContexts = LinkedHashSet<Context>()
     private val foundContexts = mutableListOf<Pair<Context, Int>>()
     private val deferredTestResults = LinkedHashMap<TestDescription, Deferred<TestResult>>()
     private val processedTests = LinkedHashSet<TestPath>()

@@ -45,7 +45,7 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
                     runBlocking(dispatcher) {
                         val contextInfos = findTests(this)
                         if (!silent) {
-                            contextInfos.asSequence().forEach {
+                            contextInfos.forEach {
                                 launch {
                                     val context = it.await()
                                     val contextTreeReporter = ContextTreeReporter()

@@ -16,7 +16,7 @@ import org.junit.platform.engine.support.descriptor.EngineDescriptor
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.toPath
 
-internal object FailFastJunitTestEngineConstants {
+private object FailFastJunitTestEngineConstants {
     const val id = "failfast"
     const val displayName = "FailFast"
 }
@@ -30,34 +30,42 @@ class FailFastJunitTestEngine : TestEngine {
         return runBlocking(Dispatchers.Default) {
             val executionListener = JunitExecutionListener()
             val testResult = Suite(providers).findTests(this, true, executionListener)
-            val result = FailFastEngineDescriptor(uniqueId, testResult, executionListener)
-            testResult.forEach { defcontext ->
-                val contextInfo = defcontext.await()
-                val rootContext = contextInfo.contexts.single { it.parent == null }
-                val tests = contextInfo.tests.entries
-                fun addChildren(node: TestDescriptor, context: Context) {
-                    val contextNode = FailFastTestDescriptor(
-                        TestDescriptor.Type.CONTAINER,
-                        uniqueId.append("container", context.toString()),
-                        context.name
-                    )
-                    result.addMapping(context, contextNode)
-                    val testsInThisContext = tests.filter { it.key.parentContext == context }
-                    testsInThisContext.forEach {
-                        val testDescription = it.key
-                        val testDescriptor = testDescription.toTestDescriptor(uniqueId)
-                        contextNode.addChild(testDescriptor)
-                        result.addMapping(testDescription, testDescriptor)
-                    }
-                    val contextsInThisContext = contextInfo.contexts.filter { it.parent == context }
-                    contextsInThisContext.forEach { addChildren(contextNode, it) }
-                    node.addChild(contextNode)
-                }
-
-                addChildren(result, rootContext)
-            }
-            result
+            createResponse(uniqueId, testResult, executionListener)
         }
+    }
+
+    internal suspend fun createResponse(
+        uniqueId: UniqueId,
+        testResult: List<Deferred<ContextInfo>>,
+        executionListener: JunitExecutionListener
+    ): FailFastEngineDescriptor {
+        val result = FailFastEngineDescriptor(uniqueId, testResult, executionListener)
+        testResult.forEach { defcontext ->
+            val contextInfo = defcontext.await()
+            val rootContext = contextInfo.contexts.single { it.parent == null }
+            val tests = contextInfo.tests.entries
+            fun addChildren(node: TestDescriptor, context: Context) {
+                val contextNode = FailFastTestDescriptor(
+                    TestDescriptor.Type.CONTAINER,
+                    uniqueId.append("container", context.toString()),
+                    context.name
+                )
+                result.addMapping(context, contextNode)
+                val testsInThisContext = tests.filter { it.key.parentContext == context }
+                testsInThisContext.forEach {
+                    val testDescription = it.key
+                    val testDescriptor = testDescription.toTestDescriptor(uniqueId)
+                    contextNode.addChild(testDescriptor)
+                    result.addMapping(testDescription, testDescriptor)
+                }
+                val contextsInThisContext = contextInfo.contexts.filter { it.parent == context }
+                contextsInThisContext.forEach { addChildren(contextNode, it) }
+                node.addChild(contextNode)
+            }
+
+            addChildren(result, rootContext)
+        }
+        return result
     }
 
     class JunitExecutionListener : ExecutionListener {
@@ -83,7 +91,8 @@ class FailFastJunitTestEngine : TestEngine {
         val executionListener = root.executionListener
         var running = true
         val allOk = runBlocking(Dispatchers.Default) {
-            // report results in async block
+            // report results while they come in. we use a channel because tests were already running before the execute
+            // method was called so when we get here there are probably tests already finished
             launch {
                 while (running || !executionListener.started.isEmpty || !executionListener.finished.isEmpty) {
                     select<Unit> {
@@ -156,7 +165,7 @@ class FailFastJunitTestEngine : TestEngine {
 private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor {
     return FailFastTestDescriptor(
         TestDescriptor.Type.TEST,
-        uniqueId.append("Test", this.testName),
+        uniqueId.append("Test", this.toString()),
         this.testName
     )
 }

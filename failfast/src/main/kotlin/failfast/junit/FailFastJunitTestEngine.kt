@@ -21,6 +21,7 @@ internal object FailFastJunitTestEngineConstants {
     const val displayName = "FailFast"
 }
 
+@ExperimentalCoroutinesApi
 class FailFastJunitTestEngine : TestEngine {
     override fun getId(): String = FailFastJunitTestEngineConstants.id
 
@@ -29,7 +30,7 @@ class FailFastJunitTestEngine : TestEngine {
         return runBlocking(Dispatchers.Default) {
             val executionListener = JunitExecutionListener()
             val testResult = Suite(providers).findTests(this, true, executionListener)
-            val result = FailFastEngineDescriptor(discoveryRequest, uniqueId, testResult, executionListener)
+            val result = FailFastEngineDescriptor(uniqueId, testResult, executionListener)
             testResult.forEach { defcontext ->
                 val contextInfo = defcontext.await()
                 val rootContext = contextInfo.contexts.single { it.parent == null }
@@ -165,8 +166,8 @@ class FailFastTestDescriptor(
 }
 
 
+@ExperimentalCoroutinesApi
 internal class FailFastEngineDescriptor(
-    val discoveryRequest: EngineDiscoveryRequest,
     uniqueId: UniqueId,
     val testResult: List<Deferred<ContextInfo>>,
     val executionListener: FailFastJunitTestEngine.JunitExecutionListener
@@ -179,7 +180,7 @@ internal class FailFastEngineDescriptor(
     }
 
     fun getMapping(testDescription: TestDescription) = testDescription2JunitTestDescriptor[testDescription]
-    fun getMapping(context: Context) = testDescription2JunitTestDescriptor[context]
+    fun getMapping(context: Context): TestDescriptor = context2JunitTestDescriptor[context]!!
     fun addMapping(context: Context, testDescriptor: TestDescriptor) {
         context2JunitTestDescriptor[context] = testDescriptor
     }

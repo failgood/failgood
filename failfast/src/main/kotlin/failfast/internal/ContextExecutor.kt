@@ -15,7 +15,7 @@ internal class ContextExecutor(
 
     // no need for concurrent structures here because the context is crawled in a single thread
     private val failedContexts = LinkedHashSet<Context>()
-    private val finishedContexts = LinkedHashMap<Context, Int>()
+    private val foundContexts = mutableListOf<Pair<Context, Int>>()
     private val deferredTestResults = LinkedHashMap<TestDescription, Deferred<TestResult>>()
     private val processedTests = LinkedHashSet<TestPath>()
 
@@ -83,7 +83,8 @@ internal class ContextExecutor(
                 return
             }
             val context = Context(name, parentContext)
-            if (finishedContexts.contains(context)) return
+            val contextPath = TestPath(parentContext, name)
+            if (processedTests.contains(contextPath)) return
             val visitor = ContextVisitor(context, resourcesCloser)
             try {
                 visitor.function()
@@ -91,14 +92,18 @@ internal class ContextExecutor(
                 val testDescriptor = TestDescription(parentContext, name)
                 val stackTraceElement = getStackTraceElement()
 
+                processedTests.add(contextPath) // don't visit this context again
                 deferredTestResults[testDescriptor] = CompletableDeferred(Failed(testDescriptor, e, stackTraceElement))
-                finishedContexts[context] =
-                    stackTraceElement.lineNumber // this line number is going to be ignored but since we know it we put it there
-                failedContexts.add(context)
                 ranATest = true
+                return
             }
-            if (visitor.contextsLeft) contextsLeft = true else finishedContexts[context] =
-                getStackTraceElement().lineNumber
+            if (visitor.contextsLeft) {
+                contextsLeft = true
+            } else {
+                foundContexts.add(Pair(context, getStackTraceElement().lineNumber))
+                processedTests.add(contextPath)
+            }
+            getStackTraceElement().lineNumber
 
             if (visitor.ranATest) ranATest = true
         }
@@ -142,8 +147,7 @@ internal class ContextExecutor(
             if (!visitor.contextsLeft) break
         }
         // contexts: root context, subcontexts ordered by line number, minus failed contexts (those are reported as tests)
-        val contexts = listOf(rootContext) + finishedContexts.entries.sortedBy { it.value }
-            .map { it.key } - failedContexts
+        val contexts = listOf(rootContext) + foundContexts.sortedBy { it.second }.map { it.first }
         return ContextInfo(contexts, deferredTestResults)
     }
 }

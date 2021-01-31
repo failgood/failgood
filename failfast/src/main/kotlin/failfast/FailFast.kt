@@ -132,6 +132,19 @@ data class SuiteResult(
 
 }
 
+data class TestPath(val parentContext: Context, val testName: String) {
+    companion object {
+        fun fromString(path: String): TestDescription {
+            val pathElements = path.split(">").map { it.trim() }
+            return TestDescription(Context.fromPath(pathElements.dropLast(1)), pathElements.last())
+        }
+    }
+
+    override fun toString(): String {
+        return "${parentContext.stringPath()} > $testName"
+    }
+}
+
 data class TestDescription(val parentContext: Context, val testName: String) {
     companion object {
         fun fromString(path: String): TestDescription {

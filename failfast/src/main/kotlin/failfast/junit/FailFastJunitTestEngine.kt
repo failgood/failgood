@@ -13,8 +13,7 @@ import org.junit.platform.engine.discovery.ClassSelector
 import org.junit.platform.engine.discovery.ClasspathRootSelector
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
-import kotlin.io.path.ExperimentalPathApi
-import kotlin.io.path.toPath
+import java.nio.file.Paths
 
 private object FailFastJunitTestEngineConstants {
     const val id = "failfast"
@@ -138,7 +137,6 @@ class FailFastJunitTestEngine : TestEngine {
         )
     }
 
-    @OptIn(ExperimentalPathApi::class)
     private fun findContexts(discoveryRequest: EngineDiscoveryRequest): List<ContextProvider> {
         val classPathSelector = discoveryRequest.getSelectorsByType(ClasspathRootSelector::class.java)
             .singleOrNull { !it.classpathRoot.path.contains("resources") }
@@ -146,7 +144,7 @@ class FailFastJunitTestEngine : TestEngine {
         return when {
             classPathSelector != null -> {
                 val uri = classPathSelector.classpathRoot
-                findClassesInPath(uri.toPath(), Thread.currentThread().contextClassLoader).map {
+                findClassesInPath(Paths.get(uri), Thread.currentThread().contextClassLoader).map {
                     ObjectContextProvider(
                         it
                     )

@@ -131,17 +131,25 @@ class FailFastJunitTestEngine : TestEngine {
 
     @OptIn(ExperimentalPathApi::class)
     private fun findContexts(discoveryRequest: EngineDiscoveryRequest): List<ContextProvider> {
-        val classPathSelector = discoveryRequest.getSelectorsByType(ClasspathRootSelector::class.java).singleOrNull()
+        val classPathSelector = discoveryRequest.getSelectorsByType(ClasspathRootSelector::class.java)
+            .singleOrNull { !it.classpathRoot.path.contains("resources") }
         val singleClassSelector = discoveryRequest.getSelectorsByType(ClassSelector::class.java).singleOrNull()
-        return if (classPathSelector != null) {
-            val uri = classPathSelector.classpathRoot
-            findClassesInPath(uri.toPath(), Thread.currentThread().contextClassLoader).map { ObjectContextProvider(it) }
-        } else if (singleClassSelector != null) {
-            if (singleClassSelector.className.contains("RunAllTests"))
-                listOf(findTestClasses(randomTestClass = singleClassSelector.javaClass.kotlin))
-            listOf(ObjectContextProvider(singleClassSelector.javaClass))
-        } else
-            throw RuntimeException()
+        return when {
+            classPathSelector != null -> {
+                val uri = classPathSelector.classpathRoot
+                findClassesInPath(uri.toPath(), Thread.currentThread().contextClassLoader).map {
+                    ObjectContextProvider(
+                        it
+                    )
+                }
+            }
+            singleClassSelector != null -> {
+                if (singleClassSelector.className.contains("RunAllTests"))
+                    listOf(findTestClasses(randomTestClass = singleClassSelector.javaClass.kotlin))
+                listOf(ObjectContextProvider(singleClassSelector.javaClass))
+            }
+            else -> throw FailFastException("unknown selector in discovery request: $discoveryRequest")
+        }
     }
 }
 

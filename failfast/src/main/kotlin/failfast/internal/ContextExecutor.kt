@@ -13,8 +13,7 @@ internal class ContextExecutor(
     val coroutineStart: CoroutineStart = if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT
     private val startTime = System.nanoTime()
 
-    // failed contexts should not be reported as contexts,
-    // so we keep track of them and remove them from the context list when we are finished
+    // no need for concurrent structures here because the context is crawled in a single thread
     private val failedContexts = LinkedHashSet<Context>()
     private val finishedContexts = LinkedHashMap<Context, Int>()
     private val executedTests = LinkedHashMap<TestDescription, Deferred<TestResult>>()
@@ -25,8 +24,8 @@ internal class ContextExecutor(
     ) : ContextDSL {
         private val namesInThisContext = mutableSetOf<String>() // test and context names to detect duplicates
 
-        /** we only run the first new test that we find here. the remaining tests in the context
-        run with the [SingleTestExecutor] */
+        // we only run the first new test that we find here. the remaining tests of the context
+        // run with the TestExecutor.
         private var ranATest = false
         var contextsLeft = false // are there sub contexts left to run?
 
@@ -36,8 +35,7 @@ internal class ContextExecutor(
             val testDescriptor = TestDescription(parentContext, name)
             if (executedTests.containsKey(testDescriptor)) {
                 return
-            }
-            if (!ranATest) {
+            } else if (!ranATest) {
                 ranATest = true
 
                 // create the tests stacktrace element outside of the async block to get a better stacktrace

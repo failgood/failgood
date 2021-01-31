@@ -3,8 +3,8 @@ package failfast.internal
 import failfast.*
 
 /**
- * Executes a single test with all its parent contexts.
- * Asynchronously Called by [ContextExecutor] to execute all tests that it does not have to execute itself.
+ * Executes a single test with all its parent contexts
+ * Async Called by ContextExecutor to execute all tests that it does not have to execute itself
  */
 internal class SingleTestExecutor(private val context: RootContext, private val test: TestDescription) {
     private val closeables = mutableListOf<AutoCloseable>()

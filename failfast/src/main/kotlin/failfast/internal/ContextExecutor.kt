@@ -34,9 +34,13 @@ internal class ContextExecutor(
             if (!namesInThisContext.add(name))
                 throw FailFastException("duplicate name $name in context $parentContext")
             val testDescriptor = TestDescription(parentContext, name)
-            if (deferredTestResults.containsKey(testDescriptor)) {
+            val testPath = TestPath(parentContext, name)
+            // we process each test only once
+            if (!processedTests.add(testPath)) {
                 return
-            } else if (!ranATest) {
+            }
+            if (!ranATest) {
+                // we did not yet run a test so we are going to run this test ourselves
                 ranATest = true
 
                 // create the tests stacktrace element outside of the async block to get a better stacktrace
@@ -115,10 +119,15 @@ internal class ContextExecutor(
         }
 
         override fun itWill(behaviorDescription: String, function: TestLambda) {
-            val testDescriptor = TestDescription(parentContext, "will $behaviorDescription")
-            @Suppress("DeferredResultUnused")
-            deferredTestResults.computeIfAbsent(testDescriptor) {
-                CompletableDeferred(Ignored(testDescriptor))
+            val testPath = TestPath(parentContext, behaviorDescription)
+
+            if (processedTests.add(testPath)) {
+                val testDescriptor = TestDescription(parentContext, "will $behaviorDescription")
+                @Suppress("DeferredResultUnused")
+                deferredTestResults.computeIfAbsent(testDescriptor) {
+                    CompletableDeferred(Ignored(testDescriptor))
+                }
+
             }
         }
     }

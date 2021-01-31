@@ -6,10 +6,7 @@ gradle-app.setting
 !gradle-wrapper.jar
 .DS_Store
 out/
-/.idea/libraries/
-/.idea/modules/
-/.idea/.*
-/.idea/*.xml
+/.idea
 /*.iml
 .vscode
 .autotest.failfast

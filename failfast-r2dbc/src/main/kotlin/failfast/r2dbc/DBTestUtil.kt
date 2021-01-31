@@ -65,6 +65,7 @@ open class DBTestUtil(val databaseName: String) {
             val port = dockerContainer.getMappedPort(5432)
             val db =
                 DriverManager.getConnection("jdbc:postgresql://$host:$port/postgres", "test", "test")
+            @Suppress("SqlNoDataSourceInspection")
             db.createStatement().executeUpdate("create database $databaseName")
             db.close()
 

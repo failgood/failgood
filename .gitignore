@@ -1,6 +1,6 @@
 # Created by .ignore support plugin (hsz.mobi)
 .gradle
-/build/
+build/
 /buildSrc/build/
 gradle-app.setting
 !gradle-wrapper.jar
@@ -11,4 +11,5 @@ out/
 /.idea/.*
 /.idea/*.xml
 /*.iml
-/.autotest.failfast
+.vscode
+.autotest.failfast

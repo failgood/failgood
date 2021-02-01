@@ -8,12 +8,12 @@ internal class ContextExecutor(
     private val rootContext: RootContext,
     val scope: CoroutineScope,
     lazy: Boolean = false,
-    val listener: ExecutionListener
+    val listener: ExecutionListener = NullExecutionListener
 ) {
     val coroutineStart: CoroutineStart = if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT
     private val startTime = System.nanoTime()
 
-    private val foundContexts = mutableListOf<Pair<Context, Int>>()
+    private val foundContexts = mutableListOf<Context>()
     private val deferredTestResults = LinkedHashMap<TestDescription, Deferred<TestResult>>()
     private val processedTests = LinkedHashSet<ContextPath>()
 
@@ -98,7 +98,7 @@ internal class ContextExecutor(
             if (visitor.contextsLeft) {
                 contextsLeft = true
             } else {
-                foundContexts.add(Pair(context, getStackTraceElement().lineNumber))
+                foundContexts.add(context.copy(stackTraceElement = getStackTraceElement()))
                 processedTests.add(contextPath)
             }
             getStackTraceElement().lineNumber
@@ -143,7 +143,7 @@ internal class ContextExecutor(
             if (!visitor.contextsLeft) break
         }
         // contexts: root context, subcontexts ordered by line number, minus failed contexts (those are reported as tests)
-        val contexts = listOf(rootContext) + foundContexts.sortedBy { it.second }.map { it.first }
+        val contexts = listOf(rootContext) + foundContexts.sortedBy { it.stackTraceElement!!.lineNumber }
         return ContextInfo(contexts, deferredTestResults)
     }
 }

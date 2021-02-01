@@ -12,9 +12,6 @@ object ContextExecutorTest {
     val context =
         describe(ContextExecutor::class) {
             val rootContext = Context("root context", null)
-            val context1 = Context("context 1", rootContext)
-            val context2 = Context("context 2", context1)
-            val context4 = Context("context 4", rootContext)
             describe("with a valid root context") {
                 val ctx =
                     RootContext("root context") {
@@ -33,7 +30,7 @@ object ContextExecutorTest {
                     }
 
                 val contextInfo = coroutineScope {
-                    ContextExecutor(ctx, this, listener = NullExecutionListener).execute()
+                    ContextExecutor(ctx, this).execute()
                 }
                 it("returns tests in the same order as they are declared in the file") {
                     expectThat(contextInfo.tests.keys).map { it.testName }
@@ -60,21 +57,74 @@ object ContextExecutorTest {
                 }
 
                 it("returns contexts in the same order as they appear in the file") {
-                    expectThat(contextInfo.contexts)
-                        .containsExactly(rootContext, context1, context2, context4)
+                    expectThat(contextInfo.contexts).map { it.name }
+                        .containsExactly("root context", "context 1", "context 2", "context 4")
                 }
                 it("reports time of successful tests") {
                     expectThat(contextInfo.tests.values.awaitAll().filterIsInstance<Success>())
                         .all { get { timeMicro }.isGreaterThan(1) }
                 }
-                it("reports file name and line number for all tests") {
+                describe("reports failed tests") {
+                    val failure = contextInfo.tests.values.awaitAll().filterIsInstance<Failed>().single()
+                    it("reports exception for failed tests") {
+                        expectThat(failure.failure).isEqualTo(assertionError)
+                    }
+                }
+            }
+            describe("reports line numbers") {
+                var context1Line = 0
+                var context2Line = 0
+                var test1Line = 0
+                var test2Line = 0
+                val ctx =
+                    RootContext("root context") {
+                        describe("context 1") {
+                            context1Line = RuntimeException().stackTrace.first().lineNumber - 1
+                            it("test1") {
+                                test1Line = RuntimeException().stackTrace.first().lineNumber - 1
+                            }
+                        }
+                        describe("context 2") {
+                            context2Line = RuntimeException().stackTrace.first().lineNumber - 1
+                            it("test2") {
+                                test2Line = RuntimeException().stackTrace.first().lineNumber - 1
+                            }
+                        }
+                    }
+                val contextInfo = coroutineScope {
+                    ContextExecutor(ctx, this).execute()
+                }
+
+                it("returns file for all subcontexts") {
+                    expectThat(contextInfo.contexts).allIndexed { idx ->
+                        if (idx == 0) // root context has no stacktrace attached
+                            get { stackTraceElement }.isNull()
+                        else
+                            get { stackTraceElement }.isNotNull().and {
+                                get { fileName }.isEqualTo("ContextExecutorTest.kt")
+                            }
+                    }
+                }
+                it("returns line number for contexts") {
+                    expectThat(contextInfo.contexts) {
+                        get(1).get { stackTraceElement }.isNotNull().get { lineNumber }.isEqualTo(context1Line)
+                        get(2).get { stackTraceElement }.isNotNull().get { lineNumber }.isEqualTo(context2Line)
+                    }
+                }
+                it("reports file name for all tests") {
                     expectThat(contextInfo.tests.keys).all {
                         get { stackTraceElement }.and {
                             get { fileName }.isEqualTo("ContextExecutorTest.kt")
-                            get { lineNumber }.isGreaterThan(1)
                         }
                     }
                 }
+                it("reports line number for all tests") {
+                    expectThat(contextInfo.tests.keys.toList()) {
+                        get(0).get { stackTraceElement }.get { lineNumber }.isEqualTo(test1Line)
+                        get(1).get { stackTraceElement }.get { lineNumber }.isEqualTo(test2Line)
+                    }
+                }
+
             }
             describe("supports lazy execution") {
                 it("postpones test execution until the deferred is awaited when lazy is set to true") {
@@ -87,7 +137,7 @@ object ContextExecutorTest {
                         }
                     coroutineScope {
                         val contextInfo =
-                            ContextExecutor(ctx, this, lazy = true, listener = NullExecutionListener).execute()
+                            ContextExecutor(ctx, this, lazy = true).execute()
                         expectThat(testExecuted).isEqualTo(false)
                         val deferred = contextInfo.tests.values.single()
                         expectThat(deferred.await()).isA<Success>()
@@ -112,7 +162,7 @@ object ContextExecutorTest {
                         context("context 4") { test("test 4") {} }
                     }
                 val results = coroutineScope {
-                    ContextExecutor(ctx, this, listener = NullExecutionListener).execute()
+                    ContextExecutor(ctx, this).execute()
                 }
                 it("reports a failing context as a failing test") {
                     expectThat(results.tests.values.awaitAll().filterIsInstance<Failed>()).single().and {
@@ -130,7 +180,7 @@ object ContextExecutorTest {
                     }
                 }
                 it("does not report a failing context as a context") {
-                    expectThat(results.contexts).doesNotContain(context1)
+                    expectThat(results.contexts).map { it.name }.doesNotContain("context 1")
                 }
             }
             describe("detects duplicated tests")
@@ -145,8 +195,7 @@ object ContextExecutorTest {
                         expectThrows<FailFastException> {
                             ContextExecutor(
                                 ctx,
-                                this,
-                                listener = NullExecutionListener
+                                this
                             ).execute()
                         }
                     }
@@ -157,7 +206,7 @@ object ContextExecutorTest {
                             test("duplicate test name") {}
                             context("context") { test("duplicate test name") {} }
                         }
-                    coroutineScope { ContextExecutor(ctx, this, listener = NullExecutionListener).execute() }
+                    coroutineScope { ContextExecutor(ctx, this).execute() }
                 }
             }
             describe("detects duplicate contexts") {
@@ -171,8 +220,7 @@ object ContextExecutorTest {
                         expectThrows<FailFastException> {
                             ContextExecutor(
                                 ctx,
-                                this,
-                                listener = NullExecutionListener
+                                this
                             ).execute()
                         }
                     }
@@ -183,7 +231,7 @@ object ContextExecutorTest {
                             test("same context name") {}
                             context("context") { test("same context name") {} }
                         }
-                    coroutineScope { ContextExecutor(ctx, this, listener = NullExecutionListener).execute() }
+                    coroutineScope { ContextExecutor(ctx, this).execute() }
                 }
                 it("fails when a context has the same name as a test in the same contexts") {
                     val ctx =
@@ -195,8 +243,7 @@ object ContextExecutorTest {
                         expectThrows<FailFastException> {
                             ContextExecutor(
                                 ctx,
-                                this,
-                                listener = NullExecutionListener
+                                this
                             ).execute()
                         }
                     }

@@ -47,7 +47,7 @@ class FailFastJunitTestEngine : TestEngine {
             fun addChildren(node: TestDescriptor, context: Context) {
                 val contextNode = FailFastTestDescriptor(
                     TestDescriptor.Type.CONTAINER,
-                    uniqueId.append("container", context.toString()),
+                    uniqueId.append("container", context.stringPath()),
                     context.name
                 )
                 result.addMapping(context, contextNode)

@@ -11,9 +11,10 @@ import org.junit.platform.engine.*
 import org.junit.platform.engine.discovery.ClassSelector
 import org.junit.platform.engine.discovery.ClasspathRootSelector
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
-import org.junit.platform.engine.support.descriptor.ClassSource
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
 import org.junit.platform.engine.support.descriptor.FilePosition
+import org.junit.platform.engine.support.descriptor.FileSource
+import java.io.File
 import java.nio.file.Paths
 
 private object FailFastJunitTestEngineConstants {
@@ -160,9 +161,10 @@ class FailFastJunitTestEngine : TestEngine {
 }
 
 private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor {
+    val pathname = "src/test/kotlin/${this.stackTraceElement.className.substringBefore("$").replace(".", "/")}.kt"
     val testSource =
-        ClassSource.from(
-            this.stackTraceElement.className.substringBefore('$'),
+        FileSource.from(
+            File(pathname),
             FilePosition.from(this.stackTraceElement.lineNumber)
         )
     return FailFastTestDescriptor(

@@ -148,8 +148,12 @@ internal data class ContextPath(val parentContext: Context, val name: String) {
     }
 }
 
-data class TestDescription(val parentContext: Context, val testName: String) {
-    internal constructor(testPath: ContextPath) : this(testPath.parentContext, testPath.name)
+data class TestDescription(val parentContext: Context, val testName: String, val stackTraceElement: StackTraceElement) {
+    internal constructor(testPath: ContextPath, stackTraceElement: StackTraceElement) : this(
+        testPath.parentContext,
+        testPath.name,
+        stackTraceElement
+    )
 
     override fun toString(): String {
         return "${parentContext.stringPath()} > $testName"

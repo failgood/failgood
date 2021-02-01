@@ -10,16 +10,16 @@ object TestResultFixtures {
     val subContext = Context("contexts can be nested", rootContext)
     val subSubContext = Context("deeper", subContext)
     val failure = RuntimeException("failure message\nwith newline")
+    val stackTraceElement = StackTraceElement("ClassName", "method", "file", 123)
     val testResults = listOf(
-        Success(TestDescription(rootContext, "supports describe/it syntax"), 10),
+        Success(TestDescription(rootContext, "supports describe/it syntax", stackTraceElement), 10),
         Success(
-            TestDescription(subContext, "sub-contexts also contain tests"),
+            TestDescription(subContext, "sub-contexts also contain tests", stackTraceElement),
             20
         ),
         Failed(
-            TestDescription(subContext, "failed test"),
-            failure,
-            StackTraceElement("ClassName", "method", "file", 123)
+            TestDescription(subContext, "failed test", stackTraceElement),
+            failure
         )
     )
 }

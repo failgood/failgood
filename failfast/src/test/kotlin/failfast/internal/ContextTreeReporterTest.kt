@@ -14,6 +14,7 @@ import failfast.internal.TestResultFixtures.testResults
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 
+val stackTraceElement = RuntimeException().stackTrace.first()
 object ContextTreeReporterTest {
     val context =
         describe(ContextTreeReporter::class) {
@@ -41,7 +42,7 @@ object ContextTreeReporterTest {
                             Success(
                                 TestDescription(
                                     subContext,
-                                    "sub-contexts also contain tests"
+                                    "sub-contexts also contain tests", stackTraceElement
                                 ), 10
                             )
                         ), listOf(rootContext, subContext)
@@ -60,7 +61,7 @@ object ContextTreeReporterTest {
                     reporter.stringReport(
                         listOf(
                             Success(
-                                TestDescription(subSubContext, "sub-contexts also contain tests"),
+                                TestDescription(subSubContext, "sub-contexts also contain tests", stackTraceElement),
                                 10
                             )
                         ),
@@ -80,8 +81,8 @@ object ContextTreeReporterTest {
                 expectThat(
                     reporter.stringReport(
                         listOf(
-                            Success(TestDescription(rootContext, "test"), 10),
-                            Success(TestDescription(rootContext, "slow test"), 1010001)
+                            Success(TestDescription(rootContext, "test", stackTraceElement), 10),
+                            Success(TestDescription(rootContext, "slow test", stackTraceElement), 1010001)
                         ),
                         listOf(rootContext)
                     )

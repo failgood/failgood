@@ -31,19 +31,18 @@ internal class ContextExecutor(
         override suspend fun test(name: String, function: TestLambda) {
             if (!namesInThisContext.add(name))
                 throw FailFastException("duplicate name $name in context $parentContext")
-            val testDescriptor = TestDescription(parentContext, name)
             val testPath = ContextPath(parentContext, name)
             // we process each test only once
             if (!processedTests.add(testPath)) {
                 return
             }
+            val stackTraceElement = getStackTraceElement()
+            val testDescriptor = TestDescription(parentContext, name, stackTraceElement)
             if (!ranATest) {
                 // we did not yet run a test so we are going to run this test ourselves
                 ranATest = true
 
                 // create the tests stacktrace element outside of the async block to get a better stacktrace
-                val stackTraceElement =
-                    RuntimeException().stackTrace.first { !(it.fileName?.endsWith("ContextExecutor.kt") ?: true) }
                 val deferred =
                     scope.async(start = coroutineStart) {
                         listener.testStarted(testDescriptor)
@@ -53,7 +52,7 @@ internal class ContextExecutor(
                                 resourcesCloser.close()
                                 Success(testDescriptor, (System.nanoTime() - startTime) / 1000)
                             } catch (e: Throwable) {
-                                Failed(testDescriptor, e, stackTraceElement)
+                                Failed(testDescriptor, e)
                             }
                         listener.testFinished(testDescriptor, testResult)
                         testResult
@@ -71,6 +70,7 @@ internal class ContextExecutor(
             }
         }
 
+
         override suspend fun context(name: String, function: ContextLambda) {
             if (!namesInThisContext.add(name))
                 throw FailFastException("duplicate name $name in context $parentContext")
@@ -87,11 +87,11 @@ internal class ContextExecutor(
             try {
                 visitor.function()
             } catch (e: Exception) {
-                val testDescriptor = TestDescription(parentContext, name)
                 val stackTraceElement = getStackTraceElement()
+                val testDescriptor = TestDescription(parentContext, name, stackTraceElement)
 
                 processedTests.add(contextPath) // don't visit this context again
-                deferredTestResults[testDescriptor] = CompletableDeferred(Failed(testDescriptor, e, stackTraceElement))
+                deferredTestResults[testDescriptor] = CompletableDeferred(Failed(testDescriptor, e))
                 ranATest = true
                 return
             }
@@ -125,11 +125,12 @@ internal class ContextExecutor(
             val testPath = ContextPath(parentContext, behaviorDescription)
 
             if (processedTests.add(testPath)) {
-                val testDescriptor = TestDescription(parentContext, "will $behaviorDescription")
+                val testDescriptor = TestDescription(parentContext, "will $behaviorDescription", getStackTraceElement())
                 @Suppress("DeferredResultUnused")
-                deferredTestResults.computeIfAbsent(testDescriptor) {
+                deferredTestResults.put(
+                    testDescriptor,
                     CompletableDeferred(Ignored(testDescriptor))
-                }
+                )
 
             }
         }

@@ -46,7 +46,7 @@ internal class ContextTreeReporter {
                                     "\\n"
                                 )
                             }",
-                            "$indentString    ${testResult.stackTraceElement}"
+                            "$indentString    ${testResult.test.stackTraceElement}"
                         )
                         is Ignored -> listOf("$indentString  $IGNORED ${testResult.test.testName} ${YELLOW}PENDING$RESET")
                     }

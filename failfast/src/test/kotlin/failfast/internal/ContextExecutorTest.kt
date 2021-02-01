@@ -36,27 +36,27 @@ object ContextExecutorTest {
                     ContextExecutor(ctx, this, listener = NullExecutionListener).execute()
                 }
                 it("returns tests in the same order as they are declared in the file") {
-                    expectThat(contextInfo.tests.keys)
+                    expectThat(contextInfo.tests.keys).map { it.testName }
                         .containsExactly(
-                            TestDescription(rootContext, "test 1"),
-                            TestDescription(rootContext, "test 2"),
-                            TestDescription(rootContext, "failed test"),
-                            TestDescription(context2, "test 3"),
-                            TestDescription(context4, "test 4")
+                            "test 1",
+                            "test 2",
+                            "failed test",
+                            "test 3",
+                            "test 4"
                         )
                 }
                 it("returns deferred test results") {
                     val testResults = contextInfo.tests.values.awaitAll()
                     val successful = testResults.filterIsInstance<Success>()
                     val failed = testResults - successful
-                    expectThat(successful.map { it.test })
-                        .containsExactlyInAnyOrder(
-                            TestDescription(rootContext, "test 1"),
-                            TestDescription(rootContext, "test 2"),
-                            TestDescription(context2, "test 3"),
-                            TestDescription(context4, "test 4")
+                    expectThat(successful.map { it.test.testName })
+                        .containsExactly(
+                            "test 1",
+                            "test 2",
+                            "test 3",
+                            "test 4"
                         )
-                    expectThat(failed).map { it.test }.containsExactly(TestDescription(rootContext, "failed test"))
+                    expectThat(failed).map { it.test.testName }.containsExactly("failed test")
                 }
 
                 it("returns contexts in the same order as they appear in the file") {
@@ -67,17 +67,13 @@ object ContextExecutorTest {
                     expectThat(contextInfo.tests.values.awaitAll().filterIsInstance<Success>())
                         .all { get { timeMicro }.isGreaterThan(1) }
                 }
-                it("reports file name and line number for failed tests") {
-                    expectThat(contextInfo.tests.values.awaitAll().filterIsInstance<Failed>()).single().and {
-                        get { stackTraceElement.toString() }.endsWith(
-                            "ContextExecutorTest.kt:${
-                                getLineNumber(
-                                    assertionError
-                                ) - 1
-                            })"
-                        )
+                it("reports file name and line number for all tests") {
+                    expectThat(contextInfo.tests.keys).all {
+                        get { stackTraceElement }.and {
+                            get { fileName }.isEqualTo("ContextExecutorTest.kt")
+                            get { lineNumber }.isGreaterThan(1)
+                        }
                     }
-
                 }
             }
             describe("supports lazy execution") {
@@ -120,14 +116,17 @@ object ContextExecutorTest {
                 }
                 it("reports a failing context as a failing test") {
                     expectThat(results.tests.values.awaitAll().filterIsInstance<Failed>()).single().and {
-                        get { test }.isEqualTo(TestDescription(rootContext, "context 1"))
-                        get { stackTraceElement.toString() }.endsWith(
-                            "ContextExecutorTest.kt:${
-                                getLineNumber(
-                                    runtimeException
-                                ) - 1
-                            })"
-                        )
+                        get { test }.and {
+                            get<String> { testName }.isEqualTo("context 1")
+                            get<Context> { parentContext }.isEqualTo(rootContext)
+                            get { stackTraceElement.toString() }.endsWith(
+                                "ContextExecutorTest.kt:${
+                                    getLineNumber(
+                                        runtimeException
+                                    ) - 1
+                                })"
+                            )
+                        }
                     }
                 }
                 it("does not report a failing context as a context") {

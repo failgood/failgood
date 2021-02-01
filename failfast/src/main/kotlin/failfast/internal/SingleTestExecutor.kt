@@ -63,16 +63,16 @@ internal class SingleTestExecutor(private val context: RootContext, private val 
 
         override suspend fun test(name: String, function: TestLambda) {
             if (test.name == name) {
-                val testDescription = TestDescription(test)
                 val stackTrace =
                     RuntimeException().stackTrace.first { !(it.fileName?.endsWith("SingleTestExecutor.kt") ?: true) }
+                val testDescription = TestDescription(test, stackTrace)
 
                 throw TestResultAvailable(
                     try {
                         function()
                         Success(testDescription, (System.nanoTime() - startTime) / 1000)
                     } catch (e: Throwable) {
-                        Failed(testDescription, e, stackTrace)
+                        Failed(testDescription, e)
                     }
                 )
             }

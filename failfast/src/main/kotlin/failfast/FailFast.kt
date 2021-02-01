@@ -132,20 +132,35 @@ data class SuiteResult(
 
 }
 
-data class TestDescription(val parentContext: Context, val testName: String) {
+/**
+ * a path to something that is contained in a context. can be a test or a context
+ */
+internal data class ContextPath(val parentContext: Context, val name: String) {
     companion object {
-        fun fromString(path: String): TestDescription {
+        fun fromString(path: String): ContextPath {
             val pathElements = path.split(">").map { it.trim() }
-            return TestDescription(Context.fromPath(pathElements.dropLast(1)), pathElements.last())
+            return ContextPath(Context.fromPath(pathElements.dropLast(1)), pathElements.last())
         }
     }
+
+    override fun toString(): String {
+        return "${parentContext.stringPath()} > $name"
+    }
+}
+
+data class TestDescription(val parentContext: Context, val testName: String, val stackTraceElement: StackTraceElement) {
+    internal constructor(testPath: ContextPath, stackTraceElement: StackTraceElement) : this(
+        testPath.parentContext,
+        testPath.name,
+        stackTraceElement
+    )
 
     override fun toString(): String {
         return "${parentContext.stringPath()} > $testName"
     }
 }
 
-data class Context(val name: String, val parent: Context?) {
+data class Context(val name: String, val parent: Context?, val nodeLocation: NodeLocation? = null) {
     companion object {
         fun fromPath(path: List<String>): Context {
             return Context(path.last(), if (path.size == 1) null else fromPath(path.dropLast(1)))
@@ -156,6 +171,8 @@ data class Context(val name: String, val parent: Context?) {
     fun stringPath(): String = path.joinToString(" > ")
     override fun toString() = stringPath() + " > " + name
 }
+
+data class NodeLocation(val clazz: Class<*>, val line: Int)
 
 object FailFast {
     /**

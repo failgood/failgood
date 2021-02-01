@@ -12,6 +12,9 @@ import org.junit.platform.engine.discovery.ClassSelector
 import org.junit.platform.engine.discovery.ClasspathRootSelector
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
+import org.junit.platform.engine.support.descriptor.FilePosition
+import org.junit.platform.engine.support.descriptor.FileSource
+import java.io.File
 import java.nio.file.Paths
 
 private object FailFastJunitTestEngineConstants {
@@ -31,14 +34,14 @@ class FailFastJunitTestEngine : TestEngine {
         }
     }
 
-    internal suspend fun createResponse(
+    private suspend fun createResponse(
         uniqueId: UniqueId,
         testResult: List<Deferred<ContextInfo>>,
         executionListener: JunitExecutionListener
     ): FailFastEngineDescriptor {
         val result = FailFastEngineDescriptor(uniqueId, testResult, executionListener)
-        testResult.forEach { defcontext ->
-            val contextInfo = defcontext.await()
+        testResult.forEach { deferred ->
+            val contextInfo = deferred.await()
             val rootContext = contextInfo.contexts.single { it.parent == null }
             val tests = contextInfo.tests.entries
             fun addChildren(node: TestDescriptor, context: Context) {
@@ -158,19 +161,27 @@ class FailFastJunitTestEngine : TestEngine {
 }
 
 private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor {
+    val pathname = "src/test/kotlin/${this.stackTraceElement.className.substringBefore("$").replace(".", "/")}.kt"
+    val testSource =
+        FileSource.from(
+            File(pathname),
+            FilePosition.from(this.stackTraceElement.lineNumber)
+        )
     return FailFastTestDescriptor(
         TestDescriptor.Type.TEST,
         uniqueId.append("Test", this.toString()),
-        this.testName
+        this.testName,
+        testSource
     )
 }
 
 class FailFastTestDescriptor(
     private val type: TestDescriptor.Type,
     id: UniqueId,
-    name: String
+    name: String,
+    testSource: TestSource? = null
 ) :
-    AbstractTestDescriptor(id, name) {
+    AbstractTestDescriptor(id, name, testSource) {
     override fun getType(): TestDescriptor.Type {
         return type
     }

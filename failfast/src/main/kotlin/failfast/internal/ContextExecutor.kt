@@ -13,10 +13,9 @@ internal class ContextExecutor(
     val coroutineStart: CoroutineStart = if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT
     private val startTime = System.nanoTime()
 
-    // no need for concurrent structures here because the context is crawled in a single thread
-    private val failedContexts = LinkedHashSet<Context>()
-    private val finishedContexts = LinkedHashMap<Context, Int>()
-    private val executedTests = LinkedHashMap<TestDescription, Deferred<TestResult>>()
+    private val foundContexts = mutableListOf<Pair<Context, Int>>()
+    private val deferredTestResults = LinkedHashMap<TestDescription, Deferred<TestResult>>()
+    private val processedTests = LinkedHashSet<ContextPath>()
 
     private inner class ContextVisitor(
         private val parentContext: Context,
@@ -32,15 +31,18 @@ internal class ContextExecutor(
         override suspend fun test(name: String, function: TestLambda) {
             if (!namesInThisContext.add(name))
                 throw FailFastException("duplicate name $name in context $parentContext")
-            val testDescriptor = TestDescription(parentContext, name)
-            if (executedTests.containsKey(testDescriptor)) {
+            val testPath = ContextPath(parentContext, name)
+            // we process each test only once
+            if (!processedTests.add(testPath)) {
                 return
-            } else if (!ranATest) {
+            }
+            val stackTraceElement = getStackTraceElement()
+            val testDescriptor = TestDescription(parentContext, name, stackTraceElement)
+            if (!ranATest) {
+                // we did not yet run a test so we are going to run this test ourselves
                 ranATest = true
 
                 // create the tests stacktrace element outside of the async block to get a better stacktrace
-                val stackTraceElement =
-                    RuntimeException().stackTrace.first { !(it.fileName?.endsWith("ContextExecutor.kt") ?: true) }
                 val deferred =
                     scope.async(start = coroutineStart) {
                         listener.testStarted(testDescriptor)
@@ -50,23 +52,24 @@ internal class ContextExecutor(
                                 resourcesCloser.close()
                                 Success(testDescriptor, (System.nanoTime() - startTime) / 1000)
                             } catch (e: Throwable) {
-                                Failed(testDescriptor, e, stackTraceElement)
+                                Failed(testDescriptor, e)
                             }
                         listener.testFinished(testDescriptor, testResult)
                         testResult
                     }
-                executedTests[testDescriptor] = deferred
+                deferredTestResults[testDescriptor] = deferred
             } else {
                 val deferred =
                     scope.async(start = coroutineStart) {
                         listener.testStarted(testDescriptor)
-                        val result = SingleTestExecutor(rootContext, testDescriptor).execute()
+                        val result = SingleTestExecutor(rootContext, testPath).execute()
                         listener.testFinished(testDescriptor, result)
                         result
                     }
-                executedTests[testDescriptor] = deferred
+                deferredTestResults[testDescriptor] = deferred
             }
         }
+
 
         override suspend fun context(name: String, function: ContextLambda) {
             if (!namesInThisContext.add(name))
@@ -78,22 +81,27 @@ internal class ContextExecutor(
                 return
             }
             val context = Context(name, parentContext)
-            if (finishedContexts.contains(context)) return
+            val contextPath = ContextPath(parentContext, name)
+            if (processedTests.contains(contextPath)) return
             val visitor = ContextVisitor(context, resourcesCloser)
             try {
                 visitor.function()
             } catch (e: Exception) {
-                val testDescriptor = TestDescription(parentContext, name)
                 val stackTraceElement = getStackTraceElement()
+                val testDescriptor = TestDescription(parentContext, name, stackTraceElement)
 
-                executedTests[testDescriptor] = CompletableDeferred(Failed(testDescriptor, e, stackTraceElement))
-                finishedContexts[context] =
-                    stackTraceElement.lineNumber // this line number is going to be ignored but since we know it we put it there
-                failedContexts.add(context)
+                processedTests.add(contextPath) // don't visit this context again
+                deferredTestResults[testDescriptor] = CompletableDeferred(Failed(testDescriptor, e))
                 ranATest = true
+                return
             }
-            if (visitor.contextsLeft) contextsLeft = true else finishedContexts[context] =
-                getStackTraceElement().lineNumber
+            if (visitor.contextsLeft) {
+                contextsLeft = true
+            } else {
+                foundContexts.add(Pair(context, getStackTraceElement().lineNumber))
+                processedTests.add(contextPath)
+            }
+            getStackTraceElement().lineNumber
 
             if (visitor.ranATest) ranATest = true
         }
@@ -114,10 +122,13 @@ internal class ContextExecutor(
         }
 
         override fun itWill(behaviorDescription: String, function: TestLambda) {
-            val testDescriptor = TestDescription(parentContext, "will $behaviorDescription")
-            @Suppress("DeferredResultUnused")
-            executedTests.computeIfAbsent(testDescriptor) {
-                CompletableDeferred(Ignored(testDescriptor))
+            val testPath = ContextPath(parentContext, behaviorDescription)
+
+            if (processedTests.add(testPath)) {
+                val testDescriptor = TestDescription(parentContext, "will $behaviorDescription", getStackTraceElement())
+                @Suppress("DeferredResultUnused")
+                deferredTestResults[testDescriptor] = CompletableDeferred(Ignored(testDescriptor))
+
             }
         }
     }
@@ -132,9 +143,8 @@ internal class ContextExecutor(
             if (!visitor.contextsLeft) break
         }
         // contexts: root context, subcontexts ordered by line number, minus failed contexts (those are reported as tests)
-        val contexts = listOf(rootContext) + finishedContexts.entries.sortedBy { it.value }
-            .map { it.key } - failedContexts
-        return ContextInfo(contexts, executedTests)
+        val contexts = listOf(rootContext) + foundContexts.sortedBy { it.second }.map { it.first }
+        return ContextInfo(contexts, deferredTestResults)
     }
 }
 

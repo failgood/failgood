@@ -127,10 +127,7 @@ internal class ContextExecutor(
             if (processedTests.add(testPath)) {
                 val testDescriptor = TestDescription(parentContext, "will $behaviorDescription", getStackTraceElement())
                 @Suppress("DeferredResultUnused")
-                deferredTestResults.put(
-                    testDescriptor,
-                    CompletableDeferred(Ignored(testDescriptor))
-                )
+                deferredTestResults[testDescriptor] = CompletableDeferred(Ignored(testDescriptor))
 
             }
         }

@@ -117,8 +117,8 @@ object ContextExecutorTest {
                 it("reports a failing context as a failing test") {
                     expectThat(results.tests.values.awaitAll().filterIsInstance<Failed>()).single().and {
                         get { test }.and {
-                            get<String> { testName }.isEqualTo("context 1")
-                            get<Context> { parentContext }.isEqualTo(rootContext)
+                            get { testName }.isEqualTo("context 1")
+                            get { parentContext }.isEqualTo(rootContext)
                             get { stackTraceElement.toString() }.endsWith(
                                 "ContextExecutorTest.kt:${
                                     getLineNumber(

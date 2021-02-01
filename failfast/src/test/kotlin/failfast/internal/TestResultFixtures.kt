@@ -10,7 +10,7 @@ object TestResultFixtures {
     val subContext = Context("contexts can be nested", rootContext)
     val subSubContext = Context("deeper", subContext)
     val failure = RuntimeException("failure message\nwith newline")
-    val stackTraceElement = StackTraceElement("ClassName", "method", "file", 123)
+    private val stackTraceElement = StackTraceElement("ClassName", "method", "file", 123)
     val testResults = listOf(
         Success(TestDescription(rootContext, "supports describe/it syntax", stackTraceElement), 10),
         Success(

@@ -14,7 +14,7 @@ import failfast.internal.TestResultFixtures.testResults
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 
-val stackTraceElement = RuntimeException().stackTrace.first()
+val stackTraceElement = StackTraceElement("class", "method", "file", 123)
 object ContextTreeReporterTest {
     val context =
         describe(ContextTreeReporter::class) {

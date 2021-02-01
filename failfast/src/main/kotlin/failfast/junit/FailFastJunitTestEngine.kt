@@ -40,8 +40,8 @@ class FailFastJunitTestEngine : TestEngine {
         executionListener: JunitExecutionListener
     ): FailFastEngineDescriptor {
         val result = FailFastEngineDescriptor(uniqueId, testResult, executionListener)
-        testResult.forEach { defcontext ->
-            val contextInfo = defcontext.await()
+        testResult.forEach { deferred ->
+            val contextInfo = deferred.await()
             val rootContext = contextInfo.contexts.single { it.parent == null }
             val tests = contextInfo.tests.entries
             fun addChildren(node: TestDescriptor, context: Context) {

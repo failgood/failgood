@@ -80,14 +80,14 @@ internal class ContextExecutor(
                 // but we need to run the root context again to visit this child context
                 return
             }
-            val context = Context(name, parentContext)
             val contextPath = ContextPath(parentContext, name)
             if (processedTests.contains(contextPath)) return
+            val stackTraceElement = getStackTraceElement()
+            val context = Context(name, parentContext, stackTraceElement)
             val visitor = ContextVisitor(context, resourcesCloser)
             try {
                 visitor.function()
             } catch (e: Exception) {
-                val stackTraceElement = getStackTraceElement()
                 val testDescriptor = TestDescription(parentContext, name, stackTraceElement)
 
                 processedTests.add(contextPath) // don't visit this context again
@@ -98,7 +98,7 @@ internal class ContextExecutor(
             if (visitor.contextsLeft) {
                 contextsLeft = true
             } else {
-                foundContexts.add(context.copy(stackTraceElement = getStackTraceElement()))
+                foundContexts.add(context)
                 processedTests.add(contextPath)
             }
             getStackTraceElement().lineNumber

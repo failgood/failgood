@@ -48,7 +48,8 @@ class FailFastJunitTestEngine : TestEngine {
                 val contextNode = FailFastTestDescriptor(
                     TestDescriptor.Type.CONTAINER,
                     uniqueId.append("container", context.stringPath()),
-                    context.name
+                    context.name,
+                    context.stackTraceElement?.let { createFileSource(it) }
                 )
                 result.addMapping(context, contextNode)
                 val testsInThisContext = tests.filter { it.key.parentContext == context }
@@ -161,17 +162,22 @@ class FailFastJunitTestEngine : TestEngine {
 }
 
 private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor {
-    val pathname = "src/test/kotlin/${this.stackTraceElement.className.substringBefore("$").replace(".", "/")}.kt"
+    val stackTraceElement = this.stackTraceElement
     val testSource =
-        FileSource.from(
-            File(pathname),
-            FilePosition.from(this.stackTraceElement.lineNumber)
-        )
+        createFileSource(stackTraceElement)
     return FailFastTestDescriptor(
         TestDescriptor.Type.TEST,
         uniqueId.append("Test", this.toString()),
         this.testName,
         testSource
+    )
+}
+
+private fun createFileSource(stackTraceElement: StackTraceElement): FileSource? {
+    val pathname = "src/test/kotlin/${stackTraceElement.className.substringBefore("$").replace(".", "/")}.kt"
+    return FileSource.from(
+        File(pathname),
+        FilePosition.from(stackTraceElement.lineNumber)
     )
 }
 

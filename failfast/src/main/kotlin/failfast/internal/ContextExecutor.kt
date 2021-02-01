@@ -15,7 +15,7 @@ internal class ContextExecutor(
 
     private val foundContexts = mutableListOf<Pair<Context, Int>>()
     private val deferredTestResults = LinkedHashMap<TestDescription, Deferred<TestResult>>()
-    private val processedTests = LinkedHashSet<TestPath>()
+    private val processedTests = LinkedHashSet<ContextPath>()
 
     private inner class ContextVisitor(
         private val parentContext: Context,
@@ -32,7 +32,7 @@ internal class ContextExecutor(
             if (!namesInThisContext.add(name))
                 throw FailFastException("duplicate name $name in context $parentContext")
             val testDescriptor = TestDescription(parentContext, name)
-            val testPath = TestPath(parentContext, name)
+            val testPath = ContextPath(parentContext, name)
             // we process each test only once
             if (!processedTests.add(testPath)) {
                 return
@@ -81,7 +81,7 @@ internal class ContextExecutor(
                 return
             }
             val context = Context(name, parentContext)
-            val contextPath = TestPath(parentContext, name)
+            val contextPath = ContextPath(parentContext, name)
             if (processedTests.contains(contextPath)) return
             val visitor = ContextVisitor(context, resourcesCloser)
             try {
@@ -122,7 +122,7 @@ internal class ContextExecutor(
         }
 
         override fun itWill(behaviorDescription: String, function: TestLambda) {
-            val testPath = TestPath(parentContext, behaviorDescription)
+            val testPath = ContextPath(parentContext, behaviorDescription)
 
             if (processedTests.add(testPath)) {
                 val testDescriptor = TestDescription(parentContext, "will $behaviorDescription")

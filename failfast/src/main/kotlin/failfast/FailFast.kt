@@ -132,28 +132,24 @@ data class SuiteResult(
 
 }
 
-data class TestPath(val parentContext: Context, val testName: String) {
+/**
+ * a path to something that is contained in a context. can be a test or a context
+ */
+internal data class ContextPath(val parentContext: Context, val name: String) {
     companion object {
-        fun fromString(path: String): TestPath {
+        fun fromString(path: String): ContextPath {
             val pathElements = path.split(">").map { it.trim() }
-            return TestPath(Context.fromPath(pathElements.dropLast(1)), pathElements.last())
+            return ContextPath(Context.fromPath(pathElements.dropLast(1)), pathElements.last())
         }
     }
 
     override fun toString(): String {
-        return "${parentContext.stringPath()} > $testName"
+        return "${parentContext.stringPath()} > $name"
     }
 }
 
 data class TestDescription(val parentContext: Context, val testName: String) {
-    constructor(testPath: TestPath) : this(testPath.parentContext, testPath.testName)
-
-    companion object {
-        fun fromString(path: String): TestDescription {
-            val pathElements = path.split(">").map { it.trim() }
-            return TestDescription(Context.fromPath(pathElements.dropLast(1)), pathElements.last())
-        }
-    }
+    internal constructor(testPath: ContextPath) : this(testPath.parentContext, testPath.name)
 
     override fun toString(): String {
         return "${parentContext.stringPath()} > $testName"

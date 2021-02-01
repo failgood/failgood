@@ -31,7 +31,7 @@ class FailFastJunitTestEngine : TestEngine {
         }
     }
 
-    internal suspend fun createResponse(
+    private suspend fun createResponse(
         uniqueId: UniqueId,
         testResult: List<Deferred<ContextInfo>>,
         executionListener: JunitExecutionListener

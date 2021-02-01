@@ -41,6 +41,7 @@ private fun flowTest() {
         .use { dispatcher ->
             runBlocking(dispatcher) {
                 (0 until 1000).asFlow().flowOn(dispatcher).map {
+                    @Suppress("BlockingMethodInNonBlockingContext")
                     Thread.sleep(1000)
                     it
                 }.toCollection(mutableListOf())

@@ -8,7 +8,7 @@ import strikt.api.expectThrows
 import strikt.assertions.*
 
 object ContextExecutorTest {
-    var assertionError: AssertionError? = null
+    private var assertionError: AssertionError? = null
     val context =
         describe(ContextExecutor::class) {
             val rootContext = Context("root context", null)

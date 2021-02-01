@@ -28,17 +28,17 @@ object SingleTestExecutorTest {
             val context2 = Context("context 2", context1)
 
             it("executes a single test (1)") {
-                val result = SingleTestExecutor(ctx, TestDescription(rootContext, "test 1")).execute()
+                val result = SingleTestExecutor(ctx, TestPath(rootContext, "test 1")).execute()
                 expectThat(events).containsExactly("root context", "test 1")
                 expectThat(result).isA<Success>()
             }
             it("executes a single test (2)") {
-                val result = SingleTestExecutor(ctx, TestDescription(rootContext, "test 2")).execute()
+                val result = SingleTestExecutor(ctx, TestPath(rootContext, "test 2")).execute()
                 expectThat(events).containsExactly("root context", "test 2")
                 expectThat(result).isA<Success>()
             }
             it("executes a single test (3)") {
-                val result = SingleTestExecutor(ctx, TestDescription(context2, "test 3")).execute()
+                val result = SingleTestExecutor(ctx, TestPath(context2, "test 3")).execute()
                 expectThat(events)
                     .containsExactly("root context", "context 1", "context 2", "test 3")
                 expectThat(result).isA<Success>()
@@ -52,7 +52,7 @@ object SingleTestExecutorTest {
                         }
                     }
                 val test =
-                    TestDescription(
+                    TestPath(
                         Context("with a valid root context", Context("ContextExecutor", null)),
                         "returns contexts"
                     )

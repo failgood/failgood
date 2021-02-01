@@ -107,7 +107,7 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
         val context = rootContexts.map { it.getContext() }.single {
             it.name == contextName
         }
-        val desc = TestDescription.fromString(test)
+        val desc = TestPath.fromString(test)
         val result = runBlocking {
             SingleTestExecutor(context, desc).execute()
         }

@@ -134,9 +134,9 @@ data class SuiteResult(
 
 data class TestPath(val parentContext: Context, val testName: String) {
     companion object {
-        fun fromString(path: String): TestDescription {
+        fun fromString(path: String): TestPath {
             val pathElements = path.split(">").map { it.trim() }
-            return TestDescription(Context.fromPath(pathElements.dropLast(1)), pathElements.last())
+            return TestPath(Context.fromPath(pathElements.dropLast(1)), pathElements.last())
         }
     }
 
@@ -146,6 +146,8 @@ data class TestPath(val parentContext: Context, val testName: String) {
 }
 
 data class TestDescription(val parentContext: Context, val testName: String) {
+    constructor(testPath: TestPath) : this(testPath.parentContext, testPath.testName)
+
     companion object {
         fun fromString(path: String): TestDescription {
             val pathElements = path.split(">").map { it.trim() }

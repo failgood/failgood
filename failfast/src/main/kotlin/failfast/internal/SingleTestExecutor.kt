@@ -6,7 +6,7 @@ import failfast.*
  * Executes a single test with all its parent contexts
  * Async Called by ContextExecutor to execute all tests that it does not have to execute itself
  */
-internal class SingleTestExecutor(private val context: RootContext, private val test: TestDescription) {
+internal class SingleTestExecutor(private val context: RootContext, private val test: TestPath) {
     private val closeables = mutableListOf<AutoCloseable>()
     private val startTime = System.nanoTime()
     suspend fun execute(): TestResult {
@@ -63,15 +63,16 @@ internal class SingleTestExecutor(private val context: RootContext, private val 
 
         override suspend fun test(name: String, function: TestLambda) {
             if (test.testName == name) {
+                val testDescription = TestDescription(test)
                 val stackTrace =
                     RuntimeException().stackTrace.first { !(it.fileName?.endsWith("SingleTestExecutor.kt") ?: true) }
 
                 throw TestResultAvailable(
                     try {
                         function()
-                        Success(test, (System.nanoTime() - startTime) / 1000)
+                        Success(testDescription, (System.nanoTime() - startTime) / 1000)
                     } catch (e: Throwable) {
-                        Failed(test, e, stackTrace)
+                        Failed(testDescription, e, stackTrace)
                     }
                 )
             }

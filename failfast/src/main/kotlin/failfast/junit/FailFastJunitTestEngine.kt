@@ -11,7 +11,9 @@ import org.junit.platform.engine.*
 import org.junit.platform.engine.discovery.ClassSelector
 import org.junit.platform.engine.discovery.ClasspathRootSelector
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
+import org.junit.platform.engine.support.descriptor.ClassSource
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
+import org.junit.platform.engine.support.descriptor.FilePosition
 import java.nio.file.Paths
 
 private object FailFastJunitTestEngineConstants {
@@ -158,19 +160,26 @@ class FailFastJunitTestEngine : TestEngine {
 }
 
 private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor {
+    val testSource =
+        ClassSource.from(
+            this.stackTraceElement.className.substringBefore('$'),
+            FilePosition.from(this.stackTraceElement.lineNumber)
+        )
     return FailFastTestDescriptor(
         TestDescriptor.Type.TEST,
         uniqueId.append("Test", this.toString()),
-        this.testName
+        this.testName,
+        testSource
     )
 }
 
 class FailFastTestDescriptor(
     private val type: TestDescriptor.Type,
     id: UniqueId,
-    name: String
+    name: String,
+    testSource: TestSource? = null
 ) :
-    AbstractTestDescriptor(id, name) {
+    AbstractTestDescriptor(id, name, testSource) {
     override fun getType(): TestDescriptor.Type {
         return type
     }

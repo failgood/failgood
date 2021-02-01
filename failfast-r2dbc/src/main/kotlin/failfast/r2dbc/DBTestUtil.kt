@@ -56,7 +56,7 @@ open class DBTestUtil(val databaseName: String) {
             return ConnectionFactories.get("r2dbc:pool:postgresql://test:test@$host:$port/$databaseName?initialSize=1")
         }
 
-        private fun preparePostgresDB(): NameHostAndPort {
+        fun preparePostgresDB(): NameHostAndPort {
             Class.forName("org.postgresql.Driver")
             val uuid = UUID.randomUUID()
             val databaseName = "$databaseName$uuid".replace("-", "_")
@@ -81,7 +81,7 @@ open class DBTestUtil(val databaseName: String) {
     data class NameHostAndPort(val databaseName: String, val host: String, val port: Int)
 
     private val h2 = H2TestDatabase()
-    private val psql13 = PSQLTestDatabase("postgres:13-alpine")
+    val psql13 = PSQLTestDatabase("postgres:13-alpine")
     val databases = when {
         TestConfig.H2_ONLY -> {
             listOf(h2)

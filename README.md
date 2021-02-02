@@ -68,17 +68,37 @@ the `FailFastBootstrap.kt` class.
 ```kotlin
 repositories {
     jcenter()
-    mavenCentral()
+  mavenCentral()
 }
 
 dependencies {
-  testImplementation("com.christophsturm:failfast:0.2.0")
+  testImplementation("com.christophsturm:failfast:0.3.0")
 }
 ```
 
 ## running
 
-Currently, there is no gradle plugin and no idea plugin. Just create a main method in your test sources
+There are two ways to run your failfast suite:
+
+* A main method that calls `FailFast.runAllTests()`
+* A junit-platform engine
+
+I like the main-method-method, but I must admit that the junit platform engine is pretty useful to run all tests, or a
+subset of the tests inside idea.
+
+### the junit-platform-engine
+
+to use the junit engine add the junit platform launcher to your gradle file dependency block
+
+```kotlin
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.7.0")
+```
+
+then you can run all tests or all tests in a package via idea. If you want to run a single test file you have to
+manually enter a regex into the junit run dialog, for example
+`.*ContextExecutorTest` to run the ContextExecutorTest.
+
+### The main method method
 
 ```kotlin
 fun main() {
@@ -89,6 +109,7 @@ fun main() {
 ```
 
 alternatively you can also just manually list test contexts:
+
 ```kotlin
 fun main() {
   Suite.fromContexts(listOf(MyTest.context, MyOtherTest.context)).run().check()
@@ -102,7 +123,7 @@ fun main() {
 }
 ```
 
-then add a gradle task file that calls it with the test classpath:
+then add a gradle task file that calls it with the test classpath and make your check target depend on it.
 
 ```kotlin
 val testMain =
@@ -118,7 +139,7 @@ tasks.check { dependsOn(testMain) }
 
 ## running a single test file
 
-if you want to run a single test file just add a main method to it:
+You can also run a single file with the main method method:
 
 ```kotlin 
 fun main() {

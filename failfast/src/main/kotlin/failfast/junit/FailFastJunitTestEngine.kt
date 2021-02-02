@@ -92,7 +92,7 @@ class FailFastJunitTestEngine : TestEngine {
         junitListener.executionStarted(root)
         val executionListener = root.executionListener
         var running = true
-        val allOk = runBlocking(Dispatchers.Default) {
+        runBlocking(Dispatchers.Default) {
             // report results while they come in. we use a channel because tests were already running before the execute
             // method was called so when we get here there are probably tests already finished
             launch {
@@ -129,15 +129,23 @@ class FailFastJunitTestEngine : TestEngine {
             val allTests = allContexts.flatMap { it.tests.values }.awaitAll()
             val contexts = allContexts.flatMap { it.contexts }
             running = false
-            contexts.forEach {
-                junitListener.executionFinished(root.getMapping(it), TestExecutionResult.successful())
+            contexts.forEach { context ->
+                val testsInThisContext = allTests.filter { it.test.parentContext == context }
+                val testResult = if (testsInThisContext.all { it is Success }) {
+                    TestExecutionResult.successful()
+                } else {
+                    TestExecutionResult.failed(SuiteFailedException(context.stringPath() + " failed"))
+                }
+                junitListener.executionFinished(root.getMapping(context), testResult)
             }
-            allTests.all { it is Success }
+
+            junitListener.executionFinished(
+                root,
+                if (allTests.all { it is Success }) TestExecutionResult.successful() else TestExecutionResult.failed(
+                    SuiteFailedException("test failed")
+                )
+            )
         }
-        junitListener.executionFinished(
-            root,
-            if (allOk) TestExecutionResult.successful() else TestExecutionResult.failed(SuiteFailedException())
-        )
     }
 
     private fun findContexts(discoveryRequest: EngineDiscoveryRequest): List<ContextProvider> {

@@ -106,7 +106,7 @@ data class SuiteResult(
 
             return
         }
-        if (throwException) throw SuiteFailedException() else {
+        if (throwException) throw SuiteFailedException("test failed") else {
 
             val message =
                 failedTests.joinToString(separator = "\n") {

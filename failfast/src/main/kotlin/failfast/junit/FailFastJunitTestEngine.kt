@@ -160,10 +160,14 @@ class FailFastJunitTestEngine : TestEngine {
         return when {
             classPathSelector != null -> {
                 val uri = classPathSelector.classpathRoot
-                findClassesInPath(Paths.get(uri), Thread.currentThread().contextClassLoader).map {
-                    ObjectContextProvider(
-                        it
-                    )
+                findClassesInPath(Paths.get(uri), Thread.currentThread().contextClassLoader).mapNotNull {
+                    try {
+                        ObjectContextProvider(
+                            it
+                        )
+                    } catch (e: Exception) {
+                        null
+                    }
                 }
             }
             singleClassSelector != null -> {

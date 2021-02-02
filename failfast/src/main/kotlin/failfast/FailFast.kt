@@ -166,7 +166,7 @@ data class Context(val name: String, val parent: Context?, val stackTraceElement
             return Context(path.last(), if (path.size == 1) null else fromPath(path.dropLast(1)))
         }
     }
-
+    val parentContexts: Set<Context> = parent?.parentContexts?.plus(parent) ?: setOf()
     val path: List<String> = parent?.path?.plus(name) ?: listOf(name)
     fun stringPath(): String = path.joinToString(" > ")
 }

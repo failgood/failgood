@@ -70,7 +70,7 @@ object ContextExecutorTest {
                         expectThat(assertionError).isNotNull()
                         val assertionError = assertionError!!
                         expectThat(failure.failure) {
-                            get<String> { stackTraceToString() }.isEqualTo(assertionError.stackTraceToString())
+                            get { stackTraceToString() }.isEqualTo(assertionError.stackTraceToString())
                         }
                     }
                 }

@@ -130,11 +130,16 @@ class FailFastJunitTestEngine : TestEngine {
             val contexts = allContexts.flatMap { it.contexts }
             running = false
             contexts.forEach { context ->
-                val testsInThisContext = allTests.filter { it.test.parentContext == context }
-                val testResult = if (testsInThisContext.all { it is Success }) {
+                val testsInThisContext =
+                    allTests.filter { it.test.parentContext.parentContexts.contains(context) || it.test.parentContext == context }
+                val failedTests = testsInThisContext.filter { it is Failed }
+                val testResult = if (failedTests.isEmpty()) {
                     TestExecutionResult.successful()
                 } else {
-                    TestExecutionResult.failed(SuiteFailedException(context.stringPath() + " failed"))
+                    TestExecutionResult.failed(SuiteFailedException("context " + context.stringPath() +
+                            " failed because ${failedTests.joinToString { it.test.testName }} failed"
+                    )
+                    )
                 }
                 junitListener.executionFinished(root.getMapping(context), testResult)
             }

@@ -3,11 +3,13 @@ package failfast.junit
 import failfast.*
 import failfast.FailFast.findClassesInPath
 import failfast.internal.ContextInfo
+import failfast.junit.FailFastJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.selects.select
 import org.junit.platform.engine.*
+import org.junit.platform.engine.discovery.ClassNameFilter
 import org.junit.platform.engine.discovery.ClassSelector
 import org.junit.platform.engine.discovery.ClasspathRootSelector
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
@@ -20,12 +22,18 @@ import java.nio.file.Paths
 private object FailFastJunitTestEngineConstants {
     const val id = "failfast"
     const val displayName = "FailFast"
+    const val CONFIG_KEY_DEBUG = "failfast.debug"
 }
 
+// what idea usually sends:
+//selectors:ClasspathRootSelector [classpathRoot = file:///Users/christoph/Projects/mine/failfast/failfast/out/test/classes/], ClasspathRootSelector [classpathRoot = file:///Users/christoph/Projects/mine/failfast/failfast/out/test/resources/]
+//filters:IncludeClassNameFilter that includes class names that match one of the following regular expressions: 'failfast\..*', ExcludeClassNameFilter that excludes class names that match one of the following regular expressions: 'com\.intellij\.rt.*' OR 'com\.intellij\.junit3.*'
 class FailFastJunitTestEngine : TestEngine {
+    var debug: Boolean = false
     override fun getId(): String = FailFastJunitTestEngineConstants.id
 
     override fun discover(discoveryRequest: EngineDiscoveryRequest, uniqueId: UniqueId): TestDescriptor {
+        debug = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_DEBUG).orElse(false)
         val providers: List<ContextProvider> = findContexts(discoveryRequest)
         return runBlocking(Dispatchers.Default) {
             val executionListener = JunitExecutionListener()
@@ -136,9 +144,11 @@ class FailFastJunitTestEngine : TestEngine {
                 val testResult = if (failedTests.isEmpty()) {
                     TestExecutionResult.successful()
                 } else {
-                    TestExecutionResult.failed(SuiteFailedException("context " + context.stringPath() +
-                            " failed because ${failedTests.joinToString { it.test.testName }} failed"
-                    )
+                    TestExecutionResult.failed(
+                        SuiteFailedException(
+                            "context " + context.stringPath() +
+                                    " failed because ${failedTests.joinToString { it.test.testName }} failed"
+                        )
                     )
                 }
                 junitListener.executionFinished(root.getMapping(context), testResult)
@@ -154,13 +164,23 @@ class FailFastJunitTestEngine : TestEngine {
     }
 
     private fun findContexts(discoveryRequest: EngineDiscoveryRequest): List<ContextProvider> {
+        if (debug) {
+            val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)
+            val allFilters = discoveryRequest.getFiltersByType(DiscoveryFilter::class.java)
+            println("selectors:${allSelectors.joinToString()}\nfilters:${allFilters.joinToString()}")
+        }
         val classPathSelector = discoveryRequest.getSelectorsByType(ClasspathRootSelector::class.java)
             .singleOrNull { !it.classpathRoot.path.contains("resources") }
         val singleClassSelector = discoveryRequest.getSelectorsByType(ClassSelector::class.java).singleOrNull()
+        val classNamePredicates =
+            discoveryRequest.getFiltersByType(ClassNameFilter::class.java).map { it.toPredicate() }
         return when {
             classPathSelector != null -> {
                 val uri = classPathSelector.classpathRoot
-                findClassesInPath(Paths.get(uri), Thread.currentThread().contextClassLoader).mapNotNull {
+                findClassesInPath(
+                    Paths.get(uri),
+                    Thread.currentThread().contextClassLoader,
+                    matchLambda = { className -> classNamePredicates.all { it.test(className) } }).mapNotNull {
                     try {
                         ObjectContextProvider(
                             it

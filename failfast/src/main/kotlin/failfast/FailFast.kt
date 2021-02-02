@@ -194,11 +194,12 @@ object FailFast {
         return findClassesInPath(root, classloader, classIncludeRegex, newerThan)
     }
 
-    fun findClassesInPath(
+    internal fun findClassesInPath(
         root: Path,
         classloader: ClassLoader,
         classIncludeRegex: Regex = Regex(".*Test.class\$"),
-        newerThan: FileTime? = null
+        newerThan: FileTime? = null,
+        matchLambda: (String) -> Boolean = { true }
     ): MutableList<KClass<*>> {
         val results = mutableListOf<KClass<*>>()
         Files.walkFileTree(
@@ -207,9 +208,11 @@ object FailFast {
                 override fun visitFile(file: Path?, attrs: BasicFileAttributes?): FileVisitResult {
                     val path = root.relativize(file!!).toString()
                     if (path.matches(classIncludeRegex) && (newerThan == null || attrs!!.lastModifiedTime() > newerThan)) {
-                        results.add(
-                            classloader.loadClass(path.substringBefore(".class").replace("/", ".")).kotlin
-                        )
+                        val className = path.substringBefore(".class").replace("/", ".")
+                        if (matchLambda(className))
+                            results.add(
+                                classloader.loadClass(className).kotlin
+                            )
                     }
                     return FileVisitResult.CONTINUE
                 }

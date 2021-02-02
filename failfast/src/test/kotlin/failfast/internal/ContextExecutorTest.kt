@@ -67,7 +67,11 @@ object ContextExecutorTest {
                 describe("reports failed tests") {
                     val failure = contextInfo.tests.values.awaitAll().filterIsInstance<Failed>().single()
                     it("reports exception for failed tests") {
-                        expectThat(failure.failure).isSameInstanceAs(assertionError)
+                        expectThat(assertionError).isNotNull()
+                        val assertionError = assertionError!!
+                        expectThat(failure.failure) {
+                            get<String> { stackTraceToString() }.isEqualTo(assertionError.stackTraceToString())
+                        }
                     }
                 }
             }

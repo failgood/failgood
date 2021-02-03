@@ -94,7 +94,7 @@ To use the JUnit engine add the JUnit platform launcher to your gradle file depe
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.7.0")
 ```
 
-Then you can run all tests or all tests in a package via IDEA. If you want to run a single test file you have to
+then you can run all tests or all tests in a package via IDEA. If you want to run a single test file you have to
 manually enter a regex into the JUnit run dialog, for example
 `.*ContextExecutorTest` to run the ContextExecutorTest.
 

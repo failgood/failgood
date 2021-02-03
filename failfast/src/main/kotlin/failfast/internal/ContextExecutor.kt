@@ -121,14 +121,15 @@ internal class ContextExecutor(
             test(behaviorDescription, function)
         }
 
-        override fun itWill(behaviorDescription: String, function: TestLambda) {
+        override suspend fun itWill(behaviorDescription: String, function: TestLambda) {
             val testPath = ContextPath(parentContext, behaviorDescription)
 
             if (processedTests.add(testPath)) {
                 val testDescriptor = TestDescription(parentContext, "will $behaviorDescription", getStackTraceElement())
+                val result = Ignored(testDescriptor)
                 @Suppress("DeferredResultUnused")
-                deferredTestResults[testDescriptor] = CompletableDeferred(Ignored(testDescriptor))
-
+                deferredTestResults[testDescriptor] = CompletableDeferred(result)
+                listener.testFinished(testDescriptor, result)
             }
         }
     }

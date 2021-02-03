@@ -70,7 +70,7 @@ interface ContextDSL {
     /**
      * define a pending test that is not implemented yet.
      */
-    fun itWill(behaviorDescription: String, function: TestLambda = {})
+    suspend fun itWill(behaviorDescription: String, function: TestLambda = {})
 }
 
 data class SuiteResult(

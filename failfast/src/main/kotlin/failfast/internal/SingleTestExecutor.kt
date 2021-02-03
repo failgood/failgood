@@ -38,7 +38,7 @@ internal class SingleTestExecutor(private val context: RootContext, private val 
 
         override suspend fun it(behaviorDescription: String, function: TestLambda) {}
 
-        override fun itWill(behaviorDescription: String, function: TestLambda) {}
+        override suspend fun itWill(behaviorDescription: String, function: TestLambda) {}
     }
 
     inner class ContextFinder(private val contexts: List<String>) : ContextDSL, Base() {

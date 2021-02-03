@@ -30,6 +30,8 @@ class FailFastJunitTestEngine : TestEngine {
     override fun getId(): String = FailFastJunitTestEngineConstants.id
 
     override fun discover(discoveryRequest: EngineDiscoveryRequest, uniqueId: UniqueId): TestDescriptor {
+        println("starting at uptime ${uptime()}")
+
         debug = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_DEBUG).orElse(false)
         val providers: List<ContextProvider> = findContexts(discoveryRequest)
         return runBlocking(Dispatchers.Default) {

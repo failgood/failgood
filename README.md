@@ -3,23 +3,23 @@
 
 # Failfast
 
-Multi-threaded test runner for kotlin focusing on simplicity, usability and speed.
+Multi-threaded test runner for Kotlin focusing on simplicity, usability and speed.
 
-## goals / features
+## Goals / Features
 
 Every design decision is only influenced by what's best for a short test feedback loop, and to make simple things simple
-and complex things possible. No feature exists "because that's how junit works". Everything is driven by the needs of
+and complex things possible. No feature exists "because that's how JUnit works". Everything is driven by the needs of
 people who write tests daily and iterate fast.
 
 * Spec syntax implemented to work just [as expected](https://en.wikipedia.org/wiki/Principle_of_least_astonishment).
 * Speed and parallel execution. Failfast's own test suite runs in < 1 second.
-* Configuration via api. Your test config is just a main method that runs via idea or gradle.
+* Configuration via API. Your test config is just a main method that runs via IDEA or Gradle.
 * Run your tests so fast that you can run all the tests on every change.
 * Autotest to run only changed tests.
 * Pitest plugin (see the build file).
-* Junit compatible reports
+* JUnit compatible reports
 
-## how it looks like
+## How it looks like
 
 ```kotlin
 object FailFastTest {
@@ -55,7 +55,7 @@ object FailFastTest {
 
 ```
 
-to see it in action check out the failfast-example project or a project that uses failfast, for example
+To see it in action check out the failfast-example project or a project that uses failfast, for example
 [the r2dbcfun test suite](https://github.com/christophsturm/r2dbcfun/blob/main/src/test/kotlin/r2dbcfun/test/AllTests.kt)
 
 ## running the test suite
@@ -63,7 +63,7 @@ to see it in action check out the failfast-example project or a project that use
 to run FailFast's test suite just run `./gradlew check` or if you want to run it via idea just run
 the `FailFastBootstrap.kt` class.
 
-## gradle build
+## Gradle build
 
 ```kotlin
 repositories {
@@ -76,7 +76,7 @@ dependencies {
 }
 ```
 
-## running
+## Running
 
 There are two ways to run your failfast suite:
 
@@ -88,14 +88,14 @@ subset of the tests inside idea.
 
 ### the junit-platform-engine
 
-to use the junit engine add the junit platform launcher to your gradle file dependency block
+To use the JUnit engine add the JUnit platform launcher to your gradle file dependency block
 
 ```kotlin
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.7.0")
 ```
 
-then you can run all tests or all tests in a package via idea. If you want to run a single test file you have to
-manually enter a regex into the junit run dialog, for example
+Then you can run all tests or all tests in a package via IDEA. If you want to run a single test file you have to
+manually enter a regex into the JUnit run dialog, for example
 `.*ContextExecutorTest` to run the ContextExecutorTest.
 
 ### The main method method
@@ -137,7 +137,7 @@ tasks.check { dependsOn(testMain) }
 
 `./gradlew check` will then run the tests.
 
-## running a single test file
+## Running a single test file
 
 You can also run a single file with the main method method:
 
@@ -155,9 +155,9 @@ object MyTestClass {
 
 and run that.
 
-## running a single test
+## Running a single test
 
-sometimes a test keeps failing and you want to run only that single test until it is fixed, for easier debugging.
+Sometimes a test keeps failing and you want to run only that single test until it is fixed, for easier debugging.
 
 just take the test description from the test output:
 
@@ -174,13 +174,13 @@ fun main() {
 }
 ```
 
-## test lifecycle
+## Test lifecycle
 
-Just declare your dependencies in the context blocks. they will be recreated for every test. it just works as expected.
+Just declare your dependencies in the context blocks. They will be recreated for every test. It just works as expected.
 I think ScalaTest has a mode that works like that and kotest also supports it, and calls
 it  [instance per leaf](https://github.com/kotest/kotest/blob/master/doc/isolation_mode.md#instanceperleaf)
 
-It combines the power of a dsl with the simplicity of junit 4.
+It combines the power of a dsl with the simplicity of JUnit 4.
 
 this is from the test isolation unit test:
 
@@ -260,16 +260,16 @@ task("autotest", JavaExec::class) {
 
 run it with `./gradlew -t autotest`anytime a test file is recompiled it will run. This works pretty well, but it's not
 perfect, because not every change to a tested class triggers a recompile of the test class. Fixing this by reading
-dependencies from the test classes' constant pool is on the road map.
+dependencies from the test classes' constant pool is on the roadmap.
 
-## even faster tests, best practices
+## Even faster tests; best practices
 
-* avoid heavyweight dependencies. the failfast test suite runs in < 1000ms. that's a lot of time for a computer, and a
-  great target for your test suite. slow tests are a code smell. An unexpected example for a heavyweight dependency is
+* avoid heavyweight dependencies. the failfast test suite runs in < 1000ms. That's a lot of time for a computer, and a
+  great target for your test suite. Slow tests are a code smell. An unexpected example for a heavyweight dependency is
   mockk, it takes about 2 seconds at first invocation.
 
 
-* spin up slow dependencies at start-up in a separate thread (if you have to use them). for example this is the main
+* spin up slow dependencies at start-up in a separate thread (if you have to use them). For example this is the main
   test method of another open source project of mine:
 
 ```kotlin
@@ -291,7 +291,7 @@ You can get a quick overview of your test coverage by running your test main met
 
 There is also a pitest plugin if you want to measure mutation coverage, see the example project for configuration.
 
-## Avoiding Global State
+## Avoiding global state
 
 * if you need a web server run it on a random port.
 * if you need a database create a db with a random name for each

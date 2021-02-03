@@ -18,5 +18,8 @@ object DBTestUtilTest {
                 }
             }
         }
+        it("exports psql connection") {
+            dbs.psql13.preparePostgresDB()
+        }
     }
 }

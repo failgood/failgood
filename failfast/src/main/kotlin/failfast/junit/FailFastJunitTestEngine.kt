@@ -26,7 +26,7 @@ private object FailFastJunitTestEngineConstants {
 //selectors:ClasspathRootSelector [classpathRoot = file:///Users/christoph/Projects/mine/failfast/failfast/out/test/classes/], ClasspathRootSelector [classpathRoot = file:///Users/christoph/Projects/mine/failfast/failfast/out/test/resources/]
 //filters:IncludeClassNameFilter that includes class names that match one of the following regular expressions: 'failfast\..*', ExcludeClassNameFilter that excludes class names that match one of the following regular expressions: 'com\.intellij\.rt.*' OR 'com\.intellij\.junit3.*'
 class FailFastJunitTestEngine : TestEngine {
-    var debug: Boolean = false
+    private var debug: Boolean = false
     override fun getId(): String = FailFastJunitTestEngineConstants.id
 
     override fun discover(discoveryRequest: EngineDiscoveryRequest, uniqueId: UniqueId): TestDescriptor {
@@ -139,7 +139,7 @@ class FailFastJunitTestEngine : TestEngine {
             contexts.forEach { context ->
                 val testsInThisContext =
                     allTests.filter { it.test.parentContext.parentContexts.contains(context) || it.test.parentContext == context }
-                val failedTests = testsInThisContext.filter { it is Failed }
+                val failedTests = testsInThisContext.filterIsInstance<Failed>()
                 val testResult = if (failedTests.isEmpty()) {
                     TestExecutionResult.successful()
                 } else {

@@ -101,7 +101,7 @@ object ContextExecutorTest {
                 }
 
                 it("returns file info for all subcontexts") {
-                    expectThat(contextInfo.contexts).allIndexed { idx ->
+                    expectThat(contextInfo.contexts).all {
                         get { stackTraceElement }.isNotNull().and {
                             get { fileName }.isEqualTo("ContextExecutorTest.kt")
                         }

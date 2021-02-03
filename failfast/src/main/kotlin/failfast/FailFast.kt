@@ -265,6 +265,6 @@ object FailFast {
 
 private fun findCallerName(): String = findCallerSTE().className
 
-private fun findCallerSTE() = Throwable().stackTrace.first {
+private fun findCallerSTE(): StackTraceElement = Throwable().stackTrace.first {
     !(it.fileName?.endsWith("FailFast.kt") ?: true)
 }

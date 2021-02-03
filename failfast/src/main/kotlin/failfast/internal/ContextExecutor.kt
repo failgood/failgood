@@ -135,7 +135,7 @@ internal class ContextExecutor(
 
     suspend fun execute(): ContextInfo {
         val function = rootContext.function
-        val rootContext = Context(rootContext.name, null)
+        val rootContext = Context(rootContext.name, null, rootContext.stackTraceElement)
         while (true) {
             val resourcesCloser = ResourcesCloser()
             val visitor = ContextVisitor(rootContext, resourcesCloser)

@@ -11,7 +11,6 @@ object ContextExecutorTest {
     private var assertionError: AssertionError? = null
     val context =
         describe(ContextExecutor::class) {
-            val rootContext = Context("root context", null)
             describe("with a valid root context") {
                 val ctx =
                     RootContext("root context") {
@@ -76,12 +75,14 @@ object ContextExecutorTest {
                 }
             }
             describe("reports line numbers") {
+                var rootContextLine = 0
                 var context1Line = 0
                 var context2Line = 0
                 var test1Line = 0
                 var test2Line = 0
                 val ctx =
                     RootContext("root context") {
+                        rootContextLine = RuntimeException().stackTrace.first().lineNumber - 1
                         describe("context 1") {
                             context1Line = RuntimeException().stackTrace.first().lineNumber - 1
                             it("test1") {
@@ -99,18 +100,16 @@ object ContextExecutorTest {
                     ContextExecutor(ctx, this).execute()
                 }
 
-                it("returns file for all subcontexts") {
+                it("returns file info for all subcontexts") {
                     expectThat(contextInfo.contexts).allIndexed { idx ->
-                        if (idx == 0) // root context has no stacktrace attached
-                            get { stackTraceElement }.isNull()
-                        else
-                            get { stackTraceElement }.isNotNull().and {
-                                get { fileName }.isEqualTo("ContextExecutorTest.kt")
-                            }
+                        get { stackTraceElement }.isNotNull().and {
+                            get { fileName }.isEqualTo("ContextExecutorTest.kt")
+                        }
                     }
                 }
                 it("returns line number for contexts") {
                     expectThat(contextInfo.contexts) {
+                        get(0).get { stackTraceElement }.isNotNull().get { lineNumber }.isEqualTo(rootContextLine)
                         get(1).get { stackTraceElement }.isNotNull().get { lineNumber }.isEqualTo(context1Line)
                         get(2).get { stackTraceElement }.isNotNull().get { lineNumber }.isEqualTo(context2Line)
                     }
@@ -172,7 +171,7 @@ object ContextExecutorTest {
                     expectThat(results.tests.values.awaitAll().filterIsInstance<Failed>()).single().and {
                         get { test }.and {
                             get { testName }.isEqualTo("context 1")
-                            get { parentContext }.isEqualTo(rootContext)
+                            get { parentContext.name }.isEqualTo("root context")
                             get { stackTraceElement.toString() }.endsWith(
                                 "ContextExecutorTest.kt:${
                                     getLineNumber(

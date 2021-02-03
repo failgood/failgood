@@ -165,9 +165,7 @@ class FailFastJunitTestEngine : TestEngine {
 
     private fun findContexts(discoveryRequest: EngineDiscoveryRequest): List<ContextProvider> {
         if (debug) {
-            val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)
-            val allFilters = discoveryRequest.getFiltersByType(DiscoveryFilter::class.java)
-            println("selectors:${allSelectors.joinToString()}\nfilters:${allFilters.joinToString()}")
+            println(discoveryRequestToString(discoveryRequest))
         }
         val classPathSelector = discoveryRequest.getSelectorsByType(ClasspathRootSelector::class.java)
             .singleOrNull { !it.classpathRoot.path.contains("resources") }
@@ -193,8 +191,20 @@ class FailFastJunitTestEngine : TestEngine {
             singleClassSelector != null -> {
                 listOf(ObjectContextProvider(singleClassSelector.javaClass))
             }
-            else -> throw FailFastException("unknown selector in discovery request: $discoveryRequest")
+            else -> throw FailFastException(
+                "unknown selector in discovery request: ${
+                    discoveryRequestToString(
+                        discoveryRequest
+                    )
+                }"
+            )
         }
+    }
+
+    private fun discoveryRequestToString(discoveryRequest: EngineDiscoveryRequest): String {
+        val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)
+        val allFilters = discoveryRequest.getFiltersByType(DiscoveryFilter::class.java)
+        return "selectors:${allSelectors.joinToString()}\nfilters:${allFilters.joinToString()}"
     }
 }
 

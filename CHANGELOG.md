@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Junit Platform Engine for easy and comfortable test running from IDEA.
+- JUnit Platform Engine for easy and comfortable test running from IDEA.
 - Print each context result as soon as the context is finished.
 - Display test failures in a more compact way. Stack traces are shortened to only show lines from the test. the
   exception name is not added to the output when it is an assertion error. those usually have a error message that
@@ -28,6 +28,6 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- Fixed a threading bug that only appears on the OpenJ9 jdk.
+- Fixed a threading bug that only appears on the OpenJ9 JDK.
  
 

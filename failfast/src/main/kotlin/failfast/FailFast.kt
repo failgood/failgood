@@ -15,7 +15,10 @@ data class RootContext(
     val name: String = "root",
     val disabled: Boolean = false,
     val function: ContextLambda
-)
+) {
+    val stackTraceElement = findCallerSTE()
+
+}
 
 typealias ContextLambda = suspend ContextDSL.() -> Unit
 
@@ -258,7 +261,10 @@ object FailFast {
     // find first class that is not defined in this file.
     private fun findCaller() = javaClass.classLoader.loadClass(findCallerName()).kotlin
 
-    private fun findCallerName(): String = Throwable().stackTrace.first {
-        !(it.fileName?.endsWith("FailFast.kt") ?: true)
-    }.className
+}
+
+private fun findCallerName(): String = findCallerSTE().className
+
+private fun findCallerSTE() = Throwable().stackTrace.first {
+    !(it.fileName?.endsWith("FailFast.kt") ?: true)
 }

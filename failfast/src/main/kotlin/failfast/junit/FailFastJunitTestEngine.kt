@@ -12,10 +12,7 @@ import org.junit.platform.engine.*
 import org.junit.platform.engine.discovery.ClassNameFilter
 import org.junit.platform.engine.discovery.ClassSelector
 import org.junit.platform.engine.discovery.ClasspathRootSelector
-import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
-import org.junit.platform.engine.support.descriptor.EngineDescriptor
-import org.junit.platform.engine.support.descriptor.FilePosition
-import org.junit.platform.engine.support.descriptor.FileSource
+import org.junit.platform.engine.support.descriptor.*
 import java.io.File
 import java.nio.file.Paths
 
@@ -161,6 +158,7 @@ class FailFastJunitTestEngine : TestEngine {
                 )
             )
         }
+        println("finished after ${uptime()}")
     }
 
     private fun findContexts(discoveryRequest: EngineDiscoveryRequest): List<ContextProvider> {
@@ -210,12 +208,16 @@ private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor
     )
 }
 
-private fun createFileSource(stackTraceElement: StackTraceElement): FileSource? {
-    val pathname = "src/test/kotlin/${stackTraceElement.className.substringBefore("$").replace(".", "/")}.kt"
-    return FileSource.from(
-        File(pathname),
-        FilePosition.from(stackTraceElement.lineNumber)
-    )
+private fun createFileSource(stackTraceElement: StackTraceElement): TestSource? {
+    val className = stackTraceElement.className
+    val filePosition = FilePosition.from(stackTraceElement.lineNumber)
+    val file = File("src/test/kotlin/${className.substringBefore("$").replace(".", "/")}.kt")
+    return if (file.exists())
+        FileSource.from(
+            file,
+            filePosition
+        )
+    else ClassSource.from(className, filePosition)
 }
 
 class FailFastTestDescriptor(

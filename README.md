@@ -88,18 +88,21 @@ subset of the tests inside idea.
 
 ### the junit-platform-engine
 
-To use the JUnit engine add the JUnit platform launcher to your gradle file dependency block
+To use the JUnit engine add the JUnit platform launcher to your gradle file dependency block:
 
 ```kotlin
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.7.0")
 ```
 
-then you can run all tests or all tests in a package via IDEA. If you want to run a single test file you have to
-manually enter a regex into the JUnit run dialog, for example
+Make sure to select "run tests in IDEA" in your gradle settings, running via gradle is currently not supported (coming
+soon)
+You can run all tests or all tests in a package via IDEA. If you want to run a single test file you have to manually
+enter a regex into the JUnit run dialog, for example
 `.*ContextExecutorTest` to run the ContextExecutorTest.
 
 ### The main method method
 
+g
 ```kotlin
 fun main() {
   // this will find tests in all files named *Test in the same source root as the main class

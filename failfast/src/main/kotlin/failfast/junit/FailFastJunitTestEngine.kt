@@ -15,6 +15,7 @@ import org.junit.platform.engine.discovery.ClasspathRootSelector
 import org.junit.platform.engine.support.descriptor.*
 import java.io.File
 import java.nio.file.Paths
+import kotlin.reflect.KClass
 
 private object FailFastJunitTestEngineConstants {
     const val id = "failfast"
@@ -167,8 +168,12 @@ class FailFastJunitTestEngine : TestEngine {
         if (debug) {
             println(discoveryRequestToString(discoveryRequest))
         }
+
+        // idea usually sends a classpath selector
         val classPathSelector = discoveryRequest.getSelectorsByType(ClasspathRootSelector::class.java)
             .singleOrNull { !it.classpathRoot.path.contains("resources") }
+        // gradle sends a class selector for each class
+        val classSelectors = discoveryRequest.getSelectorsByType(ClassSelector::class.java)
         val singleClassSelector = discoveryRequest.getSelectorsByType(ClassSelector::class.java).singleOrNull()
         val classNamePredicates =
             discoveryRequest.getFiltersByType(ClassNameFilter::class.java).map { it.toPredicate() }
@@ -179,26 +184,35 @@ class FailFastJunitTestEngine : TestEngine {
                     Paths.get(uri),
                     Thread.currentThread().contextClassLoader,
                     matchLambda = { className -> classNamePredicates.all { it.test(className) } }).mapNotNull {
-                    try {
-                        ObjectContextProvider(
-                            it
-                        )
-                    } catch (e: Exception) {
-                        null
-                    }
+                    contextOrNull(it)
                 }
             }
+            classSelectors.isNotEmpty() -> classSelectors.filter { it.className.endsWith("Test") }
+                .mapNotNull { contextOrNull(it.javaClass.kotlin) }
+
             singleClassSelector != null -> {
                 listOf(ObjectContextProvider(singleClassSelector.javaClass))
             }
-            else -> throw FailFastException(
-                "unknown selector in discovery request: ${
+            else -> {
+                val message = "unknown selector in discovery request: ${
                     discoveryRequestToString(
                         discoveryRequest
                     )
                 }"
-            )
+                System.err.println(message)
+                throw FailFastException(
+                    message
+                )
+            }
         }
+    }
+
+    private fun contextOrNull(it: KClass<*>) = try {
+        ObjectContextProvider(
+            it
+        )
+    } catch (e: Exception) {
+        null
     }
 
     private fun discoveryRequestToString(discoveryRequest: EngineDiscoveryRequest): String {

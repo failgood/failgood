@@ -8,7 +8,7 @@ import strikt.assertions.isTrue
 import strikt.assertions.single
 
 object FailFastJunitTestEngineTest {
-    val context = describe(FailFastJunitTestEngine::class) {
+    val context = describe(FailFastJunitTestEngine::class, disabled = true) {
         val engine = FailFastJunitTestEngine()
         describe("can discover tests") {
             val testDescriptor =

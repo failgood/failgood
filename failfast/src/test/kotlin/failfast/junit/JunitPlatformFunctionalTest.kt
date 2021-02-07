@@ -16,7 +16,7 @@ fun launcherDiscoveryRequest(kClass: KClass<MyTestClass>): LauncherDiscoveryRequ
 }
 
 object JunitPlatformFunctionalTest {
-    val context = describe("The Junit Platform Engine") {
+    val context = describe("The Junit Platform Engine", disabled = true) {
         it("can execute tests") {
             val kClass = MyTestClass::class
             val discoveryRequest: LauncherDiscoveryRequest = launcherDiscoveryRequest(kClass)

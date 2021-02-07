@@ -44,13 +44,12 @@ class FailFastJunitTestEngine : TestEngine {
 
     private suspend fun createResponse(
         uniqueId: UniqueId,
-        testResult: List<Deferred<ContextInfo>>,
+        contextInfos: List<Deferred<ContextInfo>>,
         executionListener: JunitExecutionListener
     ): FailFastEngineDescriptor {
-        val result = FailFastEngineDescriptor(uniqueId, testResult, executionListener)
-        testResult.forEach { deferred ->
+        val result = FailFastEngineDescriptor(uniqueId, contextInfos, executionListener)
+        contextInfos.forEach { deferred ->
             val contextInfo = deferred.await()
-            val rootContext = contextInfo.contexts.single { it.parent == null }
             val tests = contextInfo.tests.entries
             fun addChildren(node: TestDescriptor, context: Context) {
                 val contextNode = FailFastTestDescriptor(
@@ -72,7 +71,8 @@ class FailFastJunitTestEngine : TestEngine {
                 node.addChild(contextNode)
             }
 
-            addChildren(result, rootContext)
+            val rootContext = contextInfo.contexts.singleOrNull { it.parent == null }
+            rootContext?.let { addChildren(result, it) }
         }
         return result
     }

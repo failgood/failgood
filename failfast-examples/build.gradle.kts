@@ -12,7 +12,7 @@ repositories {
 }
 dependencies {
     testImplementation(project(":failfast"))
-    testImplementation("io.strikt:strikt-core:0.28.1")
+    testImplementation("io.strikt:strikt-core:0.28.2")
 }
 
 tasks {

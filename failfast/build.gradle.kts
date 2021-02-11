@@ -17,14 +17,14 @@ repositories {
     jcenter()
 }
 dependencies {
-    implementation(enforcedPlatform("org.jetbrains.kotlin:kotlin-bom:1.4.21-2"))
+    implementation(enforcedPlatform("org.jetbrains.kotlin:kotlin-bom:1.4.30"))
     implementation(kotlin("stdlib-jdk8"))
     compileOnly("org.pitest:pitest:1.6.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     testImplementation("io.strikt:strikt-core:0.28.2")
     testImplementation("org.pitest:pitest:1.6.2")
-    compileOnly("org.junit.platform:junit-platform-engine:1.7.0")
-    testImplementation("org.junit.platform:junit-platform-launcher:1.7.0")
+    compileOnly("org.junit.platform:junit-platform-engine:1.7.1")
+    testImplementation("org.junit.platform:junit-platform-launcher:1.7.1")
 
 }
 

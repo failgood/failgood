@@ -17,7 +17,7 @@ repositories {
 dependencies {
     api(project(":failfast"))
     api("io.r2dbc:r2dbc-spi:0.8.3.RELEASE")
-    testImplementation("io.strikt:strikt-core:0.28.1")
+    testImplementation("io.strikt:strikt-core:0.28.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.4.2")
 
     runtimeOnly("io.r2dbc:r2dbc-h2:0.8.4.RELEASE")
@@ -25,8 +25,8 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql:42.2.18")
     runtimeOnly("io.r2dbc:r2dbc-postgresql:0.8.6.RELEASE")
     runtimeOnly("io.r2dbc:r2dbc-pool:0.8.5.RELEASE")
-    implementation("org.testcontainers:postgresql:1.15.1")
-    implementation("org.flywaydb:flyway-core:7.5.1")
+    implementation("org.testcontainers:postgresql:1.15.2")
+    implementation("org.flywaydb:flyway-core:7.5.3")
 
 }
 

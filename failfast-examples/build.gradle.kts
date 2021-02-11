@@ -8,7 +8,6 @@ plugins {
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 dependencies {
     testImplementation(project(":failfast"))

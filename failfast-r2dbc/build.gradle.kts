@@ -12,7 +12,6 @@ plugins {
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 dependencies {
     api(project(":failfast"))

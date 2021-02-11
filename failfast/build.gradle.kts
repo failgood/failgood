@@ -14,7 +14,6 @@ val coroutinesVersion = "1.4.2"
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 dependencies {
     implementation(enforcedPlatform("org.jetbrains.kotlin:kotlin-bom:1.4.30"))

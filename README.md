@@ -1,4 +1,4 @@
-[![Download](https://api.bintray.com/packages/christophsturm/maven/failfast/images/download.svg)](https://bintray.com/christophsturm/maven/failfast/_latestVersion)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.christophsturm.failfast/failfast/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.christophsturm.failfast/failfast)
 [![Github CI](https://github.com/christophsturm/failfast/workflows/CI/badge.svg)](https://github.com/christophsturm/failfast/actions)
 
 # Failfast
@@ -23,17 +23,18 @@ people who write tests daily and iterate fast.
 
 ```kotlin
 object FailFastTest {
-  val context = describe("The test runner") {
-    it("supports describe/it syntax") { expectThat(true).isEqualTo(true) }
-    describe("nested contexts") {
-      it("can contain tests too") { expectThat(true).isEqualTo(true) }
+    val context = describe("The test runner") {
+        it("supports describe/it syntax") { expectThat(true).isEqualTo(true) }
+        describe("nested contexts") {
+            it("can contain tests too") { expectThat(true).isEqualTo(true) }
 
-      describe("disabled/pending tests") {
+            describe("disabled/pending tests") {
                 itWill("itWill can be used to mark pending tests") {}
                 itWill("for pending tests the test body is optional")
             }
             context("context/test syntax is also supported") {
-                test( "i prefer describe/it but if there is no subject to describe I use context/test"
+                test(
+                    "i prefer describe/it but if there is no subject to describe I use context/test"
                 ) {}
             }
 
@@ -55,7 +56,7 @@ object FailFastTest {
 
 ```
 
-To see it in action check out the failfast-example project or a project that uses failfast, for example
+To see it in action check out the failfast-example project, or a project that uses failfast, for example
 [the r2dbcfun test suite](https://github.com/christophsturm/r2dbcfun/blob/main/src/test/kotlin/r2dbcfun/test/AllTests.kt)
 
 ## running the test suite
@@ -67,12 +68,11 @@ the `FailFastBootstrap.kt` class.
 
 ```kotlin
 repositories {
-    jcenter()
-  mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-  testImplementation("com.christophsturm:failfast:0.3.0")
+    testImplementation("com.christophsturm.failfast:failfast:0.3.0")
 }
 ```
 
@@ -84,7 +84,7 @@ There are two ways to run your failfast suite:
 * A junit-platform engine
 
 I like the main-method-method, but I must admit that the junit platform engine is pretty useful to run all tests, or a
-subset of the tests inside idea.
+subset of the tests inside Intellij IDEA.
 
 ### the junit-platform-engine
 
@@ -97,16 +97,16 @@ To use the JUnit engine add the JUnit platform launcher to your gradle file depe
 Make sure to select "run tests in IDEA" in your gradle settings, running via gradle is currently not supported (coming
 soon)
 You can run all tests or all tests in a package via IDEA. If you want to run a single test file you have to manually
-enter a regex into the JUnit run dialog, for example
-`.*ContextExecutorTest` to run the ContextExecutorTest.
+enter a regex into the JUnit run dialog, for example `.*ContextExecutorTest` to run the ContextExecutorTest.
 
 ### The main method method
 
 g
+
 ```kotlin
 fun main() {
-  // this will find tests in all files named *Test in the same source root as the main class
-  FailFast.runAllTests() // or runAllTests(true) to write a junit test report
+    // this will find tests in all files named *Test in the same source root as the main class
+    FailFast.runAllTests() // or runAllTests(true) to write a junit test report
 }
 
 ```
@@ -115,14 +115,15 @@ alternatively you can also just manually list test contexts:
 
 ```kotlin
 fun main() {
-  Suite.fromContexts(listOf(MyTest.context, MyOtherTest.context)).run().check()
+    Suite.fromContexts(listOf(MyTest.context, MyOtherTest.context)).run().check()
 }
 ```
 
 or test classes (possibly slightly faster than listing contexts, because more work is done in parallel)
+
 ```kotlin
 fun main() {
-  Suite.fromClasses(listOf(MyTest::class, MyOtherTest::class)).run().check()
+    Suite.fromClasses(listOf(MyTest::class, MyOtherTest::class)).run().check()
 }
 ```
 
@@ -130,10 +131,10 @@ then add a gradle task file that calls it with the test classpath and make your 
 
 ```kotlin
 val testMain =
-  task("testMain", JavaExec::class) {
-    main = "<my-package>.FailFastMainKt"
-    classpath = sourceSets["test"].runtimeClasspath
-  }
+    task("testMain", JavaExec::class) {
+        main = "<my-package>.FailFastMainKt"
+        classpath = sourceSets["test"].runtimeClasspath
+    }
 
 tasks.check { dependsOn(testMain) }
 ```
@@ -156,11 +157,11 @@ object MyTestClass {
 
 ```
 
-and run that.
+...and run that.
 
 ## Running a single test
 
-Sometimes a test keeps failing and you want to run only that single test until it is fixed, for easier debugging.
+Sometimes a test keeps failing, and you want to run only that single test until it is fixed, for easier debugging.
 
 just take the test description from the test output:
 
@@ -169,11 +170,11 @@ failed tests:
 Test Running > a failed test > can be run again: failed with strikt.internal.opentest4j.MappingFailed ....
 ```
 
-and add it to the run test line.
+...and add it to the run test line.
 
 ```kotlin
 fun main() {
-  FailFast.runTest("Test Running > a failed test > can be run again")
+    FailFast.runTest("Test Running > a failed test > can be run again")
 }
 ```
 
@@ -241,14 +242,13 @@ It's pretty fast. its own test suite runs in less than one second:
 expectThat(uptime).isLessThan(1000) // lets see how far we can get with one second
 ```
 
-
 ## autotest
 
 add a main method that just runs autotest:
 
 ```kotlin
 fun main() {
-  autoTest()
+    autoTest()
 }
 ```
 

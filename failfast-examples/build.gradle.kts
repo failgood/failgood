@@ -1,3 +1,4 @@
+import failfast.Versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
 plugins {
@@ -12,7 +13,7 @@ repositories {
 }
 dependencies {
     testImplementation(project(":failfast"))
-    testImplementation("io.strikt:strikt-core:0.28.2")
+    testImplementation("io.strikt:strikt-core:$striktVersion")
 }
 
 tasks {

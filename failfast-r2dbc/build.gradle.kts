@@ -1,3 +1,5 @@
+import failfast.Versions.coroutinesVersion
+import failfast.Versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -17,12 +19,12 @@ repositories {
 dependencies {
     api(project(":failfast"))
     api("io.r2dbc:r2dbc-spi:0.8.3.RELEASE")
-    testImplementation("io.strikt:strikt-core:0.28.2")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.4.2")
+    testImplementation("io.strikt:strikt-core:$striktVersion")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$coroutinesVersion")
 
     runtimeOnly("io.r2dbc:r2dbc-h2:0.8.4.RELEASE")
     runtimeOnly("com.h2database:h2:1.4.200")
-    runtimeOnly("org.postgresql:postgresql:42.2.18")
+    runtimeOnly("org.postgresql:postgresql:42.2.19")
     runtimeOnly("io.r2dbc:r2dbc-postgresql:0.8.6.RELEASE")
     runtimeOnly("io.r2dbc:r2dbc-pool:0.8.5.RELEASE")
     implementation("org.testcontainers:postgresql:1.15.2")
@@ -62,8 +64,8 @@ plugins.withId("info.solidsoft.pitest") {
         jvmArgs.set(listOf("-Xmx512m")) // necessary on CI
         testPlugin.set("failfast")
         avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))
-        targetClasses.set(setOf("failfast.examples.*")) //by default "${project.group}.*"
-        targetTests.set(setOf("failfast.examples.*Test", "failfast.examples.**.*Test"))
+        targetClasses.set(setOf("failfast.r2dbc.*")) //by default "${project.group}.*"
+        targetTests.set(setOf("failfast.r2dbc.*Test", "failfast.r2dbc.**.*Test"))
         pitestVersion.set("1.6.2")
         threads.set(
             System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()

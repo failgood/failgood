@@ -1,3 +1,7 @@
+import failfast.Versions.coroutinesVersion
+import failfast.Versions.junitPlatformVersion
+import failfast.Versions.pitestVersion
+import failfast.Versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -10,7 +14,6 @@ plugins {
     id("failfast.common")
 }
 
-val coroutinesVersion = "1.4.2"
 
 
 repositories {
@@ -20,12 +23,12 @@ repositories {
 dependencies {
     implementation(enforcedPlatform("org.jetbrains.kotlin:kotlin-bom:1.4.30"))
     implementation(kotlin("stdlib-jdk8"))
-    compileOnly("org.pitest:pitest:1.6.2")
+    compileOnly("org.pitest:pitest:$pitestVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
-    testImplementation("io.strikt:strikt-core:0.28.2")
-    testImplementation("org.pitest:pitest:1.6.2")
-    compileOnly("org.junit.platform:junit-platform-engine:1.7.1")
-    testImplementation("org.junit.platform:junit-platform-launcher:1.7.1")
+    testImplementation("io.strikt:strikt-core:$striktVersion")
+    testImplementation("org.pitest:pitest:$pitestVersion")
+    compileOnly("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
+    testImplementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
 
 }
 tasks {

@@ -1,4 +1,3 @@
-import com.jfrog.bintray.gradle.BintrayExtension
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -7,6 +6,8 @@ plugins {
     `maven-publish`
     id("com.jfrog.bintray")
     id("info.solidsoft.pitest")
+    signing
+    id("failfast.common")
 }
 
 val coroutinesVersion = "1.4.2"
@@ -27,7 +28,6 @@ dependencies {
     testImplementation("org.junit.platform:junit-platform-launcher:1.7.1")
 
 }
-
 tasks {
     create<Jar>("sourceJar") {
         from(sourceSets.main.get().allSource)
@@ -38,65 +38,10 @@ tasks {
         sourceCompatibility = "1.8"
         targetCompatibility = "1.8"
     }
-    withType<KotlinCompile> { kotlinOptions.jvmTarget = "1.8" }
-}
-
-artifacts {
-    add("archives", tasks["jar"])
-    add("archives", tasks["sourceJar"])
-}
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            pom {
-                name.set("Fail Fast")
-                description.set("a fast test runner for kotlin")
-                url.set("https://github.com/christophsturm/failfast")
-                licenses {
-                    license {
-                        name.set("MIT")
-                        url.set("https://opensource.org/licenses/MIT")
-                    }
-                }
-                developers {
-                    developer {
-                        id.set("christophsturm")
-                        name.set("Christoph Sturm")
-                        email.set("me@christophsturm.com")
-                    }
-                }
-                scm {
-                    connection.set("scm:git:https://github.com/christophsturm/failfast.git")
-                    developerConnection.set("scm:git:git@github.com:christophsturm/failfast.git")
-                    url.set("https://github.com/christophsturm/failfast/")
-                }
-            }
-            from(components["java"])
-            artifact(tasks["sourceJar"])
-            groupId = project.group as String
-            artifactId = "failfast"
-            version = project.version as String
-        }
+    withType<KotlinCompile> {
+        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.useIR = true
     }
-}
-// BINTRAY_API_KEY= ... ./gradlew clean build publish bintrayUpload
-bintray {
-    user = "christophsturm"
-    key = System.getenv("BINTRAY_API_KEY")
-    publish = true
-    setPublications("mavenJava")
-    pkg(
-        delegateClosureOf<BintrayExtension.PackageConfig> {
-            repo = "maven"
-            name = "failfast"
-            setLicenses("MIT")
-            version(
-                delegateClosureOf<BintrayExtension.VersionConfig> {
-                    name = project.version as String
-                }
-            )
-        }
-    )
 }
 
 

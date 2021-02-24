@@ -9,6 +9,7 @@ import failfast.junit.it.fixtures.TestWithNestedContextsTest
 import failfast.junit.it.fixtures.TestWithNestedContextsTest.CHILD_CONTEXT_1_NAME
 import failfast.junit.it.fixtures.TestWithNestedContextsTest.CHILD_CONTEXT_2_NAME
 import failfast.junit.it.fixtures.TestWithNestedContextsTest.ROOT_CONTEXT_NAME
+import failfast.junit.it.fixtures.TestWithNestedContextsTest.TEST_NAME
 import org.junit.platform.engine.EngineExecutionListener
 import org.junit.platform.engine.ExecutionRequest
 import org.junit.platform.engine.TestDescriptor
@@ -44,7 +45,7 @@ object FailFastJunitTestEngineTest {
                     UniqueId.forEngine(engine.id)
                 )
 
-            itWill("start and stops contexts in the correct order") {
+            it("starts and stops contexts in the correct order") {
                 val listener = RememberingExecutionListener()
                 engine.execute(ExecutionRequest(testDescriptor, listener, null))
                 expectThat(listener.list.toList()).isEqualTo(
@@ -53,6 +54,12 @@ object FailFastJunitTestEngineTest {
                         RememberingExecutionListener.Event(What.START, ROOT_CONTEXT_NAME),
                         RememberingExecutionListener.Event(What.START, CHILD_CONTEXT_1_NAME),
                         RememberingExecutionListener.Event(What.START, CHILD_CONTEXT_2_NAME),
+                        RememberingExecutionListener.Event(What.START, TEST_NAME),
+                        RememberingExecutionListener.Event(What.STOP, TEST_NAME),
+                        RememberingExecutionListener.Event(What.STOP, CHILD_CONTEXT_2_NAME),
+                        RememberingExecutionListener.Event(What.STOP, CHILD_CONTEXT_1_NAME),
+                        RememberingExecutionListener.Event(What.STOP, ROOT_CONTEXT_NAME),
+                        RememberingExecutionListener.Event(What.STOP, FailFastJunitTestEngineConstants.displayName),
                     )
                 )
 

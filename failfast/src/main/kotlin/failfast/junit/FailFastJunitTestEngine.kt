@@ -144,8 +144,11 @@ class FailFastJunitTestEngine : TestEngine {
                     when (event) {
                         is StartedOrStopped.Started -> {
                             val testDescriptor = event.testDescriptor
-                            if (startedContexts.add(testDescriptor.parentContext))
-                                junitListener.executionStarted(root.getMapping(testDescriptor.parentContext))
+                            val context = testDescriptor.parentContext
+                            (context.parentContexts + context).forEach {
+                                if (startedContexts.add(it))
+                                    junitListener.executionStarted(root.getMapping(it))
+                            }
                             junitListener.executionStarted(root.getMapping(testDescriptor))
                         }
                         is StartedOrStopped.Stopped -> {
@@ -174,7 +177,7 @@ class FailFastJunitTestEngine : TestEngine {
             val allTests = allContexts.flatMap { it.tests.values }.awaitAll()
             val contexts = allContexts.flatMap { it.contexts }
             executionListener.events.close()
-            contexts.forEach { context ->
+            contexts.sortedBy { -it.parentContexts.size }.forEach { context ->
                 junitListener.executionFinished(root.getMapping(context), TestExecutionResult.successful())
             }
 

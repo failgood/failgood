@@ -4,7 +4,12 @@ import failfast.internal.Colors.RED
 import failfast.internal.Colors.RESET
 import failfast.internal.ContextTreeReporter
 import failfast.internal.Junit4Reporter
-import java.nio.file.*
+import java.nio.file.FileVisitResult
+import java.nio.file.Files
+import java.nio.file.NoSuchFileException
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileTime
 import kotlin.reflect.KClass
@@ -169,7 +174,8 @@ data class Context(val name: String, val parent: Context?, val stackTraceElement
             return Context(path.last(), if (path.size == 1) null else fromPath(path.dropLast(1)))
         }
     }
-    val parentContexts: Set<Context> = parent?.parentContexts?.plus(parent) ?: setOf()
+
+    val parentContexts: List<Context> = parent?.parentContexts?.plus(parent) ?: listOf()
     val path: List<String> = parent?.path?.plus(name) ?: listOf(name)
     fun stringPath(): String = path.joinToString(" > ")
 }

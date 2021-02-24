@@ -1,4 +1,4 @@
-package failfast.junit.it
+package failfast.junit.it.fixtures
 
 import failfast.describe
 

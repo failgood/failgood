@@ -14,17 +14,16 @@ import failfast.SuiteFailedException
 import failfast.TestDescription
 import failfast.TestResult
 import failfast.internal.ContextInfo
+import failfast.junit.FailFastJunitTestEngine.JunitExecutionListener.StartedOrStopped
 import failfast.junit.FailFastJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failfast.uptime
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.selects.select
 import org.junit.platform.engine.DiscoveryFilter
 import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.engine.EngineDiscoveryRequest
@@ -46,7 +45,7 @@ import java.io.File
 import java.nio.file.Paths
 import kotlin.reflect.KClass
 
-private object FailFastJunitTestEngineConstants {
+object FailFastJunitTestEngineConstants {
     const val id = "failfast"
     const val displayName = "FailFast"
     const val CONFIG_KEY_DEBUG = "failfast.debug"
@@ -107,19 +106,23 @@ class FailFastJunitTestEngine : TestEngine {
     }
 
     class JunitExecutionListener : ExecutionListener {
-        val started = Channel<TestDescription>(UNLIMITED)
-        val finished = Channel<TestResult>(UNLIMITED)
+        sealed class StartedOrStopped {
+            data class Started(val testDescriptor: TestDescription) : StartedOrStopped()
+            data class Stopped(val testResult: TestResult) : StartedOrStopped()
+
+        }
+
+        val events = Channel<StartedOrStopped>(UNLIMITED)
         override suspend fun testStarted(testDescriptor: TestDescription) {
-            started.send(testDescriptor)
+            events.send(StartedOrStopped.Started(testDescriptor))
         }
 
         override suspend fun testFinished(testDescriptor: TestDescription, testResult: TestResult) {
-            finished.send(testResult)
+            events.send(StartedOrStopped.Stopped(testResult))
         }
 
     }
 
-    @ExperimentalCoroutinesApi
     override fun execute(request: ExecutionRequest) {
         val root = request.rootTestDescriptor
         if (root !is FailFastEngineDescriptor)
@@ -128,19 +131,25 @@ class FailFastJunitTestEngine : TestEngine {
         val junitListener = request.engineExecutionListener
         junitListener.executionStarted(root)
         val executionListener = root.executionListener
-        var running = true
         runBlocking(Dispatchers.Default) {
             // report results while they come in. we use a channel because tests were already running before the execute
             // method was called so when we get here there are probably tests already finished
             launch {
-                while (running || !executionListener.started.isEmpty || !executionListener.finished.isEmpty) {
-                    select<Unit> {
-                        executionListener.started.onReceive {
-                            if (startedContexts.add(it.parentContext))
-                                junitListener.executionStarted(root.getMapping(it.parentContext))
-                            junitListener.executionStarted(root.getMapping(it))
+                while (true) {
+                    val event = try {
+                        executionListener.events.receive()
+                    } catch (e: Exception) {
+                        break
+                    }
+                    when (event) {
+                        is StartedOrStopped.Started -> {
+                            val testDescriptor = event.testDescriptor
+                            if (startedContexts.add(testDescriptor.parentContext))
+                                junitListener.executionStarted(root.getMapping(testDescriptor.parentContext))
+                            junitListener.executionStarted(root.getMapping(testDescriptor))
                         }
-                        executionListener.finished.onReceive {
+                        is StartedOrStopped.Stopped -> {
+                            val it = event.testResult
                             val mapping = root.getMapping(it.test)
                             when (it) {
                                 is Failed -> junitListener.executionFinished(
@@ -155,17 +164,16 @@ class FailFastJunitTestEngine : TestEngine {
 
                                 is Ignored -> junitListener.executionSkipped(mapping, null)
                             }
+
                         }
-
                     }
-
                 }
             }
             // and wait for the results
             val allContexts = root.testResult.awaitAll()
             val allTests = allContexts.flatMap { it.tests.values }.awaitAll()
             val contexts = allContexts.flatMap { it.contexts }
-            running = false
+            executionListener.events.close()
             contexts.forEach { context ->
                 junitListener.executionFinished(root.getMapping(context), TestExecutionResult.successful())
             }

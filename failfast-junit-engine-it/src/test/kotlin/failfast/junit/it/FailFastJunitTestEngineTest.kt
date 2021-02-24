@@ -13,7 +13,7 @@ object FailFastJunitTestEngineTest {
         val engine = FailFastJunitTestEngine()
         describe("can discover tests") {
             val testDescriptor =
-                engine.discover(launcherDiscoveryRequest(MyTest::class), UniqueId.forEngine(engine.id))
+                engine.discover(launcherDiscoveryRequest(DuplicateTestNameTest::class), UniqueId.forEngine(engine.id))
             it("returns a root descriptor") {
                 expectThat(testDescriptor.isRoot)
                 expectThat(testDescriptor.displayName).isEqualTo("FailFast")
@@ -21,7 +21,7 @@ object FailFastJunitTestEngineTest {
             it("returns all root contexts") {
                 expectThat(testDescriptor.children).single().and {
                     get { isContainer }.isTrue()
-                    get { displayName }.isEqualTo(MyTest.ROOT_CONTEXT_NAME)
+                    get { displayName }.isEqualTo(DuplicateTestNameTest.ROOT_CONTEXT_NAME)
                 }
             }
 

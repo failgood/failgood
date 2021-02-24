@@ -17,9 +17,10 @@ fun launcherDiscoveryRequest(kClass: KClass<*>): LauncherDiscoveryRequest {
 }
 
 object JunitPlatformFunctionalTest {
-    val context = describe("The Junit Platform Engine", disabled = true) {
+    val context = describe("The Junit Platform Engine") {
         it("can execute tests") {
-            val kClass = MyTest::class
+            // just check that it does not crash
+            val kClass = DuplicateTestNameTest::class
             val discoveryRequest: LauncherDiscoveryRequest = launcherDiscoveryRequest(kClass)
 
             LauncherFactory.create().execute(discoveryRequest)

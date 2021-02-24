@@ -177,7 +177,9 @@ class FailFastJunitTestEngine : TestEngine {
             val allTests = allContexts.flatMap { it.tests.values }.awaitAll()
             val contexts = allContexts.flatMap { it.contexts }
             executionListener.events.close()
-            contexts.sortedBy { -it.parentContexts.size }.forEach { context ->
+            // close child contexts before their parent
+            val leafToRootContexts = contexts.sortedBy { -it.parentContexts.size }
+            leafToRootContexts.forEach { context ->
                 junitListener.executionFinished(root.getMapping(context), TestExecutionResult.successful())
             }
 

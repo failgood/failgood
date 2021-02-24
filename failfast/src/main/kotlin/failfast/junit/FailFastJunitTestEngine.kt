@@ -1,18 +1,47 @@
 package failfast.junit
 
-import failfast.*
+import failfast.Context
+import failfast.ContextProvider
+import failfast.ExecutionListener
 import failfast.FailFast.findClassesInPath
+import failfast.FailFastException
+import failfast.Failed
+import failfast.Ignored
+import failfast.ObjectContextProvider
+import failfast.Success
+import failfast.Suite
+import failfast.SuiteFailedException
+import failfast.TestDescription
+import failfast.TestResult
 import failfast.internal.ContextInfo
 import failfast.junit.FailFastJunitTestEngineConstants.CONFIG_KEY_DEBUG
-import kotlinx.coroutines.*
+import failfast.uptime
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
-import org.junit.platform.engine.*
+import org.junit.platform.engine.DiscoveryFilter
+import org.junit.platform.engine.DiscoverySelector
+import org.junit.platform.engine.EngineDiscoveryRequest
+import org.junit.platform.engine.ExecutionRequest
+import org.junit.platform.engine.TestDescriptor
+import org.junit.platform.engine.TestEngine
+import org.junit.platform.engine.TestExecutionResult
+import org.junit.platform.engine.TestSource
+import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.discovery.ClassNameFilter
 import org.junit.platform.engine.discovery.ClassSelector
 import org.junit.platform.engine.discovery.ClasspathRootSelector
-import org.junit.platform.engine.support.descriptor.*
+import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
+import org.junit.platform.engine.support.descriptor.ClassSource
+import org.junit.platform.engine.support.descriptor.EngineDescriptor
+import org.junit.platform.engine.support.descriptor.FilePosition
+import org.junit.platform.engine.support.descriptor.FileSource
 import java.io.File
 import java.nio.file.Paths
 import kotlin.reflect.KClass
@@ -138,20 +167,7 @@ class FailFastJunitTestEngine : TestEngine {
             val contexts = allContexts.flatMap { it.contexts }
             running = false
             contexts.forEach { context ->
-                val testsInThisContext =
-                    allTests.filter { it.test.parentContext.parentContexts.contains(context) || it.test.parentContext == context }
-                val failedTests = testsInThisContext.filterIsInstance<Failed>()
-                val testResult = if (failedTests.isEmpty()) {
-                    TestExecutionResult.successful()
-                } else {
-                    TestExecutionResult.failed(
-                        SuiteFailedException(
-                            "context " + context.stringPath() +
-                                    " failed because ${failedTests.joinToString { it.test.testName }} failed"
-                        )
-                    )
-                }
-                junitListener.executionFinished(root.getMapping(context), testResult)
+                junitListener.executionFinished(root.getMapping(context), TestExecutionResult.successful())
             }
 
             junitListener.executionFinished(
@@ -170,21 +186,23 @@ class FailFastJunitTestEngine : TestEngine {
         }
 
         // idea usually sends a classpath selector
-        val classPathSelector = discoveryRequest.getSelectorsByType(ClasspathRootSelector::class.java)
-            .singleOrNull { !it.classpathRoot.path.contains("resources") }
+        val classPathSelectors = discoveryRequest.getSelectorsByType(ClasspathRootSelector::class.java)
+
         // gradle sends a class selector for each class
         val classSelectors = discoveryRequest.getSelectorsByType(ClassSelector::class.java)
         val singleClassSelector = discoveryRequest.getSelectorsByType(ClassSelector::class.java).singleOrNull()
         val classNamePredicates =
             discoveryRequest.getFiltersByType(ClassNameFilter::class.java).map { it.toPredicate() }
         return when {
-            classPathSelector != null -> {
-                val uri = classPathSelector.classpathRoot
-                findClassesInPath(
-                    Paths.get(uri),
-                    Thread.currentThread().contextClassLoader,
-                    matchLambda = { className -> classNamePredicates.all { it.test(className) } }).mapNotNull {
-                    contextOrNull(it)
+            classPathSelectors.isNotEmpty() -> {
+                return classPathSelectors.flatMap { classPathSelector ->
+                    val uri = classPathSelector.classpathRoot
+                    findClassesInPath(
+                        Paths.get(uri),
+                        Thread.currentThread().contextClassLoader,
+                        matchLambda = { className -> classNamePredicates.all { it.test(className) } }).mapNotNull {
+                        contextOrNull(it)
+                    }
                 }
             }
             classSelectors.isNotEmpty() -> classSelectors.filter { it.className.endsWith("Test") }

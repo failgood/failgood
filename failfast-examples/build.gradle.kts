@@ -14,6 +14,7 @@ repositories {
 dependencies {
     testImplementation(project(":failfast"))
     testImplementation("io.strikt:strikt-core:$striktVersion")
+    testImplementation("org.junit.platform:junit-platform-launcher:${failfast.Versions.junitPlatformVersion}")
 }
 
 tasks {

@@ -42,7 +42,7 @@ fun main() {
         get(SuiteResult::failedTests).hasSize(2)
             .all {
                 get(TestPlusResult::test).get(TestDescription::testName).isEqualTo("failing test")
-                get { result }.isA<Failed>().get { failure }.isEqualTo(failingTestFinished.get())
+                get { result }.isA<Failed>().get { failure }.isA<AssertionError>()
             }
         get(SuiteResult::allTests).hasSize(3)
     }

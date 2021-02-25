@@ -67,9 +67,9 @@ internal class ContextExecutor(
                             try {
                                 function()
                                 resourcesCloser.close()
-                                Success(testDescriptor, (System.nanoTime() - startTime) / 1000)
+                                Success((System.nanoTime() - startTime) / 1000)
                             } catch (e: Throwable) {
-                                Failed(testDescriptor, e)
+                                Failed(e)
                             }
                         val testPlusResult = TestPlusResult(testDescriptor, testResult)
                         listener.testFinished(testPlusResult)
@@ -111,7 +111,7 @@ internal class ContextExecutor(
 
                 processedTests.add(contextPath) // don't visit this context again
                 deferredTestResults[testDescriptor] =
-                    CompletableDeferred(TestPlusResult(testDescriptor, Failed(testDescriptor, e)))
+                    CompletableDeferred(TestPlusResult(testDescriptor, Failed(e)))
                 ranATest = true
                 return
             }
@@ -146,7 +146,7 @@ internal class ContextExecutor(
 
             if (processedTests.add(testPath)) {
                 val testDescriptor = TestDescription(parentContext, "will $behaviorDescription", getStackTraceElement())
-                val result = Ignored(testDescriptor)
+                val result = Ignored()
 
                 @Suppress("DeferredResultUnused")
                 val testPlusResult = TestPlusResult(testDescriptor, result)

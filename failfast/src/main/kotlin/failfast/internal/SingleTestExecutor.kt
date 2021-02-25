@@ -1,6 +1,15 @@
 package failfast.internal
 
-import failfast.*
+import failfast.ContextDSL
+import failfast.ContextLambda
+import failfast.ContextPath
+import failfast.FailFastException
+import failfast.Failed
+import failfast.RootContext
+import failfast.Success
+import failfast.TestDescription
+import failfast.TestLambda
+import failfast.TestResult
 
 /**
  * Executes a single test with all its parent contexts
@@ -70,9 +79,9 @@ internal class SingleTestExecutor(private val context: RootContext, private val 
                 throw TestResultAvailable(
                     try {
                         function()
-                        Success(testDescription, (System.nanoTime() - startTime) / 1000)
+                        Success((System.nanoTime() - startTime) / 1000)
                     } catch (e: Throwable) {
-                        Failed(testDescription, e)
+                        Failed(e)
                     }
                 )
             }

@@ -18,6 +18,7 @@ import strikt.assertions.get
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import strikt.assertions.isGreaterThan
+import strikt.assertions.isNotEmpty
 import strikt.assertions.isNotNull
 import strikt.assertions.isTrue
 import strikt.assertions.map
@@ -76,11 +77,13 @@ object ContextExecutorTest {
                         .containsExactly("root context", "context 1", "context 2", "context 4")
                 }
                 it("reports time of successful tests") {
-                    expectThat(contextInfo.tests.values.awaitAll().filterIsInstance<Success>())
+                    expectThat(contextInfo.tests.values.awaitAll().map { it.result }
+                        .filterIsInstance<Success>()).isNotEmpty()
                         .all { get { timeMicro }.isGreaterThan(1) }
                 }
                 describe("reports failed tests") {
-                    val failure = contextInfo.tests.values.awaitAll().filterIsInstance<Failed>().single()
+                    val failure =
+                        contextInfo.tests.values.awaitAll().map { it.result }.filterIsInstance<Failed>().single()
                     it("reports exception for failed tests") {
                         expectThat(assertionError).isNotNull()
                         val assertionError = assertionError!!

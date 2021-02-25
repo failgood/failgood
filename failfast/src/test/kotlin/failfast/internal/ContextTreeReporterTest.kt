@@ -46,10 +46,7 @@ object ContextTreeReporterTest {
                                     "sub-contexts also contain tests", stackTraceElement
                                 ),
                                 Success(
-                                    TestDescription(
-                                        subContext,
-                                        "sub-contexts also contain tests", stackTraceElement
-                                    ), 10
+                                    10
                                 )
                             )
                         ), listOf(rootContext, subContext)
@@ -70,11 +67,6 @@ object ContextTreeReporterTest {
                             TestPlusResult(
                                 TestDescription(subSubContext, "sub-contexts also contain tests", stackTraceElement),
                                 Success(
-                                    TestDescription(
-                                        subSubContext,
-                                        "sub-contexts also contain tests",
-                                        stackTraceElement
-                                    ),
                                     10
                                 )
                             )
@@ -97,11 +89,11 @@ object ContextTreeReporterTest {
                         listOf(
                             TestPlusResult(
                                 TestDescription(rootContext, "test", stackTraceElement),
-                                Success(TestDescription(rootContext, "test", stackTraceElement), 10)
+                                Success(10)
                             ),
                             TestPlusResult(
                                 TestDescription(rootContext, "slow test", stackTraceElement),
-                                Success(TestDescription(rootContext, "slow test", stackTraceElement), 1010001)
+                                Success(1010001)
                             )
                         ),
                         listOf(rootContext)

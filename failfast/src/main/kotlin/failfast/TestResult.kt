@@ -23,13 +23,11 @@ data class TestPlusResult(val test: TestDescription, val result: TestResult) {
     }
 }
 
-sealed class TestResult {
-    abstract val test: TestDescription
-}
+sealed class TestResult
 
-data class Success(override val test: TestDescription, val timeMicro: Long) : TestResult()
-data class Ignored(override val test: TestDescription) : TestResult()
-class Failed(override val test: TestDescription, val failure: Throwable) :
+data class Success(val timeMicro: Long) : TestResult()
+class Ignored() : TestResult()
+class Failed(val failure: Throwable) :
     TestResult() {
     override fun equals(other: Any?): Boolean {
         return (other is Failed) && failure.stackTraceToString() == other.failure.stackTraceToString()

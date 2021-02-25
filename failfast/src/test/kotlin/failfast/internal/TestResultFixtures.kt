@@ -15,17 +15,15 @@ object TestResultFixtures {
     val testResults: List<TestPlusResult> = listOf(
         TestPlusResult(
             TestDescription(rootContext, "supports describe/it syntax", stackTraceElement),
-            Success(TestDescription(rootContext, "supports describe/it syntax", stackTraceElement), 10)
+            Success(10)
         ),
         TestPlusResult(
             TestDescription(subContext, "sub-contexts also contain tests", stackTraceElement), Success(
-                TestDescription(subContext, "sub-contexts also contain tests", stackTraceElement),
                 20
             )
         ),
         TestPlusResult(
             TestDescription(subContext, "failed test", stackTraceElement), Failed(
-                TestDescription(subContext, "failed test", stackTraceElement),
                 failure
             )
         )

@@ -188,7 +188,7 @@ class FailFastJunitTestEngine : TestEngine {
 
             junitListener.executionFinished(
                 root,
-                if (allTests.all { it is Success }) TestExecutionResult.successful() else TestExecutionResult.failed(
+                if (allTests.all { it.result is Success }) TestExecutionResult.successful() else TestExecutionResult.failed(
                     SuiteFailedException("test failed")
                 )
             )

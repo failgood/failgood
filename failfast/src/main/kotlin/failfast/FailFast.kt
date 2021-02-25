@@ -79,8 +79,8 @@ interface ContextDSL {
 }
 
 data class SuiteResult(
-    val allTests: List<TestResult>,
-    val failedTests: Collection<Failed>,
+    val allTests: List<TestPlusResult>,
+    val failedTests: List<TestPlusResult>,
     val contexts: List<Context>
 ) {
     val allOk = failedTests.isEmpty()

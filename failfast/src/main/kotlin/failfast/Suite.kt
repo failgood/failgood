@@ -71,7 +71,7 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
                         val results = resolvedContexts.flatMap { it.tests.values }.awaitAll()
                         SuiteResult(
                             results,
-                            results.filterIsInstance<Failed>(),
+                            results.filter { it.result is Failed },
                             resolvedContexts.flatMap { it.contexts })
                     }
                 }

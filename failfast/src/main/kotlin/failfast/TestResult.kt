@@ -3,7 +3,22 @@ package failfast
 import failfast.internal.Colors.RED
 import failfast.internal.Colors.RESET
 import failfast.internal.ExceptionPrettyPrinter
-data class TestPlusResult(val test: TestDescription, val result: TestResult)
+
+data class TestPlusResult(val test: TestDescription, val result: TestResult) {
+    fun prettyPrint(): String {
+        val testDescription = test.toString()
+        return when (result) {
+            is Failed -> {
+                val exceptionInfo = ExceptionPrettyPrinter(result.failure, result.test.stackTraceElement).prettyPrint()
+
+                "$testDescription:$RED failed$RESET with $exceptionInfo.\ntest: ${test.stackTraceElement}"
+            }
+            is Success -> "$testDescription passed"
+            is Ignored -> "$testDescription skipped"
+        }
+    }
+}
+
 sealed class TestResult {
     abstract val test: TestDescription
 }

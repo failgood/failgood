@@ -1,7 +1,13 @@
 package failfast
 
 import strikt.api.expectThat
-import strikt.assertions.*
+import strikt.assertions.all
+import strikt.assertions.hasSize
+import strikt.assertions.isA
+import strikt.assertions.isEqualTo
+import strikt.assertions.isFalse
+import strikt.assertions.isLessThan
+import strikt.assertions.isTrue
 import java.lang.management.ManagementFactory
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
@@ -35,8 +41,8 @@ fun main() {
         get(SuiteResult::allOk).isFalse()
         get(SuiteResult::failedTests).hasSize(2)
             .all {
-                get(Failed::test).get(TestDescription::testName).isEqualTo("failing test")
-                get(Failed::failure).isA<AssertionError>()
+                get(TestPlusResult::test).get(TestDescription::testName).isEqualTo("failing test")
+                get { result }.isA<Failed>().get { failure }.isEqualTo(failingTestFinished.get())
             }
         get(SuiteResult::allTests).hasSize(3)
     }

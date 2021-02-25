@@ -3,7 +3,7 @@ package failfast.internal
 import failfast.Failed
 import failfast.Ignored
 import failfast.Success
-import failfast.TestResult
+import failfast.TestPlusResult
 
 // based on a snippet by Ben Woodworth on the kotlin slack
 fun String.xmlEscape(): String = buildString(length + 30) {
@@ -20,19 +20,19 @@ fun String.xmlEscape(): String = buildString(length + 30) {
     }
 }
 
-class Junit4Reporter(private val testResults: List<TestResult>) {
+class Junit4Reporter(private val testResults: List<TestPlusResult>) {
     fun stringReport(): List<String> {
         val result = mutableListOf("<testsuite tests=\"${testResults.size}\">")
         testResults.forEach {
 
-            val line = when (it) {
+            val line = when (it.result) {
                 is Success ->
                     listOf("""<testcase classname="${it.test.parentContext.stringPath()}" name="${it.test.testName}"/>""")
                 is Failed -> {
                     listOf(
                         """<testcase classname="${it.test.parentContext.stringPath()}" name="${it.test.testName}">""",
-                        """<failure message="${it.failure.message?.xmlEscape()}">""",
-                        ExceptionPrettyPrinter(it.failure).stackTrace.joinToString("\n"),
+                        """<failure message="${it.result.failure.message?.xmlEscape()}">""",
+                        ExceptionPrettyPrinter(it.result.failure).stackTrace.joinToString("\n"),
                         """</failure>""",
                         """</testcase>"""
                     )

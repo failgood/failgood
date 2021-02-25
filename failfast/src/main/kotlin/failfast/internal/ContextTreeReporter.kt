@@ -1,6 +1,10 @@
 package failfast.internal
 
-import failfast.*
+import failfast.Context
+import failfast.Failed
+import failfast.Ignored
+import failfast.Success
+import failfast.TestPlusResult
 import failfast.internal.Colors.FAILED
 import failfast.internal.Colors.IGNORED
 import failfast.internal.Colors.RED
@@ -12,7 +16,7 @@ import java.text.DecimalFormatSymbols
 import java.util.*
 
 internal class ContextTreeReporter {
-    fun stringReport(results: List<TestResult>, allContexts: List<Context>): List<String> {
+    fun stringReport(results: List<TestPlusResult>, allContexts: List<Context>): List<String> {
         val contextMap = results.groupBy { it.test.parentContext }
         val result = mutableListOf<String>()
         val rootContexts = allContexts.filter { it.parent == null }
@@ -24,7 +28,7 @@ internal class ContextTreeReporter {
         contexts: List<Context>,
         allContexts: List<Context>,
         result: MutableList<String>,
-        contextMap: Map<Context, List<TestResult>>,
+        contextMap: Map<Context, List<TestPlusResult>>,
         indent: Int
     ) {
         val indentString = "  ".repeat(indent)
@@ -33,15 +37,15 @@ internal class ContextTreeReporter {
             val tests = contextMap[context]
             tests?.forEach { testResult ->
                 val lines =
-                    when (testResult) {
+                    when (testResult.result) {
                         is Success -> {
-                            val timeMicro = testResult.timeMicro
+                            val timeMicro = testResult.result.timeMicro
                             listOf("$indentString  $SUCCESS ${testResult.test.testName} (${time(timeMicro)}ms)")
                         }
                         is Failed -> listOf(
                             "$indentString  $FAILED ${testResult.test.testName} ${RED}FAILED$RESET",
                             "$indentString    ${
-                                testResult.failure.message?.replace(
+                                testResult.result.failure.message?.replace(
                                     "\n",
                                     "\\n"
                                 )

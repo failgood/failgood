@@ -14,7 +14,6 @@ import failfast.Success
 import failfast.TestDescription
 import failfast.TestLambda
 import failfast.TestPlusResult
-import failfast.TestResult
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -32,7 +31,7 @@ internal class ContextExecutor(
     private val startTime = System.nanoTime()
 
     private val foundContexts = mutableListOf<Context>()
-    private val deferredTestResults = LinkedHashMap<TestDescription, Deferred<TestResult>>()
+    private val deferredTestResults = LinkedHashMap<TestDescription, Deferred<TestPlusResult>>()
     private val processedTests = LinkedHashSet<ContextPath>()
 
     private inner class ContextVisitor(
@@ -72,8 +71,9 @@ internal class ContextExecutor(
                             } catch (e: Throwable) {
                                 Failed(testDescriptor, e)
                             }
-                        listener.testFinished(TestPlusResult(testDescriptor, testResult))
-                        testResult
+                        val testPlusResult = TestPlusResult(testDescriptor, testResult)
+                        listener.testFinished(testPlusResult)
+                        testPlusResult
                     }
                 deferredTestResults[testDescriptor] = deferred
             } else {
@@ -81,8 +81,9 @@ internal class ContextExecutor(
                     scope.async(start = coroutineStart) {
                         listener.testStarted(testDescriptor)
                         val result = SingleTestExecutor(rootContext, testPath).execute()
-                        listener.testFinished(TestPlusResult(testDescriptor, result))
-                        result
+                        val testPlusResult = TestPlusResult(testDescriptor, result)
+                        listener.testFinished(testPlusResult)
+                        testPlusResult
                     }
                 deferredTestResults[testDescriptor] = deferred
             }
@@ -109,7 +110,8 @@ internal class ContextExecutor(
                 val testDescriptor = TestDescription(parentContext, name, stackTraceElement)
 
                 processedTests.add(contextPath) // don't visit this context again
-                deferredTestResults[testDescriptor] = CompletableDeferred(Failed(testDescriptor, e))
+                deferredTestResults[testDescriptor] =
+                    CompletableDeferred(TestPlusResult(testDescriptor, Failed(testDescriptor, e)))
                 ranATest = true
                 return
             }
@@ -145,9 +147,11 @@ internal class ContextExecutor(
             if (processedTests.add(testPath)) {
                 val testDescriptor = TestDescription(parentContext, "will $behaviorDescription", getStackTraceElement())
                 val result = Ignored(testDescriptor)
+
                 @Suppress("DeferredResultUnused")
-                deferredTestResults[testDescriptor] = CompletableDeferred(result)
-                listener.testFinished(TestPlusResult(testDescriptor, result))
+                val testPlusResult = TestPlusResult(testDescriptor, result)
+                deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
+                listener.testFinished(testPlusResult)
             }
         }
     }

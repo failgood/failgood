@@ -25,6 +25,8 @@ internal class SingleTestExecutor(private val context: RootContext, private val 
             throw FailFastException("specified test not found: $test")
         } catch (e: TestResultAvailable) {
             e.testResult
+        } catch (e: Throwable) {
+            Failed(e)
         }
         closeables.forEach { it.close() }
         return testResult

@@ -63,7 +63,7 @@ object SingleTestExecutorTest {
                 executor.execute()
             }
             describe("error handling") {
-                itWill("report exceptions in the context as test failures") {
+                it("reports exceptions in the context as test failures") {
                     val runtimeException = RuntimeException()
                     val contextThatThrows = RootContext("root context") {
                         throw runtimeException

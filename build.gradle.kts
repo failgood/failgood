@@ -2,10 +2,9 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
     id("com.github.ben-manes.versions") version "0.36.0"
-    kotlin("jvm") version "1.4.30" apply false
+    kotlin("jvm") version "1.4.31" apply false
     id("com.jfrog.bintray") version "1.8.5" apply false
     id("info.solidsoft.pitest") version "1.5.2" apply false
-    id("tech.formatter-kt.formatter") version "0.7.0"
 }
 
 

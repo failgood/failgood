@@ -18,7 +18,7 @@ repositories {
 }
 dependencies {
     api(project(":failfast"))
-    api("io.r2dbc:r2dbc-spi:0.8.3.RELEASE")
+    api("io.r2dbc:r2dbc-spi:0.8.4.RELEASE")
     testImplementation("io.strikt:strikt-core:$striktVersion")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$coroutinesVersion")
     testImplementation("org.junit.platform:junit-platform-launcher:${failfast.Versions.junitPlatformVersion}")
@@ -26,10 +26,10 @@ dependencies {
     runtimeOnly("io.r2dbc:r2dbc-h2:0.8.4.RELEASE")
     runtimeOnly("com.h2database:h2:1.4.200")
     runtimeOnly("org.postgresql:postgresql:42.2.19")
-    runtimeOnly("io.r2dbc:r2dbc-postgresql:0.8.6.RELEASE")
-    runtimeOnly("io.r2dbc:r2dbc-pool:0.8.5.RELEASE")
+    runtimeOnly("io.r2dbc:r2dbc-postgresql:0.8.7.RELEASE")
+    runtimeOnly("io.r2dbc:r2dbc-pool:0.8.6.RELEASE")
     implementation("org.testcontainers:postgresql:1.15.2")
-    implementation("org.flywaydb:flyway-core:7.5.3")
+    implementation("org.flywaydb:flyway-core:7.5.4")
 
 }
 

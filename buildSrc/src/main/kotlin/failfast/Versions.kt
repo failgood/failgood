@@ -5,4 +5,5 @@ object Versions {
     val striktVersion = "0.29.0"
     val junitPlatformVersion = "1.7.1"
     val pitestVersion = "1.6.3"
+    val kotlinVersion = "1.4.31"
 }

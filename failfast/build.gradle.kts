@@ -1,5 +1,6 @@
 import failfast.Versions.coroutinesVersion
 import failfast.Versions.junitPlatformVersion
+import failfast.Versions.kotlinVersion
 import failfast.Versions.pitestVersion
 import failfast.Versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
@@ -21,7 +22,7 @@ repositories {
     jcenter()
 }
 dependencies {
-    implementation(enforcedPlatform("org.jetbrains.kotlin:kotlin-bom:1.4.30"))
+    implementation(enforcedPlatform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion"))
     implementation(kotlin("stdlib-jdk8"))
     compileOnly("org.pitest:pitest:$pitestVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")

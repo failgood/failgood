@@ -7,7 +7,6 @@ import failfast.FailFastException
 import failfast.Failed
 import failfast.RootContext
 import failfast.Success
-import failfast.TestDescription
 import failfast.TestLambda
 import failfast.TestResult
 
@@ -74,10 +73,6 @@ internal class SingleTestExecutor(private val context: RootContext, private val 
 
         override suspend fun test(name: String, function: TestLambda) {
             if (test.name == name) {
-                val stackTrace =
-                    RuntimeException().stackTrace.first { !(it.fileName?.endsWith("SingleTestExecutor.kt") ?: true) }
-                val testDescription = TestDescription(test, stackTrace)
-
                 throw TestResultAvailable(
                     try {
                         function()

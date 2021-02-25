@@ -26,7 +26,7 @@ data class TestPlusResult(val test: TestDescription, val result: TestResult) {
 sealed class TestResult
 
 data class Success(val timeMicro: Long) : TestResult()
-class Ignored() : TestResult()
+object Ignored : TestResult()
 class Failed(val failure: Throwable) :
     TestResult() {
     override fun equals(other: Any?): Boolean {

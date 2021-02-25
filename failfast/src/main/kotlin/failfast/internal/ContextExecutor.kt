@@ -146,7 +146,7 @@ internal class ContextExecutor(
 
             if (processedTests.add(testPath)) {
                 val testDescriptor = TestDescription(parentContext, "will $behaviorDescription", getStackTraceElement())
-                val result = Ignored()
+                val result = Ignored
 
                 @Suppress("DeferredResultUnused")
                 val testPlusResult = TestPlusResult(testDescriptor, result)

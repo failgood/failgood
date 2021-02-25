@@ -2,12 +2,14 @@ package failfast.internal
 
 import failfast.Context
 import failfast.ContextPath
+import failfast.Failed
 import failfast.RootContext
 import failfast.Success
 import failfast.describe
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.isA
+import strikt.assertions.isEqualTo
 
 object SingleTestExecutorTest {
     val context =
@@ -60,6 +62,20 @@ object SingleTestExecutorTest {
                 val executor = SingleTestExecutor(context, test)
                 executor.execute()
             }
+            describe("error handling") {
+                itWill("report exceptions in the context as test failures") {
+                    val runtimeException = RuntimeException()
+                    val contextThatThrows = RootContext("root context") {
+                        throw runtimeException
+                    }
+                    val result = SingleTestExecutor(
+                        contextThatThrows,
+                        ContextPath(Context("root context", null), "test")
+                    ).execute()
+                    expectThat(result).isA<Failed>().get { failure }.isEqualTo(runtimeException)
+                }
+            }
 
         }
+
 }

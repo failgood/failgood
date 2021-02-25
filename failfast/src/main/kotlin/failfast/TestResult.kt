@@ -32,12 +32,5 @@ class Failed(override val test: TestDescription, val failure: Throwable) :
                 failure.stackTraceToString() == other.failure.stackTraceToString()
     }
 
-    override fun hashCode(): Int = test.hashCode() * 31 + failure.stackTraceToString().hashCode()
-    fun prettyPrint(): String {
-        val testDescription = test.toString()
-        val exceptionInfo = ExceptionPrettyPrinter(failure, test.stackTraceElement).prettyPrint()
-
-        return "$testDescription:$RED failed$RESET with $exceptionInfo.\ntest: ${test.stackTraceElement}"
-    }
-
+    override fun hashCode(): Int = failure.stackTraceToString().hashCode()
 }

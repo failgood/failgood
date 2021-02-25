@@ -3,6 +3,7 @@ package failfast
 import failfast.internal.ContextExecutor
 import failfast.internal.ContextInfo
 import failfast.internal.ContextTreeReporter
+import failfast.internal.ExceptionPrettyPrinter
 import failfast.internal.SingleTestExecutor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -120,7 +121,7 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
             SingleTestExecutor(context, desc).execute()
         }
         if (result is Failed) {
-            println(result.prettyPrint())
+            println(ExceptionPrettyPrinter(result.failure).prettyPrint())
         } else
             println("${result.test} OK")
 

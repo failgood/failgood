@@ -1,6 +1,10 @@
 package failfast.internal
 
-import failfast.*
+import failfast.Context
+import failfast.ContextPath
+import failfast.RootContext
+import failfast.Success
+import failfast.describe
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.isA
@@ -8,40 +12,37 @@ import strikt.assertions.isA
 object SingleTestExecutorTest {
     val context =
         describe(SingleTestExecutor::class) {
-            val events = mutableListOf<String>()
-            val ctx =
-                RootContext("root context") {
-                    events.add("root context")
-                    test("test 1") { events.add("test 1") }
-                    test("test 2") { events.add("test 2") }
-                    context("context 1") {
-                        events.add("context 1")
+            describe("test execution") {
+                val events = mutableListOf<String>()
+                val ctx =
+                    RootContext("root context") {
+                        events.add("root context")
+                        test("test 1") { events.add("test 1") }
+                        test("test 2") { events.add("test 2") }
+                        context("context 1") {
+                            events.add("context 1")
 
-                        context("context 2") {
-                            events.add("context 2")
-                            test("test 3") { events.add("test 3") }
+                            context("context 2") {
+                                events.add("context 2")
+                                test("test 3") { events.add("test 3") }
+                            }
                         }
                     }
-                }
-            val rootContext = Context("root context", null)
-            val context1 = Context("context 1", rootContext)
-            val context2 = Context("context 2", context1)
+                val rootContext = Context("root context", null)
+                val context1 = Context("context 1", rootContext)
+                val context2 = Context("context 2", context1)
 
-            it("executes a single test (1)") {
-                val result = SingleTestExecutor(ctx, ContextPath(rootContext, "test 1")).execute()
-                expectThat(events).containsExactly("root context", "test 1")
-                expectThat(result).isA<Success>()
-            }
-            it("executes a single test (2)") {
-                val result = SingleTestExecutor(ctx, ContextPath(rootContext, "test 2")).execute()
-                expectThat(events).containsExactly("root context", "test 2")
-                expectThat(result).isA<Success>()
-            }
-            it("executes a single test (3)") {
-                val result = SingleTestExecutor(ctx, ContextPath(context2, "test 3")).execute()
-                expectThat(events)
-                    .containsExactly("root context", "context 1", "context 2", "test 3")
-                expectThat(result).isA<Success>()
+                it("executes a single test") {
+                    val result = SingleTestExecutor(ctx, ContextPath(rootContext, "test 1")).execute()
+                    expectThat(events).containsExactly("root context", "test 1")
+                    expectThat(result).isA<Success>()
+                }
+                it("executes a nested single test") {
+                    val result = SingleTestExecutor(ctx, ContextPath(context2, "test 3")).execute()
+                    expectThat(events)
+                        .containsExactly("root context", "context 1", "context 2", "test 3")
+                    expectThat(result).isA<Success>()
+                }
             }
             it("also supports describe / it") {
                 val context =
@@ -59,5 +60,6 @@ object SingleTestExecutorTest {
                 val executor = SingleTestExecutor(context, test)
                 executor.execute()
             }
+
         }
 }

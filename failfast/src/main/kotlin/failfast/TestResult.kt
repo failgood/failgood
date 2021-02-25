@@ -32,8 +32,7 @@ data class Ignored(override val test: TestDescription) : TestResult()
 class Failed(override val test: TestDescription, val failure: Throwable) :
     TestResult() {
     override fun equals(other: Any?): Boolean {
-        return (other is Failed) && test == other.test &&
-                failure.stackTraceToString() == other.failure.stackTraceToString()
+        return (other is Failed) && failure.stackTraceToString() == other.failure.stackTraceToString()
     }
 
     override fun hashCode(): Int = failure.stackTraceToString().hashCode()

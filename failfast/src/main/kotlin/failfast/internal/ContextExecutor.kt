@@ -1,7 +1,24 @@
 package failfast.internal
 
-import failfast.*
-import kotlinx.coroutines.*
+import failfast.Context
+import failfast.ContextDSL
+import failfast.ContextLambda
+import failfast.ContextPath
+import failfast.ExecutionListener
+import failfast.FailFastException
+import failfast.Failed
+import failfast.Ignored
+import failfast.NullExecutionListener
+import failfast.RootContext
+import failfast.Success
+import failfast.TestDescription
+import failfast.TestLambda
+import failfast.TestPlusResult
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import java.util.concurrent.ConcurrentLinkedQueue
 
 internal class ContextExecutor(
@@ -14,7 +31,7 @@ internal class ContextExecutor(
     private val startTime = System.nanoTime()
 
     private val foundContexts = mutableListOf<Context>()
-    private val deferredTestResults = LinkedHashMap<TestDescription, Deferred<TestResult>>()
+    private val deferredTestResults = LinkedHashMap<TestDescription, Deferred<TestPlusResult>>()
     private val processedTests = LinkedHashSet<ContextPath>()
 
     private inner class ContextVisitor(
@@ -50,12 +67,13 @@ internal class ContextExecutor(
                             try {
                                 function()
                                 resourcesCloser.close()
-                                Success(testDescriptor, (System.nanoTime() - startTime) / 1000)
+                                Success((System.nanoTime() - startTime) / 1000)
                             } catch (e: Throwable) {
-                                Failed(testDescriptor, e)
+                                Failed(e)
                             }
-                        listener.testFinished(testDescriptor, testResult)
-                        testResult
+                        val testPlusResult = TestPlusResult(testDescriptor, testResult)
+                        listener.testFinished(testPlusResult)
+                        testPlusResult
                     }
                 deferredTestResults[testDescriptor] = deferred
             } else {
@@ -63,8 +81,9 @@ internal class ContextExecutor(
                     scope.async(start = coroutineStart) {
                         listener.testStarted(testDescriptor)
                         val result = SingleTestExecutor(rootContext, testPath).execute()
-                        listener.testFinished(testDescriptor, result)
-                        result
+                        val testPlusResult = TestPlusResult(testDescriptor, result)
+                        listener.testFinished(testPlusResult)
+                        testPlusResult
                     }
                 deferredTestResults[testDescriptor] = deferred
             }
@@ -91,7 +110,8 @@ internal class ContextExecutor(
                 val testDescriptor = TestDescription(parentContext, name, stackTraceElement)
 
                 processedTests.add(contextPath) // don't visit this context again
-                deferredTestResults[testDescriptor] = CompletableDeferred(Failed(testDescriptor, e))
+                deferredTestResults[testDescriptor] =
+                    CompletableDeferred(TestPlusResult(testDescriptor, Failed(e)))
                 ranATest = true
                 return
             }
@@ -126,10 +146,12 @@ internal class ContextExecutor(
 
             if (processedTests.add(testPath)) {
                 val testDescriptor = TestDescription(parentContext, "will $behaviorDescription", getStackTraceElement())
-                val result = Ignored(testDescriptor)
+                val result = Ignored
+
                 @Suppress("DeferredResultUnused")
-                deferredTestResults[testDescriptor] = CompletableDeferred(result)
-                listener.testFinished(testDescriptor, result)
+                val testPlusResult = TestPlusResult(testDescriptor, result)
+                deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
+                listener.testFinished(testPlusResult)
             }
         }
     }

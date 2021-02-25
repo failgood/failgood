@@ -2,6 +2,7 @@ package failfast.internal
 
 import failfast.Success
 import failfast.TestDescription
+import failfast.TestPlusResult
 import failfast.describe
 import failfast.internal.Colors.FAILED
 import failfast.internal.Colors.RED
@@ -39,11 +40,14 @@ object ContextTreeReporterTest {
                 expectThat(
                     reporter.stringReport(
                         listOf(
-                            Success(
+                            TestPlusResult(
                                 TestDescription(
                                     subContext,
                                     "sub-contexts also contain tests", stackTraceElement
-                                ), 10
+                                ),
+                                Success(
+                                    10
+                                )
                             )
                         ), listOf(rootContext, subContext)
                     )
@@ -60,9 +64,11 @@ object ContextTreeReporterTest {
                 expectThat(
                     reporter.stringReport(
                         listOf(
-                            Success(
+                            TestPlusResult(
                                 TestDescription(subSubContext, "sub-contexts also contain tests", stackTraceElement),
-                                10
+                                Success(
+                                    10
+                                )
                             )
                         ),
                         listOf(rootContext, subContext, subSubContext)
@@ -81,8 +87,14 @@ object ContextTreeReporterTest {
                 expectThat(
                     reporter.stringReport(
                         listOf(
-                            Success(TestDescription(rootContext, "test", stackTraceElement), 10),
-                            Success(TestDescription(rootContext, "slow test", stackTraceElement), 1010001)
+                            TestPlusResult(
+                                TestDescription(rootContext, "test", stackTraceElement),
+                                Success(10)
+                            ),
+                            TestPlusResult(
+                                TestDescription(rootContext, "slow test", stackTraceElement),
+                                Success(1010001)
+                            )
                         ),
                         listOf(rootContext)
                     )

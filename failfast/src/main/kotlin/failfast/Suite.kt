@@ -3,8 +3,17 @@ package failfast
 import failfast.internal.ContextExecutor
 import failfast.internal.ContextInfo
 import failfast.internal.ContextTreeReporter
+import failfast.internal.ExceptionPrettyPrinter
 import failfast.internal.SingleTestExecutor
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import java.lang.management.ManagementFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -63,7 +72,7 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
                         val results = resolvedContexts.flatMap { it.tests.values }.awaitAll()
                         SuiteResult(
                             results,
-                            results.filterIsInstance<Failed>(),
+                            results.filter { it.result is Failed },
                             resolvedContexts.flatMap { it.contexts })
                     }
                 }
@@ -112,16 +121,16 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
             SingleTestExecutor(context, desc).execute()
         }
         if (result is Failed) {
-            println(result.prettyPrint())
+            println("$test${ExceptionPrettyPrinter(result.failure).prettyPrint()}")
         } else
-            println("${result.test} OK")
+            println("$test OK")
 
     }
 }
 
 object NullExecutionListener : ExecutionListener {
     override suspend fun testStarted(testDescriptor: TestDescription) {}
-    override suspend fun testFinished(testDescriptor: TestDescription, testResult: TestResult) {}
+    override suspend fun testFinished(testResult: TestPlusResult) {}
 }
 
 internal fun uptime(): String {

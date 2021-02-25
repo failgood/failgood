@@ -1,11 +1,28 @@
 package failfast.internal
 
-import failfast.*
+import failfast.FailFastException
+import failfast.Failed
+import failfast.RootContext
+import failfast.Success
+import failfast.Suite
+import failfast.describe
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import strikt.api.expectThat
 import strikt.api.expectThrows
-import strikt.assertions.*
+import strikt.assertions.all
+import strikt.assertions.containsExactly
+import strikt.assertions.doesNotContain
+import strikt.assertions.endsWith
+import strikt.assertions.get
+import strikt.assertions.isA
+import strikt.assertions.isEqualTo
+import strikt.assertions.isGreaterThan
+import strikt.assertions.isNotEmpty
+import strikt.assertions.isNotNull
+import strikt.assertions.isTrue
+import strikt.assertions.map
+import strikt.assertions.single
 
 object ContextExecutorTest {
     private var assertionError: AssertionError? = null
@@ -43,7 +60,7 @@ object ContextExecutorTest {
                 }
                 it("returns deferred test results") {
                     val testResults = contextInfo.tests.values.awaitAll()
-                    val successful = testResults.filterIsInstance<Success>()
+                    val successful = testResults.filter { it.result is Success }
                     val failed = testResults - successful
                     expectThat(successful.map { it.test.testName })
                         .containsExactly(
@@ -60,11 +77,13 @@ object ContextExecutorTest {
                         .containsExactly("root context", "context 1", "context 2", "context 4")
                 }
                 it("reports time of successful tests") {
-                    expectThat(contextInfo.tests.values.awaitAll().filterIsInstance<Success>())
+                    expectThat(contextInfo.tests.values.awaitAll().map { it.result }
+                        .filterIsInstance<Success>()).isNotEmpty()
                         .all { get { timeMicro }.isGreaterThan(1) }
                 }
                 describe("reports failed tests") {
-                    val failure = contextInfo.tests.values.awaitAll().filterIsInstance<Failed>().single()
+                    val failure =
+                        contextInfo.tests.values.awaitAll().map { it.result }.filterIsInstance<Failed>().single()
                     it("reports exception for failed tests") {
                         expectThat(assertionError).isNotNull()
                         val assertionError = assertionError!!
@@ -143,7 +162,7 @@ object ContextExecutorTest {
                             ContextExecutor(ctx, this, lazy = true).execute()
                         expectThat(testExecuted).isEqualTo(false)
                         val deferred = contextInfo.tests.values.single()
-                        expectThat(deferred.await()).isA<Success>()
+                        expectThat(deferred.await().result).isA<Success>()
                         expectThat(testExecuted).isEqualTo(true)
                     }
 
@@ -168,7 +187,7 @@ object ContextExecutorTest {
                     ContextExecutor(ctx, this).execute()
                 }
                 it("reports a failing context as a failing test") {
-                    expectThat(results.tests.values.awaitAll().filterIsInstance<Failed>()).single().and {
+                    expectThat(results.tests.values.awaitAll().filter { it.result is Failed }).single().and {
                         get { test }.and {
                             get { testName }.isEqualTo("context 1")
                             get { parentContext.name }.isEqualTo("root context")

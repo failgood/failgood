@@ -1,3 +1,4 @@
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
@@ -6,6 +7,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- Correctly report failures in contexts, even when the first context run is successful.
 - Send test start and stop events in correct order
 - Always report contexts as Successful, as requested by the Junit Platform API
 

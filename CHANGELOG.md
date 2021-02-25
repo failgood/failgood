@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - Send test start and stop events in correct order
+- Always report contexts as Successful, as requested by the Junit Platform API
 
 ## 0.3.0 - "Zuckerwattestand" - 2021-02-21
 

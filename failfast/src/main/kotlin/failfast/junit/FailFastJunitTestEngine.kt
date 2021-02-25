@@ -12,7 +12,7 @@ import failfast.Success
 import failfast.Suite
 import failfast.SuiteFailedException
 import failfast.TestDescription
-import failfast.TestResult
+import failfast.TestPlusResult
 import failfast.internal.ContextInfo
 import failfast.junit.FailFastJunitTestEngine.JunitExecutionListener.StartedOrStopped
 import failfast.junit.FailFastJunitTestEngineConstants.CONFIG_KEY_DEBUG
@@ -108,7 +108,7 @@ class FailFastJunitTestEngine : TestEngine {
     class JunitExecutionListener : ExecutionListener {
         sealed class StartedOrStopped {
             data class Started(val testDescriptor: TestDescription) : StartedOrStopped()
-            data class Stopped(val testResult: TestResult) : StartedOrStopped()
+            data class Stopped(val testResult: TestPlusResult) : StartedOrStopped()
 
         }
 
@@ -117,8 +117,8 @@ class FailFastJunitTestEngine : TestEngine {
             events.send(StartedOrStopped.Started(testDescriptor))
         }
 
-        override suspend fun testFinished(testDescriptor: TestDescription, testResult: TestResult) {
-            events.send(StartedOrStopped.Stopped(testResult))
+        override suspend fun testFinished(testPlusResult: TestPlusResult) {
+            events.send(StartedOrStopped.Stopped(testPlusResult))
         }
 
     }
@@ -154,10 +154,10 @@ class FailFastJunitTestEngine : TestEngine {
                         is StartedOrStopped.Stopped -> {
                             val it = event.testResult
                             val mapping = root.getMapping(it.test)
-                            when (it) {
+                            when (it.result) {
                                 is Failed -> junitListener.executionFinished(
                                     mapping,
-                                    TestExecutionResult.failed(it.failure)
+                                    TestExecutionResult.failed(it.result.failure)
                                 )
 
                                 is Success -> junitListener.executionFinished(

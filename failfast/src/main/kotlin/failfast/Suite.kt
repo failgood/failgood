@@ -4,7 +4,15 @@ import failfast.internal.ContextExecutor
 import failfast.internal.ContextInfo
 import failfast.internal.ContextTreeReporter
 import failfast.internal.SingleTestExecutor
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import java.lang.management.ManagementFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -121,7 +129,7 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
 
 object NullExecutionListener : ExecutionListener {
     override suspend fun testStarted(testDescriptor: TestDescription) {}
-    override suspend fun testFinished(testDescriptor: TestDescription, testResult: TestResult) {}
+    override suspend fun testFinished(testResult: TestPlusResult) {}
 }
 
 internal fun uptime(): String {

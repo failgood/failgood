@@ -3,7 +3,7 @@ package failfast
 import failfast.internal.Colors.RED
 import failfast.internal.Colors.RESET
 import failfast.internal.ExceptionPrettyPrinter
-
+data class TestPlusResult(val test: TestDescription, val result: TestResult)
 sealed class TestResult {
     abstract val test: TestDescription
 }

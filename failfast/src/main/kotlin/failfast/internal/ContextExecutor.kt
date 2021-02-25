@@ -1,7 +1,25 @@
 package failfast.internal
 
-import failfast.*
-import kotlinx.coroutines.*
+import failfast.Context
+import failfast.ContextDSL
+import failfast.ContextLambda
+import failfast.ContextPath
+import failfast.ExecutionListener
+import failfast.FailFastException
+import failfast.Failed
+import failfast.Ignored
+import failfast.NullExecutionListener
+import failfast.RootContext
+import failfast.Success
+import failfast.TestDescription
+import failfast.TestLambda
+import failfast.TestPlusResult
+import failfast.TestResult
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import java.util.concurrent.ConcurrentLinkedQueue
 
 internal class ContextExecutor(
@@ -54,7 +72,7 @@ internal class ContextExecutor(
                             } catch (e: Throwable) {
                                 Failed(testDescriptor, e)
                             }
-                        listener.testFinished(testDescriptor, testResult)
+                        listener.testFinished(TestPlusResult(testDescriptor, testResult))
                         testResult
                     }
                 deferredTestResults[testDescriptor] = deferred
@@ -63,7 +81,7 @@ internal class ContextExecutor(
                     scope.async(start = coroutineStart) {
                         listener.testStarted(testDescriptor)
                         val result = SingleTestExecutor(rootContext, testPath).execute()
-                        listener.testFinished(testDescriptor, result)
+                        listener.testFinished(TestPlusResult(testDescriptor, result))
                         result
                     }
                 deferredTestResults[testDescriptor] = deferred
@@ -129,7 +147,7 @@ internal class ContextExecutor(
                 val result = Ignored(testDescriptor)
                 @Suppress("DeferredResultUnused")
                 deferredTestResults[testDescriptor] = CompletableDeferred(result)
-                listener.testFinished(testDescriptor, result)
+                listener.testFinished(TestPlusResult(testDescriptor, result))
             }
         }
     }

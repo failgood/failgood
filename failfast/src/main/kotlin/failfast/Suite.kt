@@ -121,9 +121,9 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
             SingleTestExecutor(context, desc).execute()
         }
         if (result is Failed) {
-            println(ExceptionPrettyPrinter(result.failure).prettyPrint())
+            println("$test${ExceptionPrettyPrinter(result.failure).prettyPrint()}")
         } else
-            println("${result.test} OK")
+            println("$test OK")
 
     }
 }

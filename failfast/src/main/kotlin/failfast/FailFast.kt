@@ -102,7 +102,7 @@ data class SuiteResult(
         val totalTests = allTests.size
         if (allOk) {
             // printSlowestTests()
-            val ignoredTests = allTests.filterIsInstance<Ignored>()
+            val ignoredTests = allTests.filter { it.isIgnored }
             if (ignoredTests.isNotEmpty()) {
                 // printIgnoredTests(ignoredTests)
                 val ignored = ignoredTests.size
@@ -125,16 +125,17 @@ data class SuiteResult(
             println("$totalTests tests. ${failedTests.size} failed. total time: ${uptime()}")
             exitProcess(-1)
         }
-        fun printIgnoredTests(ignoredTests: List<Ignored>) {
+        fun printIgnoredTests(ignoredTests: List<TestPlusResult>) {
             println("\nIgnored tests:")
             ignoredTests.forEach { println(it.test) }
         }
 
         val contextTreeReporter = ContextTreeReporter()
         fun printSlowestTests() {
-            val slowTests = allTests.filterIsInstance<Success>().sortedBy { 0 - it.timeMicro }.take(5)
+            val slowTests =
+                allTests.filter { it.result is Success }.sortedBy { 0 - (it.result as Success).timeMicro }.take(5)
             println("Slowest tests:")
-            slowTests.forEach { println("${contextTreeReporter.time(it.timeMicro)}ms ${it.test}") }
+            slowTests.forEach { println("${contextTreeReporter.time((it.result as Success).timeMicro)}ms ${it.test}") }
         }
     }
 

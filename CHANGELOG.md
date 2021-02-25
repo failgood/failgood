@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Fixed
+
+- Send test start and stop events in correct order
+
 ## 0.3.0 - "Zuckerwattestand" - 2021-02-21
 
 ### Added

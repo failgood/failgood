@@ -134,7 +134,7 @@ class FailFastJunitTestEngine : TestEngine {
         runBlocking(Dispatchers.Default) {
             // report results while they come in. we use a channel because tests were already running before the execute
             // method was called so when we get here there are probably tests already finished
-            launch {
+            val eventForwarder = launch {
                 while (true) {
                     val event = try {
                         executionListener.events.receive()
@@ -177,6 +177,9 @@ class FailFastJunitTestEngine : TestEngine {
             val allTests = allContexts.flatMap { it.tests.values }.awaitAll()
             val contexts = allContexts.flatMap { it.contexts }
             executionListener.events.close()
+
+            // finish forwarding test events before closing all the contexts
+            eventForwarder.join()
             // close child contexts before their parent
             val leafToRootContexts = contexts.sortedBy { -it.parentContexts.size }
             leafToRootContexts.forEach { context ->

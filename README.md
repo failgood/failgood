@@ -130,9 +130,8 @@ fun main() {
 then add a gradle task file that calls it with the test classpath and make your check target depend on it.
 
 ```kotlin
-val testMain =
-    task("testMain", JavaExec::class) {
-        main = "<my-package>.FailFastMainKt"
+val testMain = tasks.register("testMain", JavaExec::class) {
+  main = "<my-package>.FailFastMainKt"
         classpath = sourceSets["test"].runtimeClasspath
     }
 
@@ -255,8 +254,8 @@ fun main() {
 create a gradle exec task for it:
 
 ```kotlin
-task("autotest", JavaExec::class) {
-    main = "failfast.AutoTestMainKt"
+tasks.register("autotest", JavaExec::class) {
+  main = "failfast.AutoTestMainKt"
     classpath = sourceSets["test"].runtimeClasspath
 }
 ```
@@ -297,6 +296,5 @@ There is also a pitest plugin if you want to measure mutation coverage, see the 
 ## Avoiding global state
 
 * if you need a web server run it on a random port.
-* if you need a database create a db with a random name for each
-  test. [like here](https://github.com/christophsturm/r2dbcfun/blob/main/src/test/kotlin/r2dbcfun/test/TestUtil.kt#L18)
-  (or run the test in a transaction that is rolled back at the end)
+* if you need a database create a db with a random name for each test. (see failfast-r2dbc)
+  or run the test in a transaction that is rolled back at the end

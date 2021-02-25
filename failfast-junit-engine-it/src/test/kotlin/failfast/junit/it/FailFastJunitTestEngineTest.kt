@@ -3,12 +3,12 @@ package failfast.junit.it
 import failfast.describe
 import failfast.junit.FailFastJunitTestEngine
 import failfast.junit.FailFastJunitTestEngineConstants
-import failfast.junit.it.RememberingExecutionListener.What
 import failfast.junit.it.fixtures.DuplicateTestNameTest
 import failfast.junit.it.fixtures.TestWithNestedContextsTest
 import failfast.junit.it.fixtures.TestWithNestedContextsTest.CHILD_CONTEXT_1_NAME
 import failfast.junit.it.fixtures.TestWithNestedContextsTest.CHILD_CONTEXT_2_NAME
 import failfast.junit.it.fixtures.TestWithNestedContextsTest.ROOT_CONTEXT_NAME
+import failfast.junit.it.fixtures.TestWithNestedContextsTest.TEST2_NAME
 import failfast.junit.it.fixtures.TestWithNestedContextsTest.TEST_NAME
 import org.junit.platform.engine.EngineExecutionListener
 import org.junit.platform.engine.ExecutionRequest
@@ -48,18 +48,31 @@ object FailFastJunitTestEngineTest {
             it("starts and stops contexts in the correct order") {
                 val listener = RememberingExecutionListener()
                 engine.execute(ExecutionRequest(testDescriptor, listener, null))
-                expectThat(listener.list.toList()).isEqualTo(
+                expectThat(
+                    listener.list.toList()
+                        .replace(
+                            // we don't know in what order the tests will run
+                            setOf(
+                                "start-" + TEST_NAME,
+                                "stop-" + TEST_NAME,
+                                "start-" + TEST2_NAME,
+                                "stop-" + TEST2_NAME
+                            ), "some-test-event"
+                        )
+                ).isEqualTo(
                     listOf(
-                        RememberingExecutionListener.Event(What.START, FailFastJunitTestEngineConstants.displayName),
-                        RememberingExecutionListener.Event(What.START, ROOT_CONTEXT_NAME),
-                        RememberingExecutionListener.Event(What.START, CHILD_CONTEXT_1_NAME),
-                        RememberingExecutionListener.Event(What.START, CHILD_CONTEXT_2_NAME),
-                        RememberingExecutionListener.Event(What.START, TEST_NAME),
-                        RememberingExecutionListener.Event(What.STOP, TEST_NAME),
-                        RememberingExecutionListener.Event(What.STOP, CHILD_CONTEXT_2_NAME),
-                        RememberingExecutionListener.Event(What.STOP, CHILD_CONTEXT_1_NAME),
-                        RememberingExecutionListener.Event(What.STOP, ROOT_CONTEXT_NAME),
-                        RememberingExecutionListener.Event(What.STOP, FailFastJunitTestEngineConstants.displayName),
+                        "start-" + FailFastJunitTestEngineConstants.displayName,
+                        "start-" + ROOT_CONTEXT_NAME,
+                        "start-" + CHILD_CONTEXT_1_NAME,
+                        "start-" + CHILD_CONTEXT_2_NAME,
+                        "some-test-event",
+                        "some-test-event",
+                        "some-test-event",
+                        "some-test-event",
+                        "stop-" + CHILD_CONTEXT_2_NAME,
+                        "stop-" + CHILD_CONTEXT_1_NAME,
+                        "stop-" + ROOT_CONTEXT_NAME,
+                        "stop-" + FailFastJunitTestEngineConstants.displayName
                     )
                 )
 
@@ -68,20 +81,16 @@ object FailFastJunitTestEngineTest {
     }
 }
 
+fun <T> List<T>.replace(toReplace: Set<T>, with: T) = this.map { if (toReplace.contains(it)) with else it }
+
 class RememberingExecutionListener : EngineExecutionListener {
-    enum class What {
-        START, STOP
-    }
-
-    data class Event(val what: What, val name: String)
-
-    val list = ConcurrentLinkedQueue<Event>()
+    val list = ConcurrentLinkedQueue<String>()
     override fun executionStarted(testDescriptor: TestDescriptor) {
-        list.add(Event(What.START, testDescriptor.displayName))
+        list.add("start-${testDescriptor.displayName}")
     }
 
     override fun executionFinished(testDescriptor: TestDescriptor, testExecutionResult: TestExecutionResult?) {
-        list.add(Event(What.STOP, testDescriptor.displayName))
+        list.add("stop-${testDescriptor.displayName}")
     }
 
 }

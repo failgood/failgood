@@ -53,26 +53,26 @@ object FailFastJunitTestEngineTest {
                         .replace(
                             // we don't know in what order the tests will run
                             setOf(
-                                "start-" + TEST_NAME,
-                                "stop-" + TEST_NAME,
-                                "start-" + TEST2_NAME,
-                                "stop-" + TEST2_NAME
+                                "start-$TEST_NAME",
+                                "stop-$TEST_NAME",
+                                "start-$TEST2_NAME",
+                                "stop-$TEST2_NAME"
                             ), "some-test-event"
                         )
                 ).isEqualTo(
                     listOf(
-                        "start-" + FailFastJunitTestEngineConstants.displayName,
-                        "start-" + ROOT_CONTEXT_NAME,
-                        "start-" + CHILD_CONTEXT_1_NAME,
-                        "start-" + CHILD_CONTEXT_2_NAME,
+                        "start-${FailFastJunitTestEngineConstants.displayName}",
+                        "start-$ROOT_CONTEXT_NAME",
+                        "start-$CHILD_CONTEXT_1_NAME",
+                        "start-$CHILD_CONTEXT_2_NAME",
                         "some-test-event",
                         "some-test-event",
                         "some-test-event",
                         "some-test-event",
-                        "stop-" + CHILD_CONTEXT_2_NAME,
-                        "stop-" + CHILD_CONTEXT_1_NAME,
-                        "stop-" + ROOT_CONTEXT_NAME,
-                        "stop-" + FailFastJunitTestEngineConstants.displayName
+                        "stop-$CHILD_CONTEXT_2_NAME",
+                        "stop-$CHILD_CONTEXT_1_NAME",
+                        "stop-$ROOT_CONTEXT_NAME",
+                        "stop-${FailFastJunitTestEngineConstants.displayName}"
                     )
                 )
 
@@ -81,7 +81,7 @@ object FailFastJunitTestEngineTest {
     }
 }
 
-fun <T> List<T>.replace(toReplace: Set<T>, with: T) = this.map { if (toReplace.contains(it)) with else it }
+private fun <T> List<T>.replace(toReplace: Set<T>, with: T) = this.map { if (toReplace.contains(it)) with else it }
 
 class RememberingExecutionListener : EngineExecutionListener {
     val list = ConcurrentLinkedQueue<String>()

@@ -3,7 +3,7 @@ package failfast.junit.it
 import failfast.describe
 import failfast.junit.FailFastJunitTestEngine
 import failfast.junit.FailFastJunitTestEngineConstants
-import failfast.junit.it.fixtures.DuplicateTestNameTest
+import failfast.junit.it.fixtures.TestFixtureTest
 import failfast.junit.it.fixtures.TestWithNestedContextsTest
 import failfast.junit.it.fixtures.TestWithNestedContextsTest.CHILD_CONTEXT_1_NAME
 import failfast.junit.it.fixtures.TestWithNestedContextsTest.CHILD_CONTEXT_2_NAME
@@ -26,7 +26,7 @@ object FailFastJunitTestEngineTest {
         val engine = FailFastJunitTestEngine()
         describe("can discover tests") {
             val testDescriptor =
-                engine.discover(launcherDiscoveryRequest(DuplicateTestNameTest::class), UniqueId.forEngine(engine.id))
+                engine.discover(launcherDiscoveryRequest(TestFixtureTest::class), UniqueId.forEngine(engine.id))
             it("returns a root descriptor") {
                 expectThat(testDescriptor.isRoot)
                 expectThat(testDescriptor.displayName).isEqualTo("FailFast")
@@ -34,7 +34,7 @@ object FailFastJunitTestEngineTest {
             it("returns all root contexts") {
                 expectThat(testDescriptor.children).single().and {
                     get { isContainer }.isTrue()
-                    get { displayName }.isEqualTo(DuplicateTestNameTest.ROOT_CONTEXT_NAME)
+                    get { displayName }.isEqualTo(TestFixtureTest.ROOT_CONTEXT_NAME)
                 }
             }
         }

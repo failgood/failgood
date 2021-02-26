@@ -10,7 +10,6 @@ import failfast.Ignored
 import failfast.ObjectContextProvider
 import failfast.Success
 import failfast.Suite
-import failfast.SuiteFailedException
 import failfast.TestDescription
 import failfast.TestPlusResult
 import failfast.internal.ContextInfo
@@ -186,12 +185,7 @@ class FailFastJunitTestEngine : TestEngine {
                 junitListener.executionFinished(root.getMapping(context), TestExecutionResult.successful())
             }
 
-            junitListener.executionFinished(
-                root,
-                if (allTests.all { it.result is Success }) TestExecutionResult.successful() else TestExecutionResult.failed(
-                    SuiteFailedException("test failed")
-                )
-            )
+            junitListener.executionFinished(root, TestExecutionResult.successful())
         }
         println("finished after ${uptime()}")
     }

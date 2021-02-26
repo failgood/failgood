@@ -101,7 +101,6 @@ enter a regex into the JUnit run dialog, for example `.*ContextExecutorTest` to 
 
 ### The main method method
 
-g
 
 ```kotlin
 fun main() {

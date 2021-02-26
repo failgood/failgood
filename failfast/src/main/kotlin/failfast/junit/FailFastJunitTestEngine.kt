@@ -165,7 +165,7 @@ class FailFastJunitTestEngine : TestEngine {
                                     TestExecutionResult.successful()
                                 )
 
-                                is Ignored -> junitListener.executionSkipped(mapping, null)
+                                is Ignored -> junitListener.executionSkipped(mapping, "test is skipped")
                             }
 
                         }

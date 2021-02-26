@@ -106,7 +106,7 @@ data class SuiteResult(
             if (ignoredTests.isNotEmpty()) {
                 // printIgnoredTests(ignoredTests)
                 val ignored = ignoredTests.size
-                println("\n$totalTests tests. ${totalTests - ignored} ok, $ignored ignored. time: ${uptime()}")
+                println("\n$totalTests tests. ${totalTests - ignored} ok, $ignored ignored. time: ${uptime(totalTests)}")
                 return
             }
             println("\n$totalTests tests. time: ${uptime()}")

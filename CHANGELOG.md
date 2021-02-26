@@ -1,9 +1,12 @@
-
 # Changelog
 
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
+
+### Added
+
+- Output tests/sec in test summary.
 
 ### Fixed
 

@@ -133,13 +133,16 @@ object NullExecutionListener : ExecutionListener {
     override suspend fun testFinished(testResult: TestPlusResult) {}
 }
 
-internal fun uptime(): String {
+internal fun uptime(totalTests: Int? = null): String {
     val operatingSystemMXBean =
         ManagementFactory.getOperatingSystemMXBean() as com.sun.management.OperatingSystemMXBean
     val uptime = ManagementFactory.getRuntimeMXBean().uptime
     val cpuTime = operatingSystemMXBean.processCpuTime / 1000000
     val percentage = cpuTime * 100 / uptime
-    return "total:${uptime}ms cpu:${cpuTime}ms, load:${percentage}%"
+    return if (totalTests != null)
+        "total:${uptime}ms cpu:${cpuTime}ms, load:${percentage}%. ${totalTests * 1000 / uptime} test/sec"
+    else
+        "total:${uptime}ms cpu:${cpuTime}ms, load:${percentage}%"
 }
 
 private fun cpus() = Runtime.getRuntime().availableProcessors()

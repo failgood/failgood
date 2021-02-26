@@ -16,7 +16,7 @@ object SuiteTest {
                 }
             val contexts = (1 until 2).map { context.copy(name = "context $it") }
             test("Empty Suite fails") { expectThrows<RuntimeException> { Suite(listOf()) } }
-            itWill("create reproducable output") {
+            itWill("create reproducible output") {
                 // currently two test runs don't give the same result because the test duration is
                 // variable
                 val suite = Suite.fromContexts(contexts)

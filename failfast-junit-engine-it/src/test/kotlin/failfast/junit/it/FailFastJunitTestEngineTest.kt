@@ -1,8 +1,10 @@
 package failfast.junit.it
 
+import failfast.FailFast
 import failfast.describe
 import failfast.junit.FailFastJunitTestEngine
 import failfast.junit.FailFastJunitTestEngineConstants
+import failfast.junit.it.fixtures.IgnoredTestFixtureTest
 import failfast.junit.it.fixtures.TestFixtureTest
 import failfast.junit.it.fixtures.TestWithNestedContextsTest
 import failfast.junit.it.fixtures.TestWithNestedContextsTest.CHILD_CONTEXT_1_NAME
@@ -21,6 +23,9 @@ import strikt.assertions.isTrue
 import strikt.assertions.single
 import java.util.concurrent.ConcurrentLinkedQueue
 
+fun main() {
+    FailFast.runTest("The FailFastJunitTestEngine > test execution > sends one skip event and no start event for skipped tests")
+}
 object FailFastJunitTestEngineTest {
     val context = describe(FailFastJunitTestEngine::class) {
         val engine = FailFastJunitTestEngine()
@@ -39,13 +44,13 @@ object FailFastJunitTestEngineTest {
             }
         }
         describe("test execution") {
-            val testDescriptor =
-                engine.discover(
-                    launcherDiscoveryRequest(TestWithNestedContextsTest::class),
-                    UniqueId.forEngine(engine.id)
-                )
 
             it("starts and stops contexts in the correct order") {
+                val testDescriptor =
+                    engine.discover(
+                        launcherDiscoveryRequest(TestWithNestedContextsTest::class),
+                        UniqueId.forEngine(engine.id)
+                    )
                 val listener = RememberingExecutionListener()
                 engine.execute(ExecutionRequest(testDescriptor, listener, null))
                 expectThat(
@@ -77,6 +82,26 @@ object FailFastJunitTestEngineTest {
                 )
 
             }
+            it("sends one skip event and no start event for skipped tests") {
+                val testDescriptor =
+                    engine.discover(
+                        launcherDiscoveryRequest(IgnoredTestFixtureTest::class),
+                        UniqueId.forEngine(engine.id)
+                    )
+                val listener = RememberingExecutionListener()
+                engine.execute(ExecutionRequest(testDescriptor, listener, null))
+                expectThat(listener.list.toList()).isEqualTo(
+                    listOf(
+                        "start-FailFast",
+                        "start-the root context",
+                        "skip-will pending test",
+                        "stop-the root context",
+                        "stop-FailFast"
+                    )
+                )
+
+            }
+
         }
     }
 }
@@ -93,4 +118,7 @@ class RememberingExecutionListener : EngineExecutionListener {
         list.add("stop-${testDescriptor.displayName}")
     }
 
+    override fun executionSkipped(testDescriptor: TestDescriptor, reason: String?) {
+        list.add("skip-${testDescriptor.displayName}")
+    }
 }

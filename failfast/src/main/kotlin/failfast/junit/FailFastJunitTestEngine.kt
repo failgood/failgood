@@ -140,14 +140,22 @@ class FailFastJunitTestEngine : TestEngine {
                     } catch (e: Exception) {
                         break
                     }
+
+                    fun startParentContexts(
+                        testDescriptor: TestDescription,
+                        engineDescriptor: FailFastEngineDescriptor
+                    ) {
+                        val context = testDescriptor.parentContext
+                        (context.parentContexts + context).forEach {
+                            if (startedContexts.add(it))
+                                junitListener.executionStarted(engineDescriptor.getMapping(it))
+                        }
+                    }
+
                     when (event) {
                         is StartedOrStopped.Started -> {
                             val testDescriptor = event.testDescriptor
-                            val context = testDescriptor.parentContext
-                            (context.parentContexts + context).forEach {
-                                if (startedContexts.add(it))
-                                    junitListener.executionStarted(root.getMapping(it))
-                            }
+                            startParentContexts(testDescriptor, root)
                             junitListener.executionStarted(root.getMapping(testDescriptor))
                         }
                         is StartedOrStopped.Stopped -> {
@@ -164,7 +172,10 @@ class FailFastJunitTestEngine : TestEngine {
                                     TestExecutionResult.successful()
                                 )
 
-                                is Ignored -> junitListener.executionSkipped(mapping, "test is skipped")
+                                is Ignored -> {
+                                    startParentContexts(event.testResult.test, root)
+                                    junitListener.executionSkipped(mapping, "test is skipped")
+                                }
                             }
 
                         }

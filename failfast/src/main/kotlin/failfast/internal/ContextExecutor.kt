@@ -133,8 +133,9 @@ internal class ContextExecutor(
             context(name, function)
         }
 
-        override fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T {
-            return wrapped.apply { resourcesCloser.add { closeFunction(wrapped) } }
+        override fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T {
+            resourcesCloser.add(SuspendAutoCloseable(wrapped, closeFunction))
+            return wrapped
         }
 
         override suspend fun it(behaviorDescription: String, function: TestLambda) {
@@ -172,13 +173,19 @@ internal class ContextExecutor(
 }
 
 private class ResourcesCloser {
-    fun add(autoCloseable: AutoCloseable) {
+    fun <T> add(autoCloseable: SuspendAutoCloseable<T>) {
         closeables.add(autoCloseable)
     }
 
-    fun close() {
+    suspend fun close() {
         closeables.forEach { it.close() }
     }
 
-    private val closeables = ConcurrentLinkedQueue<AutoCloseable>()
+    private val closeables = ConcurrentLinkedQueue<SuspendAutoCloseable<*>>()
+}
+
+class SuspendAutoCloseable<T>(val wrapped: T, val closer: suspend (T) -> Unit) {
+    suspend fun close() {
+        closer(wrapped)
+    }
 }

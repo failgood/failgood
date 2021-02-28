@@ -65,7 +65,7 @@ interface ContextDSL {
      * create a test dependency that should be closed after the a test run
      * use this instead of beforeEach/afterEach
      */
-    fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T
+    fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T
 
     /**
      * define a test that describes a subject. for use with [ContextDSL.describe]

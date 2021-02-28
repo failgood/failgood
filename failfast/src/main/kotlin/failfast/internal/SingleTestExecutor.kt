@@ -15,7 +15,7 @@ import failfast.TestResult
  * Async Called by ContextExecutor to execute all tests that it does not have to execute itself
  */
 internal class SingleTestExecutor(private val context: RootContext, private val test: ContextPath) {
-    private val closeables = mutableListOf<AutoCloseable>()
+    private val closeables = mutableListOf<SuspendAutoCloseable<*>>()
     private val startTime = System.nanoTime()
     suspend fun execute(): TestResult {
         val dsl: ContextDSL = contextDSL(test.parentContext.path.drop(1))
@@ -41,8 +41,8 @@ internal class SingleTestExecutor(private val context: RootContext, private val 
         override suspend fun describe(name: String, function: ContextLambda) {
         }
 
-        override fun <T> autoClose(wrapped: T, closeFunction: (T) -> Unit): T {
-            closeables.add(AutoCloseable { closeFunction(wrapped) })
+        override fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T {
+            closeables.add(SuspendAutoCloseable(wrapped, closeFunction))
             return wrapped
         }
 

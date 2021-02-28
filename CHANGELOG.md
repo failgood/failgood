@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Changed
+
+- Make autoClose callback method suspend for easier closing of resources that need coroutines.
+
 ### Added
 
 - Output tests/sec in test summary.

@@ -166,7 +166,7 @@ internal class ContextExecutor(
             visitor.function()
             if (!visitor.contextsLeft) break
         }
-        // contexts: root context, subcontexts ordered by line number, minus failed contexts (those are reported as tests)
+        // context order: first root context, then sub-contexts ordered by line number
         val contexts = listOf(rootContext) + foundContexts.sortedBy { it.stackTraceElement!!.lineNumber }
         return ContextInfo(contexts, deferredTestResults)
     }
@@ -184,7 +184,7 @@ private class ResourcesCloser {
     private val closeables = ConcurrentLinkedQueue<SuspendAutoCloseable<*>>()
 }
 
-class SuspendAutoCloseable<T>(val wrapped: T, val closer: suspend (T) -> Unit) {
+class SuspendAutoCloseable<T>(private val wrapped: T, val closer: suspend (T) -> Unit) {
     suspend fun close() {
         closer(wrapped)
     }

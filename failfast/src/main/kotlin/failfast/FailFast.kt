@@ -109,7 +109,7 @@ data class SuiteResult(
                 println("\n$totalTests tests. ${totalTests - ignored} ok, $ignored ignored. time: ${uptime(totalTests)}")
                 return
             }
-            println("\n$totalTests tests. time: ${uptime()}")
+            println("\n$totalTests tests. time: ${uptime(totalTests)}")
 
 
             return
@@ -122,7 +122,7 @@ data class SuiteResult(
                 }
             @Suppress("unused")
             println("${RED}FAILED:${RESET}\n$message")
-            println("$totalTests tests. ${failedTests.size} failed. total time: ${uptime()}")
+            println("$totalTests tests. ${failedTests.size} failed. total time: ${uptime(totalTests)}")
             exitProcess(-1)
         }
         fun printIgnoredTests(ignoredTests: List<TestPlusResult>) {
@@ -254,6 +254,12 @@ object FailFast {
 
     fun runAllTests(writeReport: Boolean = false) {
         Suite.fromClasses(findTestClasses()).run().check(writeReport = writeReport)
+    }
+
+    @Suppress("unused") // usable to find out why the test suite does not exit
+    private fun printThreads() {
+        Thread.getAllStackTraces().filterKeys { !it.isDaemon && it.name != "main" }
+            .forEach { (t, s) -> println("\nthread:${t.name}: ${s.joinToString("\n")}") }
     }
 
     fun runTest(singleTest: String? = null) {

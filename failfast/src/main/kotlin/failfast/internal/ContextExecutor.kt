@@ -106,7 +106,7 @@ internal class ContextExecutor(
             val visitor = ContextVisitor(context, resourcesCloser)
             try {
                 visitor.function()
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 val testDescriptor = TestDescription(parentContext, name, stackTraceElement)
 
                 processedTests.add(contextPath) // don't visit this context again

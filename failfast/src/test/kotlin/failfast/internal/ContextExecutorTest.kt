@@ -171,15 +171,15 @@ object ContextExecutorTest {
 
             describe("handles failing contexts")
             {
-                var runtimeException: RuntimeException? = null
+                var error: Throwable? = null
 
                 val ctx =
                     RootContext("root context") {
                         test("test 1") {}
                         test("test 2") {}
                         context("context 1") {
-                            runtimeException = RuntimeException("oops context creation failed")
-                            throw runtimeException!!
+                            error = NotImplementedError("")
+                            throw error!!
                         }
                         context("context 4") { test("test 4") {} }
                     }
@@ -194,7 +194,7 @@ object ContextExecutorTest {
                             get { stackTraceElement.toString() }.endsWith(
                                 "ContextExecutorTest.kt:${
                                     getLineNumber(
-                                        runtimeException
+                                        error
                                     ) - 1
                                 })"
                             )

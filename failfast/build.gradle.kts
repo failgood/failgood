@@ -19,7 +19,6 @@ plugins {
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 dependencies {
     implementation(enforcedPlatform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion"))
@@ -30,7 +29,7 @@ dependencies {
     testImplementation("org.pitest:pitest:$pitestVersion")
     compileOnly("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
     testImplementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
-
+    testImplementation("com.christophsturm:filepeek:0.1.3")
 }
 tasks {
     create<Jar>("sourceJar") {

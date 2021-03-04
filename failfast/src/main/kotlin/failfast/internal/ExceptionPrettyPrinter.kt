@@ -6,7 +6,7 @@ class ExceptionPrettyPrinter(private val throwable: Throwable, testStackTrace: S
             .filter { it.lineNumber > 0 }
 
         val onlyFromFailFastUp = onlyElementsWithLineNumber.dropLastWhile { !it.className.startsWith("failfast") }
-        val onlyInTest =
+        val onlyInTest = if (throwable !is AssertionError) onlyFromFailFastUp else
             onlyFromFailFastUp.filter { testStackTrace == null || it.className.contains(testStackTrace.className) }
         onlyInTest.ifEmpty { onlyFromFailFastUp.ifEmpty { onlyElementsWithLineNumber } }
     }

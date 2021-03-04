@@ -130,7 +130,7 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
 
 object NullExecutionListener : ExecutionListener {
     override suspend fun testStarted(testDescriptor: TestDescription) {}
-    override suspend fun testFinished(testResult: TestPlusResult) {}
+    override suspend fun testFinished(testPlusResult: TestPlusResult) {}
 }
 
 internal fun uptime(totalTests: Int? = null): String {

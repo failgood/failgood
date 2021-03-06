@@ -15,6 +15,9 @@ dependencies {
     testImplementation(project(":failfast"))
     testImplementation("io.strikt:strikt-core:$striktVersion")
     testImplementation("org.junit.platform:junit-platform-launcher:${failfast.Versions.junitPlatformVersion}")
+    testImplementation("io.mockk:mockk:1.10.6")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${failfast.Versions.coroutinesVersion}")
+
 }
 
 tasks {

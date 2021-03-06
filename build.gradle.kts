@@ -4,7 +4,7 @@ plugins {
     id("com.github.ben-manes.versions") version "0.36.0"
     kotlin("jvm") version "1.4.31" apply false
     id("com.jfrog.bintray") version "1.8.5" apply false
-    id("info.solidsoft.pitest") version "1.5.2" apply false
+    id("info.solidsoft.pitest") version "1.6.0" apply false
 }
 
 

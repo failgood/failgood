@@ -139,10 +139,11 @@ internal fun uptime(totalTests: Int? = null): String {
     val uptime = ManagementFactory.getRuntimeMXBean().uptime
     val cpuTime = operatingSystemMXBean.processCpuTime / 1000000
     val percentage = cpuTime * 100 / uptime
-    return if (totalTests != null)
-        "total:${uptime}ms cpu:${cpuTime}ms, load:${percentage}%. ${totalTests * 1000 / uptime} test/sec"
-    else
-        "total:${uptime}ms cpu:${cpuTime}ms, load:${percentage}%"
+    return "total:${uptime}ms cpu:${cpuTime}ms, load:${percentage}%." + if (totalTests != null) {
+        " " + pluralize(totalTests * 1000 / uptime.toInt(), "test") + "/sec"
+    } else
+        ""
 }
 
+internal fun pluralize(count: Int, item: String) = if (count == 1) "1 $item" else "$count ${item}s"
 private fun cpus() = Runtime.getRuntime().availableProcessors()

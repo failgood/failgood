@@ -19,7 +19,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 
-class Suite(val rootContexts: Collection<ContextProvider>) {
+class Suite(val contextProviders: Collection<ContextProvider>) {
     companion object {
         fun fromContexts(rootContexts: Collection<RootContext>) =
             Suite(rootContexts.map { ContextProvider { it } })
@@ -29,7 +29,7 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
     }
 
     init {
-        if (rootContexts.isEmpty()) throw EmptySuiteException()
+        if (contextProviders.isEmpty()) throw EmptySuiteException()
     }
 
     constructor(rootContext: RootContext) :
@@ -88,32 +88,38 @@ class Suite(val rootContexts: Collection<ContextProvider>) {
         listener: ExecutionListener = NullExecutionListener
     ):
             List<Deferred<ContextInfo>> {
-        return rootContexts
-            .map {
-                coroutineScope.async {
-                    val context = it.getContext()
-                    if (!context.disabled) {
-                        try {
-                            withTimeout(20000) {
-                                ContextExecutor(
-                                    context,
-                                    coroutineScope,
-                                    !executeTests,
-                                    listener
-                                ).execute()
-                            }
-                        } catch (e: TimeoutCancellationException) {
-                            throw FailFastException("context ${context.name} timed out")
+        return findRootContexts(coroutineScope).map { deferredContext: Deferred<RootContext> ->
+            coroutineScope.async {
+                val context = deferredContext.await()
+                if (!context.disabled) {
+                    try {
+                        withTimeout(20000) {
+                            ContextExecutor(
+                                context,
+                                coroutineScope,
+                                !executeTests,
+                                listener
+                            ).execute()
                         }
-                    } else
-                        ContextInfo(emptyList(), mapOf())
-                }
+                    } catch (e: TimeoutCancellationException) {
+                        throw FailFastException("context ${context.name} timed out")
+                    }
+                } else
+                    ContextInfo(emptyList(), mapOf())
             }
+        }
     }
+
+    internal fun findRootContexts(coroutineScope: CoroutineScope) = contextProviders
+        .map {
+            coroutineScope.async {
+                it.getContext()
+            }
+        }
 
     fun runSingle(test: String) {
         val contextName = test.substringBefore(">").trim()
-        val context = rootContexts.map { it.getContext() }.single {
+        val context = contextProviders.map { it.getContext() }.single {
             it.name == contextName
         }
         val desc = ContextPath.fromString(test)

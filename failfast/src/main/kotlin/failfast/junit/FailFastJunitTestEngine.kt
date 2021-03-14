@@ -15,9 +15,11 @@ import failfast.TestPlusResult
 import failfast.internal.ContextInfo
 import failfast.junit.FailFastJunitTestEngine.JunitExecutionListener.StartedOrStopped
 import failfast.junit.FailFastJunitTestEngineConstants.CONFIG_KEY_DEBUG
+import failfast.junit.FailFastJunitTestEngineConstants.CONFIG_KEY_LAZY
 import failfast.uptime
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
@@ -48,6 +50,7 @@ object FailFastJunitTestEngineConstants {
     const val id = "failfast"
     const val displayName = "FailFast"
     const val CONFIG_KEY_DEBUG = "failfast.debug"
+    const val CONFIG_KEY_LAZY = "failfast.lazy"
 }
 
 // what idea usually sends:
@@ -61,22 +64,29 @@ class FailFastJunitTestEngine : TestEngine {
         println("starting at uptime ${uptime()}")
 
         debug = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_DEBUG).orElse(false)
+        val lazy = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_LAZY).orElse(false)
         val providers: List<ContextProvider> = findContexts(discoveryRequest)
+        val suite = Suite(providers)
+        val executionListener = JunitExecutionListener()
+
         return runBlocking(Dispatchers.Default) {
-            val executionListener = JunitExecutionListener()
-            val testResult = Suite(providers).findTests(this, true, executionListener)
+
+            val testResult = suite.findTests(GlobalScope, !lazy, executionListener).awaitAll()
+            @Suppress("DeferredResultUnused")
+            if (lazy)
+                GlobalScope.async(Dispatchers.Default) { testResult.map { it.tests.values.awaitAll() } }
             createResponse(uniqueId, testResult, executionListener)
         }
     }
 
-    private suspend fun createResponse(
+    private fun createResponse(
         uniqueId: UniqueId,
-        contextInfos: List<Deferred<ContextInfo>>,
+        contextInfos: List<ContextInfo>,
         executionListener: JunitExecutionListener
     ): FailFastEngineDescriptor {
         val result = FailFastEngineDescriptor(uniqueId, contextInfos, executionListener)
-        contextInfos.forEach { deferred ->
-            val contextInfo = deferred.await()
+        contextInfos.forEach { contextInfo ->
+
             val tests = contextInfo.tests.entries
             fun addChildren(node: TestDescriptor, context: Context) {
                 val contextNode = FailFastTestDescriptor(
@@ -183,7 +193,7 @@ class FailFastJunitTestEngine : TestEngine {
                 }
             }
             // and wait for the results
-            val allContexts = root.testResult.awaitAll()
+            val allContexts = root.testResult
             val contexts = allContexts.flatMap { it.contexts }
             allContexts.flatMap { it.tests.values }.awaitAll()
             executionListener.events.close()
@@ -301,7 +311,7 @@ class FailFastTestDescriptor(
 
 internal class FailFastEngineDescriptor(
     uniqueId: UniqueId,
-    val testResult: List<Deferred<ContextInfo>>,
+    val testResult: List<ContextInfo>,
     val executionListener: FailFastJunitTestEngine.JunitExecutionListener
 ) :
     EngineDescriptor(uniqueId, FailFastJunitTestEngineConstants.displayName) {

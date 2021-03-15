@@ -12,8 +12,8 @@ object FailFastTest {
             it("can contain tests too") { expectThat(true).isEqualTo(true) }
 
             describe("disabled/pending tests") {
-                itWill("itWill can be used to mark pending tests") {}
-                itWill("for pending tests the test body is optional")
+                pending("pending can be used to mark pending tests") {}
+                pending("for pending tests the test body is optional")
             }
             context("context/test syntax is also supported") {
                 test(

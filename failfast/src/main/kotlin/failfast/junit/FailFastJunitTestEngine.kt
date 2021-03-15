@@ -6,8 +6,8 @@ import failfast.ExecutionListener
 import failfast.FailFast.findClassesInPath
 import failfast.FailFastException
 import failfast.Failed
-import failfast.Ignored
 import failfast.ObjectContextProvider
+import failfast.Pending
 import failfast.Success
 import failfast.Suite
 import failfast.TestDescription
@@ -182,7 +182,7 @@ class FailFastJunitTestEngine : TestEngine {
                                     TestExecutionResult.successful()
                                 )
 
-                                is Ignored -> {
+                                is Pending -> {
                                     startParentContexts(event.testResult.test, root)
                                     junitListener.executionSkipped(mapping, "test is skipped")
                                 }

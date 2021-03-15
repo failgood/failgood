@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Changed
+
+- rename itWill to pending
+
 ## 0.3.1 - "Zwischenhaltestelle" - 2021-03-05
 
 ### Changed

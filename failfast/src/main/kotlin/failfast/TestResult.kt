@@ -5,7 +5,7 @@ import failfast.internal.Colors.RESET
 import failfast.internal.ExceptionPrettyPrinter
 
 data class TestPlusResult(val test: TestDescription, val result: TestResult) {
-    val isIgnored = result is Ignored
+    val isPending = result is Pending
     val isFailed = result is Failed
     val isSuccess = result is Success
 
@@ -18,7 +18,7 @@ data class TestPlusResult(val test: TestDescription, val result: TestResult) {
                 "$testDescription:$RED failed$RESET with $exceptionInfo.\ntest: ${test.stackTraceElement}"
             }
             is Success -> "$testDescription passed"
-            is Ignored -> "$testDescription skipped"
+            is Pending -> "$testDescription skipped"
         }
     }
 }
@@ -26,7 +26,7 @@ data class TestPlusResult(val test: TestDescription, val result: TestResult) {
 sealed class TestResult
 
 data class Success(val timeMicro: Long) : TestResult()
-object Ignored : TestResult()
+object Pending : TestResult()
 class Failed(val failure: Throwable) :
     TestResult() {
     override fun equals(other: Any?): Boolean {

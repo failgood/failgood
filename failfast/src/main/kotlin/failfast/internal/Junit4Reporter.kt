@@ -1,7 +1,7 @@
 package failfast.internal
 
 import failfast.Failed
-import failfast.Ignored
+import failfast.Pending
 import failfast.Success
 import failfast.TestPlusResult
 
@@ -37,7 +37,7 @@ class Junit4Reporter(private val testResults: List<TestPlusResult>) {
                         """</testcase>"""
                     )
                 }
-                is Ignored -> {
+                is Pending -> {
                     listOf(
                         """<testcase classname="${it.test.parentContext.stringPath()}" name="${it.test.testName}">""",
                         """<skipped/></testcase>"""

@@ -4,7 +4,7 @@ import failfast.FailFast
 import failfast.describe
 import failfast.junit.FailFastJunitTestEngine
 import failfast.junit.FailFastJunitTestEngineConstants
-import failfast.junit.it.fixtures.IgnoredTestFixtureTest
+import failfast.junit.it.fixtures.PendingTestFixtureTest
 import failfast.junit.it.fixtures.TestFixtureTest
 import failfast.junit.it.fixtures.TestWithNestedContextsTest
 import failfast.junit.it.fixtures.TestWithNestedContextsTest.CHILD_CONTEXT_1_NAME
@@ -85,7 +85,7 @@ object FailFastJunitTestEngineTest {
             it("sends one skip event and no start event for skipped tests") {
                 val testDescriptor =
                     engine.discover(
-                        launcherDiscoveryRequest(IgnoredTestFixtureTest::class),
+                        launcherDiscoveryRequest(PendingTestFixtureTest::class),
                         UniqueId.forEngine(engine.id)
                     )
                 val listener = RememberingExecutionListener()
@@ -94,7 +94,7 @@ object FailFastJunitTestEngineTest {
                     listOf(
                         "start-FailFast",
                         "start-the root context",
-                        "skip-will pending test",
+                        "skip-pending test",
                         "stop-the root context",
                         "stop-FailFast"
                     )

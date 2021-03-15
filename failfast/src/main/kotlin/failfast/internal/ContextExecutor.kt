@@ -7,8 +7,8 @@ import failfast.ContextPath
 import failfast.ExecutionListener
 import failfast.FailFastException
 import failfast.Failed
-import failfast.Ignored
 import failfast.NullExecutionListener
+import failfast.Pending
 import failfast.RootContext
 import failfast.Success
 import failfast.TestDescription
@@ -142,12 +142,12 @@ internal class ContextExecutor(
             test(behaviorDescription, function)
         }
 
-        override suspend fun itWill(behaviorDescription: String, function: TestLambda) {
+        override suspend fun pending(behaviorDescription: String, function: TestLambda) {
             val testPath = ContextPath(parentContext, behaviorDescription)
 
             if (processedTests.add(testPath)) {
-                val testDescriptor = TestDescription(parentContext, "will $behaviorDescription", getStackTraceElement())
-                val result = Ignored
+                val testDescriptor = TestDescription(parentContext, behaviorDescription, getStackTraceElement())
+                val result = Pending
 
                 @Suppress("DeferredResultUnused")
                 val testPlusResult = TestPlusResult(testDescriptor, result)

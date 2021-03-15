@@ -1,8 +1,8 @@
 package failfast.pitest
 
 import failfast.Failed
-import failfast.Ignored
 import failfast.ObjectContextProvider
+import failfast.Pending
 import failfast.Success
 import failfast.Suite
 import failfast.TestDescription
@@ -40,7 +40,7 @@ object FailFastTestUnitFinder : TestUnitFinder {
                 when (val result = deferredResult.await().result) {
                     is Success -> rc.notifyEnd(description)
                     is Failed -> rc.notifyEnd(description, result.failure)
-                    is Ignored -> rc.notifySkipped(description)
+                    is Pending -> rc.notifySkipped(description)
                 }
             }
         }

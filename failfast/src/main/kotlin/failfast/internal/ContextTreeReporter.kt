@@ -2,11 +2,11 @@ package failfast.internal
 
 import failfast.Context
 import failfast.Failed
-import failfast.Ignored
+import failfast.Pending
 import failfast.Success
 import failfast.TestPlusResult
 import failfast.internal.Colors.FAILED
-import failfast.internal.Colors.IGNORED
+import failfast.internal.Colors.PENDING
 import failfast.internal.Colors.RED
 import failfast.internal.Colors.RESET
 import failfast.internal.Colors.SUCCESS
@@ -52,7 +52,7 @@ internal class ContextTreeReporter {
                             }",
                             "$indentString    ${testResult.test.stackTraceElement}"
                         )
-                        is Ignored -> listOf("$indentString  $IGNORED ${testResult.test.testName} ${YELLOW}PENDING$RESET")
+                        is Pending -> listOf("$indentString  $PENDING ${testResult.test.testName} ${YELLOW}PENDING$RESET")
                     }
 
                 result.addAll(lines)

@@ -75,7 +75,7 @@ interface ContextDSL {
     /**
      * define a pending test that is not implemented yet.
      */
-    suspend fun itWill(behaviorDescription: String, function: TestLambda = {})
+    suspend fun pending(behaviorDescription: String, function: TestLambda = {})
 }
 
 data class SuiteResult(
@@ -102,12 +102,12 @@ data class SuiteResult(
         val totalTests = allTests.size
         if (allOk) {
             // printSlowestTests()
-            val ignoredTests = allTests.filter { it.isIgnored }
-            if (ignoredTests.isNotEmpty()) {
-                // printIgnoredTests(ignoredTests)
-                val ignored = ignoredTests.size
+            val pendingTests = allTests.filter { it.isPending }
+            if (pendingTests.isNotEmpty()) {
+                // printPendingTests(ignoredTests)
+                val pending = pendingTests.size
                 println(
-                    pluralize(totalTests, "test") + ". ${totalTests - ignored} ok, $ignored ignored. time: ${
+                    pluralize(totalTests, "test") + ". ${totalTests - pending} ok, $pending pending. time: ${
                         uptime(
                             totalTests
                         )
@@ -129,9 +129,9 @@ data class SuiteResult(
             println("$totalTests tests. ${failedTests.size} failed. total time: ${uptime(totalTests)}")
             exitProcess(-1)
         }
-        fun printIgnoredTests(ignoredTests: List<TestPlusResult>) {
-            println("\nIgnored tests:")
-            ignoredTests.forEach { println(it.test) }
+        fun printPendingTests(pendingTests: List<TestPlusResult>) {
+            println("\nPending tests:")
+            pendingTests.forEach { println(it.test) }
         }
 
         val contextTreeReporter = ContextTreeReporter()

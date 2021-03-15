@@ -3,20 +3,22 @@ package failfast
 import kotlin.reflect.KClass
 
 fun interface ContextProvider {
-    fun getContext(): RootContext
+    fun getContexts(): List<RootContext>
 }
 
 class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvider {
     constructor(kClass: KClass<*>) : this(kClass.java)
 
-    override fun getContext(): RootContext {
+    override fun getContexts(): List<RootContext> {
         return try {
             val instanceField = jClass.getDeclaredField("INSTANCE")
             val obj = instanceField.get(null)
-            jClass.getDeclaredMethod("getContext").invoke(obj) as RootContext
+            val contexts = jClass.getDeclaredMethod("getContext").invoke(obj)
+            @Suppress("UNCHECKED_CAST")
+            contexts as? List<RootContext> ?: listOf(contexts as RootContext)
         } catch (e: Exception) {
             try {
-                jClass.getDeclaredMethod("getContext").invoke(null) as RootContext
+                listOf(jClass.getDeclaredMethod("getContext").invoke(null) as RootContext)
             } catch (e: Exception) {
                 throw FailFastException(
                     "no idea how to find context in $jClass. declared fields:" +

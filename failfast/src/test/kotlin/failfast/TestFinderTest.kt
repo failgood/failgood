@@ -1,5 +1,6 @@
 package failfast
 
+import failfast.docs.ObjectMultipleContextsTest
 import failfast.docs.ObjectTestContextTest
 import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
@@ -16,6 +17,7 @@ object TestFinderTest {
                     .containsExactlyInAnyOrder(
                         ObjectTestContextTest::class,
                         TestFinderTest::class.java.classLoader.loadClass("failfast.docs.TestContextOnTopLevelTest").kotlin,
+                        ObjectMultipleContextsTest::class
                     )
             }
         }

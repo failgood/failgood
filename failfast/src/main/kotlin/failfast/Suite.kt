@@ -22,7 +22,7 @@ import kotlin.reflect.KClass
 class Suite(val contextProviders: Collection<ContextProvider>) {
     companion object {
         fun fromContexts(rootContexts: Collection<RootContext>) =
-            Suite(rootContexts.map { ContextProvider { it } })
+            Suite(rootContexts.map { ContextProvider { listOf(it) } })
 
         fun fromClasses(classes: List<KClass<*>>) =
             Suite(classes.map { ObjectContextProvider(it) })
@@ -33,7 +33,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     }
 
     constructor(rootContext: RootContext) :
-            this(listOf(ContextProvider { rootContext }))
+            this(listOf(ContextProvider { listOf(rootContext) }))
 
     constructor(function: ContextLambda) :
             this(RootContext("root", false, function))
@@ -88,24 +88,27 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         listener: ExecutionListener = NullExecutionListener
     ):
             List<Deferred<ContextInfo>> {
-        return findRootContexts(coroutineScope).map { deferredContext: Deferred<RootContext> ->
-            coroutineScope.async {
-                val context = deferredContext.await()
-                if (!context.disabled) {
-                    try {
-                        withTimeout(20000) {
-                            ContextExecutor(
-                                context,
-                                coroutineScope,
-                                !executeTests,
-                                listener
-                            ).execute()
+        return findRootContexts(coroutineScope).flatMap { deferredContexts: Deferred<List<RootContext>> ->
+            val contexts = deferredContexts.await()
+            contexts.map { context ->
+                coroutineScope.async {
+                    if (!context.disabled) {
+                        try {
+                            withTimeout(20000) {
+                                ContextExecutor(
+                                    context,
+                                    coroutineScope,
+                                    !executeTests,
+                                    listener
+                                ).execute()
+                            }
+                        } catch (e: TimeoutCancellationException) {
+                            throw FailFastException("context ${context.name} timed out")
                         }
-                    } catch (e: TimeoutCancellationException) {
-                        throw FailFastException("context ${context.name} timed out")
-                    }
-                } else
-                    ContextInfo(emptyList(), mapOf())
+                    } else
+                        ContextInfo(emptyList(), mapOf())
+                }
+
             }
         }
     }
@@ -113,13 +116,13 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     internal fun findRootContexts(coroutineScope: CoroutineScope) = contextProviders
         .map {
             coroutineScope.async {
-                it.getContext()
+                it.getContexts()
             }
         }
 
     fun runSingle(test: String) {
         val contextName = test.substringBefore(">").trim()
-        val context = contextProviders.map { it.getContext() }.single {
+        val context = contextProviders.flatMap { it.getContexts() }.single {
             it.name == contextName
         }
         val desc = ContextPath.fromString(test)

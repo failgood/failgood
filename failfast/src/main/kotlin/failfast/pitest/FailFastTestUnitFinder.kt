@@ -19,13 +19,13 @@ import org.pitest.testapi.TestUnitFinder
 
 object FailFastTestUnitFinder : TestUnitFinder {
     override fun findTestUnits(clazz: Class<*>): List<TestUnit> {
-        val rootContext =
+        val contextProvider: ObjectContextProvider =
             try {
-                ObjectContextProvider(clazz).getContext()
+                ObjectContextProvider(clazz).apply { getContexts() }
             } catch (e: Exception) {
                 return listOf()
             }
-        val tests = runBlocking { Suite(rootContext).findTests(GlobalScope, false).awaitAll() }
+        val tests = runBlocking { Suite(listOf(contextProvider)).findTests(GlobalScope, false).awaitAll() }
         return tests.flatMap { it.tests.entries }.map { FailFastTestUnit(it.key, it.value, clazz) }
     }
 

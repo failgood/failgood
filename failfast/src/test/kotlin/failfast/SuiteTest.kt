@@ -25,7 +25,7 @@ object SuiteTest {
                 expectThat(firstRun).isEqualTo(secondRun)
             }
             test("Suite {} creates a root context") {
-                expectThat(Suite { test("test") {} }.contextProviders.single().getContext().name)
+                expectThat(Suite { test("test") {} }.contextProviders.single().getContexts().single().name)
                     .isEqualTo("root")
             }
         }

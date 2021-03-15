@@ -38,9 +38,6 @@ fun describe(subjectDescription: String, disabled: Boolean = false, function: Co
 inline fun <reified T> describe(disabled: Boolean = false, noinline function: ContextLambda):
         RootContext = describe(T::class, disabled, function)
 
-/**
- *
- */
 fun describe(subjectType: KClass<*>, disabled: Boolean = false, function: ContextLambda):
         RootContext = RootContext("The ${subjectType.simpleName}", disabled, function)
 

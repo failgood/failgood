@@ -6,7 +6,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm")
     id("info.solidsoft.pitest")
-    id("com.jfrog.bintray")
     id("failfast.common")
 
 }

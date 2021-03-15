@@ -9,7 +9,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm")
     `maven-publish`
-    id("com.jfrog.bintray")
     id("info.solidsoft.pitest")
     signing
     id("failfast.common")

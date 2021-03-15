@@ -46,36 +46,35 @@ fun describe(subjectType: KClass<*>, disabled: Boolean = false, function: Contex
 
 interface ContextDSL {
     /**
-     * define a test context. A test context contains tests and/or sub contexts
+     * define a test context that describes a subject.
+     */
+    suspend fun describe(name: String, function: ContextLambda)
+
+    /**
+     * define a test that describes one aspect of a subject.
+     */
+    suspend fun it(behaviorDescription: String, function: TestLambda)
+
+    /**
+     * define a test context. if possible prefer [describe] with a description of behavior.
      */
     suspend fun context(name: String, function: ContextLambda)
 
     /**
-     * define a test
+     * define a test. [it] is probably better suited.
      */
     suspend fun test(name: String, function: TestLambda)
 
-
     /**
-     * define a test context that describes a subject. for use with [ContextDSL.it]
+     * define a pending test.
      */
-    suspend fun describe(name: String, function: ContextLambda)
+    suspend fun pending(behaviorDescription: String, function: TestLambda = {})
 
     /**
      * create a test dependency that should be closed after the a test run
      * use this instead of beforeEach/afterEach
      */
     fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T
-
-    /**
-     * define a test that describes a subject. for use with [ContextDSL.describe]
-     */
-    suspend fun it(behaviorDescription: String, function: TestLambda)
-
-    /**
-     * define a pending test that is not implemented yet.
-     */
-    suspend fun pending(behaviorDescription: String, function: TestLambda = {})
 }
 
 data class SuiteResult(

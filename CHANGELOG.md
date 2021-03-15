@@ -4,9 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- Allow declaring multiple root contexts in one class file. This is especially useful to create root contexts
+  dynamically, for example to run the same test cases on multiple databases.
+
 ### Changed
 
-- rename itWill to pending
+- Rename itWill to pending
 
 ## 0.3.1 - "Zwischenhaltestelle" - 2021-03-05
 

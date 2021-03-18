@@ -4,12 +4,12 @@ import failfast.FailFast
 import failfast.describe
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
+import kotlin.reflect.jvm.javaMethod
 
 fun main() {
     FailFast.runTest()
 }
 
-// I have no idea how to support overloaded methods with that syntax, so it will probably change.
 object MockTest {
     interface IImpl {
         fun method()
@@ -22,20 +22,32 @@ object MockTest {
         val mock = mock<IImpl>()
         it("records method calls") {
             mock.method()
-            expectThat(getCalls(mock)).isEqualTo(listOf(MethodCall(IImpl::method, listOf())))
+            expectThat(getCalls(mock)).isEqualTo(listOf(MethodCall(IImpl::method.javaMethod!!, listOf())))
         }
         it("records method parameters") {
             mock.methodWithParameters(10, "string")
-            expectThat(getCalls(mock)).isEqualTo(listOf(MethodCall(IImpl::methodWithParameters, listOf(10, "string"))))
+            expectThat(getCalls(mock)).isEqualTo(
+                listOf(
+                    MethodCall(
+                        IImpl::methodWithParameters.javaMethod!!,
+                        listOf(10, "string")
+                    )
+                )
+            )
         }
         it("records suspend method calls") {
             mock.suspendMethod(10, "string")
-            expectThat(getCalls(mock)).isEqualTo(listOf(MethodCall(IImpl::suspendMethod, listOf(10, "string"))))
+            expectThat(getCalls(mock)).isEqualTo(
+                listOf(
+                    MethodCall(
+                        IImpl::suspendMethod.javaMethod!!,
+                        listOf(10, "string")
+                    )
+                )
+            )
         }
         it("defines result via calling the mock") {
-            whenever(mock) {
-                stringReturningFunction()
-            }.thenReturn("resultString")
+            whenever(mock) { stringReturningFunction() }.thenReturn("resultString")
             expectThat(mock.stringReturningFunction()).isEqualTo("resultString")
         }
     }

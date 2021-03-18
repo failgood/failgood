@@ -5,7 +5,6 @@ import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 import kotlin.coroutines.Continuation
-import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 
 fun getCalls(mock: Any): List<MethodCall> {
@@ -32,15 +31,14 @@ internal fun <T : Any> whenever(mock: T, lambda: T.() -> Unit): MockReplyRecorde
 }
 
 class RecordingHandler : InvocationHandler {
-    var call: MethodCall2? = null
+    var call: MethodCall? = null
     override fun invoke(proxy: Any?, method: Method, args: Array<out Any>?): Any? {
-        call = MethodCall2(method, cleanArguments(args))
+        call = MethodCall(method, cleanArguments(args))
         return null
     }
 
 }
 
-data class MethodCall2(val method: Method, val arguments: List<Any>)
 
 internal class MockReplyRecorder(val handler: Handler, val recordingHandler: RecordingHandler) {
     fun thenReturn(parameter: Any) {
@@ -50,9 +48,9 @@ internal class MockReplyRecorder(val handler: Handler, val recordingHandler: Rec
 
 }
 
-data class MethodCall(val kotlinMethod: KCallable<*>, val arguments: List<Any>) {
+data class MethodCall(val method: Method, val arguments: List<Any>) {
     override fun toString(): String {
-        return "${kotlinMethod.name}(" + arguments.joinToString() + ")"
+        return "${method.name}(" + arguments.joinToString() + ")"
     }
 }
 
@@ -70,15 +68,10 @@ internal class Handler(internal val kClass: KClass<*>) : InvocationHandler {
     val results = mutableMapOf<Method, Any>()
     val calls = mutableListOf<MethodCall>()
     override fun invoke(proxy: Any?, method: Method, arguments: Array<out Any>?): Any? {
-        val kotlinMethod = toKotlin(method)
-        val result = results[method]
         val nonCoroutinesArgs = cleanArguments(arguments)
-        calls.add(MethodCall(kotlinMethod, nonCoroutinesArgs))
-        return result
+        calls.add(MethodCall(method, nonCoroutinesArgs))
+        return results[method]
     }
-
-    private fun toKotlin(method: Method) = kClass.members.single { it.name == method.name }
-
 
     fun defineResult(method: Method, result: Any) {
         results[method] = result

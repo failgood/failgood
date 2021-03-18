@@ -5,7 +5,6 @@ import failfast.describe
 import strikt.api.expectThat
 import strikt.api.expectThrows
 import strikt.assertions.isEqualTo
-import kotlin.reflect.jvm.javaMethod
 
 fun main() {
     FailFast.runTest()
@@ -13,51 +12,51 @@ fun main() {
 
 object MockTest {
     interface IImpl {
-        fun method()
-        fun method2()
-        fun methodWithParameters(number: Int, name: String)
-        suspend fun suspendMethod(number: Int, name: String)
+        fun function()
+        fun function2()
+        fun functionWithParameters(number: Int, name: String)
+        suspend fun suspendFunction(number: Int, name: String): String
         fun stringReturningFunction(): String
     }
 
     val context = describe("the mocking framework") {
         val mock = mock<IImpl>()
-        describe("can record method calls") {
-            mock.method()
-            it("verifies method calls") {
-                verify(mock) { method() }
-
+        describe("records function calls") {
+            mock.function()
+            it("verifies function calls") {
+                verify(mock) { function() }
             }
-            it("throws when a verified method was not called") {
+            it("throws when a verified function was not called") {
                 expectThrows<MockException> {
-                    verify(mock) { method2() }
+                    verify(mock) { function2() }
                 }
-//                expectThat(getCalls(mock)).isEqualTo(listOf(MethodCall(IImpl::method.javaMethod!!, listOf())))
             }
         }
-        it("records method parameters") {
-            mock.methodWithParameters(10, "string")
-            expectThat(getCalls(mock)).isEqualTo(
-                listOf(
-                    MethodCall(
-                        IImpl::methodWithParameters.javaMethod!!,
-                        listOf(10, "string")
-                    )
-                )
-            )
+        describe("records function parameters") {
+            mock.functionWithParameters(10, "string")
+            it("verifies function parameters") {
+                verify(mock) { functionWithParameters(10, "string") }
+            }
         }
-        it("records suspend method calls") {
-            mock.suspendMethod(10, "string")
-            expectThat(getCalls(mock)).isEqualTo(
-                listOf(
-                    MethodCall(
-                        IImpl::suspendMethod.javaMethod!!,
-                        listOf(10, "string")
-                    )
-                )
-            )
+        describe("supports suspend functions") {
+
+            it("verifies suspend functions") {
+                mock.suspendFunction(10, "string")
+                verify(mock) { suspendFunction(10, "string") }
+            }
+            it("throws when parameters don't match") {
+                mock.suspendFunction(10, "string")
+                expectThrows<MockException> {
+                    verify(mock) { suspendFunction(11, "string") }
+                }
+            }
+            it("records results for suspend functions") {
+                whenever(mock) { suspendFunction(0, "ignored") }.thenReturn("suspendResultString")
+                expectThat(mock.suspendFunction(10, "string")).isEqualTo("suspendResultString")
+            }
+
         }
-        it("defines result via calling the mock") {
+        it("defines results via calling the mock") {
             whenever(mock) { stringReturningFunction() }.thenReturn("resultString")
             expectThat(mock.stringReturningFunction()).isEqualTo("resultString")
         }

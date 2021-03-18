@@ -20,10 +20,13 @@ fun <T : Any> mock(kClass: KClass<T>): T {
 
 fun getCalls(mock: Any): List<MethodCall> = getHandler(mock).calls
 
-fun <T : Any> verify(mock: T, lambda: T.() -> Unit) = getHandler(mock).verify(lambda)
+suspend fun <T : Any> verify(mock: T, lambda: suspend T.() -> Unit) = getHandler(mock).verify(lambda)
 class MockException(msg: String) : AssertionError(msg)
 
-fun <T : Any> whenever(mock: T, lambda: T.() -> Unit): MockReplyRecorder = getHandler(mock).whenever(lambda)
+suspend fun <Mock : Any, Result : Any> whenever(
+    mock: Mock,
+    lambda: suspend Mock.() -> Result
+): MockReplyRecorder<Result> = getHandler(mock).whenever<Mock, Result>(lambda)
 
 data class MethodCall(val method: Method, val arguments: List<Any>) {
     override fun toString(): String {
@@ -31,8 +34,8 @@ data class MethodCall(val method: Method, val arguments: List<Any>) {
     }
 }
 
-interface MockReplyRecorder {
-    fun thenReturn(parameter: Any)
+interface MockReplyRecorder<Type> {
+    fun thenReturn(parameter: Type)
 }
 
 private fun getHandler(mock: Any): MockHandler {
@@ -53,21 +56,20 @@ private class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
         results[method] = result
     }
 
-    fun <T : Any> whenever(
-        lambda: T.() -> Unit
-    ): MockReplyRecorder {
+    suspend fun <Mock : Any, Reply : Any> whenever(
+        lambda: suspend Mock.() -> Reply
+    ): MockReplyRecorder<Reply> {
         val recordingHandler = RecordingHandler()
-        makeProxy<T>(recordingHandler).lambda()
-        return MockReplyRecorderImpl(this, recordingHandler)
+        makeProxy<Mock>(recordingHandler).lambda()
+        return MockReplyRecorderImpl<Reply>(this, recordingHandler)
     }
 
-    fun <T : Any> verify(lambda: T.() -> Unit) = makeProxy<T>(VerifyingHandler(this)).lambda()
+    suspend fun <T : Any> verify(lambda: suspend T.() -> Unit) = makeProxy<T>(VerifyingHandler(this)).lambda()
 
     private fun <T : Any> makeProxy(handler: InvocationHandler): T {
         @Suppress("UNCHECKED_CAST")
         return Proxy.newProxyInstance(Thread.currentThread().contextClassLoader, arrayOf(kClass.java), handler) as T
     }
-
 
     class VerifyingHandler(mockHandler: MockHandler) : InvocationHandler {
         val calls = mockHandler.calls
@@ -80,13 +82,12 @@ private class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
 
     }
 
-    class MockReplyRecorderImpl(val mockHandler: MockHandler, val recordingHandler: RecordingHandler) :
-        MockReplyRecorder {
-        override fun thenReturn(parameter: Any) {
+    class MockReplyRecorderImpl<Type : Any>(val mockHandler: MockHandler, val recordingHandler: RecordingHandler) :
+        MockReplyRecorder<Type> {
+        override fun thenReturn(parameter: Type) {
             val call = recordingHandler.call!!
             mockHandler.defineResult(call.method, parameter)
         }
-
     }
 
     class RecordingHandler : InvocationHandler {
@@ -96,7 +97,6 @@ private class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
             return null
         }
     }
-
 }
 
 private fun cleanArguments(arguments: Array<out Any>?) =

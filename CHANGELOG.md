@@ -2,16 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## Unreleased (0.4.0)
 
 ### Added
 
+- Mocking. Failfast now has its own mocking framework. It's very simple and can only mock interfaces, but it's much
+  faster than mockk, and has a nice api. (for now look into MockTest.kt for more info.)
 - Allow declaring multiple root contexts in one class file. This is especially useful to create root contexts
   dynamically, for example to run the same test cases on multiple databases.
 
 ### Changed
 
 - Rename itWill to pending
+
+### Fixed
+
+- Report individual Test duration correctly. Before the first test in each context had a wrong time reported.
 
 ## 0.3.1 - "Zwischenhaltestelle" - 2021-03-05
 

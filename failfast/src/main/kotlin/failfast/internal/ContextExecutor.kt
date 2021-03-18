@@ -28,7 +28,7 @@ internal class ContextExecutor(
     val listener: ExecutionListener = NullExecutionListener
 ) {
     val coroutineStart: CoroutineStart = if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT
-    private val startTime = System.nanoTime()
+    private var startTime = System.nanoTime()
 
     private val foundContexts = mutableListOf<Context>()
     private val deferredTestResults = LinkedHashMap<TestDescription, Deferred<TestPlusResult>>()
@@ -161,6 +161,7 @@ internal class ContextExecutor(
         val function = rootContext.function
         val rootContext = Context(rootContext.name, null, rootContext.stackTraceElement)
         while (true) {
+            startTime = System.nanoTime()
             val resourcesCloser = ResourcesCloser()
             val visitor = ContextVisitor(rootContext, resourcesCloser)
             visitor.function()

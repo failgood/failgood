@@ -15,25 +15,29 @@ object MockTest {
         fun method()
         fun methodWithParameters(number: Int, name: String)
         suspend fun suspendMethod(number: Int, name: String)
+        fun returnsString(): String
     }
 
     val context = describe("the mocking framework") {
+        val mock = mock<IImpl>()
         it("records method calls") {
-            val mock = mock<IImpl>()
             mock.method()
             expectThat(getCalls(mock)).isEqualTo(listOf(MethodCall(IImpl::method, listOf())))
         }
         it("records method parameters") {
-            val mock = mock<IImpl>()
             mock.methodWithParameters(10, "string")
             expectThat(getCalls(mock)).isEqualTo(listOf(MethodCall(IImpl::methodWithParameters, listOf(10, "string"))))
         }
         it("records suspend method calls") {
-            val mock = mock<IImpl>()
             mock.suspendMethod(10, "string")
             expectThat(getCalls(mock)).isEqualTo(listOf(MethodCall(IImpl::suspendMethod, listOf(10, "string"))))
         }
+        it("returns values") {
+            defineResult(mock, IImpl::returnsString, "resultString")
+            expectThat(mock.returnsString()).isEqualTo("resultString")
+        }
     }
+
 
 }
 

@@ -3,6 +3,7 @@ package failfast.mock
 import failfast.FailFast
 import failfast.describe
 import strikt.api.expectThat
+import strikt.api.expectThrows
 import strikt.assertions.isEqualTo
 import kotlin.reflect.jvm.javaMethod
 
@@ -13,6 +14,7 @@ fun main() {
 object MockTest {
     interface IImpl {
         fun method()
+        fun method2()
         fun methodWithParameters(number: Int, name: String)
         suspend fun suspendMethod(number: Int, name: String)
         fun stringReturningFunction(): String
@@ -20,12 +22,18 @@ object MockTest {
 
     val context = describe("the mocking framework") {
         val mock = mock<IImpl>()
-        it("records method calls") {
+        describe("can record method calls") {
             mock.method()
-            verify(mock) {
-                method()
+            it("verifies method calls") {
+                verify(mock) { method() }
+
             }
-            expectThat(getCalls(mock)).isEqualTo(listOf(MethodCall(IImpl::method.javaMethod!!, listOf())))
+            it("throws when a verified method was not called") {
+                expectThrows<MockException> {
+                    verify(mock) { method2() }
+                }
+//                expectThat(getCalls(mock)).isEqualTo(listOf(MethodCall(IImpl::method.javaMethod!!, listOf())))
+            }
         }
         it("records method parameters") {
             mock.methodWithParameters(10, "string")
@@ -57,5 +65,6 @@ object MockTest {
 
 
 }
+
 
 

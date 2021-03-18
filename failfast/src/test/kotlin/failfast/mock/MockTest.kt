@@ -15,7 +15,7 @@ object MockTest {
         fun method()
         fun methodWithParameters(number: Int, name: String)
         suspend fun suspendMethod(number: Int, name: String)
-        fun returnsString(): String
+        fun stringReturningFunction(): String
     }
 
     val context = describe("the mocking framework") {
@@ -32,12 +32,15 @@ object MockTest {
             mock.suspendMethod(10, "string")
             expectThat(getCalls(mock)).isEqualTo(listOf(MethodCall(IImpl::suspendMethod, listOf(10, "string"))))
         }
-        it("returns values") {
-            defineResult(mock, IImpl::returnsString, "resultString")
-            expectThat(mock.returnsString()).isEqualTo("resultString")
+        it("defines result via calling the mock") {
+            whenever(mock) {
+                stringReturningFunction()
+            }.thenReturn("resultString")
+            expectThat(mock.stringReturningFunction()).isEqualTo("resultString")
         }
     }
 
 
 }
+
 

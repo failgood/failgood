@@ -8,14 +8,14 @@ import kotlin.coroutines.Continuation
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 
-fun getCalls(mock: Any): List<CallInfo> {
+fun getCalls(mock: Any): List<MethodCall> {
     val invocationHandler = Proxy.getInvocationHandler(mock) as? Handler
         ?: throw FailFastException("error finding invocation handler. is ${mock::class} really a mock?")
     return invocationHandler.calls
 
 }
 
-data class CallInfo(val kotlinMethod: KCallable<*>, val arguments: List<Any>) {
+data class MethodCall(val kotlinMethod: KCallable<*>, val arguments: List<Any>) {
     override fun toString(): String {
         return "${kotlinMethod.name}(" + arguments.joinToString() + ")"
     }
@@ -32,11 +32,11 @@ fun <T : Any> mock(kClass: KClass<T>): T {
 }
 
 internal class Handler(private val kClass: KClass<*>) : InvocationHandler {
-    val calls = mutableListOf<CallInfo>()
+    val calls = mutableListOf<MethodCall>()
     override fun invoke(proxy: Any?, method: Method, arguments: Array<out Any>?): Any? {
         val kotlinMethod = kClass.members.single { it.name == method.name }
         val nonCoroutinesArgs = (arguments?.toList() ?: listOf()).dropLastWhile { it is Continuation<*> }
-        calls.add(CallInfo(kotlinMethod, nonCoroutinesArgs))
+        calls.add(MethodCall(kotlinMethod, nonCoroutinesArgs))
         return null
     }
 }

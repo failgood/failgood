@@ -20,7 +20,10 @@ fun <T : Any> mock(kClass: KClass<T>): T {
 
 fun getCalls(mock: Any): List<MethodCall> = getHandler(mock).calls
 
+fun <T : Any> verify(mock: T, lambda: T.() -> Unit) = getHandler(mock).verify(lambda)
+
 fun <T : Any> whenever(mock: T, lambda: T.() -> Unit): MockReplyRecorder = getHandler(mock).whenever(lambda)
+
 data class MethodCall(val method: Method, val arguments: List<Any>) {
     override fun toString(): String {
         return "${method.name}(" + arguments.joinToString() + ")"
@@ -60,6 +63,9 @@ private class Handler(private val kClass: KClass<*>) : InvocationHandler {
         ) as T
         receiver.lambda()
         return MockReplyRecorderImpl(this, recordingHandler)
+    }
+
+    fun <T> verify(lambda: T.() -> Unit) {
     }
 
     class MockReplyRecorderImpl(val handler: Handler, val recordingHandler: RecordingHandler) : MockReplyRecorder {

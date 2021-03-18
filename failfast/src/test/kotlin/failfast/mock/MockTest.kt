@@ -22,6 +22,9 @@ object MockTest {
         val mock = mock<IImpl>()
         it("records method calls") {
             mock.method()
+            verify(mock) {
+                method()
+            }
             expectThat(getCalls(mock)).isEqualTo(listOf(MethodCall(IImpl::method.javaMethod!!, listOf())))
         }
         it("records method parameters") {

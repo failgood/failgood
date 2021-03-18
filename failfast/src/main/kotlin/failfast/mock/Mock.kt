@@ -56,16 +56,24 @@ private class Handler(private val kClass: KClass<*>) : InvocationHandler {
         lambda: T.() -> Unit
     ): MockReplyRecorder {
         val recordingHandler = RecordingHandler()
-        @Suppress("UNCHECKED_CAST") val receiver = Proxy.newProxyInstance(
+        makeProxy<T>(recordingHandler).lambda()
+        return MockReplyRecorderImpl(this, recordingHandler)
+    }
+
+    private fun <T : Any> makeProxy(recordingHandler: InvocationHandler): T {
+        @Suppress("UNCHECKED_CAST")
+        return Proxy.newProxyInstance(
             Thread.currentThread().contextClassLoader,
             arrayOf(kClass.java),
             recordingHandler
         ) as T
-        receiver.lambda()
-        return MockReplyRecorderImpl(this, recordingHandler)
     }
 
-    fun <T> verify(lambda: T.() -> Unit) {
+    fun <T : Any> verify(lambda: T.() -> Unit) = makeProxy<T>(VerifyingHandler()).lambda()
+
+    class VerifyingHandler : InvocationHandler {
+        override fun invoke(proxy: Any?, method: Method?, args: Array<out Any>?) = null
+
     }
 
     class MockReplyRecorderImpl(val handler: Handler, val recordingHandler: RecordingHandler) : MockReplyRecorder {

@@ -7,36 +7,62 @@ import java.lang.reflect.Proxy
 import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
 
-inline fun <reified T : Any> mock() = mock(T::class)
+/**
+ * create a mock for class Mock
+ *
+ * all method calls will return null. To define other results use [verify]
+ */
+inline fun <reified Mock : Any> mock() = mock(Mock::class)
 
-fun <T : Any> mock(kClass: KClass<T>): T {
+fun <Mock : Any> mock(kClass: KClass<Mock>): Mock {
     @Suppress("UNCHECKED_CAST")
     return Proxy.newProxyInstance(
         Thread.currentThread().contextClassLoader,
         arrayOf(kClass.java),
         MockHandler(kClass)
-    ) as T
+    ) as Mock
 }
 
-fun getCalls(mock: Any): List<MethodCall> = getHandler(mock).calls
+/**
+ * Define what to return when a method is called
+ *
+ * `whenever(mock) { methodCall(ignoredParameter) }.thenReturn("blah")`
+ *
+ * parameters that you pass to method calls are ignored, any invocation of methodCall will return "blah"
+ *
+ */
+suspend fun <Mock : Any, Result : Any> whenever(mock: Mock, lambda: suspend Mock.() -> Result):
+        MockReplyRecorder<Result> = getHandler(mock).whenever(lambda)
 
-suspend fun <T : Any> verify(mock: T, lambda: suspend T.() -> Unit) = getHandler(mock).verify(lambda)
-class MockException(msg: String) : AssertionError(msg)
+/**
+ * Verify mock invocations
+ * ```
+ * interface ManagerManager {
+ *  fun manage(manager:String)
+ * }
+ * val mock = mock<ManagerManager>()
+ * mock.manage("jakob")
+ * verify(mock) { mock.manage("jakob") } // works
+ * verify(mock) { mock.manage("jack") } // throws
+ * ```
+ *
+ */
+suspend fun <Mock : Any> verify(mock: Mock, lambda: suspend Mock.() -> Unit) {
+    getHandler(mock).verify(lambda)
+}
 
-suspend fun <Mock : Any, Result : Any> whenever(
-    mock: Mock,
-    lambda: suspend Mock.() -> Result
-): MockReplyRecorder<Result> = getHandler(mock).whenever<Mock, Result>(lambda)
+class MockException constructor(msg: String) : AssertionError(msg)
 
-data class MethodCall(val method: Method, val arguments: List<Any>) {
+interface MockReplyRecorder<Type> {
+    fun thenReturn(parameter: Type)
+}
+
+private data class MethodCall(val method: Method, val arguments: List<Any>) {
     override fun toString(): String {
         return "${method.name}(" + arguments.joinToString() + ")"
     }
 }
 
-interface MockReplyRecorder<Type> {
-    fun thenReturn(parameter: Type)
-}
 
 private fun getHandler(mock: Any): MockHandler {
     return Proxy.getInvocationHandler(mock) as? MockHandler
@@ -61,7 +87,7 @@ private class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
     ): MockReplyRecorder<Reply> {
         val recordingHandler = RecordingHandler()
         makeProxy<Mock>(recordingHandler).lambda()
-        return MockReplyRecorderImpl<Reply>(this, recordingHandler)
+        return MockReplyRecorderImpl(this, recordingHandler)
     }
 
     suspend fun <T : Any> verify(lambda: suspend T.() -> Unit) = makeProxy<T>(VerifyingHandler(this)).lambda()

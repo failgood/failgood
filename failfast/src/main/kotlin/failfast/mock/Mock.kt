@@ -5,7 +5,11 @@ import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 import kotlin.coroutines.Continuation
+import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction1
+import kotlin.reflect.KFunction2
+
 
 /**
  * create a mock for class Mock
@@ -51,13 +55,23 @@ suspend fun <Mock : Any> verify(mock: Mock, lambda: suspend Mock.() -> Unit) {
     getHandler(mock).verify(lambda)
 }
 
+fun getCalls(mock: Any) = getHandler(mock).calls.map { FunctionCall(it.method.name, it.arguments) }
+
+data class FunctionCall(val function: String, val arguments: List<Any?>)
+
+fun <A, B, C> call(kFunction2: KFunction2<A, B, C>, b: B): FunctionCall =
+    FunctionCall((kFunction2 as KCallable<*>).name, listOf(b))
+
+fun <A, B> call(kFunction1: KFunction1<A, B>): FunctionCall = FunctionCall((kFunction1 as KCallable<*>).name, listOf())
+
+
 class MockException constructor(msg: String) : AssertionError(msg)
 
 interface MockReplyRecorder<Type> {
     fun thenReturn(parameter: Type)
 }
 
-private data class MethodCall(val method: Method, val arguments: List<Any>) {
+private data class MethodWithArguments(val method: Method, val arguments: List<Any?>) {
     override fun toString(): String {
         return "${method.name}(" + arguments.joinToString() + ")"
     }
@@ -71,10 +85,10 @@ private fun getHandler(mock: Any): MockHandler {
 
 private class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
     val results = mutableMapOf<Method, Any>()
-    val calls = mutableListOf<MethodCall>()
+    val calls = mutableListOf<MethodWithArguments>()
     override fun invoke(proxy: Any?, method: Method, arguments: Array<out Any>?): Any? {
         val nonCoroutinesArgs = cleanArguments(arguments)
-        calls.add(MethodCall(method, nonCoroutinesArgs))
+        calls.add(MethodWithArguments(method, nonCoroutinesArgs))
         return results[method]
     }
 
@@ -100,7 +114,7 @@ private class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
     class VerifyingHandler(mockHandler: MockHandler) : InvocationHandler {
         val calls = mockHandler.calls
         override fun invoke(proxy: Any?, method: Method, args: Array<out Any>?): Any? {
-            val call = MethodCall(method, cleanArguments(args))
+            val call = MethodWithArguments(method, cleanArguments(args))
             if (!calls.contains(call))
                 throw MockException("expected call $call never happened. calls: ${calls.joinToString()}")
             return null
@@ -117,9 +131,9 @@ private class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
     }
 
     class RecordingHandler : InvocationHandler {
-        var call: MethodCall? = null
+        var call: MethodWithArguments? = null
         override fun invoke(proxy: Any?, method: Method, args: Array<out Any>?): Any? {
-            call = MethodCall(method, cleanArguments(args))
+            call = MethodWithArguments(method, cleanArguments(args))
             return null
         }
     }

@@ -4,6 +4,7 @@ import failfast.FailFast
 import failfast.describe
 import strikt.api.expectThat
 import strikt.api.expectThrows
+import strikt.assertions.containsExactly
 import strikt.assertions.isEqualTo
 
 fun main() {
@@ -12,6 +13,10 @@ fun main() {
 
 object MockTest {
     interface IImpl {
+        fun overloadedFunction()
+        fun overloadedFunction(s: String)
+        fun overloadedFunction(i: Int)
+
         fun function()
         fun function2()
         fun functionWithParameters(number: Int, name: String)
@@ -59,6 +64,18 @@ object MockTest {
         it("defines results via calling the mock") {
             whenever(mock) { stringReturningFunction() }.thenReturn("resultString")
             expectThat(mock.stringReturningFunction()).isEqualTo("resultString")
+        }
+        it("can return function calls for normal asserting") {
+            mock.function()
+            mock.overloadedFunction()
+            mock.overloadedFunction("string")
+            mock.overloadedFunction(10)
+            expectThat(getCalls(mock)).containsExactly(
+                call(IImpl::function),
+                call(IImpl::overloadedFunction),
+                call(IImpl::overloadedFunction, "string"),
+                call(IImpl::overloadedFunction, 10)
+            )
         }
     }
 

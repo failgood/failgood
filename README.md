@@ -3,7 +3,8 @@
 
 # Failfast
 
-Multi-threaded test runner for Kotlin focusing on simplicity, usability and speed.
+Multi-threaded test runner for Kotlin focusing on simplicity, usability and speed. Now including a simple mock library.
+And still zero dependencies.
 
 ## Goals / Features
 

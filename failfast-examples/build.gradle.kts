@@ -15,13 +15,14 @@ dependencies {
     testImplementation(project(":failfast"))
     testImplementation("io.strikt:strikt-core:$striktVersion")
     testImplementation("org.junit.platform:junit-platform-launcher:${failfast.Versions.junitPlatformVersion}")
-    testImplementation("io.mockk:mockk:1.10.6")
+    testImplementation("io.mockk:mockk:1.11.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${failfast.Versions.coroutinesVersion}")
 
 }
 
 tasks {
     withType<Test> { enabled = false }
+    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> { kotlinOptions.jvmTarget = "1.8" }
 }
 
 val testMain =

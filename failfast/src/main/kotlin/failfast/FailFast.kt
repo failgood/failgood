@@ -97,7 +97,8 @@ data class SuiteResult(
         }
         val totalTests = allTests.size
         if (allOk) {
-            // printSlowestTests()
+            if (System.getenv("PRINT_SLOWEST") != null)
+                printSlowestTests()
             val pendingTests = allTests.filter { it.isPending }
             if (pendingTests.isNotEmpty()) {
                 // printPendingTests(ignoredTests)
@@ -130,13 +131,14 @@ data class SuiteResult(
             pendingTests.forEach { println(it.test) }
         }
 
+    }
+
+    fun printSlowestTests() {
         val contextTreeReporter = ContextTreeReporter()
-        fun printSlowestTests() {
-            val slowTests =
-                allTests.filter { it.result is Success }.sortedBy { 0 - (it.result as Success).timeMicro }.take(5)
-            println("Slowest tests:")
-            slowTests.forEach { println("${contextTreeReporter.time((it.result as Success).timeMicro)}ms ${it.test}") }
-        }
+        val slowTests =
+            allTests.filter { it.result is Success }.sortedBy { 0 - (it.result as Success).timeMicro }.take(5)
+        println("Slowest tests:")
+        slowTests.forEach { println("${contextTreeReporter.time((it.result as Success).timeMicro)}ms ${it.test}") }
     }
 
 }

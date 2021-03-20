@@ -77,8 +77,24 @@ object MockTest {
                 call(IImpl::overloadedFunction, 10)
             )
         }
+        it("has call helpers for up to 5 parameters") {
+            call(InterfaceWithOverloadedMethods::function)
+            call(InterfaceWithOverloadedMethods::function, "a")
+            call(InterfaceWithOverloadedMethods::function, "a", "b")
+            call(InterfaceWithOverloadedMethods::function, "a", "b", "c")
+            call(InterfaceWithOverloadedMethods::function, "a", "b", "c", "d")
+            call(InterfaceWithOverloadedMethods::function, "a", "b", "c", "d", "e")
+        }
     }
 
+    interface InterfaceWithOverloadedMethods {
+        fun function()
+        fun function(a: String)
+        fun function(a: String, b: String)
+        fun function(a: String, b: String, c: String)
+        fun function(a: String, b: String, c: String, d: String)
+        fun function(a: String, b: String, c: String, d: String, e: String)
+    }
 
 }
 

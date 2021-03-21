@@ -94,6 +94,9 @@ object MockTest {
                 expectThat(mock).isNotEqualTo(mock())
             }
         }
+        it("returns a useable toString") {
+            expectThat(mock.toString()).isEqualTo("mock<IImpl>")
+        }
     }
 
 

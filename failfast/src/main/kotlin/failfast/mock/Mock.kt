@@ -82,8 +82,12 @@ private class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
         val nonCoroutinesArgs = cleanArguments(arguments)
         calls.add(MethodWithArguments(method, nonCoroutinesArgs))
         val result = results[method]
-        if (result == null && method.name == "equals")
-            return proxy === arguments?.singleOrNull()
+        if (result == null) {
+            if (method.name == "equals")
+                return proxy === arguments?.singleOrNull()
+            else if (method.name == "toString" && nonCoroutinesArgs.isEmpty())
+                return "mock<${kClass.simpleName}>"
+        }
         return result
     }
 

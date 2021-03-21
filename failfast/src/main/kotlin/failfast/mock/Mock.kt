@@ -5,14 +5,7 @@ import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 import kotlin.coroutines.Continuation
-import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
-import kotlin.reflect.KFunction1
-import kotlin.reflect.KFunction2
-import kotlin.reflect.KFunction3
-import kotlin.reflect.KFunction4
-import kotlin.reflect.KFunction5
-import kotlin.reflect.KFunction6
 
 
 /**
@@ -63,28 +56,6 @@ fun getCalls(mock: Any) = getHandler(mock).calls.map { FunctionCall(it.method.na
 
 data class FunctionCall(val function: String, val arguments: List<Any?>)
 
-fun <A, B> call(kFunction1: KFunction1<A, B>): FunctionCall = FunctionCall((kFunction1 as KCallable<*>).name, listOf())
-fun <A, B, C> call(kFunction2: KFunction2<A, B, C>, b: B): FunctionCall =
-    FunctionCall((kFunction2 as KCallable<*>).name, listOf(b))
-
-fun <A, B, C, D> call(kFunction3: KFunction3<A, B, C, D>, b: B, c: C): FunctionCall =
-    FunctionCall((kFunction3 as KCallable<*>).name, listOf(b, c))
-
-fun <A, B, C, D, E> call(kFunction4: KFunction4<A, B, C, D, E>, b: B, c: C, d: D): FunctionCall =
-    FunctionCall((kFunction4 as KCallable<*>).name, listOf(b, c, d))
-
-fun <A, B, C, D, E, F> call(kFunction5: KFunction5<A, B, C, D, E, F>, b: B, c: C, d: D, e: E): FunctionCall =
-    FunctionCall((kFunction5 as KCallable<*>).name, listOf(b, c, d, e))
-
-fun <A, B, C, D, E, F, G> call(
-    kFunction6: KFunction6<A, B, C, D, E, F, G>,
-    b: B,
-    c: C,
-    d: D,
-    e: E,
-    f: F
-): FunctionCall = FunctionCall((kFunction6 as KCallable<*>).name, listOf(b, c, d, e, f))
-
 
 class MockException constructor(msg: String) : AssertionError(msg)
 
@@ -107,10 +78,13 @@ private fun getHandler(mock: Any): MockHandler {
 private class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
     val results = mutableMapOf<Method, Any>()
     val calls = mutableListOf<MethodWithArguments>()
-    override fun invoke(proxy: Any?, method: Method, arguments: Array<out Any>?): Any? {
+    override fun invoke(proxy: Any, method: Method, arguments: Array<out Any>?): Any? {
         val nonCoroutinesArgs = cleanArguments(arguments)
         calls.add(MethodWithArguments(method, nonCoroutinesArgs))
-        return results[method]
+        val result = results[method]
+        if (result == null && method.name == "equals")
+            return proxy === arguments?.singleOrNull()
+        return result
     }
 
     fun defineResult(method: Method, result: Any) {

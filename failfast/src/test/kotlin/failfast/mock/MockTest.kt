@@ -6,6 +6,7 @@ import strikt.api.expectThat
 import strikt.api.expectThrows
 import strikt.assertions.containsExactly
 import strikt.assertions.isEqualTo
+import strikt.assertions.isNotEqualTo
 
 fun main() {
     FailFast.runTest()
@@ -85,7 +86,16 @@ object MockTest {
             call(InterfaceWithOverloadedMethods::function, "a", "b", "c", "d")
             call(InterfaceWithOverloadedMethods::function, "a", "b", "c", "d", "e")
         }
+        describe("handles equals correctly") {
+            it("returns true for equals with the same mock") {
+                expectThat(mock).isEqualTo(mock)
+            }
+            it("returns false for equals with a different object") {
+                expectThat(mock).isNotEqualTo(mock())
+            }
+        }
     }
+
 
     interface InterfaceWithOverloadedMethods {
         fun function()

@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- AutoCloseables were closed in the same order they were created. Now they are correctly closed in reverse order.
 - Report individual Test duration correctly. Before the first test in each context had a wrong time reported.
 
 ## 0.3.1 - "Zwischenhaltestelle" - 2021-03-05

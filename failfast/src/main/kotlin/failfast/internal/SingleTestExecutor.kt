@@ -28,7 +28,7 @@ internal class SingleTestExecutor(private val context: RootContext, private val 
             Failed(e)
         }
         try {
-            closeables.forEach { it.close() }
+            closeables.reversed().forEach { it.close() }
         } catch (e: Throwable) {
             return Failed(e)
         }

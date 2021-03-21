@@ -179,7 +179,7 @@ private class ResourcesCloser {
     }
 
     suspend fun close() {
-        closeables.forEach { it.close() }
+        closeables.reversed().forEach { it.close() }
     }
 
     private val closeables = ConcurrentLinkedQueue<SuspendAutoCloseable<*>>()

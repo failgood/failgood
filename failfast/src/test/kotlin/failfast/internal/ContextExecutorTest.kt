@@ -6,6 +6,10 @@ import failfast.RootContext
 import failfast.Success
 import failfast.Suite
 import failfast.describe
+import failfast.mock.call
+import failfast.mock.getCalls
+import failfast.mock.mock
+import failfast.mock.verify
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import strikt.api.expectThat
@@ -20,9 +24,10 @@ import strikt.assertions.isEqualTo
 import strikt.assertions.isGreaterThan
 import strikt.assertions.isNotEmpty
 import strikt.assertions.isNotNull
-import strikt.assertions.isTrue
+import strikt.assertions.isSameInstanceAs
 import strikt.assertions.map
 import strikt.assertions.single
+import java.util.concurrent.ConcurrentHashMap
 
 object ContextExecutorTest {
     private var assertionError: AssertionError? = null
@@ -272,22 +277,31 @@ object ContextExecutorTest {
                 }
 
             }
-            it("can close resources")
+            it("closes resources in reverse order of creation")
             {
-                val events = mutableListOf<String>()
-                var closeCalled = false
-                val closable = AutoCloseable { closeCalled = true }
-                var resource: AutoCloseable? = null
+                val closeable1 = mock<AutoCloseable>()
+                val closeable2 = mock<AutoCloseable>()
+                var resource1: AutoCloseable? = null
+                var resource2: AutoCloseable? = null
+                val totalEvents = ConcurrentHashMap.newKeySet<List<String>>()
                 Suite {
-                    resource = autoClose(closable) {
-                        it.close()
-                        events.add("close callback")
-                    }
-                    test("a test") { events.add("test") }
+                    val events = mutableListOf<String>()
+                    totalEvents.add(events)
+                    resource1 = autoClose(closeable1) { it.close(); events.add("first close callback") }
+                    resource2 = autoClose(closeable2) { it.close(); events.add("second close callback") }
+                    test("first  test") { events.add("first test") }
+                    test("second test") { events.add("second test") }
                 }.run(silent = true)
-                expectThat(events).containsExactly("test", "close callback")
-                expectThat(resource).isEqualTo(closable)
-                expectThat(closeCalled).isTrue()
+                expectThat(totalEvents).containsExactly(
+                    listOf("first test", "second close callback", "first close callback"),
+                    listOf("second test", "second close callback", "first close callback"),
+                )
+                expectThat(resource1).isSameInstanceAs(closeable1)
+                expectThat(resource2).isSameInstanceAs(closeable2)
+                expectThat(getCalls(closeable1)).containsExactly(call(AutoCloseable::close), call(AutoCloseable::close))
+                expectThat(getCalls(closeable2)).containsExactly(call(AutoCloseable::close), call(AutoCloseable::close))
+                verify(closeable1) { close() }
+                verify(closeable2) { close() }
             }
         }
 

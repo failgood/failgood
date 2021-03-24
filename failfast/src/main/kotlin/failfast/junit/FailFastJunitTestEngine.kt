@@ -201,7 +201,7 @@ class FailFastJunitTestEngine : TestEngine {
             // finish forwarding test events before closing all the contexts
             eventForwarder.join()
             // close child contexts before their parent
-            val leafToRootContexts = contexts.sortedBy { -it.parentContexts.size }
+            val leafToRootContexts = startedContexts.sortedBy { -it.parentContexts.size }
             leafToRootContexts.forEach { context ->
                 junitListener.executionFinished(root.getMapping(context), TestExecutionResult.successful())
             }

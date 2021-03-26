@@ -11,8 +11,7 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
 
     override fun getContexts(): List<RootContext> {
         return try {
-            val instanceField = jClass.getDeclaredField("INSTANCE")
-            val obj = instanceField.get(null)
+            val obj = instantiateKotlinObject(jClass)
             val contexts = jClass.getDeclaredMethod("getContext").invoke(obj)
             @Suppress("UNCHECKED_CAST")
             contexts as? List<RootContext> ?: listOf(contexts as RootContext)
@@ -22,7 +21,7 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
             } catch (e: Exception) {
                 throw FailFastException(
                     "no idea how to find context in $jClass. declared fields:" +
-                        jClass.declaredFields.joinToString { it.name }
+                            jClass.declaredFields.joinToString { it.name }
                 )
             }
         }
@@ -30,4 +29,6 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
         //        return kClass.declaredMemberProperties.single { it.name == "context"
         // }.call(kClass.objectInstance) as RootContext
     }
+
+    private fun instantiateKotlinObject(clazz: Class<out Any>): Any = clazz.getDeclaredField("INSTANCE").get(null)
 }

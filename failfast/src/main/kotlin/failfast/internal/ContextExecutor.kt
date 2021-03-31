@@ -19,6 +19,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import java.util.concurrent.ConcurrentLinkedQueue
 
@@ -140,7 +141,9 @@ internal class ContextExecutor(
         }
 
         override suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit): TestDependency<T> {
-            return TestDependency(autoClose(creator(), closer))
+            val result = scope.async(Dispatchers.IO) { creator() }
+            resourcesCloser.add(SuspendAutoCloseable(result, { closer(result.await()) }))
+            return TestDependency(result)
         }
 
         override suspend fun it(behaviorDescription: String, function: TestLambda) {

@@ -10,6 +10,9 @@ import failfast.Success
 import failfast.TestDependency
 import failfast.TestLambda
 import failfast.TestResult
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Executes a single test with all its parent contexts
@@ -52,7 +55,8 @@ internal class SingleTestExecutor(private val context: RootContext, private val 
         }
 
         override suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit): TestDependency<T> {
-            return TestDependency(autoClose(creator(), closer))
+            val dependency = withContext(Dispatchers.IO) { creator() }
+            return TestDependency(CompletableDeferred(autoClose(dependency, closer)))
         }
 
 

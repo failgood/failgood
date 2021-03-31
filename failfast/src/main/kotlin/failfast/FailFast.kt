@@ -72,6 +72,7 @@ interface ContextDSL {
      * use this instead of beforeEach/afterEach
      */
     fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T
+    suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit): TestDependency<T>
 }
 
 data class SuiteResult(

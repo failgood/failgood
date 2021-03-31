@@ -11,6 +11,7 @@ import failfast.NullExecutionListener
 import failfast.Pending
 import failfast.RootContext
 import failfast.Success
+import failfast.TestDependency
 import failfast.TestDescription
 import failfast.TestLambda
 import failfast.TestPlusResult
@@ -136,6 +137,10 @@ internal class ContextExecutor(
         override fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T {
             resourcesCloser.add(SuspendAutoCloseable(wrapped, closeFunction))
             return wrapped
+        }
+
+        override suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit): TestDependency<T> {
+            return TestDependency(autoClose(creator(), closer))
         }
 
         override suspend fun it(behaviorDescription: String, function: TestLambda) {

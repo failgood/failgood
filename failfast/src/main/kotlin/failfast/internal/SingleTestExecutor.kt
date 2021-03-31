@@ -7,6 +7,7 @@ import failfast.FailFastException
 import failfast.Failed
 import failfast.RootContext
 import failfast.Success
+import failfast.TestDependency
 import failfast.TestLambda
 import failfast.TestResult
 
@@ -49,6 +50,11 @@ internal class SingleTestExecutor(private val context: RootContext, private val 
             closeables.add(SuspendAutoCloseable(wrapped, closeFunction))
             return wrapped
         }
+
+        override suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit): TestDependency<T> {
+            return TestDependency(autoClose(creator(), closer))
+        }
+
 
         override suspend fun it(behaviorDescription: String, function: TestLambda) {}
 

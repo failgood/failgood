@@ -194,7 +194,6 @@ class FailFastJunitTestEngine : TestEngine {
             }
             // and wait for the results
             val allContexts = root.testResult
-            val contexts = allContexts.flatMap { it.contexts }
             allContexts.flatMap { it.tests.values }.awaitAll()
             executionListener.events.close()
 

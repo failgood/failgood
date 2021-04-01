@@ -44,7 +44,6 @@ import org.junit.platform.engine.support.descriptor.FilePosition
 import org.junit.platform.engine.support.descriptor.FileSource
 import java.io.File
 import java.nio.file.Paths
-import kotlin.reflect.KClass
 
 object FailFastJunitTestEngineConstants {
     const val id = "failfast"
@@ -230,13 +229,13 @@ class FailFastJunitTestEngine : TestEngine {
                     findClassesInPath(
                         Paths.get(uri),
                         Thread.currentThread().contextClassLoader,
-                        matchLambda = { className -> classNamePredicates.all { it.test(className) } }).mapNotNull {
-                        contextOrNull(it)
+                        matchLambda = { className -> classNamePredicates.all { it.test(className) } }).map {
+                        ObjectContextProvider(it)
                     }
                 }
             }
             classSelectors.isNotEmpty() -> classSelectors.filter { it.className.endsWith("Test") }
-                .mapNotNull { contextOrNull(it.javaClass.kotlin) }
+                .map { ObjectContextProvider(it.javaClass.kotlin) }
 
             singleClassSelector != null -> {
                 listOf(ObjectContextProvider(singleClassSelector.javaClass))
@@ -253,14 +252,6 @@ class FailFastJunitTestEngine : TestEngine {
                 )
             }
         }
-    }
-
-    private fun contextOrNull(it: KClass<*>) = try {
-        ObjectContextProvider(
-            it
-        )
-    } catch (e: Exception) {
-        null
     }
 
     private fun discoveryRequestToString(discoveryRequest: EngineDiscoveryRequest): String {

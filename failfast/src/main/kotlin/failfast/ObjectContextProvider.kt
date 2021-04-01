@@ -19,10 +19,7 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
             try {
                 listOf(jClass.getDeclaredMethod("getContext").invoke(null) as RootContext)
             } catch (e: Exception) {
-                throw FailFastException(
-                    "no idea how to find context in $jClass. declared fields:" +
-                            jClass.declaredFields.joinToString { it.name }
-                )
+                return listOf()
             }
         }
         // slow failsafe version that uses kotlin reflect:

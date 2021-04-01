@@ -13,6 +13,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Classes that fit the failfast naming pattern *Test but contain no failfast context are now ignored. This makes it
+  possible to convert bigger test suites that still use other frameworks without converting everything at once.
 - Rename itWill to pending
 
 ### Fixed

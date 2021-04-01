@@ -113,12 +113,8 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         }
     }
 
-    internal fun findRootContexts(coroutineScope: CoroutineScope) = contextProviders
-        .map {
-            coroutineScope.async {
-                it.getContexts()
-            }
-        }
+    private fun findRootContexts(coroutineScope: CoroutineScope) = contextProviders
+        .map { coroutineScope.async { it.getContexts() } }
 
     fun runSingle(test: String) {
         val contextName = test.substringBefore(">").trim()

@@ -13,7 +13,7 @@ import strikt.assertions.isEqualTo
 /*
  * outline how an alternative dsl could look like.
  * right now I think that I'm not going to implement it because its less intuitive, and i can have the same
- * effect by using normal context declared dependencies with `by lazy {}`
+ * effect by using normal context declared dependencies with `by dependency {....}`
  */
 fun main() {
     FailFast.runTest()

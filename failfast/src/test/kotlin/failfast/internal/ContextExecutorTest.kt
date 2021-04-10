@@ -303,6 +303,21 @@ object ContextExecutorTest {
                 verify(closeable1) { close() }
                 verify(closeable2) { close() }
             }
+            describe("handles strange contexts correctly") {
+                it("a context with only one pending test") {
+                    val context = RootContext() {
+                        describe("context") {
+                            pending("pending") {
+                            }
+                        }
+                        test("test") {}
+
+                    }
+                    coroutineScope {
+                        ContextExecutor(context, this).execute().tests.values.awaitAll()
+                    }
+                }
+            }
         }
 
     private fun getLineNumber(runtimeException: Throwable?): Int =

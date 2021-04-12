@@ -86,6 +86,14 @@ object MockTest {
             call(InterfaceWithOverloadedMethods::function, "a", "b", "c", "d")
             call(InterfaceWithOverloadedMethods::function, "a", "b", "c", "d", "e")
         }
+        it("has suspend call helpers for up to 5 parameters") {
+            call(InterfaceWithOverloadedSuspendMethods::function)
+            call(InterfaceWithOverloadedSuspendMethods::function, "a")
+            call(InterfaceWithOverloadedSuspendMethods::function, "a", "b")
+            call(InterfaceWithOverloadedSuspendMethods::function, "a", "b", "c")
+            call(InterfaceWithOverloadedSuspendMethods::function, "a", "b", "c", "d")
+            call(InterfaceWithOverloadedSuspendMethods::function, "a", "b", "c", "d", "e")
+        }
         describe("handles equals correctly") {
             it("returns true for equals with the same mock") {
                 expectThat(mock).isEqualTo(mock)
@@ -107,6 +115,15 @@ object MockTest {
         fun function(a: String, b: String, c: String)
         fun function(a: String, b: String, c: String, d: String)
         fun function(a: String, b: String, c: String, d: String, e: String)
+    }
+
+    interface InterfaceWithOverloadedSuspendMethods {
+        suspend fun function()
+        suspend fun function(a: String)
+        suspend fun function(a: String, b: String)
+        suspend fun function(a: String, b: String, c: String)
+        suspend fun function(a: String, b: String, c: String, d: String)
+        suspend fun function(a: String, b: String, c: String, d: String, e: String)
     }
 
 }

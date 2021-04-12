@@ -5,8 +5,8 @@ import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestExecutionResult
 
 class LoggingEngineExecutionListener(private val delegate: EngineExecutionListener) : EngineExecutionListener {
-    val events = mutableListOf<String>()
-    fun event(s: String) {
+    private val events = mutableListOf<String>()
+    private fun event(s: String) {
         events.add(s)
     }
 

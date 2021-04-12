@@ -4,7 +4,7 @@
 # Failfast
 
 Multi-threaded test runner for Kotlin focusing on simplicity, usability and speed. Now including a simple mock library.
-And still zero dependencies.
+Still zero dependencies.
 
 ## Goals / Features
 
@@ -101,7 +101,7 @@ soon)
 You can run all tests or all tests in a package via IDEA. If you want to run a single test file you have to manually
 enter a regex into the JUnit run dialog, for example `.*ContextExecutorTest` to run the ContextExecutorTest.
 
-### The main method method
+### The "main method method"
 
 
 ```kotlin
@@ -143,7 +143,7 @@ tasks.check { dependsOn(testMain) }
 
 ## Running a single test file
 
-You can also run a single file with the main method method:
+You can also run a single file with the "main method method":
 
 ```kotlin 
 fun main() {

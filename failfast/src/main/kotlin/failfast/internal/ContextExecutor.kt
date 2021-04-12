@@ -144,7 +144,7 @@ internal class ContextExecutor(
 
         override suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit): TestDependency<T> {
             val result = scope.async(Dispatchers.IO) { creator() }
-            resourcesCloser.add(SuspendAutoCloseable(result, { closer(result.await()) }))
+            resourcesCloser.add(SuspendAutoCloseable(result) { closer(result.await()) })
             return TestDependency(result)
         }
 

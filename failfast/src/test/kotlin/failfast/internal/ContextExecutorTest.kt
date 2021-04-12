@@ -305,7 +305,7 @@ object ContextExecutorTest {
             }
             describe("handles strange contexts correctly") {
                 it("a context with only one pending test") {
-                    val context = RootContext() {
+                    val context = RootContext {
                         describe("context") {
                             pending("pending") {
                             }

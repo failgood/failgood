@@ -23,7 +23,7 @@ internal class SingleTestExecutor(private val context: RootContext, private val 
     private val startTime = System.nanoTime()
     suspend fun execute(): TestResult {
         val dsl: ContextDSL = contextDSL(test.parentContext.path.drop(1))
-        val testResult = try {
+        return try {
             dsl.(context.function)()
             throw FailFastException("specified test not found: $test")
         } catch (e: TestResultAvailable) {
@@ -31,12 +31,6 @@ internal class SingleTestExecutor(private val context: RootContext, private val 
         } catch (e: Throwable) {
             Failed(e)
         }
-        try {
-            closeables.reversed().forEach { it.close() }
-        } catch (e: Throwable) {
-            return Failed(e)
-        }
-        return testResult
     }
 
     open inner class Base : ContextDSL {
@@ -90,6 +84,7 @@ internal class SingleTestExecutor(private val context: RootContext, private val 
                 throw TestResultAvailable(
                     try {
                         function()
+                        closeables.reversed().forEach { it.close() }
                         Success((System.nanoTime() - startTime) / 1000)
                     } catch (e: Throwable) {
                         Failed(e)

@@ -2,7 +2,7 @@ package failfast.docs
 
 import failfast.describe
 
-object TestContextTest {
+object TestContextExampleTest {
     val context = describe("examples for the test context dsl") {
         it("published println calls in the junit runner") {
             // this will output

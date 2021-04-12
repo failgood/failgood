@@ -1,5 +1,6 @@
 package failfast
 
+@FailFastDSL
 interface ContextDSL {
     /**
      * define a test context that describes a subject.

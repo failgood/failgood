@@ -317,8 +317,8 @@ object ContextExecutorTest {
                         ContextExecutor(context, this).execute().tests.values.awaitAll()
                     }
                 }
-                test("a test that calls context") {
-                    context("this should not even compile work") {}
+                test("tests can not contain nested contexts") {
+                    //context("this should not even compile work") {}
                 }
             }
         }

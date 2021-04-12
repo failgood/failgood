@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Added
+
+- Use DSLMarker to ensure that tests do not create contexts. This is never what you want, so failfast now protects you
+  from it. Here is an example:
+  ```kotlin
+                  test("tests can not contain nested contexts") {
+                    context("this should not even compile work") {} // compile error
+                }
+
+```
+
+
 ## 0.4.0 - "Doppeltest" 2021-04-02
 
 ### Added

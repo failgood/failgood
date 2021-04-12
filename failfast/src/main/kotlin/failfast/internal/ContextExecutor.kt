@@ -11,7 +11,7 @@ import failfast.NullExecutionListener
 import failfast.Pending
 import failfast.RootContext
 import failfast.Success
-import failfast.TestDSL
+import failfast.TestDSLImpl
 import failfast.TestDependency
 import failfast.TestDescription
 import failfast.TestLambda
@@ -57,7 +57,7 @@ internal class ContextExecutor(
                 return
             }
             val stackTraceElement = getStackTraceElement()
-            val testDescriptor = TestDescription(parentContext, name, stackTraceElement)
+            val testDescription = TestDescription(parentContext, name, stackTraceElement)
             if (!ranATest) {
                 // we did not yet run a test so we are going to run this test ourselves
                 ranATest = true
@@ -65,30 +65,31 @@ internal class ContextExecutor(
                 // create the tests stacktrace element outside of the async block to get a better stacktrace
                 val deferred =
                     scope.async(start = coroutineStart) {
-                        listener.testStarted(testDescriptor)
+                        listener.testStarted(testDescription)
                         val testResult =
                             try {
-                                TestDSL().function()
+                                TestDSLImpl(listener, testDescription).function()
                                 resourcesCloser.close()
                                 Success((System.nanoTime() - startTime) / 1000)
                             } catch (e: Throwable) {
                                 Failed(e)
                             }
-                        val testPlusResult = TestPlusResult(testDescriptor, testResult)
+                        val testPlusResult = TestPlusResult(testDescription, testResult)
                         listener.testFinished(testPlusResult)
                         testPlusResult
                     }
-                deferredTestResults[testDescriptor] = deferred
+                deferredTestResults[testDescription] = deferred
             } else {
                 val deferred =
                     scope.async(start = coroutineStart) {
-                        listener.testStarted(testDescriptor)
-                        val result = SingleTestExecutor(rootContext, testPath).execute()
-                        val testPlusResult = TestPlusResult(testDescriptor, result)
+                        listener.testStarted(testDescription)
+                        val result =
+                            SingleTestExecutor(rootContext, testPath, TestDSLImpl(listener, testDescription)).execute()
+                        val testPlusResult = TestPlusResult(testDescription, result)
                         listener.testFinished(testPlusResult)
                         testPlusResult
                     }
-                deferredTestResults[testDescriptor] = deferred
+                deferredTestResults[testDescription] = deferred
             }
         }
 

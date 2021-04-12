@@ -13,7 +13,7 @@ import failfast.Suite
 import failfast.TestDescription
 import failfast.TestPlusResult
 import failfast.internal.ContextInfo
-import failfast.junit.FailFastJunitTestEngine.JunitExecutionListener.StartedOrStopped
+import failfast.junit.FailFastJunitTestEngine.JunitExecutionListener.TestExecutionEvent
 import failfast.junit.FailFastJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failfast.junit.FailFastJunitTestEngineConstants.CONFIG_KEY_LAZY
 import failfast.uptime
@@ -114,19 +114,28 @@ class FailFastJunitTestEngine : TestEngine {
     }
 
     class JunitExecutionListener : ExecutionListener {
-        sealed class StartedOrStopped {
-            data class Started(val testDescriptor: TestDescription) : StartedOrStopped()
-            data class Stopped(val testResult: TestPlusResult) : StartedOrStopped()
+        sealed class TestExecutionEvent {
+            abstract val testDescription: TestDescription
 
+            data class Started(override val testDescription: TestDescription) : TestExecutionEvent()
+            data class Stopped(override val testDescription: TestDescription, val testResult: TestPlusResult) :
+                TestExecutionEvent()
+
+            data class TestEvent(override val testDescription: TestDescription, val type: String, val payload: String) :
+                TestExecutionEvent()
         }
 
-        val events = Channel<StartedOrStopped>(UNLIMITED)
-        override suspend fun testStarted(testDescriptor: TestDescription) {
-            events.send(StartedOrStopped.Started(testDescriptor))
+        val events = Channel<TestExecutionEvent>(UNLIMITED)
+        override suspend fun testStarted(testDescription: TestDescription) {
+            events.send(TestExecutionEvent.Started(testDescription))
         }
 
         override suspend fun testFinished(testPlusResult: TestPlusResult) {
-            events.send(StartedOrStopped.Stopped(testPlusResult))
+            events.send(TestExecutionEvent.Stopped(testPlusResult.test, testPlusResult))
+        }
+
+        override suspend fun testEvent(testDescription: TestDescription, type: String, payload: String) {
+            events.send(TestExecutionEvent.TestEvent(testDescription, type, payload))
         }
 
     }
@@ -162,18 +171,18 @@ class FailFastJunitTestEngine : TestEngine {
                     }
 
                     when (event) {
-                        is StartedOrStopped.Started -> {
-                            val testDescriptor = event.testDescriptor
+                        is TestExecutionEvent.Started -> {
+                            val testDescriptor = event.testDescription
                             startParentContexts(testDescriptor, root)
                             junitListener.executionStarted(root.getMapping(testDescriptor))
                         }
-                        is StartedOrStopped.Stopped -> {
-                            val it = event.testResult
-                            val mapping = root.getMapping(it.test)
-                            when (it.result) {
+                        is TestExecutionEvent.Stopped -> {
+                            val testPlusResult = event.testResult
+                            val mapping = root.getMapping(testPlusResult.test)
+                            when (testPlusResult.result) {
                                 is Failed -> junitListener.executionFinished(
                                     mapping,
-                                    TestExecutionResult.failed(it.result.failure)
+                                    TestExecutionResult.failed(testPlusResult.result.failure)
                                 )
 
                                 is Success -> junitListener.executionFinished(

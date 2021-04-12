@@ -138,7 +138,7 @@ data class TestDescription(val parentContext: Context, val testName: String, val
     }
 }
 
-data class Context(val name: String, val parent: Context?, val stackTraceElement: StackTraceElement? = null) {
+data class Context(val name: String, val parent: Context? = null, val stackTraceElement: StackTraceElement? = null) {
     companion object {
         fun fromPath(path: List<String>): Context {
             return Context(path.last(), if (path.size == 1) null else fromPath(path.dropLast(1)))

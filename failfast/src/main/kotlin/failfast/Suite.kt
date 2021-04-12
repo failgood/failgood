@@ -123,7 +123,11 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         }
         val desc = ContextPath.fromString(test)
         val result = runBlocking {
-            SingleTestExecutor(context, desc).execute()
+            SingleTestExecutor(context, desc, object : TestDSL {
+                override suspend fun println(body: String) {
+                    println(body)
+                }
+            }).execute()
         }
         if (result is Failed) {
             println("$test${ExceptionPrettyPrinter(result.failure).prettyPrint()}")
@@ -134,8 +138,9 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
 }
 
 object NullExecutionListener : ExecutionListener {
-    override suspend fun testStarted(testDescriptor: TestDescription) {}
+    override suspend fun testStarted(testDescription: TestDescription) {}
     override suspend fun testFinished(testPlusResult: TestPlusResult) {}
+    override suspend fun testEvent(testDescription: TestDescription, type: String, payload: String) {}
 }
 
 internal fun uptime(totalTests: Int? = null): String {

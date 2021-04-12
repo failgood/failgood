@@ -19,7 +19,11 @@ import kotlinx.coroutines.withContext
  * Executes a single test with all its parent contexts
  * Async Called by ContextExecutor to execute all tests that it does not have to execute itself
  */
-internal class SingleTestExecutor(private val context: RootContext, private val test: ContextPath) {
+internal class SingleTestExecutor(
+    private val context: RootContext,
+    private val test: ContextPath,
+    val testDSL: TestDSL
+) {
     private val closeables = mutableListOf<SuspendAutoCloseable<*>>()
     private val startTime = System.nanoTime()
     suspend fun execute(): TestResult {
@@ -84,7 +88,7 @@ internal class SingleTestExecutor(private val context: RootContext, private val 
             if (test.name == name) {
                 throw TestResultAvailable(
                     try {
-                        TestDSL().function()
+                        testDSL.function()
                         closeables.reversed().forEach { it.close() }
                         Success((System.nanoTime() - startTime) / 1000)
                     } catch (e: Throwable) {

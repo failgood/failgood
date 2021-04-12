@@ -7,6 +7,7 @@ import kotlin.reflect.KFunction3
 import kotlin.reflect.KFunction4
 import kotlin.reflect.KFunction5
 import kotlin.reflect.KFunction6
+import kotlin.reflect.KSuspendFunction4
 
 /*
  * these are necessary to work with classes that have overloaded methods
@@ -19,6 +20,10 @@ fun <A, B, C, D> call(kFunction3: KFunction3<A, B, C, D>, b: B, c: C): FunctionC
     FunctionCall((kFunction3 as KCallable<*>).name, listOf(b, c))
 
 fun <A, B, C, D, E> call(kFunction4: KFunction4<A, B, C, D, E>, b: B, c: C, d: D): FunctionCall =
+    FunctionCall((kFunction4 as KCallable<*>).name, listOf(b, c, d))
+
+@JvmName("call1")
+fun <A, B, C, D, E> call(kFunction4: KSuspendFunction4<A, B, C, D, E>, b: B, c: C, d: D): FunctionCall =
     FunctionCall((kFunction4 as KCallable<*>).name, listOf(b, c, d))
 
 fun <A, B, C, D, E, F> call(kFunction5: KFunction5<A, B, C, D, E, F>, b: B, c: C, d: D, e: E): FunctionCall =

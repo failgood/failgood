@@ -5,7 +5,9 @@ import failfast.ContextPath
 import failfast.Failed
 import failfast.RootContext
 import failfast.Success
+import failfast.TestDSL
 import failfast.describe
+import failfast.mock.mock
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.isA
@@ -14,6 +16,7 @@ import strikt.assertions.isEqualTo
 object SingleTestExecutorTest {
     val context =
         describe(SingleTestExecutor::class) {
+            val testDSL = mock<TestDSL>()
             describe("test execution") {
                 val events = mutableListOf<String>()
                 val ctx =
@@ -35,12 +38,12 @@ object SingleTestExecutorTest {
                 val context2 = Context("context 2", context1)
 
                 it("executes a single test") {
-                    val result = SingleTestExecutor(ctx, ContextPath(rootContext, "test 1")).execute()
+                    val result = SingleTestExecutor(ctx, ContextPath(rootContext, "test 1"), testDSL).execute()
                     expectThat(events).containsExactly("root context", "test 1")
                     expectThat(result).isA<Success>()
                 }
                 it("executes a nested single test") {
-                    val result = SingleTestExecutor(ctx, ContextPath(context2, "test 3")).execute()
+                    val result = SingleTestExecutor(ctx, ContextPath(context2, "test 3"), testDSL).execute()
                     expectThat(events)
                         .containsExactly("root context", "context 1", "context 2", "test 3")
                     expectThat(result).isA<Success>()
@@ -59,7 +62,7 @@ object SingleTestExecutorTest {
                         Context("with a valid root context", Context("ContextExecutor", null)),
                         "returns contexts"
                     )
-                val executor = SingleTestExecutor(context, test)
+                val executor = SingleTestExecutor(context, test, testDSL)
                 executor.execute()
             }
             describe("error handling") {
@@ -70,7 +73,8 @@ object SingleTestExecutorTest {
                     }
                     val result = SingleTestExecutor(
                         contextThatThrows,
-                        ContextPath(Context("root context", null), "test")
+                        ContextPath(Context("root context", null), "test"),
+                        testDSL
                     ).execute()
                     expectThat(result).isA<Failed>().get { failure }.isEqualTo(runtimeException)
                 }
@@ -82,7 +86,8 @@ object SingleTestExecutorTest {
                     }
                     val result = SingleTestExecutor(
                         contextThatThrows,
-                        ContextPath(Context("root context", null), "test")
+                        ContextPath(Context("root context", null), "test"),
+                        testDSL
                     ).execute()
                     expectThat(result).isA<Failed>().get { failure }.isEqualTo(runtimeException)
                 }

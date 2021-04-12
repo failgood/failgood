@@ -317,6 +317,9 @@ object ContextExecutorTest {
                         ContextExecutor(context, this).execute().tests.values.awaitAll()
                     }
                 }
+                test("a test that calls context") {
+                    context("this should not even compile work") {}
+                }
             }
         }
 

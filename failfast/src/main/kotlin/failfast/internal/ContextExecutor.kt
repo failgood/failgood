@@ -11,6 +11,7 @@ import failfast.NullExecutionListener
 import failfast.Pending
 import failfast.RootContext
 import failfast.Success
+import failfast.TestDSL
 import failfast.TestDependency
 import failfast.TestDescription
 import failfast.TestLambda
@@ -67,7 +68,7 @@ internal class ContextExecutor(
                         listener.testStarted(testDescriptor)
                         val testResult =
                             try {
-                                function()
+                                TestDSL().function()
                                 resourcesCloser.close()
                                 Success((System.nanoTime() - startTime) / 1000)
                             } catch (e: Throwable) {

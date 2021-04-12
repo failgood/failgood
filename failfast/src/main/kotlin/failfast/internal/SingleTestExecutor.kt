@@ -7,6 +7,7 @@ import failfast.FailFastException
 import failfast.Failed
 import failfast.RootContext
 import failfast.Success
+import failfast.TestDSL
 import failfast.TestDependency
 import failfast.TestLambda
 import failfast.TestResult
@@ -83,7 +84,7 @@ internal class SingleTestExecutor(private val context: RootContext, private val 
             if (test.name == name) {
                 throw TestResultAvailable(
                     try {
-                        function()
+                        TestDSL().function()
                         closeables.reversed().forEach { it.close() }
                         Success((System.nanoTime() - startTime) / 1000)
                     } catch (e: Throwable) {

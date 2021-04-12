@@ -27,7 +27,7 @@ data class RootContext(
 
 typealias ContextLambda = suspend ContextDSL.() -> Unit
 
-typealias TestLambda = suspend () -> Unit
+typealias TestLambda = suspend TestDSL.() -> Unit
 
 fun context(description: String, disabled: Boolean = false, function: ContextLambda): RootContext =
     RootContext(description, disabled, function)

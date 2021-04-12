@@ -25,20 +25,20 @@ object TestDependenciesTest {
             val context = RootContext("TestContext for dependency Injection") {
                 describe("context with dependency lambda",
                     { "StringDependency" }, {/* optional teardown*/ }) {
-                    test("test that takes a string dependency") { string ->
+                    test2("test that takes a string dependency") { string ->
                         expectThat(string).isEqualTo("StringDependency")
                     }
                     describe(
                         "a child context that uses the parent dependencies. for tests in this context both the parent and this context dependencies are constructed",
                         { parentDependency -> parentDependency + "AddedString" }) {
-                        test("another test that takes a string dependency") { string ->
+                        test2("another test that takes a string dependency") { string ->
                             expectThat(string).isEqualTo("StringDependencyAddedString")
                         }
                     }
                     describe(
                         "a child context that does not use the parent dependency. for tests in this context the parent context dependencies are not constructed",
                         { -> "TotallyNewString" }) {
-                        test("another test that takes a string dependency") { string ->
+                        test2("another test that takes a string dependency") { string ->
                             expectThat(string).isEqualTo("TotallyNewString")
                         }
                     }
@@ -67,5 +67,5 @@ object TestDependenciesTest {
 }
 
 interface ContextDSL2<T> : ContextDSL {
-    suspend fun test(name: String, function: suspend (T) -> Unit)
+    suspend fun test2(name: String, function: suspend (T) -> Unit)
 }

@@ -11,7 +11,7 @@ import failfast.NullExecutionListener
 import failfast.Pending
 import failfast.RootContext
 import failfast.Success
-import failfast.TestDSLImpl
+import failfast.TestContext
 import failfast.TestDependency
 import failfast.TestDescription
 import failfast.TestLambda
@@ -68,7 +68,7 @@ internal class ContextExecutor(
                         listener.testStarted(testDescription)
                         val testResult =
                             try {
-                                TestDSLImpl(listener, testDescription).function()
+                                TestContext(listener, testDescription).function()
                                 resourcesCloser.close()
                                 Success((System.nanoTime() - startTime) / 1000)
                             } catch (e: Throwable) {
@@ -84,7 +84,7 @@ internal class ContextExecutor(
                     scope.async(start = coroutineStart) {
                         listener.testStarted(testDescription)
                         val result =
-                            SingleTestExecutor(rootContext, testPath, TestDSLImpl(listener, testDescription)).execute()
+                            SingleTestExecutor(rootContext, testPath, TestContext(listener, testDescription)).execute()
                         val testPlusResult = TestPlusResult(testDescription, result)
                         listener.testFinished(testPlusResult)
                         testPlusResult

@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `println` method inside a test case for thread safe test logging. Currently, the output is only available in the
+  junit-engine, The main test runner does not yet display it.
 - Use DSLMarker to ensure that tests do not create contexts. This is never what you want, so failfast now protects you
   from it. Here is an example:
   ```kotlin

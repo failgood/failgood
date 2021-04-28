@@ -1,7 +1,27 @@
 package failfast
 
+interface ResourcesDSL {
+    /**
+     * asynchronously create a dependency. This is great for blocking dependencies, like a docker container.
+     * The creator lambda runs on the IO dispatcher to make a cpu thread free for a test
+     */
+    suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit = {}): TestDependency<T>
+
+    /**
+     * create a test dependency that should be closed after the a test run.
+     * use this instead of beforeEach/afterEach
+     */
+    fun <T : AutoCloseable> autoClose(wrapped: T): T
+
+    /**
+     * create a test dependency that should be closed after the a test run.
+     * use this instead of beforeEach/afterEach
+     */
+    fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T
+}
+
 @FailFastDSL
-interface ContextDSL {
+interface ContextDSL : ResourcesDSL {
     /**
      * define a test context that describes a subject.
      */
@@ -27,21 +47,4 @@ interface ContextDSL {
      */
     suspend fun pending(behaviorDescription: String, function: TestLambda = {})
 
-    /**
-     * asynchronously create a dependency. This is great for blocking dependencies, like a docker container.
-     * The creator lambda runs on the IO dispatcher to make a cpu thread free for a test
-     */
-    suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit = {}): TestDependency<T>
-
-    /**
-     * create a test dependency that should be closed after the a test run.
-     * use this instead of beforeEach/afterEach
-     */
-    fun <T : AutoCloseable> autoClose(wrapped: T): T
-
-    /**
-     * create a test dependency that should be closed after the a test run.
-     * use this instead of beforeEach/afterEach
-     */
-    fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T
 }

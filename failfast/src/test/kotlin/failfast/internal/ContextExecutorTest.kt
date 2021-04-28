@@ -277,8 +277,7 @@ object ContextExecutorTest {
                 }
 
             }
-            it("closes resources in reverse order of creation")
-            {
+            it("closes resources in reverse order of creation") {
                 val closeable1 = mock<AutoCloseable>()
                 val closeable2 = mock<AutoCloseable>()
                 var resource1: AutoCloseable? = null
@@ -302,6 +301,24 @@ object ContextExecutorTest {
                 expectThat(getCalls(closeable2)).containsExactly(call(AutoCloseable::close), call(AutoCloseable::close))
                 verify(closeable1) { close() }
                 verify(closeable2) { close() }
+            }
+            it("closes autocloseables without callback") {
+                var resource1: AutoCloseable? = null
+                var resource2: AutoCloseable? = null
+                val totalEvents = ConcurrentHashMap.newKeySet<List<String>>()
+                val closeable2 = mock<AutoCloseable>()
+                Suite {
+                    val events = mutableListOf<String>()
+                    totalEvents.add(events)
+                    resource1 = autoClose(AutoCloseable { events.add("first close callback") })
+                    resource2 = autoClose(AutoCloseable { events.add("second close callback") })
+                    test("first  test") { events.add("first test") }
+                    test("second test") { events.add("second test") }
+                }.run(silent = true)
+                expectThat(totalEvents).containsExactly(
+                    listOf("first test", "second close callback", "first close callback"),
+                    listOf("second test", "second close callback", "first close callback"),
+                )
             }
             describe("handles strange contexts correctly") {
                 it("a context with only one pending test") {

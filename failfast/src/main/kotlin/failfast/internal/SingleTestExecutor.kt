@@ -53,6 +53,9 @@ internal class SingleTestExecutor(
             return wrapped
         }
 
+        override fun <T : AutoCloseable> autoClose(wrapped: T): T = autoClose(wrapped) { it.close() }
+
+
         override suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit): TestDependency<T> {
             val dependency = withContext(Dispatchers.IO) { creator() }
             return TestDependency(CompletableDeferred(autoClose(dependency, closer)))

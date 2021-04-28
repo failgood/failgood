@@ -148,6 +148,8 @@ internal class ContextExecutor(
             return TestDependency(result)
         }
 
+        override fun <T : AutoCloseable> autoClose(wrapped: T): T = autoClose(wrapped) { it.close() }
+
         override suspend fun it(behaviorDescription: String, function: TestLambda) {
             test(behaviorDescription, function)
         }

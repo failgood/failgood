@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Add autoClose(AutoCloseable) to close AutoCloseables without specifying a close callback.
 - Mocking library `call(..)` helper now supports suspend functions
 - `println` method inside a test case for thread safe test logging. Currently, the output is only available in the
   junit-engine, The main test runner does not yet display it.

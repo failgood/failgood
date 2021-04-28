@@ -71,7 +71,7 @@ plugins.withId("info.solidsoft.pitest") {
         avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))
         targetClasses.set(setOf("failfast.*")) //by default "${project.group}.*"
         targetTests.set(setOf("failfast.*Test", "failfast.**.*Test"))
-        pitestVersion.set("1.6.2")
+        pitestVersion.set(failfast.Versions.pitestVersion)
         threads.set(
             System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()
         )

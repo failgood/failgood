@@ -21,7 +21,7 @@ import strikt.assertions.endsWith
 import strikt.assertions.get
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
-import strikt.assertions.isGreaterThan
+import strikt.assertions.isGreaterThanOrEqualTo
 import strikt.assertions.isNotEmpty
 import strikt.assertions.isNotNull
 import strikt.assertions.isSameInstanceAs
@@ -85,7 +85,7 @@ object ContextExecutorTest {
                 it("reports time of successful tests") {
                     expectThat(contextInfo.tests.values.awaitAll().map { it.result }
                         .filterIsInstance<Success>()).isNotEmpty()
-                        .all { get { timeMicro }.isGreaterThan(1) }
+                        .all { get { timeMicro }.isGreaterThanOrEqualTo(1) }
                 }
                 describe("reports failed tests") {
                     val failure =

@@ -180,7 +180,7 @@ internal class ContextExecutor(
     }
 }
 
-class ResourcesCloser(val scope: CoroutineScope) : ResourcesDSL {
+class ResourcesCloser(private val scope: CoroutineScope) : ResourcesDSL {
     override fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T {
         add(SuspendAutoCloseable(wrapped, closeFunction))
         return wrapped
@@ -193,7 +193,8 @@ class ResourcesCloser(val scope: CoroutineScope) : ResourcesDSL {
     }
 
     override fun <T : AutoCloseable> autoClose(wrapped: T): T = autoClose(wrapped) { it.close() }
-    fun <T> add(autoCloseable: SuspendAutoCloseable<T>) {
+
+    private fun <T> add(autoCloseable: SuspendAutoCloseable<T>) {
         closeables.add(autoCloseable)
     }
 

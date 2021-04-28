@@ -316,7 +316,7 @@ object ContextExecutorTest {
                     resource1 = autoClose(ac1!!)
                     ac2 = AutoCloseable { events.add("second close callback") }
                     resource2 = autoClose(ac2!!)
-                    test("first  test") { events.add("first test") }
+                    test("first test") { events.add("first test") }
                     test("second test") { events.add("second test") }
                 }.run(silent = true)).get { allOk }.isTrue()
                 expectThat(totalEvents).containsExactly(
@@ -325,6 +325,35 @@ object ContextExecutorTest {
                 )
                 expectThat(resource1).isSameInstanceAs(ac1)
                 expectThat(resource2).isSameInstanceAs(ac2)
+            }
+            it("autocloseable works inside a test") {
+                val closeable1 = mock<AutoCloseable>()
+                val closeable2 = mock<AutoCloseable>()
+                var resource1: AutoCloseable? = null
+                var resource2: AutoCloseable? = null
+                val totalEvents = ConcurrentHashMap.newKeySet<List<String>>()
+                expectThat(Suite {
+                    val events = mutableListOf<String>()
+                    totalEvents.add(events)
+                    test("first  test") {
+                        events.add("first test")
+                        resource1 = this@Suite.autoClose(closeable1) { it.close(); events.add("first close callback") }
+                    }
+                    test("second test") {
+                        events.add("second test")
+                        resource2 = this@Suite.autoClose(closeable2) { it.close(); events.add("second close callback") }
+                    }
+                }.run(silent = true)).get { allOk }.isTrue()
+                expectThat(totalEvents).containsExactly(
+                    listOf("first test", "first close callback"),
+                    listOf("second test", "second close callback"),
+                )
+                expectThat(resource1).isSameInstanceAs(closeable1)
+                expectThat(resource2).isSameInstanceAs(closeable2)
+                expectThat(getCalls(closeable1)).containsExactly(call(AutoCloseable::close))
+                expectThat(getCalls(closeable2)).containsExactly(call(AutoCloseable::close))
+                verify(closeable1) { close() }
+                verify(closeable2) { close() }
             }
             describe("handles strange contexts correctly") {
                 it("a context with only one pending test") {

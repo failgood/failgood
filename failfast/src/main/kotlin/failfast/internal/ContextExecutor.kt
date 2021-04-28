@@ -89,7 +89,8 @@ internal class ContextExecutor(
                             SingleTestExecutor(
                                 rootContext,
                                 testPath,
-                                TestContext(context, listener, testDescription)
+                                TestContext(context, listener, testDescription),
+                                ResourcesCloser(scope)
                             ).execute()
                         val testPlusResult = TestPlusResult(testDescription, result)
                         listener.testFinished(testPlusResult)
@@ -179,7 +180,7 @@ internal class ContextExecutor(
     }
 }
 
-private class ResourcesCloser(val scope: CoroutineScope) : ResourcesDSL {
+class ResourcesCloser(val scope: CoroutineScope) : ResourcesDSL {
     override fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T {
         add(SuspendAutoCloseable(wrapped, closeFunction))
         return wrapped

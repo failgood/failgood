@@ -4,6 +4,7 @@ import failfast.internal.ContextExecutor
 import failfast.internal.ContextInfo
 import failfast.internal.ContextTreeReporter
 import failfast.internal.ExceptionPrettyPrinter
+import failfast.internal.ResourcesCloser
 import failfast.internal.SingleTestExecutor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -127,7 +128,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                 override suspend fun println(body: String) {
                     println(body)
                 }
-            }).execute()
+            }, ResourcesCloser(this)).execute()
         }
         if (result is Failed) {
             println("$test${ExceptionPrettyPrinter(result.failure).prettyPrint()}")

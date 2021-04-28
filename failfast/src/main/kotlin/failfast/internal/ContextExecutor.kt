@@ -9,6 +9,7 @@ import failfast.FailFastException
 import failfast.Failed
 import failfast.NullExecutionListener
 import failfast.Pending
+import failfast.ResourcesDSL
 import failfast.RootContext
 import failfast.Success
 import failfast.TestContext
@@ -40,7 +41,7 @@ internal class ContextExecutor(
     private inner class ContextVisitor(
         private val parentContext: Context,
         private val resourcesCloser: ResourcesCloser
-    ) : ContextDSL {
+    ) : ContextDSL, ResourcesDSL by resourcesCloser {
         private val namesInThisContext = mutableSetOf<String>() // test and context names to detect duplicates
 
         // we only run the first new test that we find here. the remaining tests of the context
@@ -142,18 +143,6 @@ internal class ContextExecutor(
             context(name, function)
         }
 
-        override fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T {
-            resourcesCloser.add(SuspendAutoCloseable(wrapped, closeFunction))
-            return wrapped
-        }
-
-        override suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit): TestDependency<T> {
-            val result = scope.async(Dispatchers.IO) { creator() }
-            resourcesCloser.add(SuspendAutoCloseable(result) { closer(result.await()) })
-            return TestDependency(result)
-        }
-
-        override fun <T : AutoCloseable> autoClose(wrapped: T): T = autoClose(wrapped) { it.close() }
 
         override suspend fun it(behaviorDescription: String, function: TestLambda) {
             test(behaviorDescription, function)
@@ -179,7 +168,7 @@ internal class ContextExecutor(
         val rootContext = Context(rootContext.name, null, rootContext.stackTraceElement)
         while (true) {
             startTime = System.nanoTime()
-            val resourcesCloser = ResourcesCloser()
+            val resourcesCloser = ResourcesCloser(scope)
             val visitor = ContextVisitor(rootContext, resourcesCloser)
             visitor.function()
             if (!visitor.contextsLeft) break
@@ -190,7 +179,19 @@ internal class ContextExecutor(
     }
 }
 
-private class ResourcesCloser {
+private class ResourcesCloser(val scope: CoroutineScope) : ResourcesDSL {
+    override fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T {
+        add(SuspendAutoCloseable(wrapped, closeFunction))
+        return wrapped
+    }
+
+    override suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit): TestDependency<T> {
+        val result = scope.async(Dispatchers.IO) { creator() }
+        add(SuspendAutoCloseable(result) { closer(result.await()) })
+        return TestDependency(result)
+    }
+
+    override fun <T : AutoCloseable> autoClose(wrapped: T): T = autoClose(wrapped) { it.close() }
     fun <T> add(autoCloseable: SuspendAutoCloseable<T>) {
         closeables.add(autoCloseable)
     }

@@ -1,7 +1,7 @@
 package failfast
 
 @FailFastDSL
-interface TestDSL {
+interface TestDSL : ResourcesDSL {
     suspend fun println(body: String)
 }
 

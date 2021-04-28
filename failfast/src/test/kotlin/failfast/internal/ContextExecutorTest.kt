@@ -337,11 +337,11 @@ object ContextExecutorTest {
                     totalEvents.add(events)
                     test("first  test") {
                         events.add("first test")
-                        resource1 = this@Suite.autoClose(closeable1) { it.close(); events.add("first close callback") }
+                        resource1 = autoClose(closeable1) { it.close(); events.add("first close callback") }
                     }
                     test("second test") {
                         events.add("second test")
-                        resource2 = this@Suite.autoClose(closeable2) { it.close(); events.add("second close callback") }
+                        resource2 = autoClose(closeable2) { it.close(); events.add("second close callback") }
                     }
                 }.run(silent = true)).get { allOk }.isTrue()
                 expectThat(totalEvents).containsExactly(

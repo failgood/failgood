@@ -124,11 +124,12 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         }
         val desc = ContextPath.fromString(test)
         val result = runBlocking {
-            SingleTestExecutor(context, desc, object : TestDSL {
+            val resourcesCloser = ResourcesCloser(this)
+            SingleTestExecutor(context, desc, object : TestDSL, ResourcesDSL by resourcesCloser {
                 override suspend fun println(body: String) {
                     println(body)
                 }
-            }, ResourcesCloser(this)).execute()
+            }, resourcesCloser).execute()
         }
         if (result is Failed) {
             println("$test${ExceptionPrettyPrinter(result.failure).prettyPrint()}")

@@ -304,14 +304,18 @@ object ContextExecutorTest {
                 verify(closeable2) { close() }
             }
             it("closes autocloseables without callback") {
+                var ac1: AutoCloseable? = null
+                var ac2: AutoCloseable? = null
                 var resource1: AutoCloseable? = null
                 var resource2: AutoCloseable? = null
                 val totalEvents = ConcurrentHashMap.newKeySet<List<String>>()
                 expectThat(Suite {
                     val events = mutableListOf<String>()
                     totalEvents.add(events)
-                    resource1 = autoClose(AutoCloseable { events.add("first close callback") })
-                    resource2 = autoClose(AutoCloseable { events.add("second close callback") })
+                    ac1 = AutoCloseable { events.add("first close callback") }
+                    resource1 = autoClose(ac1!!)
+                    ac2 = AutoCloseable { events.add("second close callback") }
+                    resource2 = autoClose(ac2!!)
                     test("first  test") { events.add("first test") }
                     test("second test") { events.add("second test") }
                 }.run(silent = true)).get { allOk }.isTrue()
@@ -319,6 +323,8 @@ object ContextExecutorTest {
                     listOf("first test", "second close callback", "first close callback"),
                     listOf("second test", "second close callback", "first close callback"),
                 )
+                expectThat(resource1).isSameInstanceAs(ac1)
+                expectThat(resource2).isSameInstanceAs(ac2)
             }
             describe("handles strange contexts correctly") {
                 it("a context with only one pending test") {

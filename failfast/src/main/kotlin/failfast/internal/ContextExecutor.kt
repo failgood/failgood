@@ -58,17 +58,18 @@ internal class ContextExecutor(
             }
             val stackTraceElement = getStackTraceElement()
             val testDescription = TestDescription(parentContext, name, stackTraceElement)
+            val context = this
             if (!ranATest) {
                 // we did not yet run a test so we are going to run this test ourselves
                 ranATest = true
 
-                // create the tests stacktrace element outside of the async block to get a better stacktrace
+                // create the tests stacktrace element outside of the async block to get a better stacktrace#
                 val deferred =
                     scope.async(start = coroutineStart) {
                         listener.testStarted(testDescription)
                         val testResult =
                             try {
-                                TestContext(listener, testDescription).function()
+                                TestContext(context, listener, testDescription).function()
                                 resourcesCloser.close()
                                 Success((System.nanoTime() - startTime) / 1000)
                             } catch (e: Throwable) {
@@ -84,7 +85,11 @@ internal class ContextExecutor(
                     scope.async(start = coroutineStart) {
                         listener.testStarted(testDescription)
                         val result =
-                            SingleTestExecutor(rootContext, testPath, TestContext(listener, testDescription)).execute()
+                            SingleTestExecutor(
+                                rootContext,
+                                testPath,
+                                TestContext(context, listener, testDescription)
+                            ).execute()
                         val testPlusResult = TestPlusResult(testDescription, result)
                         listener.testFinished(testPlusResult)
                         testPlusResult

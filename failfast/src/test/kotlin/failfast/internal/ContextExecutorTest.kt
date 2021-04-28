@@ -25,6 +25,7 @@ import strikt.assertions.isGreaterThan
 import strikt.assertions.isNotEmpty
 import strikt.assertions.isNotNull
 import strikt.assertions.isSameInstanceAs
+import strikt.assertions.isTrue
 import strikt.assertions.map
 import strikt.assertions.single
 import java.util.concurrent.ConcurrentHashMap
@@ -283,14 +284,14 @@ object ContextExecutorTest {
                 var resource1: AutoCloseable? = null
                 var resource2: AutoCloseable? = null
                 val totalEvents = ConcurrentHashMap.newKeySet<List<String>>()
-                Suite {
+                expectThat(Suite {
                     val events = mutableListOf<String>()
                     totalEvents.add(events)
                     resource1 = autoClose(closeable1) { it.close(); events.add("first close callback") }
                     resource2 = autoClose(closeable2) { it.close(); events.add("second close callback") }
                     test("first  test") { events.add("first test") }
                     test("second test") { events.add("second test") }
-                }.run(silent = true)
+                }.run(silent = true)).get { allOk }.isTrue()
                 expectThat(totalEvents).containsExactly(
                     listOf("first test", "second close callback", "first close callback"),
                     listOf("second test", "second close callback", "first close callback"),
@@ -306,15 +307,14 @@ object ContextExecutorTest {
                 var resource1: AutoCloseable? = null
                 var resource2: AutoCloseable? = null
                 val totalEvents = ConcurrentHashMap.newKeySet<List<String>>()
-                val closeable2 = mock<AutoCloseable>()
-                Suite {
+                expectThat(Suite {
                     val events = mutableListOf<String>()
                     totalEvents.add(events)
                     resource1 = autoClose(AutoCloseable { events.add("first close callback") })
                     resource2 = autoClose(AutoCloseable { events.add("second close callback") })
                     test("first  test") { events.add("first test") }
                     test("second test") { events.add("second test") }
-                }.run(silent = true)
+                }.run(silent = true)).get { allOk }.isTrue()
                 expectThat(totalEvents).containsExactly(
                     listOf("first test", "second close callback", "first close callback"),
                     listOf("second test", "second close callback", "first close callback"),

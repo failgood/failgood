@@ -2,10 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 0.4.1 - "Polymerase" 2021-04-29
 
 ### Added
 
+- Support autoClose inside tests.
 - Add autoClose(AutoCloseable) to close AutoCloseables without specifying a close callback.
 - Mocking library `call(..)` helper now supports suspend functions
 - `println` method inside a test case for thread safe test logging. Currently, the output is only available in the
@@ -14,10 +15,10 @@ All notable changes to this project will be documented in this file.
   from it. Here is an example:
   ```kotlin
                   test("tests can not contain nested contexts") {
-                    context("this should not even compile work") {} // compile error
+                    context("this should not even compile") {} // compile error
                 }
 
-```
+  ```
 
 
 ## 0.4.0 - "Doppeltest" 2021-04-02

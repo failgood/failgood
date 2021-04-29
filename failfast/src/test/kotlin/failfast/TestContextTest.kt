@@ -12,7 +12,7 @@ object TestContextTest {
         it("publishes a test event for stdout printing") {
             val testDescription = TestDescription(Context("root"), "testname", StackTraceElement("a", "b", "c", 1))
             val listener = mock<ExecutionListener>()
-            TestContext(listener, testDescription).println("printing to stdout")
+            TestContext(mock(), listener, testDescription).println("printing to stdout")
             expectThat(getCalls(listener)).single()
                 .isEqualTo(call(ExecutionListener::testEvent, testDescription, "stdout", "printing to stdout"))
         }

@@ -5,15 +5,12 @@ import failfast.ContextLambda
 import failfast.ContextPath
 import failfast.FailFastException
 import failfast.Failed
+import failfast.ResourcesDSL
 import failfast.RootContext
 import failfast.Success
 import failfast.TestDSL
-import failfast.TestDependency
 import failfast.TestLambda
 import failfast.TestResult
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 /**
  * Executes a single test with all its parent contexts
@@ -22,9 +19,9 @@ import kotlinx.coroutines.withContext
 internal class SingleTestExecutor(
     private val context: RootContext,
     private val test: ContextPath,
-    val testDSL: TestDSL
+    val testDSL: TestDSL,
+    val resourcesCloser: ResourcesCloser
 ) {
-    private val closeables = mutableListOf<SuspendAutoCloseable<*>>()
     private val startTime = System.nanoTime()
     suspend fun execute(): TestResult {
         val dsl: ContextDSL = contextDSL(test.parentContext.path.drop(1))
@@ -38,7 +35,7 @@ internal class SingleTestExecutor(
         }
     }
 
-    open inner class Base : ContextDSL {
+    open inner class Base : ContextDSL, ResourcesDSL by resourcesCloser {
         override suspend fun test(name: String, function: TestLambda) {
         }
 
@@ -47,20 +44,6 @@ internal class SingleTestExecutor(
 
         override suspend fun describe(name: String, function: ContextLambda) {
         }
-
-        override fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T {
-            closeables.add(SuspendAutoCloseable(wrapped, closeFunction))
-            return wrapped
-        }
-
-        override fun <T : AutoCloseable> autoClose(wrapped: T): T = autoClose(wrapped) { it.close() }
-
-
-        override suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit): TestDependency<T> {
-            val dependency = withContext(Dispatchers.IO) { creator() }
-            return TestDependency(CompletableDeferred(autoClose(dependency, closer)))
-        }
-
 
         override suspend fun it(behaviorDescription: String, function: TestLambda) {}
 
@@ -92,7 +75,7 @@ internal class SingleTestExecutor(
                 throw TestResultAvailable(
                     try {
                         testDSL.function()
-                        closeables.reversed().forEach { it.close() }
+                        resourcesCloser.close()
                         Success((System.nanoTime() - startTime) / 1000)
                     } catch (e: Throwable) {
                         Failed(e)

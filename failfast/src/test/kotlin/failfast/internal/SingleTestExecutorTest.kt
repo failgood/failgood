@@ -8,6 +8,7 @@ import failfast.Success
 import failfast.TestDSL
 import failfast.describe
 import failfast.mock.mock
+import kotlinx.coroutines.coroutineScope
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.isA
@@ -17,6 +18,7 @@ object SingleTestExecutorTest {
     val context =
         describe(SingleTestExecutor::class) {
             val testDSL = mock<TestDSL>()
+            val resourceCloser = coroutineScope { ResourcesCloser(this) }
             describe("test execution") {
                 val events = mutableListOf<String>()
                 val ctx =
@@ -38,12 +40,14 @@ object SingleTestExecutorTest {
                 val context2 = Context("context 2", context1)
 
                 it("executes a single test") {
-                    val result = SingleTestExecutor(ctx, ContextPath(rootContext, "test 1"), testDSL).execute()
+                    val result =
+                        SingleTestExecutor(ctx, ContextPath(rootContext, "test 1"), testDSL, resourceCloser).execute()
                     expectThat(events).containsExactly("root context", "test 1")
                     expectThat(result).isA<Success>()
                 }
                 it("executes a nested single test") {
-                    val result = SingleTestExecutor(ctx, ContextPath(context2, "test 3"), testDSL).execute()
+                    val result =
+                        SingleTestExecutor(ctx, ContextPath(context2, "test 3"), testDSL, resourceCloser).execute()
                     expectThat(events)
                         .containsExactly("root context", "context 1", "context 2", "test 3")
                     expectThat(result).isA<Success>()
@@ -62,7 +66,7 @@ object SingleTestExecutorTest {
                         Context("with a valid root context", Context("ContextExecutor", null)),
                         "returns contexts"
                     )
-                val executor = SingleTestExecutor(context, test, testDSL)
+                val executor = SingleTestExecutor(context, test, testDSL, resourceCloser)
                 executor.execute()
             }
             describe("error handling") {
@@ -74,7 +78,7 @@ object SingleTestExecutorTest {
                     val result = SingleTestExecutor(
                         contextThatThrows,
                         ContextPath(Context("root context", null), "test"),
-                        testDSL
+                        testDSL, resourceCloser
                     ).execute()
                     expectThat(result).isA<Failed>().get { failure }.isEqualTo(runtimeException)
                 }
@@ -87,7 +91,7 @@ object SingleTestExecutorTest {
                     val result = SingleTestExecutor(
                         contextThatThrows,
                         ContextPath(Context("root context", null), "test"),
-                        testDSL
+                        testDSL, resourceCloser
                     ).execute()
                     expectThat(result).isA<Failed>().get { failure }.isEqualTo(runtimeException)
                 }

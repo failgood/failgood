@@ -8,6 +8,7 @@ import failfast.Suite
 import failfast.TestDescription
 import failfast.TestPlusResult
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
@@ -18,6 +19,7 @@ import org.pitest.testapi.TestUnit
 import org.pitest.testapi.TestUnitFinder
 
 object FailFastTestUnitFinder : TestUnitFinder {
+    @OptIn(DelicateCoroutinesApi::class)
     override fun findTestUnits(clazz: Class<*>): List<TestUnit> {
         val contextProvider: ObjectContextProvider =
             try {

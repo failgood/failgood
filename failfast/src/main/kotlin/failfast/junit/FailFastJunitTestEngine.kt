@@ -17,6 +17,7 @@ import failfast.junit.FailFastJunitTestEngine.JunitExecutionListener.TestExecuti
 import failfast.junit.FailFastJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failfast.junit.FailFastJunitTestEngineConstants.CONFIG_KEY_LAZY
 import failfast.uptime
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -60,6 +61,7 @@ class FailFastJunitTestEngine : TestEngine {
     private var debug: Boolean = false
     override fun getId(): String = FailFastJunitTestEngineConstants.id
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun discover(discoveryRequest: EngineDiscoveryRequest, uniqueId: UniqueId): TestDescriptor {
         println("starting at uptime ${uptime()}")
 

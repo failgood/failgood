@@ -33,6 +33,7 @@ class FailFastJunitTestEngine : TestEngine {
     private var debug: Boolean = false
     override fun getId(): String = FailFastJunitTestEngineConstants.id
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun discover(discoveryRequest: EngineDiscoveryRequest, uniqueId: UniqueId): TestDescriptor {
         println("starting at uptime ${uptime()}")
 

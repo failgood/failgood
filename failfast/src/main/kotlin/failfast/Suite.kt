@@ -2,6 +2,7 @@ package failfast
 
 import failfast.internal.ContextExecutor
 import failfast.internal.ContextInfo
+import failfast.internal.ContextPath
 import failfast.internal.ContextTreeReporter
 import failfast.internal.ExceptionPrettyPrinter
 import failfast.internal.ResourcesCloser

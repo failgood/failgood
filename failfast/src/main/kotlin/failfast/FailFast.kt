@@ -2,6 +2,7 @@ package failfast
 
 import failfast.internal.Colors.RED
 import failfast.internal.Colors.RESET
+import failfast.internal.ContextPath
 import failfast.internal.ContextTreeReporter
 import failfast.internal.Junit4Reporter
 import java.nio.file.FileVisitResult
@@ -108,22 +109,6 @@ data class SuiteResult(
         slowTests.forEach { println("${contextTreeReporter.time((it.result as Success).timeMicro)}ms ${it.test}") }
     }
 
-}
-
-/**
- * a path to something that is contained in a context. can be a test or a context
- */
-internal data class ContextPath(val parentContext: Context, val name: String) {
-    companion object {
-        fun fromString(path: String): ContextPath {
-            val pathElements = path.split(">").map { it.trim() }
-            return ContextPath(Context.fromPath(pathElements.dropLast(1)), pathElements.last())
-        }
-    }
-
-    override fun toString(): String {
-        return "${parentContext.stringPath()} > $name"
-    }
 }
 
 data class TestDescription(val parentContext: Context, val testName: String, val stackTraceElement: StackTraceElement) {

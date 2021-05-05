@@ -1,7 +1,6 @@
 package failfast.internal
 
 import failfast.Context
-import failfast.ContextPath
 import failfast.Failed
 import failfast.RootContext
 import failfast.Success

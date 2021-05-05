@@ -3,7 +3,6 @@ package failfast.internal
 import failfast.Context
 import failfast.ContextDSL
 import failfast.ContextLambda
-import failfast.ContextPath
 import failfast.ExecutionListener
 import failfast.FailFastException
 import failfast.Failed

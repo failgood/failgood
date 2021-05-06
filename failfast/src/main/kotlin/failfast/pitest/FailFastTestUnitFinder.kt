@@ -1,21 +1,11 @@
 package failfast.pitest
 
-import failfast.Failed
-import failfast.ObjectContextProvider
-import failfast.Pending
-import failfast.Success
-import failfast.Suite
-import failfast.TestDescription
-import failfast.TestPlusResult
+import failfast.*
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
-import org.pitest.testapi.AbstractTestUnit
-import org.pitest.testapi.Description
-import org.pitest.testapi.ResultCollector
-import org.pitest.testapi.TestUnit
-import org.pitest.testapi.TestUnitFinder
+import org.pitest.testapi.*
 
 object FailFastTestUnitFinder : TestUnitFinder {
     override fun findTestUnits(clazz: Class<*>): List<TestUnit> {

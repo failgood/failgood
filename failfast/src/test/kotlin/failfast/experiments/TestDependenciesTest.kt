@@ -2,11 +2,7 @@
 
 package failfast.experiments
 
-import failfast.ContextDSL
-import failfast.FailFast
-import failfast.RootContext
-import failfast.Suite
-import failfast.describe
+import failfast.*
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 

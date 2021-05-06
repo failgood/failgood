@@ -1,15 +1,6 @@
 package failfast.internal
 
-import failfast.ContextDSL
-import failfast.ContextLambda
-import failfast.FailFastException
-import failfast.Failed
-import failfast.ResourcesDSL
-import failfast.RootContext
-import failfast.Success
-import failfast.TestDSL
-import failfast.TestLambda
-import failfast.TestResult
+import failfast.*
 
 /**
  * Executes a single test with all its parent contexts

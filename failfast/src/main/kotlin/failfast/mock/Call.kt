@@ -1,18 +1,6 @@
 package failfast.mock
 
-import kotlin.reflect.KCallable
-import kotlin.reflect.KFunction1
-import kotlin.reflect.KFunction2
-import kotlin.reflect.KFunction3
-import kotlin.reflect.KFunction4
-import kotlin.reflect.KFunction5
-import kotlin.reflect.KFunction6
-import kotlin.reflect.KSuspendFunction1
-import kotlin.reflect.KSuspendFunction2
-import kotlin.reflect.KSuspendFunction3
-import kotlin.reflect.KSuspendFunction4
-import kotlin.reflect.KSuspendFunction5
-import kotlin.reflect.KSuspendFunction6
+import kotlin.reflect.*
 
 /*
  * these are necessary to work with classes that have overloaded methods

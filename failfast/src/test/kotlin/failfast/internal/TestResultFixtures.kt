@@ -1,10 +1,6 @@
 package failfast.internal
 
-import failfast.Context
-import failfast.Failed
-import failfast.Success
-import failfast.TestDescription
-import failfast.TestPlusResult
+import failfast.*
 
 object TestResultFixtures {
     val rootContext = Context("the test runner", null)

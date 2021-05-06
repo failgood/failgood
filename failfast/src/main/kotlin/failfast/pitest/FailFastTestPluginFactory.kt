@@ -2,11 +2,7 @@ package failfast.pitest
 
 import org.pitest.classinfo.ClassByteArraySource
 import org.pitest.help.PitHelpError
-import org.pitest.testapi.Configuration
-import org.pitest.testapi.TestGroupConfig
-import org.pitest.testapi.TestPluginFactory
-import org.pitest.testapi.TestSuiteFinder
-import org.pitest.testapi.TestUnitFinder
+import org.pitest.testapi.*
 import java.util.*
 
 class FailFastTestPluginFactory : TestPluginFactory {

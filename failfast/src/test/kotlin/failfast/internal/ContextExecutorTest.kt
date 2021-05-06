@@ -1,11 +1,6 @@
 package failfast.internal
 
-import failfast.FailFastException
-import failfast.Failed
-import failfast.RootContext
-import failfast.Success
-import failfast.Suite
-import failfast.describe
+import failfast.*
 import failfast.mock.call
 import failfast.mock.getCalls
 import failfast.mock.mock
@@ -14,20 +9,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import strikt.api.expectThat
 import strikt.api.expectThrows
-import strikt.assertions.all
-import strikt.assertions.containsExactly
-import strikt.assertions.doesNotContain
-import strikt.assertions.endsWith
-import strikt.assertions.get
-import strikt.assertions.isA
-import strikt.assertions.isEqualTo
-import strikt.assertions.isGreaterThanOrEqualTo
-import strikt.assertions.isNotEmpty
-import strikt.assertions.isNotNull
-import strikt.assertions.isSameInstanceAs
-import strikt.assertions.isTrue
-import strikt.assertions.map
-import strikt.assertions.single
+import strikt.assertions.*
 import java.util.concurrent.ConcurrentHashMap
 
 object ContextExecutorTest {

@@ -5,12 +5,7 @@ import failfast.internal.Colors.RESET
 import failfast.internal.ContextPath
 import failfast.internal.ContextTreeReporter
 import failfast.internal.Junit4Reporter
-import java.nio.file.FileVisitResult
-import java.nio.file.Files
-import java.nio.file.NoSuchFileException
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.nio.file.SimpleFileVisitor
+import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileTime
 import kotlin.reflect.KClass

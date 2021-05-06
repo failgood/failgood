@@ -1,13 +1,7 @@
 package failfast
 
 import strikt.api.expectThat
-import strikt.assertions.all
-import strikt.assertions.hasSize
-import strikt.assertions.isA
-import strikt.assertions.isEqualTo
-import strikt.assertions.isFalse
-import strikt.assertions.isLessThan
-import strikt.assertions.isTrue
+import strikt.assertions.*
 import java.lang.management.ManagementFactory
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit

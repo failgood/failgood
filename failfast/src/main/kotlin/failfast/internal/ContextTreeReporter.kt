@@ -1,10 +1,6 @@
 package failfast.internal
 
-import failfast.Context
-import failfast.Failed
-import failfast.Pending
-import failfast.Success
-import failfast.TestPlusResult
+import failfast.*
 import failfast.internal.Colors.FAILED
 import failfast.internal.Colors.PENDING
 import failfast.internal.Colors.RED

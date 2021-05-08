@@ -86,9 +86,6 @@ There are two ways to run your failfast suite:
 * A main method that calls `FailFast.runAllTests()`
 * A junit-platform engine
 
-I like the main-method-method, but I must admit that the junit platform engine is pretty useful to run all tests, or a
-subset of the tests inside Intellij IDEA.
-
 ### the junit-platform-engine
 
 To use the JUnit engine add the JUnit platform launcher to your gradle file dependency block:
@@ -99,8 +96,6 @@ To use the JUnit engine add the JUnit platform launcher to your gradle file depe
 
 Make sure to select "run tests in IDEA" in your gradle settings, running via gradle is currently not supported (coming
 soon)
-You can run all tests or all tests in a package via IDEA. If you want to run a single test file you have to manually
-enter a regex into the JUnit run dialog, for example `.*ContextExecutorTest` to run the ContextExecutorTest.
 
 ### The "main method method"
 

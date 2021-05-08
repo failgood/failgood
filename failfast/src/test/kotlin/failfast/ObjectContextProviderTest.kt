@@ -2,6 +2,7 @@ package failfast
 
 import failfast.docs.ClassTestContextTest
 import failfast.docs.ObjectMultipleContextsTest
+import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.*
 
@@ -9,7 +10,8 @@ fun main() {
     FailFast.runTest("The ObjectContextProvider > provides a context from an class in a kotlin class (MyTest::class.java)")
 }
 
-object ObjectContextProviderTest {
+@Testable
+class ObjectContextProviderTest {
     val context =
         describe(ObjectContextProvider::class) {
             it("provides a context from an class in a kotlin class (MyTest::class.java)") {

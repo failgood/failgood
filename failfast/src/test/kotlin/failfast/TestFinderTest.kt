@@ -4,14 +4,12 @@ import failfast.docs.ClassTestContextTest
 import failfast.docs.ObjectMultipleContextsTest
 import failfast.docs.ObjectTestContextTest
 import failfast.docs.TestContextExampleTest
+import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
 
-fun main() {
-    Suite(TestFinderTest.context).run().check()
-}
-
-object TestFinderTest {
+@Testable
+class TestFinderTest {
     val context =
         describe("test finder") {
             it("can find Test classes") {

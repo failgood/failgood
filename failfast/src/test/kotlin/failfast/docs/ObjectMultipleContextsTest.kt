@@ -1,10 +1,12 @@
 package failfast.docs
 
 import failfast.describe
+import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
-object ObjectMultipleContextsTest {
+@Testable
+class ObjectMultipleContextsTest {
     val context = listOf(
         describe("first of multiple contexts defined in one object") {
             it("describes behavior") { expectThat("test").isEqualTo("test") }

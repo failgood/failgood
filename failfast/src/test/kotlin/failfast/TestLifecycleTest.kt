@@ -1,16 +1,14 @@
 package failfast
 
 import failfast.TestLifecycleTest.Event.*
+import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
 import java.util.concurrent.ConcurrentHashMap
 
-fun main() {
-    Suite(TestLifecycleTest.context).run().check()
-}
 
-
-object TestLifecycleTest {
+@Testable
+class TestLifecycleTest {
     private enum class Event {
         ROOT_CONTEXT_EXECUTED,
         DEPENDENCY_CLOSED,

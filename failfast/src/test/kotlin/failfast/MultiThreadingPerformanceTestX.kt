@@ -1,10 +1,13 @@
 package failfast
 
+import org.junit.platform.commons.annotation.Testable
+
 fun main() {
-    Suite(MultiThreadingPerformanceTestX.context).run(1000).check()
+    Suite(MultiThreadingPerformanceTestX().context).run(1000).check()
 }
 
-object MultiThreadingPerformanceTestX {
+@Testable
+class MultiThreadingPerformanceTestX {
     val context =
         describe("multi threaded test running") {
             repeat(1000) {

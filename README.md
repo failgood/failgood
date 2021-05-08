@@ -23,27 +23,28 @@ people who write tests daily and iterate fast.
 ## How it looks like
 
 ```kotlin
-object FailFastTest {
-  val context = describe("The test runner") {
-    it("supports describe/it syntax") { expectThat(true).isEqualTo(true) }
-    describe("nested contexts") {
-      it("can contain tests too") { expectThat(true).isEqualTo(true) }
+@Testable
+class FailFastTest {
+    val context = describe("The test runner") {
+        it("supports describe/it syntax") { expectThat(true).isEqualTo(true) }
+        describe("nested contexts") {
+            it("can contain tests too") { expectThat(true).isEqualTo(true) }
 
-      describe("disabled/pending tests") {
-        pending("pending can be used to mark pending tests") {}
-        pending("for pending tests the test body is optional")
-      }
-      context("context/test syntax is also supported") {
-        test(
-          "I prefer describe/it but if there is no subject to describe I use " +
-                  "context/test"
-        ) {}
-      }
+            describe("disabled/pending tests") {
+                pending("pending can be used to mark pending tests") {}
+                pending("for pending tests the test body is optional")
+            }
+            context("context/test syntax is also supported") {
+                test(
+                    "I prefer describe/it but if there is no subject to describe I use " +
+                            "context/test"
+                ) {}
+            }
 
-      context("dynamic tests") {
-        (1 until 5).forEach { contextNr ->
-          context("dynamic context #$contextNr") {
-            (1 until 5).forEach { testNr ->
+            context("dynamic tests") {
+                (1 until 5).forEach { contextNr ->
+                    context("dynamic context #$contextNr") {
+                        (1 until 5).forEach { testNr ->
               test("test #$testNr") {
                 expectThat(testNr).isLessThan(10)
                 expectThat(contextNr).isLessThan(10)
@@ -145,14 +146,15 @@ tasks.check { dependsOn(testMain) }
 
 You can also run a single file with the "main method method":
 
-```kotlin 
+```kotlin
 fun main() {
-  FailFast.runTest() // will run tests in the current file 
+    FailFast.runTest() // will run tests in the current file
 }
+
 object MyTestClass {
-  val context = describe("my favorite class") {
-  ...
-  }
+    val context = describe("my favorite class") {
+        // ...
+    }
 }
 
 ```

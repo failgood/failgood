@@ -1,6 +1,7 @@
 package failfast.pitest
 
 import failfast.describe
+import org.junit.platform.commons.annotation.Testable
 import org.pitest.testapi.Description
 import org.pitest.testapi.ResultCollector
 import org.pitest.testapi.TestUnitFinder
@@ -8,8 +9,10 @@ import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
 import strikt.assertions.hasSize
 
-object FailFastTestUnitFinderTest {
-    var failure: Throwable? = null
+var failure: Throwable? = null
+
+@Testable
+class FailFastTestUnitFinderTest {
 
     object Tests {
         val context = describe("tests with different results") {

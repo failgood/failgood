@@ -1,8 +1,10 @@
 package failfast.docs
 
 import failfast.describe
+import org.junit.platform.commons.annotation.Testable
 
-object TestContextExampleTest {
+@Testable
+class TestContextExampleTest {
     val context = describe("examples for the test context dsl") {
         it("published println calls in the junit runner") {
             // this will output

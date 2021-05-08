@@ -1,10 +1,12 @@
 package failfast
 
+import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
 
-object ContextTest {
+@Testable
+class ContextTest {
     val context =
         describe("a test context") {
             it("can tell its name with path") {

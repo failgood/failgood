@@ -3,6 +3,7 @@ package failfast.junit.it
 import failfast.describe
 import failfast.junit.FailFastJunitTestEngine
 import failfast.junit.it.fixtures.DuplicateTestNameTest
+import org.junit.platform.commons.annotation.Testable
 import org.junit.platform.engine.discovery.DiscoverySelectors
 import org.junit.platform.launcher.EngineFilter
 import org.junit.platform.launcher.LauncherDiscoveryRequest
@@ -17,7 +18,8 @@ fun launcherDiscoveryRequest(kClass: KClass<*>): LauncherDiscoveryRequest {
         .build()
 }
 
-object JunitPlatformFunctionalTest {
+@Testable
+class JunitPlatformFunctionalTest {
     val context = describe("The Junit Platform Engine") {
         it("can execute tests") {
             // just check that it does not crash

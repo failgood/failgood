@@ -1,18 +1,15 @@
 package failfast.examples
 
 import failfast.ContextDSL
-import failfast.FailFast
 import failfast.describe
+import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 import java.util.*
 
-fun main() {
-    FailFast.runTest()
-}
-
 // a port of https://github.com/dmcg/minutest/blob/master/core/src/test/kotlin/dev/minutest/examples/ContractsExampleTests.kt
-object ContractsTest {
+@Testable
+class ContractsTest {
     val context = describe("Contracts") {
         describe("ArrayList") {
             behavesAsMutableCollection(ArrayList<String>())

@@ -7,12 +7,14 @@ import failfast.mock.mock
 import failfast.mock.verify
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.api.expectThrows
 import strikt.assertions.*
 import java.util.concurrent.ConcurrentHashMap
 
-object ContextExecutorTest {
+@Testable
+class ContextExecutorTest {
     private var assertionError: AssertionError? = null
     val context =
         describe(ContextExecutor::class) {

@@ -2,7 +2,11 @@
 
 package failfast.experiments
 
-import failfast.*
+import failfast.ContextDSL
+import failfast.RootContext
+import failfast.Suite
+import failfast.describe
+import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
@@ -11,11 +15,9 @@ import strikt.assertions.isEqualTo
  * right now I think that I'm not going to implement it because its less intuitive, and i can have the same
  * effect by using normal context declared dependencies with `by dependency {....}`
  */
-fun main() {
-    FailFast.runTest()
-}
 
-object TestDependenciesTest {
+@Testable
+class TestDependenciesTest {
     val context = describe("Injecting Test Dependencies") {
         test("the context can create test dependencies") {
             val context = RootContext("TestContext for dependency Injection") {

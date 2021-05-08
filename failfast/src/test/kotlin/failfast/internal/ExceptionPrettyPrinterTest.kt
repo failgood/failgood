@@ -3,13 +3,15 @@
 package failfast.internal
 
 import failfast.describe
+import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.allIndexed
 import strikt.assertions.contains
 import strikt.assertions.startsWith
 import strikt.assertions.trim
 
-object ExceptionPrettyPrinterTest {
+@Testable
+class ExceptionPrettyPrinterTest {
     val context =
         describe(ExceptionPrettyPrinter::class) {
             val assertionError = AssertionError("message")

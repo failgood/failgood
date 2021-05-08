@@ -12,11 +12,14 @@ import failfast.internal.TestResultFixtures.rootContext
 import failfast.internal.TestResultFixtures.subContext
 import failfast.internal.TestResultFixtures.subSubContext
 import failfast.internal.TestResultFixtures.testResults
+import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 
 val stackTraceElement = StackTraceElement("class", "method", "file", 123)
-object ContextTreeReporterTest {
+
+@Testable
+class ContextTreeReporterTest {
     val context =
         describe(ContextTreeReporter::class) {
             val reporter = ContextTreeReporter()

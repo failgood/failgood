@@ -3,12 +3,14 @@ package failfast.internal
 import failfast.*
 import failfast.mock.mock
 import kotlinx.coroutines.coroutineScope
+import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 
-object SingleTestExecutorTest {
+@Testable
+class SingleTestExecutorTest {
     val context =
         describe(SingleTestExecutor::class) {
             val testDSL = mock<TestDSL>()

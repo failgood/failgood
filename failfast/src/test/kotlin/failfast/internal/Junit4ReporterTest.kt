@@ -1,11 +1,13 @@
 package failfast.internal
 
 import failfast.describe
+import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 
 
-object Junit4ReporterTest {
+@Testable
+class Junit4ReporterTest {
     val context = describe(Junit4Reporter::class) {
         it("reports test results") {
             val control = Junit4Reporter(TestResultFixtures.testResults).stringReport()

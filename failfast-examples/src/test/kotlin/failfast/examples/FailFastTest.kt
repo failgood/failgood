@@ -1,11 +1,13 @@
 package failfast.examples
 
 import failfast.describe
+import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 import strikt.assertions.isLessThan
 
-object FailFastTest {
+@Testable
+class FailFastTest {
     val context = describe("The test runner") {
         it("supports describe/it syntax") { expectThat(true).isEqualTo(true) }
         describe("nested contexts") {

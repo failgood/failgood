@@ -1,12 +1,14 @@
 package failfast.pitest
 
 import failfast.describe
+import org.junit.platform.commons.annotation.Testable
 import org.pitest.testapi.TestPluginFactory
 import strikt.api.expectThat
 import strikt.assertions.isEmpty
 import strikt.assertions.isEqualTo
 
-object FailFastTestPluginFactoryTest {
+@Testable
+class FailFastTestPluginFactoryTest {
     val context =
         describe(FailFastTestPluginFactory::class) {
             it("provides description and name") {

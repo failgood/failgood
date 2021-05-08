@@ -1,9 +1,11 @@
 package failfast
 
+import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
-object RootContextTest {
+@Testable
+class RootContextTest {
     val context: RootContext = describe(RootContext::class) {
         val ste = Throwable().stackTrace.first()
         val testContext = RootContext {}

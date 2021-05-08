@@ -1,12 +1,14 @@
 package failfast
 
+import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.api.expectThrows
 import strikt.assertions.isEqualTo
 import strikt.assertions.isFalse
 import strikt.assertions.isTrue
 
-object SuiteTest {
+@Testable
+class SuiteTest {
     val context =
         describe(Suite::class) {
             val context =

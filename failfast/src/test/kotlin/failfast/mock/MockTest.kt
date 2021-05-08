@@ -2,6 +2,7 @@ package failfast.mock
 
 import failfast.FailFast
 import failfast.describe
+import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.api.expectThrows
 import strikt.assertions.containsExactly
@@ -12,7 +13,8 @@ fun main() {
     FailFast.runTest()
 }
 
-object MockTest {
+@Testable
+class MockTest {
     interface IImpl {
         fun overloadedFunction()
         fun overloadedFunction(s: String)

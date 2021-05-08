@@ -1,6 +1,5 @@
 package failfast.junit.it
 
-import failfast.FailFast
 import failfast.describe
 import failfast.junit.FailFastJunitTestEngine
 import failfast.junit.FailFastJunitTestEngineConstants
@@ -12,6 +11,7 @@ import failfast.junit.it.fixtures.TestWithNestedContextsTest.CHILD_CONTEXT_2_NAM
 import failfast.junit.it.fixtures.TestWithNestedContextsTest.ROOT_CONTEXT_NAME
 import failfast.junit.it.fixtures.TestWithNestedContextsTest.TEST2_NAME
 import failfast.junit.it.fixtures.TestWithNestedContextsTest.TEST_NAME
+import org.junit.platform.commons.annotation.Testable
 import org.junit.platform.engine.*
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
@@ -19,10 +19,8 @@ import strikt.assertions.isTrue
 import strikt.assertions.single
 import java.util.concurrent.ConcurrentLinkedQueue
 
-fun main() {
-    FailFast.runTest("The FailFastJunitTestEngine > test execution > sends one skip event and no start event for skipped tests")
-}
-object FailFastJunitTestEngineTest {
+@Testable
+class FailFastJunitTestEngineTest {
     val context = describe(FailFastJunitTestEngine::class) {
         val engine = FailFastJunitTestEngine()
         describe("can discover tests") {

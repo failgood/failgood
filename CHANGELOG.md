@@ -6,9 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Support declaring test contexts in classes. IDE support for tests in classes is just better.
-  You can now add a @Testable annotation to your test class and run a single class from idea.
-  The class is only instantiated once, so don't put dependencies into the class outside of a context.
+- support running a single test class from idea that is not called *Test if its annotated with @Testable
+- Support declaring test contexts in classes. IDE support for tests in classes is just better. You can now add a
+  @Testable annotation to your test class and run a single class from idea. The class is only instantiated once, so
+  don't put dependencies into the class outside of a context.
 
 ## 0.4.1 - "Polymerase" 2021-04-29
 

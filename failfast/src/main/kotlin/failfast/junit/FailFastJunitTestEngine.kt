@@ -220,8 +220,12 @@ class FailFastJunitTestEngine : TestEngine {
                     }
                 }
             }
-            classSelectors.isNotEmpty() -> classSelectors.filter { it.className.endsWith("Test") }
-                .map { ObjectContextProvider(it.javaClass.kotlin) }
+            classSelectors.isNotEmpty() -> {
+                val classes =
+                    if (classSelectors.size == 1) classSelectors else classSelectors.filter { it.className.endsWith("Test") }
+                classes
+                    .map { ObjectContextProvider(it.javaClass.kotlin) }
+            }
 
             singleClassSelector != null -> {
                 listOf(ObjectContextProvider(singleClassSelector.javaClass))

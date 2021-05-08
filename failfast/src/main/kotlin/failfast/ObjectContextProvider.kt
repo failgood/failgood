@@ -11,7 +11,15 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
 
     override fun getContexts(): List<RootContext> {
         return try {
-            val obj = instantiateKotlinObject(jClass)
+            val instanceField = try {
+                jClass.getDeclaredField("INSTANCE")
+            } catch (e: Exception) {
+                null
+            }
+            val obj = if (instanceField != null)
+                instanceField.get(null)
+            else
+                jClass.constructors.single().newInstance()
             val contexts = jClass.getDeclaredMethod("getContext").invoke(obj)
             @Suppress("UNCHECKED_CAST")
             contexts as? List<RootContext> ?: listOf(contexts as RootContext)
@@ -27,5 +35,4 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
         // }.call(kClass.objectInstance) as RootContext
     }
 
-    private fun instantiateKotlinObject(clazz: Class<out Any>): Any = clazz.getDeclaredField("INSTANCE").get(null)
 }

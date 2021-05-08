@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Added
+
+- Support declaring test contexts in classes. IDE support for tests in classes is just better.
+  The class is only instantiated once, so don't put dependencies into the class outside of a context.
+
 ## 0.4.1 - "Polymerase" 2021-04-29
 
 ### Added
@@ -86,5 +93,5 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - Fixed a threading bug that only appears on the OpenJ9 JDK.
- 
+
 

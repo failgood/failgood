@@ -1,16 +1,22 @@
 package failfast
 
+import failfast.docs.ClassTestContextTest
 import failfast.docs.ObjectMultipleContextsTest
 import strikt.api.expectThat
 import strikt.assertions.*
 
 fun main() {
-    FailFast.runTest()
+    FailFast.runTest("The ObjectContextProvider > provides a context from an class in a kotlin class (MyTest::class.java)")
 }
 
 object ObjectContextProviderTest {
     val context =
         describe(ObjectContextProvider::class) {
+            it("provides a context from an class in a kotlin class (MyTest::class.java)") {
+                expectThat(ObjectContextProvider(ClassTestContextTest::class).getContexts()).single()
+                    .isA<RootContext>()
+                    .and { get(RootContext::name).isEqualTo("test context defined in a kotlin class") }
+            }
             it("provides a context from an object in a java class (MyTest::class.java)") {
                 expectThat(ObjectContextProvider(TestFinderTest::class.java).getContexts()).single()
                     .isA<RootContext>()

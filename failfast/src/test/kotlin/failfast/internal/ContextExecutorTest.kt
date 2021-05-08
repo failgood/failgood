@@ -11,7 +11,7 @@ import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.api.expectThrows
 import strikt.assertions.*
-import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 
 @Testable
 class ContextExecutorTest {
@@ -267,7 +267,7 @@ class ContextExecutorTest {
                 val closeable2 = mock<AutoCloseable>()
                 var resource1: AutoCloseable? = null
                 var resource2: AutoCloseable? = null
-                val totalEvents = ConcurrentHashMap.newKeySet<List<String>>()
+                val totalEvents = CopyOnWriteArrayList<List<String>>()
                 expectThat(Suite {
                     val events = mutableListOf<String>()
                     totalEvents.add(events)
@@ -292,7 +292,7 @@ class ContextExecutorTest {
                 var ac2: AutoCloseable? = null
                 var resource1: AutoCloseable? = null
                 var resource2: AutoCloseable? = null
-                val totalEvents = ConcurrentHashMap.newKeySet<List<String>>()
+                val totalEvents = CopyOnWriteArrayList<List<String>>()
                 expectThat(Suite {
                     val events = mutableListOf<String>()
                     totalEvents.add(events)
@@ -315,7 +315,7 @@ class ContextExecutorTest {
                 val closeable2 = mock<AutoCloseable>()
                 var resource1: AutoCloseable? = null
                 var resource2: AutoCloseable? = null
-                val totalEvents = ConcurrentHashMap.newKeySet<List<String>>()
+                val totalEvents = CopyOnWriteArrayList<List<String>>()
                 expectThat(Suite {
                     val events = mutableListOf<String>()
                     totalEvents.add(events)

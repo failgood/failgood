@@ -4,7 +4,7 @@ import failfast.TestLifecycleTest.Event.*
 import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
-import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 
 
 @Testable
@@ -24,7 +24,7 @@ class TestLifecycleTest {
         it("are recreated for each test") {
             // tests run in parallel, so the total order of events is not defined.
             // we track events in a list of lists and record the events that lead to each test
-            val totalEvents = ConcurrentHashMap.newKeySet<List<Event>>()
+            val totalEvents = CopyOnWriteArrayList<List<Event>>()
             Suite {
                 val testEvents = mutableListOf<Event>()
                 totalEvents.add(testEvents)

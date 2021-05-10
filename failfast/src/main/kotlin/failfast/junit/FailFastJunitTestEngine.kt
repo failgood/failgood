@@ -9,6 +9,7 @@ import failfast.junit.FailFastJunitTestEngineConstants.CONFIG_KEY_LAZY
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import org.junit.platform.engine.*
 import org.junit.platform.engine.discovery.ClassNameFilter
 import org.junit.platform.engine.discovery.ClassSelector
@@ -118,7 +119,7 @@ class FailFastJunitTestEngine : TestEngine {
         if (root !is FailFastEngineDescriptor)
             return
         val startedContexts = mutableSetOf<Context>()
-        val junitListener = request.engineExecutionListener
+        val junitListener = LoggingEngineExecutionListener(request.engineExecutionListener)
         junitListener.executionStarted(root)
         val executionListener = root.executionListener
         runBlocking(Dispatchers.Default) {
@@ -128,7 +129,7 @@ class FailFastJunitTestEngine : TestEngine {
                 while (true) {
                     val event = try {
                         executionListener.events.receive()
-                    } catch (e: Exception) {
+                    } catch (e: ClosedReceiveChannelException) {
                         break
                     }
 
@@ -192,6 +193,7 @@ class FailFastJunitTestEngine : TestEngine {
 
             junitListener.executionFinished(root, TestExecutionResult.successful())
         }
+//        println(junitListener.events.joinToString("\n"))
         println("finished after ${uptime()}")
     }
 

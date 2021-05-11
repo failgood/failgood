@@ -2,14 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 0.4.2 - "Truth"
 
 ### Added
 
-- support running a single test class from idea that is not called *Test if its annotated with @Testable
+- Run a single test class from idea even if it is not called *Test if it's annotated with @Testable
 - Support declaring test contexts in classes. IDE support for tests in classes is just better. You can now add a
   @Testable annotation to your test class and run a single class from idea. The class is only instantiated once, so
-  don't put dependencies into the class outside of a context.
+  don't put dependencies into the class outside a context.
+
+### Fixed
+
+- Failing contexts are now correctly reported in junit platform
 
 ## 0.4.1 - "Polymerase" 2021-04-29
 

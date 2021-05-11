@@ -16,9 +16,6 @@ plugins {
 
 
 
-repositories {
-    mavenCentral()
-}
 dependencies {
     implementation(enforcedPlatform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion"))
     implementation(kotlin("stdlib-jdk8"))

@@ -132,7 +132,6 @@ class FailFastJunitTestEngine : TestEngine {
                     } catch (e: ClosedReceiveChannelException) {
                         break
                     }
-
                     fun startParentContexts(
                         testDescriptor: TestDescription,
                         engineDescriptor: FailFastEngineDescriptor

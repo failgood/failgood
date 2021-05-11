@@ -96,12 +96,14 @@ internal class ContextExecutor(
             val visitor = ContextVisitor(context, resourcesCloser)
             try {
                 visitor.function()
-            } catch (e: Throwable) {
+            } catch (exceptionInContext: Throwable) {
                 val testDescriptor = TestDescription(parentContext, name, stackTraceElement)
 
                 processedTests.add(contextPath) // don't visit this context again
+                val testPlusResult = TestPlusResult(testDescriptor, Failed(exceptionInContext))
                 deferredTestResults[testDescriptor] =
-                    CompletableDeferred(TestPlusResult(testDescriptor, Failed(e)))
+                    CompletableDeferred(testPlusResult)
+                listener.testFinished(testPlusResult)
                 ranATest = true
                 return
             }

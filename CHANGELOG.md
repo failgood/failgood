@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 0.4.2 - "Truth"
+## 0.4.2 - "Truth" - 2021-05-14
 
 ### Added
 
@@ -15,7 +15,7 @@ All notable changes to this project will be documented in this file.
 
 - Failing contexts are now correctly reported in junit platform
 
-## 0.4.1 - "Polymerase" 2021-04-29
+## 0.4.1 - "Polymerase" - 2021-04-29
 
 ### Added
 
@@ -33,8 +33,7 @@ All notable changes to this project will be documented in this file.
 
   ```
 
-
-## 0.4.0 - "Doppeltest" 2021-04-02
+## 0.4.0 - "Doppeltest" - 2021-04-02
 
 ### Added
 

@@ -13,7 +13,7 @@ import java.util.*
 
 internal class ContextTreeReporter {
     fun stringReport(results: List<TestPlusResult>, allContexts: List<Context>): List<String> {
-        val contextMap = results.groupBy { it.test.parentContext }
+        val contextMap: Map<TestContainer, List<TestPlusResult>> = results.groupBy { it.test.parentContext }
         val result = mutableListOf<String>()
         val rootContexts = allContexts.filter { it.parent == null }
         printContext(rootContexts, allContexts, result, contextMap, 0)
@@ -24,7 +24,7 @@ internal class ContextTreeReporter {
         contexts: List<Context>,
         allContexts: List<Context>,
         result: MutableList<String>,
-        contextMap: Map<Context, List<TestPlusResult>>,
+        contextMap: Map<TestContainer, List<TestPlusResult>>,
         indent: Int
     ) {
         val indentString = "  ".repeat(indent)

@@ -107,7 +107,11 @@ data class SuiteResult(
 
 }
 
-data class TestDescription(val parentContext: Context, val testName: String, val stackTraceElement: StackTraceElement) {
+data class TestDescription(
+    val parentContext: TestContainer,
+    val testName: String,
+    val stackTraceElement: StackTraceElement
+) {
     internal constructor(testPath: ContextPath, stackTraceElement: StackTraceElement) : this(
         testPath.parentContext,
         testPath.name,
@@ -119,16 +123,28 @@ data class TestDescription(val parentContext: Context, val testName: String, val
     }
 }
 
-data class Context(val name: String, val parent: Context? = null, val stackTraceElement: StackTraceElement? = null) {
+/* something that contains tests */
+interface TestContainer {
+    val parents: List<TestContainer>
+    val name: String
+    fun stringPath(): String
+
+}
+
+data class Context(
+    override val name: String,
+    val parent: Context? = null,
+    val stackTraceElement: StackTraceElement? = null
+) : TestContainer {
     companion object {
         fun fromPath(path: List<String>): Context {
             return Context(path.last(), if (path.size == 1) null else fromPath(path.dropLast(1)))
         }
     }
 
-    val parentContexts: List<Context> = parent?.parentContexts?.plus(parent) ?: listOf()
+    override val parents: List<TestContainer> = parent?.parents?.plus(parent) ?: listOf()
     val path: List<String> = parent?.path?.plus(name) ?: listOf(name)
-    fun stringPath(): String = path.joinToString(" > ")
+    override fun stringPath(): String = path.joinToString(" > ")
 }
 
 object FailGood {

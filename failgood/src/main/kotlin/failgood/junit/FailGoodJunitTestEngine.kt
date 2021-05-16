@@ -119,7 +119,7 @@ class FailGoodJunitTestEngine : TestEngine {
         val root = request.rootTestDescriptor
         if (root !is FailGoodEngineDescriptor)
             return
-        val startedContexts = mutableSetOf<Context>()
+        val startedContexts = mutableSetOf<TestContainer>()
         val junitListener = LoggingEngineExecutionListener(request.engineExecutionListener)
         junitListener.executionStarted(root)
         val executionListener = root.executionListener
@@ -138,7 +138,7 @@ class FailGoodJunitTestEngine : TestEngine {
                         engineDescriptor: FailGoodEngineDescriptor
                     ) {
                         val context = testDescriptor.parentContext
-                        (context.parentContexts + context).forEach {
+                        (context.parents + context).forEach {
                             if (startedContexts.add(it))
                                 junitListener.executionStarted(engineDescriptor.getMapping(it))
                         }
@@ -186,7 +186,7 @@ class FailGoodJunitTestEngine : TestEngine {
             // finish forwarding test events before closing all the contexts
             eventForwarder.join()
             // close child contexts before their parent
-            val leafToRootContexts = startedContexts.sortedBy { -it.parentContexts.size }
+            val leafToRootContexts = startedContexts.sortedBy { -it.parents.size }
             leafToRootContexts.forEach { context ->
                 junitListener.executionFinished(root.getMapping(context), TestExecutionResult.successful())
             }
@@ -298,14 +298,14 @@ internal class FailGoodEngineDescriptor(
 ) :
     EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.displayName) {
     private val testDescription2JunitTestDescriptor = mutableMapOf<TestDescription, TestDescriptor>()
-    private val context2JunitTestDescriptor = mutableMapOf<Context, TestDescriptor>()
+    private val context2JunitTestDescriptor = mutableMapOf<TestContainer, TestDescriptor>()
     fun addMapping(testDescription: TestDescription, testDescriptor: TestDescriptor) {
         testDescription2JunitTestDescriptor[testDescription] = testDescriptor
     }
 
     fun getMapping(testDescription: TestDescription) = testDescription2JunitTestDescriptor[testDescription]
-    fun getMapping(context: Context): TestDescriptor = context2JunitTestDescriptor[context]!!
-    fun addMapping(context: Context, testDescriptor: TestDescriptor) {
+    fun getMapping(context: TestContainer): TestDescriptor = context2JunitTestDescriptor[context]!!
+    fun addMapping(context: TestContainer, testDescriptor: TestDescriptor) {
         context2JunitTestDescriptor[context] = testDescriptor
     }
 }

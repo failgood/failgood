@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Fixed
+
+- Fix stack overflow when running a single test that uses println.
+
 ## 0.4.2 - "Truth" - 2021-05-14
 
 ### Added
@@ -13,7 +19,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- Failing contexts are now correctly reported in junit platform
+- Correctly report failing contexts in the JUnit platform engine.
 
 ## 0.4.1 - "Polymerase" - 2021-04-29
 
@@ -22,8 +28,8 @@ All notable changes to this project will be documented in this file.
 - Support autoClose inside tests.
 - Add autoClose(AutoCloseable) to close AutoCloseables without specifying a close callback.
 - Mocking library `call(..)` helper now supports suspend functions
-- `println` method inside a test case for thread safe test logging. Currently, the output is only available in the
-  junit-engine, The main test runner does not yet display it.
+- `println` method inside a test case for thread safe test logging. Currently, the output is only available in the JUnit
+  platform engine, The main test runner does not yet display it.
 - Use DSLMarker to ensure that tests do not create contexts. This is never what you want, so failfast now protects you
   from it. Here is an example:
   ```kotlin

@@ -1,7 +1,7 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.christophsturm.failgood/failgood/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.christophsturm.failgood/failgood)
-[![Github CI](https://github.com/christophsturm/failgood/workflows/CI/badge.svg)](https://github.com/christophsturm/failgood/actions)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/dev.failgood/failgood/badge.svg)](https://maven-badges.herokuapp.com/maven-central/dev.failgood/failgood)
+[![Github CI](https://github.com/failgood/failgood/workflows/CI/badge.svg)](https://github.com/failgood/failgood/actions)
 
-# Failfast
+# FailGood
 
 Multi-threaded test runner for Kotlin focusing on simplicity, usability and speed. Now including a simple mock library.
 Still zero dependencies.
@@ -13,7 +13,7 @@ and complex things possible. No feature exists "because that's how JUnit works".
 people who write tests daily and iterate fast.
 
 * Spec syntax implemented to work just [as expected](https://en.wikipedia.org/wiki/Principle_of_least_astonishment).
-* Speed and parallel execution. Failfast's own test suite runs in < 1 second.
+* Speed and parallel execution. FailGood's own test suite runs in < 1 second.
 * Configuration via API. Your test config is just a main method that runs via IDEA or Gradle.
 * Run your tests so fast that you can run all the tests on every change.
 * Autotest to run only changed tests.
@@ -24,7 +24,7 @@ people who write tests daily and iterate fast.
 
 ```kotlin
 @Testable
-class FailFastTest {
+class FailGoodTest {
     val context = describe("The test runner") {
         it("supports describe/it syntax") { expectThat(true).isEqualTo(true) }
         describe("nested contexts") {
@@ -59,13 +59,13 @@ class FailFastTest {
 
 ```
 
-To see it in action check out the failgood-example project, or a project that uses failgood, for example
+To see it in action check out the failgood-example project, or a project that uses FailGood, for example
 [the r2dbcfun test suite](https://github.com/christophsturm/r2dbcfun/blob/main/src/test/kotlin/r2dbcfun/test/AllTests.kt)
 
-## running the test suite
+## Running the test suite
 
-to run FailFast's test suite just run `./gradlew check` or if you want to run it via idea just run
-the `FailFastBootstrap.kt` class.
+to run FailGood's test suite just run `./gradlew check` or if you want to run it via idea just run
+the `FailGoodBootstrap.kt` class.
 
 ## Gradle build
 
@@ -83,7 +83,7 @@ dependencies {
 
 There are two ways to run your failgood suite:
 
-* A main method that calls `FailFast.runAllTests()`
+* A main method that calls `FailGood.runAllTests()`
 * A junit-platform engine
 
 ### the junit-platform-engine
@@ -103,7 +103,7 @@ soon)
 ```kotlin
 fun main() {
     // this will find tests in all files named *Test in the same source root as the main class
-    FailFast.runAllTests() // or runAllTests(true) to write a junit test report
+    FailGood.runAllTests() // or runAllTests(true) to write a junit test report
 }
 
 ```
@@ -128,8 +128,8 @@ then add a gradle task file that calls it with the test classpath and make your 
 
 ```kotlin
 val testMain = tasks.register("testMain", JavaExec::class) {
-  main = "<my-package>.FailFastMainKt"
-        classpath = sourceSets["test"].runtimeClasspath
+    main = "<my-package>.FailGoodMainKt"
+    classpath = sourceSets["test"].runtimeClasspath
     }
 
 tasks.check { dependsOn(testMain) }
@@ -143,7 +143,7 @@ You can also run a single file with the "main method method":
 
 ```kotlin
 fun main() {
-    FailFast.runTest() // will run tests in the current file
+    FailGood.runTest() // will run tests in the current file
 }
 
 object MyTestClass {
@@ -171,7 +171,7 @@ Test Running > a failed test > can be run again: failed with strikt.internal.ope
 
 ```kotlin
 fun main() {
-    FailFast.runTest("Test Running > a failed test > can be run again")
+    FailGood.runTest("Test Running > a failed test > can be run again")
 }
 ```
 
@@ -294,5 +294,5 @@ There is also a pitest plugin if you want to measure mutation coverage, see the 
 ## Avoiding global state
 
 * if you need a web server run it on a random port.
-* if you need a database create a db with a random name for each test. (see failfast-r2dbc)
+* if you need a database create a db with a random name for each test. (see the.orm)
   or run the test in a transaction that is rolled back at the end

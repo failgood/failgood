@@ -7,4 +7,4 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
 }
 rootProject.name = "failgood-root"
-include("failfast", "failfast-examples", "failfast-junit-engine-it")
+include("failgood", "failgood-examples", "failgood-junit-engine-it")

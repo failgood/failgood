@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 
 - Fix stack overflow when running a single test that uses println.
 
+### Changes
+
+- Change the project name to FailGood.
+
 ## 0.4.2 - "Truth" - 2021-05-14
 
 ### Added

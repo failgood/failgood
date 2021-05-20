@@ -104,25 +104,20 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     private fun findRootContexts(coroutineScope: CoroutineScope) = contextProviders
         .map { coroutineScope.async { it.getContexts() } }
 
-    fun runSingle(test: String) {
+    fun rs(test: String): TestResult {
         val contextName = test.substringBefore(">").trim()
         val context = contextProviders.flatMap { it.getContexts() }.single {
             it.name == contextName
         }
         val desc = ContextPath.fromString(test)
-        val result = runBlocking {
+        return runBlocking {
             val resourcesCloser = ResourcesCloser(this)
             SingleTestExecutor(context, desc, object : TestDSL, ResourcesDSL by resourcesCloser {
                 override suspend fun println(body: String) {
-                    println(body)
+                    kotlin.io.println(body)
                 }
             }, resourcesCloser).execute()
         }
-        if (result is Failed) {
-            println("$test${ExceptionPrettyPrinter(result.failure).prettyPrint()}")
-        } else
-            println("$test OK")
-
     }
 }
 

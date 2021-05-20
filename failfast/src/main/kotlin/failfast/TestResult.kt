@@ -34,4 +34,7 @@ class Failed(val failure: Throwable) :
     }
 
     override fun hashCode(): Int = failure.stackTraceToString().hashCode()
+    override fun toString(): String {
+        return "failed: " + failure.stackTraceToString()
+    }
 }

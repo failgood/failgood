@@ -4,6 +4,7 @@ import failfast.internal.Colors.RED
 import failfast.internal.Colors.RESET
 import failfast.internal.ContextPath
 import failfast.internal.ContextTreeReporter
+import failfast.internal.ExceptionPrettyPrinter
 import failfast.internal.Junit4Reporter
 import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
@@ -216,8 +217,13 @@ object FailFast {
         val suite = Suite.fromClasses(classes)
         if (singleTest == null)
             suite.run().check()
-        else
-            suite.runSingle(singleTest)
+        else {
+            val result = suite.rs(singleTest)
+            if (result is Failed) {
+                println("$singleTest${ExceptionPrettyPrinter(result.failure).prettyPrint()}")
+            } else
+                println("$singleTest OK")
+        }
     }
 
     // find first class that is not defined in this file.

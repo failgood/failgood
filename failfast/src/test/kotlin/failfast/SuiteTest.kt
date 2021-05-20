@@ -3,6 +3,7 @@ package failfast
 import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.api.expectThrows
+import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import strikt.assertions.isFalse
 import strikt.assertions.isTrue
@@ -29,6 +30,13 @@ class SuiteTest {
             test("Suite {} creates a root context") {
                 expectThat(Suite { test("test") {} }.contextProviders.single().getContexts().single().name)
                     .isEqualTo("root")
+            }
+            test("runSingleTest works") {
+                expectThat(Suite {
+                    test("test") {
+                        println("blah")
+                    }
+                }.rs("root > test")).isA<Success>()
             }
         }
 }

@@ -1,5 +1,5 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.christophsturm.failfast/failfast/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.christophsturm.failfast/failfast)
-[![Github CI](https://github.com/christophsturm/failfast/workflows/CI/badge.svg)](https://github.com/christophsturm/failfast/actions)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.christophsturm.failgood/failgood/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.christophsturm.failgood/failgood)
+[![Github CI](https://github.com/christophsturm/failgood/workflows/CI/badge.svg)](https://github.com/christophsturm/failgood/actions)
 
 # Failfast
 
@@ -59,7 +59,7 @@ class FailFastTest {
 
 ```
 
-To see it in action check out the failfast-example project, or a project that uses failfast, for example
+To see it in action check out the failgood-example project, or a project that uses failgood, for example
 [the r2dbcfun test suite](https://github.com/christophsturm/r2dbcfun/blob/main/src/test/kotlin/r2dbcfun/test/AllTests.kt)
 
 ## running the test suite
@@ -75,13 +75,13 @@ repositories {
 }
 
 dependencies {
-    testImplementation("com.christophsturm.failfast:failfast:0.3.0")
+    testImplementation("com.christophsturm.failgood:failgood:0.3.0")
 }
 ```
 
 ## Running
 
-There are two ways to run your failfast suite:
+There are two ways to run your failgood suite:
 
 * A main method that calls `FailFast.runAllTests()`
 * A junit-platform engine
@@ -230,7 +230,7 @@ this is from the test isolation unit test:
     }
 ```
 
-## failfast?
+## failgood?
 
 It's pretty fast. its own test suite runs in less than one second:
 
@@ -253,7 +253,7 @@ create a gradle exec task for it:
 
 ```kotlin
 tasks.register("autotest", JavaExec::class) {
-  main = "failfast.AutoTestMainKt"
+    main = "failgood.AutoTestMainKt"
     classpath = sourceSets["test"].runtimeClasspath
 }
 ```
@@ -264,7 +264,7 @@ dependencies from the test classes' constant pool is on the roadmap.
 
 ## Even faster tests; best practices
 
-* avoid heavyweight dependencies. the failfast test suite runs in < 1000ms. That's a lot of time for a computer, and a
+* avoid heavyweight dependencies. the failgood test suite runs in < 1000ms. That's a lot of time for a computer, and a
   great target for your test suite. Slow tests are a code smell. An unexpected example for a heavyweight dependency is
   mockk, it takes about 2 seconds at first invocation.
 

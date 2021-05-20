@@ -1,4 +1,4 @@
-import failfast.Versions.striktVersion
+import failgood.Versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
 plugins {
@@ -10,9 +10,9 @@ plugins {
 dependencies {
     testImplementation(project(":failfast"))
     testImplementation("io.strikt:strikt-core:$striktVersion")
-    testImplementation("org.junit.platform:junit-platform-launcher:${failfast.Versions.junitPlatformVersion}")
+    testImplementation("org.junit.platform:junit-platform-launcher:${failgood.Versions.junitPlatformVersion}")
     testImplementation("io.mockk:mockk:1.11.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${failfast.Versions.coroutinesVersion}")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${failgood.Versions.coroutinesVersion}")
 
 }
 
@@ -23,11 +23,11 @@ tasks {
 
 val testMain =
     task("testMain", JavaExec::class) {
-        main = "failfast.examples.AllTestsKt"
+        main = "failgood.examples.AllTestsKt"
         classpath = sourceSets["test"].runtimeClasspath
     }
 task("autotest", JavaExec::class) {
-    main = "failfast.examples.AutoTestMainKt"
+    main = "failgood.examples.AutoTestMainKt"
     classpath = sourceSets["test"].runtimeClasspath
 }
 
@@ -38,10 +38,10 @@ plugins.withId("info.solidsoft.pitest") {
         mutators.set(listOf("ALL"))
         //        verbose.set(true)
         jvmArgs.set(listOf("-Xmx512m")) // necessary on CI
-        testPlugin.set("failfast")
+        testPlugin.set("failgood")
         avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))
-        targetClasses.set(setOf("failfast.examples.*")) //by default "${project.group}.*"
-        targetTests.set(setOf("failfast.examples.*Test", "failfast.examples.**.*Test"))
+        targetClasses.set(setOf("failgood.examples.*")) //by default "${project.group}.*"
+        targetTests.set(setOf("failgood.examples.*Test", "failgood.examples.**.*Test"))
         pitestVersion.set("1.6.2")
         threads.set(
             System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()

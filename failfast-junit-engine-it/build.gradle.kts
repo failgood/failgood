@@ -1,4 +1,4 @@
-import failfast.Versions.striktVersion
+import failgood.Versions.striktVersion
 
 plugins {
     kotlin("jvm")
@@ -9,7 +9,7 @@ plugins {
 dependencies {
     testImplementation(project(":failfast"))
     testImplementation("io.strikt:strikt-core:$striktVersion")
-    testImplementation("org.junit.platform:junit-platform-launcher:${failfast.Versions.junitPlatformVersion}")
+    testImplementation("org.junit.platform:junit-platform-launcher:${failgood.Versions.junitPlatformVersion}")
 
 }
 
@@ -19,11 +19,11 @@ tasks {
 
 val testMain =
     task("testMain", JavaExec::class) {
-        main = "failfast.junit.it.AllTestsKt"
+        main = "failgood.junit.it.AllTestsKt"
         classpath = sourceSets["test"].runtimeClasspath
     }
 task("autotest", JavaExec::class) {
-    main = "failfast.junit.it.AutoTestMainKt"
+    main = "failgood.junit.it.AutoTestMainKt"
     classpath = sourceSets["test"].runtimeClasspath
 }
 
@@ -33,10 +33,10 @@ plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
         //        verbose.set(true)
         jvmArgs.set(listOf("-Xmx512m")) // necessary on CI
-        testPlugin.set("failfast")
+        testPlugin.set("failgood")
         avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))
-        targetClasses.set(setOf("failfast.junit.it.*")) //by default "${project.group}.*"
-        targetTests.set(setOf("failfast.junit.it.*Test", "failfast.examples.junit.it.**.*Test"))
+        targetClasses.set(setOf("failgood.junit.it.*")) //by default "${project.group}.*"
+        targetTests.set(setOf("failgood.junit.it.*Test", "failgood.examples.junit.it.**.*Test"))
         pitestVersion.set("1.6.2")
         threads.set(
             System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()

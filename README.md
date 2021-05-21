@@ -231,16 +231,8 @@ this is from the test isolation unit test:
     }
 ```
 
-## failgood?
 
-It's pretty fast. its own test suite runs in less than one second:
-
-```kotlin
-    val uptime = ManagementFactory.getRuntimeMXBean().uptime
-expectThat(uptime).isLessThan(1000) // lets see how far we can get with one second
-```
-
-## autotest
+## Autotest
 
 add a main method that just runs autotest:
 

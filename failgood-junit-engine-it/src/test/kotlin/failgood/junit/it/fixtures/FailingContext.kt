@@ -8,7 +8,7 @@ fun main() {
     FailGood.runTest()
 }
 @Testable
-// to reproduce https://github.com/christophsturm/failgood/issues/10 ( manually :(( )
+// to reproduce https://github.com/failgood/failgood/issues/10 ( manually :(( )
 class FailingContext {
     val context = describe("root") {
         describe("failing context") {

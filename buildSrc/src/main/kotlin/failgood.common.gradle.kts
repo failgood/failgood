@@ -8,7 +8,7 @@ val pub = "mavenJava-${project.name}"
 publishing {
     repositories {
         maven {
-            setUrl("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+            setUrl("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
             credentials {
                 username = project.properties["ossrhUsername"] as String?
                 password = project.properties["ossrhPassword"] as String?
@@ -24,9 +24,9 @@ publishing {
             artifactId = project.name
             version = project.version as String
             pom {
-                name.set("Fail Fast")
+                name.set("FailGood")
                 description.set("a fast test runner for kotlin")
-                url.set("https://github.com/christophsturm/failgood")
+                url.set("https://github.com/failgood/failgood")
                 licenses {
                     license {
                         name.set("The MIT License")
@@ -42,9 +42,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection.set("scm:git:https://github.com/christophsturm/failgood.git")
-                    developerConnection.set("scm:git:git@github.com:christophsturm/failgood.git")
-                    url.set("https://github.com/christophsturm/failgood/")
+                    connection.set("scm:git:https://github.com/failgood/failgood.git")
+                    developerConnection.set("scm:git:git@github.com:failgood/failgood.git")
+                    url.set("https://github.com/failgood/failgood/")
                 }
             }
         }

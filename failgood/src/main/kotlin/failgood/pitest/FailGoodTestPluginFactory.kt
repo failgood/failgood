@@ -6,7 +6,7 @@ import org.pitest.testapi.*
 import java.util.*
 
 class FailGoodTestPluginFactory : TestPluginFactory {
-    override fun description(): String = "fail-fast pitest plugin"
+    override fun description(): String = "FailGood pitest plugin"
 
     override fun createTestFrameworkConfiguration(
         config: TestGroupConfig?,

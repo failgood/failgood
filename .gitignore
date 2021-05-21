@@ -8,6 +8,6 @@ gradle-app.setting
 out/
 /.idea
 /*.iml
-/.autotest.failfast
+/.autotest.failgood
 /.vscode
-.autotest.failfast
+.autotest.failgood

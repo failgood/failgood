@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Fixed
+
+- Fix stack overflow when running a single test that uses println.
+
+### Changes
+
+- Change the project name to FailGood.
+
 ## 0.4.2 - "Truth" - 2021-05-14
 
 ### Added
@@ -13,7 +23,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- Failing contexts are now correctly reported in junit platform
+- Correctly report failing contexts in the JUnit platform engine.
 
 ## 0.4.1 - "Polymerase" - 2021-04-29
 
@@ -22,9 +32,9 @@ All notable changes to this project will be documented in this file.
 - Support autoClose inside tests.
 - Add autoClose(AutoCloseable) to close AutoCloseables without specifying a close callback.
 - Mocking library `call(..)` helper now supports suspend functions
-- `println` method inside a test case for thread safe test logging. Currently, the output is only available in the
-  junit-engine, The main test runner does not yet display it.
-- Use DSLMarker to ensure that tests do not create contexts. This is never what you want, so failfast now protects you
+- `println` method inside a test case for thread safe test logging. Currently, the output is only available in the JUnit
+  platform engine, The main test runner does not yet display it.
+- Use DSLMarker to ensure that tests do not create contexts. This is never what you want, so failgood now protects you
   from it. Here is an example:
   ```kotlin
                   test("tests can not contain nested contexts") {
@@ -44,7 +54,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Classes that fit the failfast naming pattern *Test but contain no failfast context are now ignored. This makes it
+- Classes that fit the failgood naming pattern *Test but contain no failgood context are now ignored. This makes it
   possible to convert bigger test suites that still use other frameworks without converting everything at once.
 - Rename itWill to pending
 
@@ -91,7 +101,7 @@ All notable changes to this project will be documented in this file.
 
 - Publish to maven central. goodbye jcenter, you will be missed
 - Don't output slow tests and pending tests separately for now. need to find a more useful way of showing this
-- Duplicate contexts fail the suite. failfast always needed contexts and tests to have unique names. before duplicate
+- Duplicate contexts fail the suite. failgood always needed contexts and tests to have unique names. before duplicate
   tests would just be ignored, now this is detected
 - Contexts with the same name as a test in the same context fail the suite.
 

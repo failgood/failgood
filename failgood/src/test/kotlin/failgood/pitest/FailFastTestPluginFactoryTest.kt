@@ -14,7 +14,7 @@ class FailGoodTestPluginFactoryTest {
             it("provides description and name") {
                 val factory: TestPluginFactory = FailGoodTestPluginFactory()
                 expectThat(factory) {
-                    get { description() }.isEqualTo("fail-fast pitest plugin")
+                    get { description() }.isEqualTo("FailGood pitest plugin")
                     get { name() }.isEqualTo("failgood")
                 }
             }

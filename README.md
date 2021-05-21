@@ -60,7 +60,8 @@ class FailGoodTest {
 ```
 
 To see it in action check out the failgood-example project, or a project that uses FailGood, for example
-[the r2dbcfun test suite](https://github.com/christophsturm/r2dbcfun/blob/main/src/test/kotlin/r2dbcfun/test/AllTests.kt)
+[the the.orm test suite](https://github.com/christophsturm/the.orm)
+or [the restaurant test suite](https://github.com/christophsturm/restaurant/tree/main/src/test/kotlin/restaurant)
 
 ## Running the test suite
 
@@ -75,7 +76,7 @@ repositories {
 }
 
 dependencies {
-    testImplementation("com.christophsturm.failgood:failgood:0.3.0")
+    testImplementation("dev.failgood:failgood:0.3.0")
 }
 ```
 

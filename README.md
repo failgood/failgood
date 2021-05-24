@@ -92,7 +92,7 @@ There are two ways to run your failgood suite:
 To use the JUnit engine add the JUnit platform launcher to your gradle file dependency block:
 
 ```kotlin
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.7.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.7.2")
 ```
 
 Make sure to select "run tests in IDEA" in your gradle settings, running via gradle is currently not supported (coming

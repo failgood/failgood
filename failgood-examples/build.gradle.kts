@@ -11,8 +11,11 @@ dependencies {
     testImplementation(project(":failgood"))
     testImplementation("io.strikt:strikt-core:$striktVersion")
     testImplementation("org.junit.platform:junit-platform-launcher:${failgood.Versions.junitPlatformVersion}")
+
     testImplementation("io.mockk:mockk:1.11.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${failgood.Versions.coroutinesVersion}")
+    implementation("io.github.microutils:kotlin-logging-jvm:2.0.6")
+    implementation("org.slf4j:slf4j-api:1.7.25")
 
 }
 

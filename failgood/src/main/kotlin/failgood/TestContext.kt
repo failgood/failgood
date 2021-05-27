@@ -6,6 +6,10 @@ class TestContext(
     private val testDescription: TestDescription
 ) : TestDSL, ResourcesDSL by resourcesDSL {
     override suspend fun println(body: String) {
-        listener.testEvent(testDescription, "stdout", body)
+        _test_event("stdout", body)
+    }
+
+    override suspend fun _test_event(type: String, body: String) {
+        listener.testEvent(testDescription, type, body)
     }
 }

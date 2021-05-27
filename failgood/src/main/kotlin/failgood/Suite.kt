@@ -116,6 +116,10 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                 override suspend fun println(body: String) {
                     kotlin.io.println(body)
                 }
+
+                override suspend fun _test_event(type: String, body: String) {
+                    kotlin.io.println(body)
+                }
             }, resourcesCloser).execute()
         }
     }

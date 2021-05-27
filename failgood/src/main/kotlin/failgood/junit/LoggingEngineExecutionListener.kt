@@ -3,6 +3,7 @@ package failgood.junit
 import org.junit.platform.engine.EngineExecutionListener
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestExecutionResult
+import org.junit.platform.engine.reporting.ReportEntry
 
 class LoggingEngineExecutionListener(private val delegate: EngineExecutionListener) : EngineExecutionListener {
     val events = mutableListOf<String>()
@@ -25,4 +26,13 @@ class LoggingEngineExecutionListener(private val delegate: EngineExecutionListen
         delegate.executionFinished(testDescriptor, testExecutionResult)
     }
 
+    override fun dynamicTestRegistered(testDescriptor: TestDescriptor?) {
+        event("dynamicTestRegistered " + testDescriptor!!.displayName)
+        delegate.dynamicTestRegistered(testDescriptor)
+    }
+
+    override fun reportingEntryPublished(testDescriptor: TestDescriptor?, entry: ReportEntry?) {
+        event("reportingEntryPublished" + testDescriptor!!.displayName + entry)
+        delegate.reportingEntryPublished(testDescriptor, entry)
+    }
 }

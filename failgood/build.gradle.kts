@@ -38,10 +38,12 @@ tasks {
         targetCompatibility = "1.8"
     }
     withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "1.8"
-        kotlinOptions.freeCompilerArgs =
-            listOf("-Xopt-in=kotlin.RequiresOptIn")
-
+        kotlinOptions {
+            jvmTarget = "1.8"
+            freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
+            languageVersion = "1.4"
+            apiVersion = "1.4"
+        }
     }
 }
 

@@ -47,4 +47,8 @@ interface ContextDSL : ResourcesDSL {
      */
     suspend fun pending(behaviorDescription: String, function: TestLambda = {})
 
+    /**
+     * Register a callback to be called after all tests have completed
+     */
+    fun afterSuite(function: suspend () -> Unit)
 }

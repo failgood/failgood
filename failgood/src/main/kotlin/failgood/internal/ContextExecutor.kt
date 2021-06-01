@@ -1,7 +1,27 @@
 package failgood.internal
 
-import failgood.*
-import kotlinx.coroutines.*
+import failgood.Context
+import failgood.ContextDSL
+import failgood.ContextLambda
+import failgood.ExecutionListener
+import failgood.FailGoodException
+import failgood.Failed
+import failgood.NullExecutionListener
+import failgood.Pending
+import failgood.ResourcesDSL
+import failgood.RootContext
+import failgood.Success
+import failgood.TestContext
+import failgood.TestDependency
+import failgood.TestDescription
+import failgood.TestLambda
+import failgood.TestPlusResult
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import java.util.concurrent.ConcurrentLinkedQueue
 
 internal class ContextExecutor(
@@ -16,6 +36,7 @@ internal class ContextExecutor(
     private val foundContexts = mutableListOf<Context>()
     private val deferredTestResults = LinkedHashMap<TestDescription, Deferred<TestPlusResult>>()
     private val processedTests = LinkedHashSet<ContextPath>()
+    private val afterSuiteCallbacks = mutableSetOf<suspend () -> Unit>()
 
     private inner class ContextVisitor(
         private val parentContext: Context,
@@ -143,6 +164,10 @@ internal class ContextExecutor(
                 listener.testFinished(testPlusResult)
             }
         }
+
+        override fun afterSuite(function: suspend () -> Unit) {
+            afterSuiteCallbacks.add(function)
+        }
     }
 
     suspend fun execute(): ContextInfo {
@@ -157,7 +182,7 @@ internal class ContextExecutor(
         }
         // context order: first root context, then sub-contexts ordered by line number
         val contexts = listOf(rootContext) + foundContexts.sortedBy { it.stackTraceElement!!.lineNumber }
-        return ContextInfo(contexts, deferredTestResults)
+        return ContextInfo(contexts, deferredTestResults, afterSuiteCallbacks)
     }
 }
 

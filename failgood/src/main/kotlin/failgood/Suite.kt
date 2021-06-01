@@ -71,6 +71,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                         }
                         val resolvedContexts = contextInfos.awaitAll()
                         val results = resolvedContexts.flatMap { it.tests.values }.awaitAll()
+                        resolvedContexts.forEach { it.afterSuiteCallbacks.forEach { callback -> callback.invoke() } }
                         SuiteResult(
                             results,
                             results.filter { it.result is Failed },
@@ -87,8 +88,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         coroutineScope: CoroutineScope,
         executeTests: Boolean = true,
         listener: ExecutionListener = NullExecutionListener
-    ):
-            List<Deferred<ContextInfo>> {
+    ): List<Deferred<ContextInfo>> {
         return findRootContexts(coroutineScope).flatMap { deferredContexts: Deferred<List<RootContext>> ->
             val contexts = deferredContexts.await()
             contexts.map { context ->
@@ -107,7 +107,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                             throw FailGoodException("context ${context.name} timed out")
                         }
                     } else
-                        ContextInfo(emptyList(), mapOf())
+                        ContextInfo(emptyList(), mapOf(), setOf())
                 }
 
             }

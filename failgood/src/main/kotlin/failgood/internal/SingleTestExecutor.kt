@@ -1,6 +1,15 @@
 package failgood.internal
 
-import failgood.*
+import failgood.ContextDSL
+import failgood.ContextLambda
+import failgood.FailGoodException
+import failgood.Failed
+import failgood.ResourcesDSL
+import failgood.RootContext
+import failgood.Success
+import failgood.TestDSL
+import failgood.TestLambda
+import failgood.TestResult
 
 /**
  * Executes a single test with all its parent contexts
@@ -26,18 +35,12 @@ internal class SingleTestExecutor(
     }
 
     open inner class Base : ContextDSL, ResourcesDSL by resourcesCloser {
-        override suspend fun test(name: String, function: TestLambda) {
-        }
-
-        override suspend fun context(name: String, function: ContextLambda) {
-        }
-
-        override suspend fun describe(name: String, function: ContextLambda) {
-        }
-
+        override suspend fun test(name: String, function: TestLambda) {}
+        override suspend fun context(name: String, function: ContextLambda) {}
+        override suspend fun describe(name: String, function: ContextLambda) {}
         override suspend fun it(behaviorDescription: String, function: TestLambda) {}
-
         override suspend fun pending(behaviorDescription: String, function: TestLambda) {}
+        override fun afterSuite(function: suspend () -> Unit) {}
     }
 
     inner class ContextFinder(private val contexts: List<String>) : ContextDSL, Base() {

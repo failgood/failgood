@@ -7,8 +7,11 @@ import failgood.mock.verify
 import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
+import strikt.assertions.containsExactlyInAnyOrder
+import strikt.assertions.isEqualTo
 import strikt.assertions.isSameInstanceAs
 import strikt.assertions.isTrue
+import strikt.assertions.last
 import java.util.concurrent.CopyOnWriteArrayList
 
 @Testable
@@ -91,6 +94,23 @@ class TestResourcesLifecycleTest {
             verify(closeable1) { close() }
             verify(closeable2) { close() }
         }
-
+        describe("after suite callback") {
+            it("is called at the end of the suite. after all tests are finished") {
+                val events = CopyOnWriteArrayList<String>()
+                expectThat(Suite {
+                    afterSuite {
+                        events.add("afterSuite callback")
+                    }
+                    test("first  test") {
+                        events.add("first test")
+                    }
+                    test("second test") {
+                        events.add("second test")
+                    }
+                }.run(silent = true)).get { allOk }.isTrue()
+                expectThat(events).last().isEqualTo("afterSuite callback")
+                expectThat(events).containsExactlyInAnyOrder("first test", "second test", "afterSuite callback")
+            }
+        }
     }
 }

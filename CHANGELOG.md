@@ -2,7 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+### Added
+
+- `afterSuite {}` method that is called after all tests have finished.
+
+### Fixed
+
+- fix println was not doing anything in JUnit Platform engine
+
+## 0.4.3 - "FailGood" - 2021-05-21
 
 ### Fixed
 

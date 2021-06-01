@@ -95,7 +95,7 @@ class TestResourcesLifecycleTest {
             verify(closeable2) { close() }
         }
         describe("after suite callback") {
-            it("is called at the end of the suite. after all tests are finished") {
+            it("is called exactly once at the end of the suite. after all tests are finished") {
                 val events = CopyOnWriteArrayList<String>()
                 expectThat(Suite {
                     afterSuite {
@@ -104,12 +104,24 @@ class TestResourcesLifecycleTest {
                     test("first  test") {
                         events.add("first test")
                     }
+                    // this subcontext is here to make sure the context executor has to execute the dsl twice
+                    // to test that this does not create duplicate after suite callbacks.
+                    context("sub context") {
+                        test("sub context test") {
+                            events.add("sub context test")
+                        }
+                    }
                     test("second test") {
                         events.add("second test")
                     }
                 }.run(silent = true)).get { allOk }.isTrue()
                 expectThat(events).last().isEqualTo("afterSuite callback")
-                expectThat(events).containsExactlyInAnyOrder("first test", "second test", "afterSuite callback")
+                expectThat(events).containsExactlyInAnyOrder(
+                    "first test",
+                    "second test",
+                    "sub context test",
+                    "afterSuite callback"
+                )
             }
         }
     }

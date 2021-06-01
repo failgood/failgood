@@ -37,11 +37,12 @@ internal class ContextExecutor(
     private val deferredTestResults = LinkedHashMap<TestDescription, Deferred<TestPlusResult>>()
     private val processedTests = LinkedHashSet<ContextPath>()
     private val afterSuiteCallbacks = mutableSetOf<suspend () -> Unit>()
-
+    private val investigatedContexts = mutableSetOf<Context>()
     private inner class ContextVisitor(
         private val parentContext: Context,
         private val resourcesCloser: ResourcesCloser
     ) : ContextDSL, ResourcesDSL by resourcesCloser {
+        private val contextInvestigated = investigatedContexts.contains(parentContext)
         private val namesInThisContext = mutableSetOf<String>() // test and context names to detect duplicates
 
         // we only run the first new test that we find here. the remaining tests of the context
@@ -117,6 +118,7 @@ internal class ContextExecutor(
             val visitor = ContextVisitor(context, resourcesCloser)
             try {
                 visitor.function()
+                investigatedContexts.add(context)
             } catch (exceptionInContext: Throwable) {
                 val testDescriptor = TestDescription(parentContext, name, stackTraceElement)
 
@@ -166,7 +168,8 @@ internal class ContextExecutor(
         }
 
         override fun afterSuite(function: suspend () -> Unit) {
-            afterSuiteCallbacks.add(function)
+            if (!contextInvestigated)
+                afterSuiteCallbacks.add(function)
         }
     }
 
@@ -178,6 +181,7 @@ internal class ContextExecutor(
             val resourcesCloser = ResourcesCloser(scope)
             val visitor = ContextVisitor(rootContext, resourcesCloser)
             visitor.function()
+            investigatedContexts.add(rootContext)
             if (!visitor.contextsLeft) break
         }
         // context order: first root context, then sub-contexts ordered by line number

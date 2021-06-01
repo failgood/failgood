@@ -8,10 +8,8 @@ import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.containsExactlyInAnyOrder
-import strikt.assertions.isEqualTo
 import strikt.assertions.isSameInstanceAs
 import strikt.assertions.isTrue
-import strikt.assertions.last
 import java.util.concurrent.CopyOnWriteArrayList
 
 @Testable
@@ -107,20 +105,32 @@ class TestResourcesLifecycleTest {
                     // this subcontext is here to make sure the context executor has to execute the dsl twice
                     // to test that this does not create duplicate after suite callbacks.
                     context("sub context") {
+                        afterSuite {
+                            events.add("afterSuite callback in subcontext")
+                        }
+
                         test("sub context test") {
                             events.add("sub context test")
+                        }
+                        context("another subcontext") {
+                            test("with a test") {}
                         }
                     }
                     test("second test") {
                         events.add("second test")
                     }
                 }.run(silent = true)).get { allOk }.isTrue()
-                expectThat(events).last().isEqualTo("afterSuite callback")
+                expectThat(events.takeLast(2)).containsExactlyInAnyOrder(
+                    "afterSuite callback",
+                    "afterSuite callback in subcontext"
+                )
                 expectThat(events).containsExactlyInAnyOrder(
                     "first test",
                     "second test",
                     "sub context test",
-                    "afterSuite callback"
+                    "afterSuite callback",
+                    "afterSuite callback in subcontext"
+
                 )
             }
         }

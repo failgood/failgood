@@ -6,7 +6,12 @@ import failgood.internal.ContextPath
 import failgood.internal.ContextTreeReporter
 import failgood.internal.ExceptionPrettyPrinter
 import failgood.internal.Junit4Reporter
-import java.nio.file.*
+import java.nio.file.FileVisitResult
+import java.nio.file.Files
+import java.nio.file.NoSuchFileException
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileTime
 import kotlin.reflect.KClass
@@ -108,7 +113,7 @@ data class SuiteResult(
 }
 
 data class TestDescription(
-    val parentContext: TestContainer,
+    val container: TestContainer,
     val testName: String,
     val stackTraceElement: StackTraceElement
 ) {
@@ -119,7 +124,7 @@ data class TestDescription(
     )
 
     override fun toString(): String {
-        return "${parentContext.stringPath()} > $testName"
+        return "${container.stringPath()} > $testName"
     }
 }
 
@@ -234,7 +239,7 @@ object FailGood {
         if (singleTest == null)
             suite.run().check()
         else {
-            val result = suite.rs(singleTest)
+            val result = suite.runSingle(singleTest)
             if (result is Failed) {
                 println("$singleTest${ExceptionPrettyPrinter(result.failure).prettyPrint()}")
             } else

@@ -1,6 +1,11 @@
 package failgood.internal
 
-import failgood.*
+import failgood.Context
+import failgood.Failed
+import failgood.Pending
+import failgood.Success
+import failgood.TestContainer
+import failgood.TestPlusResult
 import failgood.internal.Colors.FAILED
 import failgood.internal.Colors.PENDING
 import failgood.internal.Colors.RED
@@ -9,11 +14,11 @@ import failgood.internal.Colors.SUCCESS
 import failgood.internal.Colors.YELLOW
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
-import java.util.*
+import java.util.Locale
 
 internal class ContextTreeReporter {
     fun stringReport(results: List<TestPlusResult>, allContexts: List<Context>): List<String> {
-        val contextMap: Map<TestContainer, List<TestPlusResult>> = results.groupBy { it.test.parentContext }
+        val contextMap: Map<TestContainer, List<TestPlusResult>> = results.groupBy { it.test.container }
         val result = mutableListOf<String>()
         val rootContexts = allContexts.filter { it.parent == null }
         printContext(rootContexts, allContexts, result, contextMap, 0)

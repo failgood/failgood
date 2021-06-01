@@ -34,9 +34,9 @@ class SuiteTest {
             test("runSingleTest works") {
                 expectThat(Suite {
                     test("test") {
-                        println("blah")
+                        println("")
                     }
-                }.rs("root > test")).isA<Success>()
+                }.runSingle("root > test")).isA<Success>()
             }
         }
 }

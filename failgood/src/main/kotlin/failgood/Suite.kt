@@ -1,7 +1,20 @@
 package failgood
 
-import failgood.internal.*
-import kotlinx.coroutines.*
+import failgood.internal.ContextExecutor
+import failgood.internal.ContextInfo
+import failgood.internal.ContextPath
+import failgood.internal.ContextTreeReporter
+import failgood.internal.ResourcesCloser
+import failgood.internal.SingleTestExecutor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import java.lang.management.ManagementFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -104,7 +117,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     private fun findRootContexts(coroutineScope: CoroutineScope) = contextProviders
         .map { coroutineScope.async { it.getContexts() } }
 
-    fun rs(test: String): TestResult {
+    fun runSingle(test: String): TestResult {
         val contextName = test.substringBefore(">").trim()
         val context = contextProviders.flatMap { it.getContexts() }.single {
             it.name == contextName

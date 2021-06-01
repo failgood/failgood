@@ -1,6 +1,11 @@
 package failgood.internal
 
-import failgood.*
+import failgood.FailGoodException
+import failgood.Failed
+import failgood.RootContext
+import failgood.Success
+import failgood.Suite
+import failgood.describe
 import failgood.mock.call
 import failgood.mock.getCalls
 import failgood.mock.mock
@@ -10,7 +15,20 @@ import kotlinx.coroutines.coroutineScope
 import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.api.expectThrows
-import strikt.assertions.*
+import strikt.assertions.all
+import strikt.assertions.containsExactly
+import strikt.assertions.doesNotContain
+import strikt.assertions.endsWith
+import strikt.assertions.get
+import strikt.assertions.isA
+import strikt.assertions.isEqualTo
+import strikt.assertions.isGreaterThanOrEqualTo
+import strikt.assertions.isNotEmpty
+import strikt.assertions.isNotNull
+import strikt.assertions.isSameInstanceAs
+import strikt.assertions.isTrue
+import strikt.assertions.map
+import strikt.assertions.single
 import java.util.concurrent.CopyOnWriteArrayList
 
 @Testable
@@ -180,7 +198,7 @@ class ContextExecutorTest {
                     expectThat(results.tests.values.awaitAll().filter { it.result is Failed }).single().and {
                         get { test }.and {
                             get { testName }.isEqualTo("context 1")
-                            get { parentContext.name }.isEqualTo("root context")
+                            get { container.name }.isEqualTo("root context")
                             get { stackTraceElement.toString() }.endsWith(
                                 "ContextExecutorTest.kt:${
                                     getLineNumber(

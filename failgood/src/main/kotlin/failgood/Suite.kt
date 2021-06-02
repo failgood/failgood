@@ -114,7 +114,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         }
     }
 
-    private fun findRootContexts(coroutineScope: CoroutineScope) = contextProviders
+    private fun findRootContexts(coroutineScope: CoroutineScope): List<Deferred<List<RootContext>>> = contextProviders
         .map { coroutineScope.async { it.getContexts() } }
 
     fun runSingle(test: String): TestResult {

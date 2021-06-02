@@ -20,6 +20,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 
+const val DEFAULT_CONTEXT_TIMEOUT: Long = 20000
 class Suite(val contextProviders: Collection<ContextProvider>) {
     companion object {
         fun fromContexts(rootContexts: Collection<RootContext>) =
@@ -84,6 +85,15 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         }
     }
 
+    // when timeout is not set use the default.
+    // if its set to a number use that as the timeout. if its not a number turn the timeout off
+    private val contextTimeout = System.getenv("TIMEOUT").let {
+        when (it) {
+            null -> DEFAULT_CONTEXT_TIMEOUT
+            else -> it.toLongOrNull()
+        }
+    }
+
     internal suspend fun findTests(
         coroutineScope: CoroutineScope,
         executeTests: Boolean = true,
@@ -92,17 +102,16 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         return findRootContexts(coroutineScope).map { context: RootContext ->
             coroutineScope.async {
                 if (!context.disabled) {
-                    try {
-                        withTimeout(20000) {
-                            ContextExecutor(
-                                context,
-                                coroutineScope,
-                                !executeTests,
-                                listener
-                            ).execute()
+                    if (contextTimeout != null) {
+                        try {
+                            withTimeout(contextTimeout) {
+                                ContextExecutor(context, coroutineScope, !executeTests, listener).execute()
+                            }
+                        } catch (e: TimeoutCancellationException) {
+                            throw FailGoodException("context ${context.name} timed out")
                         }
-                    } catch (e: TimeoutCancellationException) {
-                        throw FailGoodException("context ${context.name} timed out")
+                    } else {
+                        ContextExecutor(context, coroutineScope, !executeTests, listener).execute()
                     }
                 } else
                     ContextInfo(emptyList(), mapOf(), setOf())

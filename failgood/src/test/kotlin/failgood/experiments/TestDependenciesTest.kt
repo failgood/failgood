@@ -20,7 +20,7 @@ import strikt.assertions.isEqualTo
 class TestDependenciesTest {
     val context = describe("Injecting Test Dependencies") {
         test("the context can create test dependencies") {
-            val context = RootContext("TestContext for dependency Injection") {
+            val context = RootContext("TestContext for dependency Injection", function = {
                 describe("context with dependency lambda",
                     { "StringDependency" }, {/* optional teardown*/ }) {
                     test2("test that takes a string dependency") { string ->
@@ -41,7 +41,7 @@ class TestDependenciesTest {
                         }
                     }
                 }
-            }
+            })
             Suite(context).run()
         }
     }

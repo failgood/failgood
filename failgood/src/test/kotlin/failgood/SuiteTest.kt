@@ -13,10 +13,10 @@ class SuiteTest {
     val context =
         describe(Suite::class) {
             val context =
-                RootContext("one failing one passing test") {
+                RootContext("one failing one passing test", function = {
                     test("firstTest") { expectThat(true).isTrue() }
                     test("failing test") { expectThat(true).isFalse() }
-                }
+                })
             test("Empty Suite fails") { expectThrows<RuntimeException> { Suite(listOf()) } }
             pending("create reproducible output") {
                 val contexts = (1 until 2).map { context.copy(name = "context $it") }

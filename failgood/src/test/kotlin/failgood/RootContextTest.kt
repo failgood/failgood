@@ -8,7 +8,7 @@ import strikt.assertions.isEqualTo
 class RootContextTest {
     val context: RootContext = describe(RootContext::class) {
         val ste = Throwable().stackTrace.first()
-        val testContext = RootContext {}
+        val testContext = RootContext(function = {})
         it("knows its file and line number") {
             expectThat(testContext.stackTraceElement) {
                 get { lineNumber }.isEqualTo(ste.lineNumber + 1)

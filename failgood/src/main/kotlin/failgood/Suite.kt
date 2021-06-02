@@ -37,7 +37,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
             this(listOf(ContextProvider { listOf(rootContext) }))
 
     constructor(function: ContextLambda) :
-            this(RootContext("root", false, function))
+            this(RootContext("root", false, function, 0))
 
     fun run(
         parallelism: Int = cpus(),

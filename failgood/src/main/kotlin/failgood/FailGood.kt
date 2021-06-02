@@ -21,7 +21,8 @@ import kotlin.system.exitProcess
 data class RootContext(
     val name: String = "root",
     val disabled: Boolean = false,
-    val function: ContextLambda
+    val function: ContextLambda,
+    val order: Int = 0
 ) {
     val stackTraceElement = findCallerSTE()
 
@@ -31,17 +32,17 @@ typealias ContextLambda = suspend ContextDSL.() -> Unit
 
 typealias TestLambda = suspend TestDSL.() -> Unit
 
-fun context(description: String, disabled: Boolean = false, function: ContextLambda): RootContext =
-    RootContext(description, disabled, function)
+fun context(description: String, disabled: Boolean = false, order: Int = 0, function: ContextLambda): RootContext =
+    RootContext(description, disabled, function, order)
 
-fun describe(subjectDescription: String, disabled: Boolean = false, function: ContextLambda):
-        RootContext = RootContext(subjectDescription, disabled, function)
+fun describe(subjectDescription: String, disabled: Boolean = false, order: Int = 0, function: ContextLambda):
+        RootContext = RootContext(subjectDescription, disabled, function, order)
 
-inline fun <reified T> describe(disabled: Boolean = false, noinline function: ContextLambda):
-        RootContext = describe(T::class, disabled, function)
+inline fun <reified T> describe(disabled: Boolean = false, order: Int = 0, noinline function: ContextLambda):
+        RootContext = describe(T::class, disabled, order, function)
 
-fun describe(subjectType: KClass<*>, disabled: Boolean = false, function: ContextLambda):
-        RootContext = RootContext("The ${subjectType.simpleName}", disabled, function)
+fun describe(subjectType: KClass<*>, disabled: Boolean = false, order: Int = 0, function: ContextLambda):
+        RootContext = RootContext("The ${subjectType.simpleName}", disabled, function, order)
 
 data class SuiteResult(
     val allTests: List<TestPlusResult>,

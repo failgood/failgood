@@ -4,6 +4,7 @@ import failgood.FailGoodException
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
 
@@ -77,7 +78,7 @@ private fun getHandler(mock: Any): MockHandler {
 
 private class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
     val results = mutableMapOf<Method, Any>()
-    val calls = mutableListOf<MethodWithArguments>()
+    val calls = CopyOnWriteArrayList<MethodWithArguments>()
     override fun invoke(proxy: Any, method: Method, arguments: Array<out Any>?): Any? {
         val nonCoroutinesArgs = cleanArguments(arguments)
         calls.add(MethodWithArguments(method, nonCoroutinesArgs))

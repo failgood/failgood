@@ -23,7 +23,7 @@ class SingleTestExecutorTest {
             describe("test execution") {
                 val events = mutableListOf<String>()
                 val ctx =
-                    RootContext("root context", function = {
+                    RootContext("root context") {
                         events.add("root context")
                         test("test 1") { events.add("test 1") }
                         test("test 2") { events.add("test 2") }
@@ -35,7 +35,7 @@ class SingleTestExecutorTest {
                                 test("test 3") { events.add("test 3") }
                             }
                         }
-                    })
+                    }
                 val rootContext = Context("root context", null)
                 val context1 = Context("context 1", rootContext)
                 val context2 = Context("context 2", context1)
@@ -73,9 +73,9 @@ class SingleTestExecutorTest {
             describe("error handling") {
                 it("reports exceptions in the context as test failures") {
                     val runtimeException = RuntimeException()
-                    val contextThatThrows = RootContext("root context", function = {
+                    val contextThatThrows = RootContext("root context") {
                         throw runtimeException
-                    })
+                    }
                     val result = SingleTestExecutor(
                         contextThatThrows,
                         ContextPath(Context("root context", null), "test"),
@@ -85,10 +85,10 @@ class SingleTestExecutorTest {
                 }
                 it("reports exceptions in the autoclose lambda as test failures") {
                     val runtimeException = RuntimeException()
-                    val contextThatThrows = RootContext("root context", function = {
+                    val contextThatThrows = RootContext("root context") {
                         autoClose("String") { throw runtimeException }
                         it("test") {}
-                    })
+                    }
                     val result = SingleTestExecutor(
                         contextThatThrows,
                         ContextPath(Context("root context", null), "test"),

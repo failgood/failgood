@@ -8,13 +8,13 @@ import strikt.assertions.isTrue
 class ThousandTestsTest {
     val context = describe("a test suite with 1000 tests in one context") {
         test("runs pretty fast") {
-            expectThat(Suite(RootContext("the context", function = {
+            expectThat(Suite(RootContext("the context") {
                 repeat(1000) {
                     test("test $it") {
 
                     }
                 }
-            })).run(silent = true)).get { allOk }.isTrue()
+            }).run(silent = true)).get { allOk }.isTrue()
         }
     }
 }

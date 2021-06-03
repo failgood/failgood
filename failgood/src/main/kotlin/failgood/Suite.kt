@@ -100,29 +100,28 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         executeTests: Boolean = true,
         listener: ExecutionListener = NullExecutionListener
     ): List<Deferred<ContextInfo>> {
-        return findRootContexts(coroutineScope).map { context: RootContext ->
-            coroutineScope.async {
-                yield()
-                if (!context.disabled) {
-                    if (contextTimeout != null) {
-                        try {
-                            withTimeout(contextTimeout) {
-                                ContextExecutor(context, coroutineScope, !executeTests, listener).execute()
+        return contextProviders
+            .map { coroutineScope.async { it.getContexts() } }.flatMap { it.await() }.sortedBy { it.order }
+            .map { context: RootContext ->
+                coroutineScope.async {
+                    yield()
+                    if (!context.disabled) {
+                        if (contextTimeout != null) {
+                            try {
+                                withTimeout(contextTimeout) {
+                                    ContextExecutor(context, coroutineScope, !executeTests, listener).execute()
+                                }
+                            } catch (e: TimeoutCancellationException) {
+                                throw FailGoodException("context ${context.name} timed out")
                             }
-                        } catch (e: TimeoutCancellationException) {
-                            throw FailGoodException("context ${context.name} timed out")
+                        } else {
+                            ContextExecutor(context, coroutineScope, !executeTests, listener).execute()
                         }
-                    } else {
-                        ContextExecutor(context, coroutineScope, !executeTests, listener).execute()
-                    }
-                } else
-                    ContextInfo(emptyList(), mapOf(), setOf())
+                    } else
+                        ContextInfo(emptyList(), mapOf(), setOf())
+                }
             }
-        }
     }
-
-    private suspend fun findRootContexts(coroutineScope: CoroutineScope): List<RootContext> = contextProviders
-        .map { coroutineScope.async { it.getContexts() } }.flatMap { it.await() }.sortedBy { it.order }
 
     fun runSingle(test: String): TestResult {
         val contextName = test.substringBefore(">").trim()

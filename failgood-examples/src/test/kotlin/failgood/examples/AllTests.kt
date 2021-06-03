@@ -3,7 +3,7 @@ package failgood.examples
 import failgood.FailGood
 
 
-fun main() {
+suspend fun main() {
     FailGood.runAllTests()
 }
 

@@ -3,6 +3,6 @@ package failgood.junit.it
 import failgood.FailGood.autoTest
 
 
-fun main() {
+suspend fun main() {
     autoTest()
 }

@@ -69,11 +69,11 @@ class FailGoodJunitTestEngine : TestEngine {
 
         debug = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_DEBUG).orElse(false)
         val lazy = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_LAZY).orElse(false)
-        val providers: List<ContextProvider> = findContexts(discoveryRequest)
-        val suite = Suite(providers)
-        val executionListener = JunitExecutionListener()
 
         return runBlocking(Dispatchers.Default) {
+            val providers: List<ContextProvider> = findContexts(discoveryRequest)
+            val suite = Suite(providers)
+            val executionListener = JunitExecutionListener()
 
             val testResult = suite.findTests(GlobalScope, !lazy, executionListener).awaitAll()
             @Suppress("DeferredResultUnused")
@@ -227,7 +227,7 @@ class FailGoodJunitTestEngine : TestEngine {
         println("finished after ${uptime()}")
     }
 
-    private fun findContexts(discoveryRequest: EngineDiscoveryRequest): List<ContextProvider> {
+    private suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): List<ContextProvider> {
         if (debug) {
             println(discoveryRequestToString(discoveryRequest))
         }

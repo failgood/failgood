@@ -1,12 +1,18 @@
 package failgood
 
 import strikt.api.expectThat
-import strikt.assertions.*
+import strikt.assertions.all
+import strikt.assertions.hasSize
+import strikt.assertions.isA
+import strikt.assertions.isEqualTo
+import strikt.assertions.isFalse
+import strikt.assertions.isLessThan
+import strikt.assertions.isTrue
 import java.lang.management.ManagementFactory
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 
-fun main() {
+suspend fun main() {
     val testFinished = CompletableFuture<Unit>()
     val failingTestFinished = CompletableFuture<Throwable>()
     val results =

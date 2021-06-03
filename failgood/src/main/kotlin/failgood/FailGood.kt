@@ -167,7 +167,7 @@ object FailGood {
      * @param randomTestClass usually not needed but you can pass any test class here,
      *        and it will be used to find the classloader and source root
      */
-    fun findTestClasses(
+    suspend fun findTestClasses(
         classIncludeRegex: Regex = Regex(".*Test.class\$"),
         newerThan: FileTime? = null,
         randomTestClass: KClass<*> = findCaller()
@@ -177,7 +177,7 @@ object FailGood {
         return findClassesInPath(root, classloader, classIncludeRegex, newerThan)
     }
 
-    internal fun findClassesInPath(
+    internal suspend fun findClassesInPath(
         root: Path,
         classloader: ClassLoader,
         classIncludeRegex: Regex = Regex(".*Test.class\$"),
@@ -210,7 +210,7 @@ object FailGood {
      * @param randomTestClass usually not needed but you can pass any test class here,
      *        and it will be used to find the classloader and source root
      */
-    fun autoTest(randomTestClass: KClass<*> = findCaller()) {
+    suspend fun autoTest(randomTestClass: KClass<*> = findCaller()) {
         val timeStampPath = Paths.get(".autotest.failgood")
         val lastRun: FileTime? =
             try {
@@ -225,7 +225,7 @@ object FailGood {
         if (classes.isNotEmpty()) Suite(classes.map { ObjectContextProvider(it) }).run().check(false)
     }
 
-    fun runAllTests(writeReport: Boolean = false) {
+    suspend fun runAllTests(writeReport: Boolean = false) {
         Suite.fromClasses(findTestClasses()).run().check(writeReport = writeReport)
     }
 

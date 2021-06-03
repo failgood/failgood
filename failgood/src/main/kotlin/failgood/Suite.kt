@@ -15,6 +15,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.yield
 import java.lang.management.ManagementFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -101,6 +102,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     ): List<Deferred<ContextInfo>> {
         return findRootContexts(coroutineScope).map { context: RootContext ->
             coroutineScope.async {
+                yield()
                 if (!context.disabled) {
                     if (contextTimeout != null) {
                         try {

@@ -6,6 +6,7 @@ import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.reporting.ReportEntry
 
 class LoggingEngineExecutionListener(private val delegate: EngineExecutionListener) : EngineExecutionListener {
+    @Suppress("MemberVisibilityCanBePrivate")
     val events = mutableListOf<String>()
     private fun event(s: String) {
         events.add(s)

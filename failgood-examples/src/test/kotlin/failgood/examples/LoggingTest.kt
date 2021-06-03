@@ -46,7 +46,7 @@ class LoggingHandler(private val resourcesDSL: TestDSL) : InvocationHandler {
             }
         }
         runBlocking {
-            resourcesDSL._test_event(methodName.uppercase(), message)
+            resourcesDSL._test_event(methodName.toUpperCase(), message)
         }
         return Unit
     }

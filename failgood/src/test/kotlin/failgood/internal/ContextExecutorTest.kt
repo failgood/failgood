@@ -60,7 +60,7 @@ class ContextExecutorTest {
                 }
                 it("returns deferred test results") {
                     val testResults = contextInfo.tests.values.awaitAll()
-                    val successful = testResults.filter { it.result is Success }
+                    val successful = testResults.filter { it.isSuccess }
                     val failed = testResults - successful
                     expectThat(successful.map { it.test.testName })
                         .containsExactly(
@@ -187,7 +187,7 @@ class ContextExecutorTest {
                     ContextExecutor(ctx, this).execute()
                 }
                 it("reports a failing context as a failing test") {
-                    expectThat(results.tests.values.awaitAll().filter { it.result is Failed }).single().and {
+                    expectThat(results.tests.values.awaitAll().filter { it.isFailed }).single().and {
                         get { test }.and {
                             get { testName }.isEqualTo("context 1")
                             get { container.name }.isEqualTo("root context")

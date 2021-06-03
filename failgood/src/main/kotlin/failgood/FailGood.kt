@@ -96,6 +96,7 @@ data class SuiteResult(
             println("$totalTests tests. ${failedTests.size} failed. total time: ${uptime(totalTests)}")
             exitProcess(-1)
         }
+        @Suppress("unused")
         fun printPendingTests(pendingTests: List<TestPlusResult>) {
             println("\nPending tests:")
             pendingTests.forEach { println(it.test) }
@@ -106,7 +107,7 @@ data class SuiteResult(
     private fun printSlowestTests() {
         val contextTreeReporter = ContextTreeReporter()
         val slowTests =
-            allTests.filter { it.result is Success }.sortedBy { 0 - (it.result as Success).timeMicro }.take(5)
+            allTests.filter { it.isSuccess }.sortedBy { 0 - (it.result as Success).timeMicro }.take(5)
         println("Slowest tests:")
         slowTests.forEach { println("${contextTreeReporter.time((it.result as Success).timeMicro)}ms ${it.test}") }
     }

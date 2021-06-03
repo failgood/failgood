@@ -75,7 +75,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                         resolvedContexts.forEach { it.afterSuiteCallbacks.forEach { callback -> callback.invoke() } }
                         SuiteResult(
                             results,
-                            results.filter { it.result is Failed },
+                            results.filter { it.isFailed },
                             resolvedContexts.flatMap { it.contexts })
                     }
                 }

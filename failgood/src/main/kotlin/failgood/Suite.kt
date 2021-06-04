@@ -125,9 +125,9 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
 
     fun runSingle(test: String): TestResult {
         val contextName = test.substringBefore(">").trim()
-        val context = contextProviders.flatMap { it.getContexts() }.single {
+        val context = contextProviders.flatMap { it.getContexts() }.singleOrNull() {
             it.name == contextName
-        }
+        } ?: throw FailGoodException("No Root context with name $contextName found")
         val desc = ContextPath.fromString(test)
         return runBlocking {
             val resourcesCloser = ResourcesCloser(this)

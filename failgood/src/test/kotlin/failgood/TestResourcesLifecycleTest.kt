@@ -93,7 +93,7 @@ class TestResourcesLifecycleTest {
             verify(closeable2) { close() }
         }
         describe("after suite callback") {
-            it("is called exactly once at the end of the suite. after all tests are finished") {
+            it("is called exactly once at the end of the suite, after all tests are finished") {
                 val events = CopyOnWriteArrayList<String>()
                 expectThat(Suite {
                     afterSuite {
@@ -132,6 +132,21 @@ class TestResourcesLifecycleTest {
                     "afterSuite callback in subcontext"
 
                 )
+            }
+            it("can throw exceptions that are ignored") {
+                val events = CopyOnWriteArrayList<String>()
+                expectThat(Suite {
+                    afterSuite {
+                        events.add("afterSuite callback")
+                    }
+                    afterSuite {
+                        throw AssertionError()
+                    }
+                    afterSuite {
+                        throw RuntimeException()
+                    }
+                }.run(silent = true)).get { allOk }.isTrue()
+                expectThat(events).containsExactly("afterSuite callback")
             }
         }
     }

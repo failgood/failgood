@@ -73,7 +73,15 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                         }
                         val resolvedContexts = contextInfos.awaitAll()
                         val results = resolvedContexts.flatMap { it.tests.values }.awaitAll()
-                        resolvedContexts.forEach { it.afterSuiteCallbacks.forEach { callback -> callback.invoke() } }
+                        resolvedContexts.forEach {
+                            it.afterSuiteCallbacks.forEach { callback ->
+                                try {
+                                    callback.invoke()
+                                } catch (ignored: Exception) {
+                                } catch (ignored: AssertionError) {
+                                }
+                            }
+                        }
                         SuiteResult(
                             results,
                             results.filter { it.isFailed },

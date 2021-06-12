@@ -16,7 +16,7 @@ dependencies {
 
     testImplementation("io.mockk:mockk:1.11.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
-    implementation("io.github.microutils:kotlin-logging-jvm:2.0.6")
+    implementation("io.github.microutils:kotlin-logging-jvm:2.0.8")
     implementation("org.slf4j:slf4j-api:1.7.30")
 }
 

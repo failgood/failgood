@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.4.4 - "Past Perfect" - 2021-05-21
+
+### Changed
+
+- `FailGood.runTest()` and `FailGood.runAllTests()` are now `suspend`, so you have to make your test main
+  functions `suspend` too.
+
 ### Added
 
 - Allow to override the context timeout by setting the env variable TIMEOUT. Set it to any millisecond value to change
@@ -11,7 +18,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- fix println was not doing anything in JUnit Platform engine
+- fix println which was not doing anything in the JUnit Platform engine.
 
 ## 0.4.3 - "FailGood" - 2021-05-21
 

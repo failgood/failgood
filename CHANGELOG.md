@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 0.4.4 - "Past Perfect" - 2021-05-21
+## 0.4.4 - "Past Perfect" - 2021-06-15
 
 ### Changed
 

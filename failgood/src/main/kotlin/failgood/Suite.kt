@@ -127,7 +127,12 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                     } else
                         ContextInfo(emptyList(), mapOf(), setOf())
                 }
-            }
+            }.also { log("findTests finished") }
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    private fun log(string: String) {
+        println("${upt()}: $string")
     }
 
     fun runSingle(test: String): TestResult {
@@ -157,10 +162,13 @@ object NullExecutionListener : ExecutionListener {
     override suspend fun testEvent(testDescription: TestDescription, type: String, payload: String) {}
 }
 
+private val operatingSystemMXBean =
+    ManagementFactory.getOperatingSystemMXBean() as com.sun.management.OperatingSystemMXBean
+private val runtimeMXBean = ManagementFactory.getRuntimeMXBean()
+internal fun upt(): Long = runtimeMXBean.uptime
+
 internal fun uptime(totalTests: Int? = null): String {
-    val operatingSystemMXBean =
-        ManagementFactory.getOperatingSystemMXBean() as com.sun.management.OperatingSystemMXBean
-    val uptime = ManagementFactory.getRuntimeMXBean().uptime
+    val uptime = upt()
     val cpuTime = operatingSystemMXBean.processCpuTime / 1000000
     val percentage = cpuTime * 100 / uptime
     return "total:${uptime}ms cpu:${cpuTime}ms, load:${percentage}%." + if (totalTests != null) {
@@ -168,6 +176,7 @@ internal fun uptime(totalTests: Int? = null): String {
     } else
         ""
 }
+
 
 internal fun pluralize(count: Int, item: String) = if (count == 1) "1 $item" else "$count ${item}s"
 private fun cpus() = Runtime.getRuntime().availableProcessors()

@@ -17,6 +17,7 @@ import failgood.internal.ContextInfo
 import failgood.junit.FailGoodJunitTestEngine.JunitExecutionListener.TestExecutionEvent
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_LAZY
+import failgood.upt
 import failgood.uptime
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -43,18 +44,10 @@ import org.junit.platform.engine.discovery.ClasspathRootSelector
 import org.junit.platform.engine.reporting.ReportEntry
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
 import org.junit.platform.engine.support.descriptor.ClassSource
-import org.junit.platform.engine.support.descriptor.EngineDescriptor
 import org.junit.platform.engine.support.descriptor.FilePosition
 import org.junit.platform.engine.support.descriptor.FileSource
 import java.io.File
 import java.nio.file.Paths
-
-object FailGoodJunitTestEngineConstants {
-    const val id = "failgood"
-    const val displayName = "FailGood"
-    const val CONFIG_KEY_DEBUG = "failgood.debug"
-    const val CONFIG_KEY_LAZY = "failgood.lazy"
-}
 
 class FailGoodJunitTestEngine : TestEngine {
     private var debug: Boolean = false
@@ -76,7 +69,11 @@ class FailGoodJunitTestEngine : TestEngine {
             @Suppress("DeferredResultUnused")
             if (lazy)
                 GlobalScope.async(Dispatchers.Default) { testResult.map { it.tests.values.awaitAll() } }
-            createResponse(uniqueId, testResult, executionListener)
+            createResponse(
+                uniqueId,
+                testResult,
+                executionListener
+            ).also { println("discover finished at uptime ${upt()}") }
         }
     }
 
@@ -282,8 +279,7 @@ class FailGoodJunitTestEngine : TestEngine {
 
 private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor {
     val stackTraceElement = this.stackTraceElement
-    val testSource =
-        createFileSource(stackTraceElement)
+    val testSource = createFileSource(stackTraceElement)
     return FailGoodTestDescriptor(
         TestDescriptor.Type.TEST,
         uniqueId.append("Test", this.toString()),
@@ -318,21 +314,3 @@ class FailGoodTestDescriptor(
 }
 
 
-internal class FailGoodEngineDescriptor(
-    uniqueId: UniqueId,
-    val testResult: List<ContextInfo>,
-    val executionListener: FailGoodJunitTestEngine.JunitExecutionListener
-) :
-    EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.displayName) {
-    private val testDescription2JunitTestDescriptor = mutableMapOf<TestDescription, TestDescriptor>()
-    private val context2JunitTestDescriptor = mutableMapOf<TestContainer, TestDescriptor>()
-    fun addMapping(testDescription: TestDescription, testDescriptor: TestDescriptor) {
-        testDescription2JunitTestDescriptor[testDescription] = testDescriptor
-    }
-
-    fun getMapping(testDescription: TestDescription) = testDescription2JunitTestDescriptor[testDescription]
-    fun getMapping(context: TestContainer): TestDescriptor = context2JunitTestDescriptor[context]!!
-    fun addMapping(context: TestContainer, testDescriptor: TestDescriptor) {
-        context2JunitTestDescriptor[context] = testDescriptor
-    }
-}

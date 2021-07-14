@@ -25,7 +25,6 @@ data class RootContext(
     val function: ContextLambda
 ) {
     val stackTraceElement = findCallerSTE()
-
 }
 
 typealias ContextLambda = suspend ContextDSL.() -> Unit
@@ -177,6 +176,7 @@ object FailGood {
         return findClassesInPath(root, classloader, classIncludeRegex, newerThan)
     }
 
+    @Suppress("RedundantSuspendModifier", "BlockingMethodInNonBlockingContext")
     internal suspend fun findClassesInPath(
         root: Path,
         classloader: ClassLoader,
@@ -210,6 +210,7 @@ object FailGood {
      * @param randomTestClass usually not needed but you can pass any test class here,
      *        and it will be used to find the classloader and source root
      */
+    @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun autoTest(randomTestClass: KClass<*> = findCaller()) {
         val timeStampPath = Paths.get(".autotest.failgood")
         val lastRun: FileTime? =

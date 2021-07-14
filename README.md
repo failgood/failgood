@@ -129,7 +129,7 @@ then add a gradle task file that calls it with the test classpath and make your 
 
 ```kotlin
 val testMain = tasks.register("testMain", JavaExec::class) {
-    main = "<my-package>.FailGoodMainKt"
+    mainClass.set("<my-package>.FailGoodMainKt")
     classpath = sourceSets["test"].runtimeClasspath
     }
 
@@ -246,7 +246,7 @@ create a gradle exec task for it:
 
 ```kotlin
 tasks.register("autotest", JavaExec::class) {
-    main = "failgood.AutoTestMainKt"
+    mainClass.set("failgood.AutoTestMainKt")
     classpath = sourceSets["test"].runtimeClasspath
 }
 ```

@@ -14,9 +14,9 @@ dependencies {
     testImplementation("io.strikt:strikt-core:$striktVersion")
     testImplementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
 
-    testImplementation("io.mockk:mockk:1.11.0")
+    testImplementation("io.mockk:mockk:1.12.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
-    implementation("io.github.microutils:kotlin-logging-jvm:2.0.8")
+    implementation("io.github.microutils:kotlin-logging-jvm:2.0.10")
     implementation("org.slf4j:slf4j-api:1.7.31")
 }
 
@@ -27,11 +27,11 @@ tasks {
 
 val testMain =
     task("testMain", JavaExec::class) {
-        main = "failgood.examples.AllTestsKt"
+        mainClass.set("failgood.examples.AllTestsKt")
         classpath = sourceSets["test"].runtimeClasspath
     }
 task("autotest", JavaExec::class) {
-    main = "failgood.examples.AutoTestMainKt"
+    mainClass.set("failgood.examples.AutoTestMainKt")
     classpath = sourceSets["test"].runtimeClasspath
 }
 

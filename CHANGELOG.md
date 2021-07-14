@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.4.5 - unreleased
+
+- use kotlin 1.5.21. Coroutines 1.5.1
+
 ## 0.4.4 - "Past Perfect" - 2021-06-15
 
 ### Changed
@@ -14,7 +18,7 @@ All notable changes to this project will be documented in this file.
 - Allow to override the context timeout by setting the env variable TIMEOUT. Set it to any millisecond value to change
   it or to something that is not a number to disable timeouts.
 - Allow ordering of contexts by passing an order value. contexts with lower order will be executed first.
-- `afterSuite {}` method that is called after all tests have finished.
+    - `afterSuite {}` method that is called after all tests have finished.
 
 ### Fixed
 

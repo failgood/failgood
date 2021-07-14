@@ -19,11 +19,11 @@ tasks {
 
 val testMain =
     task("testMain", JavaExec::class) {
-        main = "failgood.junit.it.AllTestsKt"
+        mainClass.set("failgood.junit.it.AllTestsKt")
         classpath = sourceSets["test"].runtimeClasspath
     }
 task("autotest", JavaExec::class) {
-    main = "failgood.junit.it.AutoTestMainKt"
+    mainClass.set("failgood.junit.it.AutoTestMainKt")
     classpath = sourceSets["test"].runtimeClasspath
 }
 

@@ -50,16 +50,16 @@ tasks {
 
 val testMain =
     task("testMain", JavaExec::class) {
-        main = "failgood.FailGoodBootstrapKt"
+        mainClass.set("failgood.FailGoodBootstrapKt")
         classpath = sourceSets["test"].runtimeClasspath
     }
 val multiThreadedTest =
     task("multiThreadedTest", JavaExec::class) {
-        main = "failgood.MultiThreadingPerformanceTestXKt"
+        mainClass.set("failgood.MultiThreadingPerformanceTestXKt")
         classpath = sourceSets["test"].runtimeClasspath
     }
 task("autotest", JavaExec::class) {
-    main = "failgood.AutoTestMainKt"
+    mainClass.set("failgood.AutoTestMainKt")
     classpath = sourceSets["test"].runtimeClasspath
 }
 

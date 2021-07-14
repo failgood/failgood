@@ -4,7 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## 0.4.5 - unreleased
 
+### Changed
+
 - use kotlin 1.5.21. Coroutines 1.5.1
+
+### Fixed
+
+- Duplicate root context names no longer break the junit engine. It's still probably a good idea to give your root
+  contexts unique names. But the JUnit engine will now work even if you name all your root contexts RootContext. (or
+  Rudolph)
 
 ## 0.4.4 - "Past Perfect" - 2021-06-15
 

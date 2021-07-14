@@ -17,7 +17,6 @@ import failgood.internal.ContextInfo
 import failgood.junit.FailGoodJunitTestEngine.JunitExecutionListener.TestExecutionEvent
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_LAZY
-import failgood.upt
 import failgood.uptime
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -73,7 +72,7 @@ class FailGoodJunitTestEngine : TestEngine {
                 uniqueId,
                 testResult,
                 executionListener
-            ).also { println("discover finished at uptime ${upt()}") }
+            )//.also { println("discover finished at uptime ${upt()}") }
         }
     }
 

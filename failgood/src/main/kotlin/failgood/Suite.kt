@@ -132,7 +132,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
 
     @Suppress("UNUSED_PARAMETER")
     private fun log(string: String) {
-        println("${upt()}: $string")
+//        println("${upt()}: $string")
     }
 
     fun runSingle(test: String): TestResult {

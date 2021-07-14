@@ -55,29 +55,25 @@ internal class ContextExecutor(
             if (!processedTests.add(testPath)) {
                 return
             }
-            val stackTraceElement = getStackTraceElement()
-            val testDescription = TestDescription(parentContext, name, stackTraceElement)
+            val testDescription = TestDescription(parentContext, name, getStackTraceElement())
             if (!ranATest) {
-                // we did not yet run a test so we are going to run this test ourselves
+                // we did not yet run a test, so we are going to run this test ourselves
                 ranATest = true
 
-                // create the tests stacktrace element outside of the async block to get a better stacktrace#
-                val deferred =
-                    scope.async(start = coroutineStart) {
-                        listener.testStarted(testDescription)
-                        val testResult =
-                            try {
-                                TestContext(resourcesCloser, listener, testDescription).function()
-                                resourcesCloser.close()
-                                Success((System.nanoTime() - startTime) / 1000)
-                            } catch (e: Throwable) {
-                                Failed(e)
-                            }
-                        val testPlusResult = TestPlusResult(testDescription, testResult)
-                        listener.testFinished(testPlusResult)
-                        testPlusResult
-                    }
-                deferredTestResults[testDescription] = deferred
+                deferredTestResults[testDescription] = scope.async(start = coroutineStart) {
+                    listener.testStarted(testDescription)
+                    val testResult =
+                        try {
+                            TestContext(resourcesCloser, listener, testDescription).function()
+                            resourcesCloser.close()
+                            Success((System.nanoTime() - startTime) / 1000)
+                        } catch (e: Throwable) {
+                            Failed(e)
+                        }
+                    val testPlusResult = TestPlusResult(testDescription, testResult)
+                    listener.testFinished(testPlusResult)
+                    testPlusResult
+                }
             } else {
                 val resourcesCloser = ResourcesCloser(scope)
                 val deferred =

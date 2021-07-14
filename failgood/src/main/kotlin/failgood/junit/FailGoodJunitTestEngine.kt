@@ -89,7 +89,7 @@ class FailGoodJunitTestEngine : TestEngine {
             fun addChildren(node: TestDescriptor, context: Context) {
                 val contextNode = FailGoodTestDescriptor(
                     TestDescriptor.Type.CONTAINER,
-                    uniqueId.append("container", context.stringPath()),
+                    uniqueId.append("container", context.stringPath() + context.uuid.toString()),
                     context.name,
                     context.stackTraceElement?.let { createFileSource(it) }
                 )

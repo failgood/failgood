@@ -56,19 +56,16 @@ object FailGoodJunitTestEngineConstants {
     const val CONFIG_KEY_LAZY = "failgood.lazy"
 }
 
-// what idea usually sends:
-//selectors:ClasspathRootSelector [classpathRoot = file:///Users/christoph/Projects/mine/failgood/failgood/out/test/classes/], ClasspathRootSelector [classpathRoot = file:///Users/christoph/Projects/mine/failgood/failgood/out/test/resources/]
-//filters:IncludeClassNameFilter that includes class names that match one of the following regular expressions: 'failgood\..*', ExcludeClassNameFilter that excludes class names that match one of the following regular expressions: 'com\.intellij\.rt.*' OR 'com\.intellij\.junit3.*'
 class FailGoodJunitTestEngine : TestEngine {
     private var debug: Boolean = false
     override fun getId(): String = FailGoodJunitTestEngineConstants.id
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun discover(discoveryRequest: EngineDiscoveryRequest, uniqueId: UniqueId): TestDescriptor {
-        println("starting at uptime ${uptime()}")
+        val lazy = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_LAZY).orElse(false)
+        println("starting at uptime ${uptime()}" + if (lazy) " lazy mode enabled" else "")
 
         debug = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_DEBUG).orElse(false)
-        val lazy = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_LAZY).orElse(false)
 
         return runBlocking(Dispatchers.Default) {
             val providers: List<ContextProvider> = findContexts(discoveryRequest)

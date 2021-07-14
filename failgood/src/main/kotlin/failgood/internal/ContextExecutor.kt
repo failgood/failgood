@@ -12,7 +12,6 @@ import failgood.ResourcesDSL
 import failgood.RootContext
 import failgood.Success
 import failgood.TestContext
-import failgood.TestDependency
 import failgood.TestDescription
 import failgood.TestLambda
 import failgood.TestPlusResult
@@ -20,9 +19,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import java.util.concurrent.ConcurrentLinkedQueue
 
 internal class ContextExecutor(
     private val rootContext: RootContext,
@@ -190,33 +187,3 @@ internal class ContextExecutor(
     }
 }
 
-class ResourcesCloser(private val scope: CoroutineScope) : ResourcesDSL {
-    override fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T {
-        add(SuspendAutoCloseable(wrapped, closeFunction))
-        return wrapped
-    }
-
-    override suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit): TestDependency<T> {
-        val result = scope.async(Dispatchers.IO) { creator() }
-        add(SuspendAutoCloseable(result) { closer(result.await()) })
-        return TestDependency(result)
-    }
-
-    override fun <T : AutoCloseable> autoClose(wrapped: T): T = autoClose(wrapped) { it.close() }
-
-    private fun <T> add(autoCloseable: SuspendAutoCloseable<T>) {
-        closeables.add(autoCloseable)
-    }
-
-    suspend fun close() {
-        closeables.reversed().forEach { it.close() }
-    }
-
-    private val closeables = ConcurrentLinkedQueue<SuspendAutoCloseable<*>>()
-}
-
-class SuspendAutoCloseable<T>(private val wrapped: T, val closer: suspend (T) -> Unit) {
-    suspend fun close() {
-        closer(wrapped)
-    }
-}

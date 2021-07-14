@@ -35,6 +35,31 @@ internal class ContextExecutor(
     private val processedTests = LinkedHashSet<ContextPath>()
     private val afterSuiteCallbacks = mutableSetOf<suspend () -> Unit>()
     private val investigatedContexts = mutableSetOf<Context>()
+
+    /**
+     * Execute the rootContext.
+     *
+     * We keep executing the Context DSL until we know about all contexts and tests in this root context
+     * The first test in each context is directly executed (async via coroutines), and for all other tests in that
+     * context we create a SingleTestExecutor that executes the whole context path of that test together with the test.
+     *
+     */
+    suspend fun execute(): ContextInfo {
+        val function = rootContext.function
+        val rootContext = Context(rootContext.name, null, rootContext.stackTraceElement)
+        while (true) {
+            startTime = System.nanoTime()
+            val resourcesCloser = ResourcesCloser(scope)
+            val visitor = ContextVisitor(rootContext, resourcesCloser)
+            visitor.function()
+            investigatedContexts.add(rootContext)
+            if (!visitor.contextsLeft) break
+        }
+        // context order: first root context, then sub-contexts ordered by line number
+        val contexts = listOf(rootContext) + foundContexts.sortedBy { it.stackTraceElement!!.lineNumber }
+        return ContextInfo(contexts, deferredTestResults, afterSuiteCallbacks)
+    }
+
     private inner class ContextVisitor(
         private val parentContext: Context,
         private val resourcesCloser: ResourcesCloser
@@ -164,22 +189,6 @@ internal class ContextExecutor(
             if (!contextInvestigated)
                 afterSuiteCallbacks.add(function)
         }
-    }
-
-    suspend fun execute(): ContextInfo {
-        val function = rootContext.function
-        val rootContext = Context(rootContext.name, null, rootContext.stackTraceElement)
-        while (true) {
-            startTime = System.nanoTime()
-            val resourcesCloser = ResourcesCloser(scope)
-            val visitor = ContextVisitor(rootContext, resourcesCloser)
-            visitor.function()
-            investigatedContexts.add(rootContext)
-            if (!visitor.contextsLeft) break
-        }
-        // context order: first root context, then sub-contexts ordered by line number
-        val contexts = listOf(rootContext) + foundContexts.sortedBy { it.stackTraceElement!!.lineNumber }
-        return ContextInfo(contexts, deferredTestResults, afterSuiteCallbacks)
     }
 }
 

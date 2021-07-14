@@ -15,13 +15,13 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.yield
 import java.lang.management.ManagementFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 
 const val DEFAULT_CONTEXT_TIMEOUT: Long = 20000
+
 class Suite(val contextProviders: Collection<ContextProvider>) {
     companion object {
         fun fromContexts(rootContexts: Collection<RootContext>) =
@@ -112,18 +112,17 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
             .map { coroutineScope.async { it.getContexts() } }.flatMap { it.await() }.sortedBy { it.order }
             .map { context: RootContext ->
                 coroutineScope.async {
-                    yield()
                     if (!context.disabled) {
-                        if (contextTimeout != null) {
-                            try {
+                        try {
+                            if (contextTimeout != null) {
                                 withTimeout(contextTimeout) {
                                     ContextExecutor(context, coroutineScope, !executeTests, listener).execute()
                                 }
-                            } catch (e: TimeoutCancellationException) {
-                                throw FailGoodException("context ${context.name} timed out")
+                            } else {
+                                ContextExecutor(context, coroutineScope, !executeTests, listener).execute()
                             }
-                        } else {
-                            ContextExecutor(context, coroutineScope, !executeTests, listener).execute()
+                        } catch (e: TimeoutCancellationException) {
+                            throw FailGoodException("context ${context.name} timed out")
                         }
                     } else
                         ContextInfo(emptyList(), mapOf(), setOf())

@@ -17,6 +17,7 @@ import failgood.internal.ContextInfo
 import failgood.junit.FailGoodJunitTestEngine.JunitExecutionListener.TestExecutionEvent
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_LAZY
+import failgood.upt
 import failgood.uptime
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -48,6 +49,14 @@ import org.junit.platform.engine.support.descriptor.FileSource
 import java.io.File
 import java.nio.file.Paths
 
+/*
+val logFile = File("failgood-junit.log").bufferedWriter()
+fun println(body: String) {
+    logFile.write(body+"\n")
+    logFile.flush()
+}
+
+ */
 class FailGoodJunitTestEngine : TestEngine {
     private var debug: Boolean = false
     override fun getId(): String = FailGoodJunitTestEngineConstants.id
@@ -65,6 +74,7 @@ class FailGoodJunitTestEngine : TestEngine {
             val executionListener = JunitExecutionListener()
 
             val testResult = suite.findTests(GlobalScope, !lazy, executionListener).awaitAll()
+            println("test results collected at ${upt()}")
             @Suppress("DeferredResultUnused")
             if (lazy)
                 GlobalScope.async(Dispatchers.Default) { testResult.map { it.tests.values.awaitAll() } }
@@ -72,7 +82,7 @@ class FailGoodJunitTestEngine : TestEngine {
                 uniqueId,
                 testResult,
                 executionListener
-            )//.also { println("discover finished at uptime ${upt()}") }
+            ).also { println("discover finished at uptime ${upt()}") }
         }
     }
 
@@ -156,6 +166,7 @@ class FailGoodJunitTestEngine : TestEngine {
                     } catch (e: ClosedReceiveChannelException) {
                         break
                     }
+
                     fun startParentContexts(
                         testDescriptor: TestDescription,
                         engineDescriptor: FailGoodEngineDescriptor

@@ -1,6 +1,7 @@
 package failgood.internal
 
 import failgood.Success
+import failgood.Test
 import failgood.TestDescription
 import failgood.TestPlusResult
 import failgood.describe
@@ -12,13 +13,12 @@ import failgood.internal.TestResultFixtures.rootContext
 import failgood.internal.TestResultFixtures.subContext
 import failgood.internal.TestResultFixtures.subSubContext
 import failgood.internal.TestResultFixtures.testResults
-import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 
 val stackTraceElement = StackTraceElement("class", "method", "file", 123)
 
-@Testable
+@Test
 class ContextTreeReporterTest {
     val context =
         describe(ContextTreeReporter::class) {

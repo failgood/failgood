@@ -1,5 +1,6 @@
 package failgood.junit.it
 
+import failgood.Test
 import failgood.describe
 import failgood.junit.FailGoodJunitTestEngine
 import failgood.junit.FailGoodJunitTestEngineConstants
@@ -11,7 +12,6 @@ import failgood.junit.it.fixtures.TestWithNestedContextsTest.Companion.CHILD_CON
 import failgood.junit.it.fixtures.TestWithNestedContextsTest.Companion.ROOT_CONTEXT_NAME
 import failgood.junit.it.fixtures.TestWithNestedContextsTest.Companion.TEST2_NAME
 import failgood.junit.it.fixtures.TestWithNestedContextsTest.Companion.TEST_NAME
-import org.junit.platform.commons.annotation.Testable
 import org.junit.platform.engine.EngineExecutionListener
 import org.junit.platform.engine.ExecutionRequest
 import org.junit.platform.engine.TestDescriptor
@@ -23,7 +23,7 @@ import strikt.assertions.isTrue
 import strikt.assertions.single
 import java.util.concurrent.ConcurrentLinkedQueue
 
-@Testable
+@Test
 class FailGoodJunitTestEngineTest {
     val context = describe(FailGoodJunitTestEngine::class) {
         val engine = FailGoodJunitTestEngine()

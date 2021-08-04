@@ -1,11 +1,10 @@
 package failgood
 
-import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.isTrue
 
-@Testable
+@Test
 class ContextOrderTest {
     val context = describe("Root Context Order") {
         it("is determined by the order field low to high") {

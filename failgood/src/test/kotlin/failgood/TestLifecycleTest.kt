@@ -1,13 +1,12 @@
 package failgood
 
 import failgood.TestLifecycleTest.Event.*
-import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
 import java.util.concurrent.CopyOnWriteArrayList
 
 
-@Testable
+@Test
 class TestLifecycleTest {
     private enum class Event {
         ROOT_CONTEXT_EXECUTED,

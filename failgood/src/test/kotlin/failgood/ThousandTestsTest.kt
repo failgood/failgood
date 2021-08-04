@@ -1,10 +1,9 @@
 package failgood
 
-import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.isTrue
 
-@Testable
+@Test
 class ThousandTestsTest {
     val context = describe("a test suite with 1000 tests in one context") {
         test("runs pretty fast") {

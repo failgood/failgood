@@ -1,12 +1,12 @@
 package failgood.examples
 
+import failgood.Test
 import failgood.describe
-import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 import strikt.assertions.isLessThan
 
-@Testable
+@Test
 class FailGoodTest {
     val context = describe("The test runner") {
         it("supports describe/it syntax") { expectThat(true).isEqualTo(true) }

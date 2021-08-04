@@ -1,6 +1,5 @@
 package failgood
 
-import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.api.expectThrows
 import strikt.assertions.isA
@@ -8,7 +7,7 @@ import strikt.assertions.isEqualTo
 import strikt.assertions.isFalse
 import strikt.assertions.isTrue
 
-@Testable
+@Test
 class SuiteTest {
     val context =
         describe(Suite::class) {

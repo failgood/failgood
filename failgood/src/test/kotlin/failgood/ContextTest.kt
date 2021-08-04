@@ -1,11 +1,10 @@
 package failgood
 
-import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
 
-@Testable
+@Test
 class ContextTest {
     val context =
         describe("a test context") {

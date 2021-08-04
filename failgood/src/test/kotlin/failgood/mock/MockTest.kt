@@ -1,8 +1,8 @@
 package failgood.mock
 
 import failgood.FailGood
+import failgood.Test
 import failgood.describe
-import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.api.expectThrows
 import strikt.assertions.containsExactly
@@ -13,7 +13,7 @@ fun main() {
     FailGood.runTest()
 }
 
-@Testable
+@Test
 class MockTest {
     interface IImpl {
         fun overloadedFunction()

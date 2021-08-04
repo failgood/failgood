@@ -1,12 +1,12 @@
 package failgood.internal
 
+import failgood.Test
 import failgood.describe
-import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 
 
-@Testable
+@Test
 class Junit4ReporterTest {
     val context = describe(Junit4Reporter::class) {
         it("reports test results") {

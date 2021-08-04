@@ -2,15 +2,15 @@
 
 package failgood.internal
 
+import failgood.Test
 import failgood.describe
-import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.allIndexed
 import strikt.assertions.contains
 import strikt.assertions.startsWith
 import strikt.assertions.trim
 
-@Testable
+@Test
 class ExceptionPrettyPrinterTest {
     val context =
         describe(ExceptionPrettyPrinter::class) {

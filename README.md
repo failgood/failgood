@@ -23,7 +23,7 @@ people who write tests daily and iterate fast.
 ## How it looks like
 
 ```kotlin
-@Testable
+@Test
 class FailGoodTest {
     val context = describe("The test runner") {
         it("supports describe/it syntax") { expectThat(true).isEqualTo(true) }

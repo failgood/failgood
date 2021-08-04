@@ -1,14 +1,14 @@
 package failgood.examples
 
 import failgood.ContextDSL
+import failgood.Test
 import failgood.describe
-import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
-import java.util.*
+import java.util.LinkedList
 
 // a port of https://github.com/dmcg/minutest/blob/master/core/src/test/kotlin/dev/minutest/examples/ContractsExampleTests.kt
-@Testable
+@Test
 class ContractsTest {
     val context = describe("Contracts") {
         describe("ArrayList") {

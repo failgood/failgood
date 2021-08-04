@@ -1,13 +1,13 @@
 package failgood.pitest
 
+import failgood.Test
 import failgood.describe
-import org.junit.platform.commons.annotation.Testable
 import org.pitest.testapi.TestPluginFactory
 import strikt.api.expectThat
 import strikt.assertions.isEmpty
 import strikt.assertions.isEqualTo
 
-@Testable
+@Test
 class FailGoodTestPluginFactoryTest {
     val context =
         describe(FailGoodTestPluginFactory::class) {

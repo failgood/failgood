@@ -5,8 +5,8 @@ package failgood.experiments
 import failgood.ContextDSL
 import failgood.RootContext
 import failgood.Suite
+import failgood.Test
 import failgood.describe
-import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
@@ -16,7 +16,7 @@ import strikt.assertions.isEqualTo
  * effect by using normal context declared dependencies with `by dependency {....}`
  */
 
-@Testable
+@Test
 class TestDependenciesTest {
     val context = describe("Injecting Test Dependencies") {
         test("the context can create test dependencies") {

@@ -1,10 +1,10 @@
 package failgood.problematic
 
+import failgood.Test
 import failgood.describe
-import org.junit.platform.commons.annotation.Testable
 
 
-@Testable
+@Test
 class EmptyRootContextTest {
     val context = describe("empty root context") {
 

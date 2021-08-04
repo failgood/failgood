@@ -1,7 +1,7 @@
 package failgood.pitest
 
+import failgood.Test
 import failgood.describe
-import org.junit.platform.commons.annotation.Testable
 import org.pitest.testapi.Description
 import org.pitest.testapi.ResultCollector
 import org.pitest.testapi.TestUnitFinder
@@ -11,7 +11,7 @@ import strikt.assertions.hasSize
 
 var failure: Throwable? = null
 
-@Testable
+@Test
 class FailGoodTestUnitFinderTest {
 
     object Tests {

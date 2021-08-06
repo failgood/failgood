@@ -33,7 +33,7 @@ fun <Mock : Any> mock(kClass: KClass<Mock>): Mock {
  * parameters that you pass to method calls are ignored, any invocation of methodCall will return "blah"
  *
  */
-suspend fun <Mock : Any, Result : Any> whenever(mock: Mock, lambda: suspend Mock.() -> Result):
+suspend fun <Mock : Any, Result> whenever(mock: Mock, lambda: suspend Mock.() -> Result):
         MockReplyRecorder<Result> = getHandler(mock).whenever(lambda)
 
 /**
@@ -96,7 +96,7 @@ private class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
         results[method] = result
     }
 
-    suspend fun <Mock : Any, Reply : Any> whenever(
+    suspend fun <Mock : Any, Reply> whenever(
         lambda: suspend Mock.() -> Reply
     ): MockReplyRecorder<Reply> {
         val recordingHandler = RecordingHandler()
@@ -122,11 +122,12 @@ private class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
 
     }
 
-    class MockReplyRecorderImpl<Type : Any>(val mockHandler: MockHandler, val recordingHandler: RecordingHandler) :
+    class MockReplyRecorderImpl<Type>(val mockHandler: MockHandler, val recordingHandler: RecordingHandler) :
         MockReplyRecorder<Type> {
         override fun thenReturn(parameter: Type) {
             val call = recordingHandler.call!!
-            mockHandler.defineResult(call.method, parameter)
+            if (parameter != null)
+                mockHandler.defineResult(call.method, parameter)
         }
     }
 

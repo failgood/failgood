@@ -25,6 +25,7 @@ class MockTest {
         fun functionWithParameters(number: Int, name: String)
         suspend fun suspendFunction(number: Int, name: String): String
         fun stringReturningFunction(): String
+        fun functionThatReturnsNullableString(): String?
     }
 
     val context = describe("the mocking framework") {
@@ -67,6 +68,10 @@ class MockTest {
         it("defines results via calling the mock") {
             whenever(mock) { stringReturningFunction() }.thenReturn("resultString")
             expectThat(mock.stringReturningFunction()).isEqualTo("resultString")
+        }
+        it("defines results via calling the mock even works for nullable functions") {
+            whenever(mock) { functionThatReturnsNullableString() }.thenReturn("resultString")
+            expectThat(mock.functionThatReturnsNullableString()).isEqualTo("resultString")
         }
         it("can return function calls for normal asserting") {
             mock.function()

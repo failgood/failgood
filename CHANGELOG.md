@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- Support mocking functions with a nullable return type.
 - Duplicate root context names no longer break the junit engine. It's still probably a good idea to give your root
   contexts unique names. But the JUnit engine will now work even if you name all your root contexts RootContext. (or
   Rudolph)

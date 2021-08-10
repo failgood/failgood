@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 0.4.5 - unreleased
+## 0.4.5 - "Being Boring" - 2021-08-09
 
 ### Changed
 
@@ -27,11 +27,11 @@ All notable changes to this project will be documented in this file.
 - Allow to override the context timeout by setting the env variable TIMEOUT. Set it to any millisecond value to change
   it or to something that is not a number to disable timeouts.
 - Allow ordering of contexts by passing an order value. contexts with lower order will be executed first.
-    - `afterSuite {}` method that is called after all tests have finished.
+- `afterSuite {}` method that is called after all tests have finished.
 
 ### Fixed
 
-- fix println which was not doing anything in the JUnit Platform engine.
+- Fix println which was not doing anything in the JUnit Platform engine.
 
 ## 0.4.3 - "FailGood" - 2021-05-21
 

@@ -2,11 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## 0.5.6 - Unreleased
+## 0.4.6 - Unreleased
 
 ### Changed
 
--
+- Introduce @Test annotation to replace junit platforms @Testable. This will probably change again before 0.5.0
+- Mocks: Replace `thenReturn(result)` with `then {result}`, and allow mock methods to throw exceptions
 
 ## 0.4.5 - "Being Boring" - 2021-08-09
 

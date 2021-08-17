@@ -1,6 +1,5 @@
 package failgood.mock
 
-import failgood.FailGood
 import failgood.Test
 import failgood.describe
 import strikt.api.expectThat
@@ -10,10 +9,6 @@ import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import strikt.assertions.isNotEqualTo
 import strikt.assertions.message
-
-fun main() {
-    FailGood.runTest()
-}
 
 @Test
 class MockTest {

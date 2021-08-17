@@ -1,5 +1,6 @@
 package failgood
 
+import kotlinx.coroutines.CompletableDeferred
 import strikt.api.expectThat
 import strikt.assertions.all
 import strikt.assertions.hasSize
@@ -10,10 +11,9 @@ import strikt.assertions.isLessThan
 import strikt.assertions.isTrue
 import java.lang.management.ManagementFactory
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.TimeUnit
 
 suspend fun main() {
-    val testFinished = CompletableFuture<Unit>()
+    val testFinished = CompletableDeferred<Unit>()
     val failingTestFinished = CompletableFuture<Throwable>()
     val results =
         Suite {
@@ -46,10 +46,10 @@ suspend fun main() {
             }
         get(SuiteResult::allTests).hasSize(3)
     }
-    testFinished.get(1, TimeUnit.SECONDS)
+    testFinished.await()
     println("bootstrapped after: ${uptime()}ms")
 
     FailGood.runAllTests(true)
 
-    expectThat(ManagementFactory.getRuntimeMXBean().uptime).isLessThan(1000) // lets see how far we can get with one second
+    expectThat(ManagementFactory.getRuntimeMXBean().uptime).isLessThan(1000) // let's see how far we can get with one second
 }

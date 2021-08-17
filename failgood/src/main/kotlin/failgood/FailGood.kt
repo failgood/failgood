@@ -165,7 +165,7 @@ object FailGood {
      *
      * @param newerThan only return classes that are newer than this. used by autotest
      *
-     * @param randomTestClass usually not needed but you can pass any test class here,
+     * @param randomTestClass usually not needed, but you can pass any test class here,
      *        and it will be used to find the classloader and source root
      */
     suspend fun findTestClasses(
@@ -209,7 +209,7 @@ object FailGood {
     /**
      * runs all changes tests. use with ./gradle -t or run it manually from idea
      *
-     * @param randomTestClass usually not needed but you can pass any test class here,
+     * @param randomTestClass usually not needed, but you can pass any test class here,
      *        and it will be used to find the classloader and source root
      */
     @Suppress("BlockingMethodInNonBlockingContext")

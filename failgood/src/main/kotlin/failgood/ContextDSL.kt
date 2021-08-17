@@ -8,13 +8,13 @@ interface ResourcesDSL {
     suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit = {}): TestDependency<T>
 
     /**
-     * create a test dependency that should be closed after the a test run.
+     * create a test dependency that should be closed after the test run.
      * use this instead of beforeEach/afterEach
      */
     fun <T : AutoCloseable> autoClose(wrapped: T): T
 
     /**
-     * create a test dependency that should be closed after the a test run.
+     * create a test dependency that should be closed after the test run.
      * use this instead of beforeEach/afterEach
      */
     fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T

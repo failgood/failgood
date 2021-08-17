@@ -6,8 +6,10 @@ import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.api.expectThrows
 import strikt.assertions.containsExactly
+import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import strikt.assertions.isNotEqualTo
+import strikt.assertions.message
 
 fun main() {
     FailGood.runTest()
@@ -60,17 +62,21 @@ class MockTest {
                 }
             }
             it("records results for suspend functions") {
-                whenever(mock) { suspendFunction(0, "ignored") }.thenReturn("suspendResultString")
+                whenever(mock) { suspendFunction(0, "ignored") }.then { "suspendResultString" }
                 expectThat(mock.suspendFunction(10, "string")).isEqualTo("suspendResultString")
             }
-
         }
         it("defines results via calling the mock") {
-            whenever(mock) { stringReturningFunction() }.thenReturn("resultString")
+            whenever(mock) { stringReturningFunction() }.then { "resultString" }
             expectThat(mock.stringReturningFunction()).isEqualTo("resultString")
         }
+        it("mocks can throw") {
+            whenever(mock) { stringReturningFunction() }.then { throw RuntimeException("message") }
+            expectThat(kotlin.runCatching { mock.stringReturningFunction() }
+                .exceptionOrNull()).isA<RuntimeException>().message.isEqualTo("message")
+        }
         it("defines results via calling the mock even works for nullable functions") {
-            whenever(mock) { functionThatReturnsNullableString() }.thenReturn("resultString")
+            whenever(mock) { functionThatReturnsNullableString() }.then { "resultString" }
             expectThat(mock.functionThatReturnsNullableString()).isEqualTo("resultString")
         }
         it("can return function calls for normal asserting") {
@@ -109,7 +115,7 @@ class MockTest {
                 expectThat(mock).isNotEqualTo(mock())
             }
         }
-        it("returns a useable toString") {
+        it("returns something useful as response to toString") {
             expectThat(mock.toString()).isEqualTo("mock<IImpl>")
         }
     }

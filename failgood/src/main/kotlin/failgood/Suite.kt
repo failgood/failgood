@@ -95,7 +95,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     }
 
     // when timeout is not set use the default.
-    // if its set to a number use that as the timeout. if its not a number turn the timeout off
+    // if it's set to a number use that as the timeout. if it's not a number turn the timeout off
     private val contextTimeout = System.getenv("TIMEOUT").let {
         when (it) {
             null -> DEFAULT_CONTEXT_TIMEOUT
@@ -137,7 +137,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
 
     fun runSingle(test: String): TestResult {
         val contextName = test.substringBefore(">").trim()
-        val context = contextProviders.flatMap { it.getContexts() }.singleOrNull() {
+        val context = contextProviders.flatMap { it.getContexts() }.singleOrNull {
             it.name == contextName
         } ?: throw FailGoodException("No Root context with name $contextName found")
         val desc = ContextPath.fromString(test)

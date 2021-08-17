@@ -28,7 +28,9 @@ fun <Mock : Any> mock(kClass: KClass<Mock>): Mock {
 /**
  * Define what to return when a method is called
  *
- * `whenever(mock) { methodCall(ignoredParameter) }.thenReturn("blah")`
+ * `whenever(mock) { methodCall(ignoredParameter) }.then {"resultString"}`
+ * or
+ * `whenever(mock) { methodCall(ignoredParameter) }.then { throw BlahException() }`
  *
  * parameters that you pass to method calls are ignored, any invocation of methodCall will return "blah"
  *
@@ -70,7 +72,9 @@ data class FunctionCall(val function: String, val arguments: List<Any?>)
 class MockException internal constructor(msg: String) : AssertionError(msg)
 
 interface MockReplyRecorder<Type> {
+    @Deprecated(message = "use then")
     fun thenReturn(parameter: Type)
+    fun then(result: () -> Type)
 }
 
 private data class MethodWithArguments(val method: Method, val arguments: List<Any?>) {
@@ -86,7 +90,7 @@ private fun getHandler(mock: Any): MockHandler {
 }
 
 private class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
-    val results = mutableMapOf<Method, Any>()
+    val results = mutableMapOf<Method, () -> Any?>()
     val calls = CopyOnWriteArrayList<MethodWithArguments>()
     override fun invoke(proxy: Any, method: Method, arguments: Array<out Any>?): Any? {
         val nonCoroutinesArgs = cleanArguments(arguments)
@@ -98,10 +102,10 @@ private class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
             else if (method.name == "toString" && nonCoroutinesArgs.isEmpty())
                 return "mock<${kClass.simpleName}>"
         }
-        return result
+        return result?.invoke()
     }
 
-    fun defineResult(method: Method, result: Any) {
+    fun <T> defineResult(method: Method, result: () -> T) {
         results[method] = result
     }
 
@@ -133,10 +137,16 @@ private class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
 
     class MockReplyRecorderImpl<Type>(val mockHandler: MockHandler, val recordingHandler: RecordingHandler) :
         MockReplyRecorder<Type> {
+        @Suppress("OverridingDeprecatedMember")
         override fun thenReturn(parameter: Type) {
             val call = recordingHandler.call!!
             if (parameter != null)
-                mockHandler.defineResult(call.method, parameter)
+                mockHandler.defineResult(call.method) { parameter }
+        }
+
+        override fun then(result: () -> Type) {
+            val call = recordingHandler.call!!
+            mockHandler.defineResult(call.method, result)
         }
     }
 

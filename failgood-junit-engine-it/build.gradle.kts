@@ -1,3 +1,5 @@
+@file:Suppress("GradlePackageUpdate") // disable until it works correctly
+
 import failgood.versions.junitPlatformVersion
 import failgood.versions.striktVersion
 

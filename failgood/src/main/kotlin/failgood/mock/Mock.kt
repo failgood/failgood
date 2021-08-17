@@ -12,7 +12,7 @@ import kotlin.reflect.KClass
 /**
  * create a mock for class Mock
  *
- * all method calls will return null. To define other results use [verify]
+ * per default all method calls will return null. To define other results use [whenever]
  */
 inline fun <reified Mock : Any> mock() = mock(Mock::class)
 
@@ -53,12 +53,21 @@ suspend fun <Mock : Any> verify(mock: Mock, lambda: suspend Mock.() -> Unit) {
     getHandler(mock).verify(lambda)
 }
 
+
+/**
+ * Return calls to a mock to check with your favorite assertion lib (or the assertion lib you use) in combination with
+ * the [call] helper.
+ * This is an alternative to [verify]
+ *
+ * `expectThat(getCalls(mock)).single() .isEqualTo(call(Class::method, parameter1, parameter2, ...))`
+ *
+ */
 fun getCalls(mock: Any) = getHandler(mock).calls.map { FunctionCall(it.method.name, it.arguments) }
 
 data class FunctionCall(val function: String, val arguments: List<Any?>)
 
 
-class MockException constructor(msg: String) : AssertionError(msg)
+class MockException internal constructor(msg: String) : AssertionError(msg)
 
 interface MockReplyRecorder<Type> {
     fun thenReturn(parameter: Type)

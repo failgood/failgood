@@ -1,6 +1,6 @@
-import failgood.Versions.coroutinesVersion
-import failgood.Versions.junitPlatformVersion
-import failgood.Versions.striktVersion
+import failgood.versions.coroutinesVersion
+import failgood.versions.junitPlatformVersion
+import failgood.versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
 plugins {

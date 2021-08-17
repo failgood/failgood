@@ -1,8 +1,8 @@
-import failgood.Versions.coroutinesVersion
-import failgood.Versions.junitPlatformVersion
-import failgood.Versions.kotlinVersion
-import failgood.Versions.pitestVersion
-import failgood.Versions.striktVersion
+import failgood.versions.coroutinesVersion
+import failgood.versions.junitPlatformVersion
+import failgood.versions.kotlinVersion
+import failgood.versions.pitestVersion
+import failgood.versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -73,7 +73,7 @@ plugins.withId("info.solidsoft.pitest") {
         avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))
         targetClasses.set(setOf("failgood.*")) //by default "${project.group}.*"
         targetTests.set(setOf("failgood.*Test", "failgood.**.*Test"))
-        pitestVersion.set(failgood.Versions.pitestVersion)
+        pitestVersion.set(failgood.versions.pitestVersion)
         threads.set(
             System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()
         )

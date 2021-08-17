@@ -1,4 +1,5 @@
-import failgood.Versions.striktVersion
+import failgood.versions.junitPlatformVersion
+import failgood.versions.striktVersion
 
 plugins {
     kotlin("jvm")
@@ -9,7 +10,7 @@ plugins {
 dependencies {
     testImplementation(project(":failgood"))
     testImplementation("io.strikt:strikt-core:$striktVersion")
-    testImplementation("org.junit.platform:junit-platform-launcher:${failgood.Versions.junitPlatformVersion}")
+    testImplementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
 
 }
 

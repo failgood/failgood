@@ -1,13 +1,14 @@
 package failgood.junit.it.fixtures
 
 import failgood.FailGood
+import failgood.Test
 import failgood.describe
-import org.junit.platform.commons.annotation.Testable
 
 fun main() {
     FailGood.runTest()
 }
-@Testable
+
+@Test
 // to reproduce https://github.com/failgood/failgood/issues/10 ( manually :(( )
 class FailingContext {
     val context = describe("root") {

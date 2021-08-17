@@ -4,10 +4,10 @@ import failgood.FailGoodException
 import failgood.Failed
 import failgood.RootContext
 import failgood.Success
+import failgood.Test
 import failgood.describe
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.api.expectThrows
 import strikt.assertions.all
@@ -23,7 +23,7 @@ import strikt.assertions.isNotNull
 import strikt.assertions.map
 import strikt.assertions.single
 
-@Testable
+@Test
 class ContextExecutorTest {
     private var assertionError: AssertionError? = null
     val context =

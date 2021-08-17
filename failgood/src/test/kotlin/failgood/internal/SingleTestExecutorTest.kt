@@ -4,17 +4,17 @@ import failgood.Context
 import failgood.Failed
 import failgood.RootContext
 import failgood.Success
+import failgood.Test
 import failgood.TestDSL
 import failgood.describe
 import failgood.mock.mock
 import kotlinx.coroutines.coroutineScope
-import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 
-@Testable
+@Test
 class SingleTestExecutorTest {
     val context =
         describe(SingleTestExecutor::class) {

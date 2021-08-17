@@ -4,7 +4,6 @@ import failgood.mock.call
 import failgood.mock.getCalls
 import failgood.mock.mock
 import failgood.mock.verify
-import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.containsExactlyInAnyOrder
@@ -12,7 +11,7 @@ import strikt.assertions.isSameInstanceAs
 import strikt.assertions.isTrue
 import java.util.concurrent.CopyOnWriteArrayList
 
-@Testable
+@Test
 class TestResourcesLifecycleTest {
     val context = describe("closing test resources") {
         it("closes resources in reverse order of creation") {

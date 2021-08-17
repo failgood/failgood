@@ -1,17 +1,18 @@
 package failgood.examples
 
+import failgood.Test
 import failgood.TestDSL
 import failgood.describe
 import kotlinx.coroutines.runBlocking
 import mu.KLogger
 import mu.KotlinLogging
-import org.junit.platform.commons.annotation.Testable
 import org.slf4j.Logger
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
+import java.util.Locale
 
-@Testable
+@Test
 class LoggingTest {
     val context = describe("Logging support") {
         it("injects a logger") {
@@ -46,7 +47,7 @@ class LoggingHandler(private val resourcesDSL: TestDSL) : InvocationHandler {
             }
         }
         runBlocking {
-            resourcesDSL._test_event(methodName.toUpperCase(), message)
+            resourcesDSL._test_event(methodName.uppercase(Locale.getDefault()), message)
         }
         return Unit
     }

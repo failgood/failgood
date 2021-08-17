@@ -1,12 +1,10 @@
 package failgood
 
-import org.junit.platform.commons.annotation.Testable
-
 fun main() {
     Suite(MultiThreadingPerformanceTestX().context).run(1000).check()
 }
 
-@Testable
+@Test
 class MultiThreadingPerformanceTestX {
     val context =
         describe("multi threaded test running") {

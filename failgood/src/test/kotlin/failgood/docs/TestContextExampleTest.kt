@@ -1,9 +1,9 @@
 package failgood.docs
 
+import failgood.Test
 import failgood.describe
-import org.junit.platform.commons.annotation.Testable
 
-@Testable
+@Test
 class TestContextExampleTest {
     val context = describe("examples for the test context dsl") {
         it("published println calls in the junit runner") {

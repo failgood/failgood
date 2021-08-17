@@ -1,11 +1,11 @@
 package failgood.examples
 
+import failgood.Test
 import failgood.describe
-import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
-@Testable
+@Test
 class ReverserTest {
     val context = describe(Reverser::class) {
         test("it can reverse palindromes") {

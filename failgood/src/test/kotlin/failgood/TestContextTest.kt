@@ -3,12 +3,11 @@ package failgood
 import failgood.mock.call
 import failgood.mock.getCalls
 import failgood.mock.mock
-import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 import strikt.assertions.single
 
-@Testable
+@Test
 class TestContextTest {
     val context = describe(TestDSL::class) {
         it("publishes a test event for stdout printing") {

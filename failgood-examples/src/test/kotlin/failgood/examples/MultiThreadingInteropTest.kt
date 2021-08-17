@@ -1,12 +1,12 @@
 package failgood.examples
 
 import failgood.FailGood
+import failgood.Test
 import failgood.describe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.delay
-import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
@@ -29,7 +29,7 @@ class Example(
     }
 }
 
-@Testable
+@Test
 class MultiThreadingInteropTest {
     val context = describe("multi threading issue from spek") {
         val stringProvider = mockk<StringProvider> {

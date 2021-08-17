@@ -1,11 +1,11 @@
 package failgood.docs
 
+import failgood.Test
 import failgood.describe
-import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
-@Testable
+@Test
 class ObjectTestContextTest {
     val context =
         describe("test context defined in a kotlin object") {

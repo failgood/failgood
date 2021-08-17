@@ -4,11 +4,10 @@ import failgood.docs.ClassTestContextTest
 import failgood.docs.ObjectMultipleContextsTest
 import failgood.docs.ObjectTestContextTest
 import failgood.docs.TestContextExampleTest
-import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
 
-@Testable
+@Test
 class TestFinderTest {
     val context =
         describe("test finder") {

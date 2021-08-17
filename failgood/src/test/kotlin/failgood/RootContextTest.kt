@@ -1,10 +1,9 @@
 package failgood
 
-import org.junit.platform.commons.annotation.Testable
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
-@Testable
+@Test
 class RootContextTest {
     val context: RootContext = describe(RootContext::class) {
         val ste = Throwable().stackTrace.first()

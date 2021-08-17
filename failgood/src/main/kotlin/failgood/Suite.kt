@@ -8,6 +8,7 @@ import failgood.internal.ResourcesCloser
 import failgood.internal.SingleTestExecutor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
@@ -17,7 +18,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import java.lang.management.ManagementFactory
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 
 const val DEFAULT_CONTEXT_TIMEOUT: Long = 20000
@@ -42,60 +42,53 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
             this(RootContext("root", false, 0, function))
 
     fun run(
-        parallelism: Int = cpus(),
+        parallelism: Int? = null,
         silent: Boolean = false
     ): SuiteResult {
 
-        val threadPool =
-            if (parallelism > 1)
-                Executors.newWorkStealingPool(parallelism)
-            else
-                Executors.newSingleThreadExecutor()
-        return try {
-            threadPool.asCoroutineDispatcher()
-                .use { dispatcher ->
-                    runBlocking(dispatcher) {
-                        val contextInfos = findTests(this)
-                        if (!silent) {
-                            contextInfos.forEach {
-                                launch {
-                                    val context = it.await()
-                                    val contextTreeReporter = ContextTreeReporter()
-                                    println(
-                                        contextTreeReporter.stringReport(
-                                            context.tests.values.awaitAll(),
-                                            context.contexts
-                                        )
-                                            .joinToString("\n")
-                                    )
-                                }
-                            }
-                        }
-                        val resolvedContexts = contextInfos.awaitAll()
-                        val results = resolvedContexts.flatMap { it.tests.values }.awaitAll()
-                        resolvedContexts.forEach {
-                            it.afterSuiteCallbacks.forEach { callback ->
-                                try {
-                                    callback.invoke()
-                                } catch (ignored: Exception) {
-                                } catch (ignored: AssertionError) {
-                                }
-                            }
-                        }
-                        SuiteResult(
-                            results,
-                            results.filter { it.isFailed },
-                            resolvedContexts.flatMap { it.contexts })
+        val dispatcher =
+            when {
+                parallelism == null -> Dispatchers.Default
+                parallelism > 1 -> Executors.newWorkStealingPool(parallelism).asCoroutineDispatcher()
+                else -> Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+            }
+        return runBlocking(dispatcher) {
+            val contextInfos = findTests(this)
+            if (!silent) {
+                contextInfos.forEach {
+                    launch {
+                        val context = it.await()
+                        val contextTreeReporter = ContextTreeReporter()
+                        println(
+                            contextTreeReporter.stringReport(
+                                context.tests.values.awaitAll(),
+                                context.contexts
+                            )
+                                .joinToString("\n")
+                        )
                     }
                 }
-        } finally {
-            threadPool.awaitTermination(100, TimeUnit.SECONDS)
-            threadPool.shutdown()
+            }
+            val resolvedContexts = contextInfos.awaitAll()
+            val results = resolvedContexts.flatMap { it.tests.values }.awaitAll()
+            resolvedContexts.forEach {
+                it.afterSuiteCallbacks.forEach { callback ->
+                    try {
+                        callback.invoke()
+                    } catch (ignored: Exception) {
+                    } catch (ignored: AssertionError) {
+                    }
+                }
+            }
+            SuiteResult(
+                results,
+                results.filter { it.isFailed },
+                resolvedContexts.flatMap { it.contexts })
         }
     }
 
     // when timeout is not set use the default.
-    // if it's set to a number use that as the timeout. if it's not a number turn the timeout off
+// if it's set to a number use that as the timeout. if it's not a number turn the timeout off
     private val contextTimeout = System.getenv("TIMEOUT").let {
         when (it) {
             null -> DEFAULT_CONTEXT_TIMEOUT

@@ -3,6 +3,7 @@ package failgood
 import failgood.internal.ContextExecutor
 import failgood.internal.ContextInfo
 import failgood.internal.ContextPath
+import failgood.internal.ContextResult
 import failgood.internal.ContextTreeReporter
 import failgood.internal.ResourcesCloser
 import failgood.internal.SingleTestExecutor
@@ -59,19 +60,24 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                     launch {
                         val context = it.await()
                         val contextTreeReporter = ContextTreeReporter()
-                        println(
-                            contextTreeReporter.stringReport(
-                                context.tests.values.awaitAll(),
-                                context.contexts
-                            )
-                                .joinToString("\n")
-                        )
+                        when (context) {
+                            is ContextInfo -> {
+                                println(
+                                    contextTreeReporter.stringReport(
+                                        context.tests.values.awaitAll(),
+                                        context.contexts
+                                    )
+                                        .joinToString("\n")
+                                )
+                            }
+                        }
                     }
                 }
             }
             val resolvedContexts = contextInfos.awaitAll()
-            val results = resolvedContexts.flatMap { it.tests.values }.awaitAll()
-            resolvedContexts.forEach {
+            val successfulContexts = resolvedContexts.filterIsInstance<ContextInfo>()
+            val results = successfulContexts.flatMap { it.tests.values }.awaitAll()
+            successfulContexts.forEach {
                 it.afterSuiteCallbacks.forEach { callback ->
                     try {
                         callback.invoke()
@@ -83,7 +89,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
             SuiteResult(
                 results,
                 results.filter { it.isFailed },
-                resolvedContexts.flatMap { it.contexts })
+                successfulContexts.flatMap { it.contexts })
         }
     }
 
@@ -100,7 +106,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         coroutineScope: CoroutineScope,
         executeTests: Boolean = true,
         listener: ExecutionListener = NullExecutionListener
-    ): List<Deferred<ContextInfo>> {
+    ): List<Deferred<ContextResult>> {
         return contextProviders
             .map { coroutineScope.async { it.getContexts() } }.flatMap { it.await() }.sortedBy { it.order }
             .map { context: RootContext ->

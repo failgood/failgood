@@ -45,11 +45,13 @@ class ContextExecutorTest {
                         context("context 4") { test("test 4") {} }
                     }
 
-                val contextInfo = coroutineScope {
+                val contextResult = coroutineScope {
                     ContextExecutor(ctx, this).execute()
                 }
+                expectThat(contextResult).isA<ContextInfo>()
+                val contextInfo = contextResult as ContextInfo
                 it("returns tests in the same order as they are declared in the file") {
-                    expectThat(contextInfo.tests.keys).map { it.testName }
+                    expectThat(contextInfo).get { tests.keys }.map { it.testName }
                         .containsExactly(
                             "test 1",
                             "test 2",
@@ -115,10 +117,12 @@ class ContextExecutorTest {
                             }
                         }
                     }
-                val contextInfo = coroutineScope {
+                val contextResult = coroutineScope {
                     ContextExecutor(ctx, this).execute()
                 }
+                expectThat(contextResult).isA<ContextInfo>()
 
+                val contextInfo = contextResult as ContextInfo
                 it("returns file info for all subcontexts") {
                     expectThat(contextInfo.contexts).all {
                         get { stackTraceElement }.isNotNull().and {
@@ -158,10 +162,11 @@ class ContextExecutorTest {
                             }
                         }
                     coroutineScope {
-                        val contextInfo =
-                            ContextExecutor(ctx, this, lazy = true).execute()
+                        val contextInfo = ContextExecutor(ctx, this, lazy = true).execute()
+
                         expectThat(testExecuted).isEqualTo(false)
-                        val deferred = contextInfo.tests.values.single()
+                        expectThat(contextInfo).isA<ContextInfo>()
+                        val deferred = (contextInfo as ContextInfo).tests.values.single()
                         expectThat(deferred.await().result).isA<Success>()
                         expectThat(testExecuted).isEqualTo(true)
                     }
@@ -169,23 +174,24 @@ class ContextExecutorTest {
                 }
             }
 
-            describe("handles failing contexts")
-            {
+            describe("handles failing sub contexts") {
                 var error: Throwable? = null
 
-                val ctx =
-                    RootContext("root context") {
-                        test("test 1") {}
-                        test("test 2") {}
-                        context("context 1") {
-                            error = NotImplementedError("")
-                            throw error!!
-                        }
-                        context("context 4") { test("test 4") {} }
+                val ctx = RootContext("root context") {
+                    test("test 1") {}
+                    test("test 2") {}
+                    context("context 1") {
+                        error = NotImplementedError("")
+                        throw error!!
                     }
-                val results = coroutineScope {
+                    context("context 4") { test("test 4") {} }
+                }
+                val contextInfo = coroutineScope {
                     ContextExecutor(ctx, this).execute()
                 }
+                expectThat(contextInfo).isA<ContextInfo>()
+                val results = contextInfo as ContextInfo
+
                 it("reports a failing context as a failing test") {
                     expectThat(results.tests.values.awaitAll().filter { it.isFailed }).single().and {
                         get { test }.and {
@@ -204,6 +210,20 @@ class ContextExecutorTest {
                 it("does not report a failing context as a context") {
                     expectThat(results.contexts).map { it.name }.doesNotContain("context 1")
                 }
+            }
+            pending("handles failing root contexts") {
+                val ctx = RootContext("root context") {
+                    throw RuntimeException()
+                }
+                val results = coroutineScope {
+                    ContextExecutor(ctx, this).execute()
+                }
+                /*
+                expectThat(results.tests.values).hasSize(1)
+                val result = results.tests.values.single().await()
+                expectThat(result) {
+                    get {isFailed}.isTrue()
+                }*/
             }
             describe("detects duplicated tests")
             {
@@ -282,12 +302,15 @@ class ContextExecutorTest {
                         test("test") {}
 
                     }
-                    coroutineScope {
-                        ContextExecutor(context, this).execute().tests.values.awaitAll()
+                    val contextResult = coroutineScope {
+                        ContextExecutor(context, this).execute()
                     }
+                    expectThat(contextResult).isA<ContextResult>()
+                    (contextResult as ContextInfo).tests.values.awaitAll()
+
                 }
                 test("tests can not contain nested contexts") {
-                    //context("this should not even compile work") {}
+                    //context("this does not even compile") {}
                 }
             }
         }

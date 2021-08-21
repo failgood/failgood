@@ -2,14 +2,14 @@ package failgood.junit
 
 import failgood.TestContainer
 import failgood.TestDescription
-import failgood.internal.ContextInfo
+import failgood.internal.ContextResult
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
 
 internal class FailGoodEngineDescriptor(
     uniqueId: UniqueId,
-    val testResult: List<ContextInfo>,
+    val testResult: List<ContextResult>,
     val executionListener: FailGoodJunitTestEngine.JunitExecutionListener
 ) :
     EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.displayName) {

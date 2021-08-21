@@ -14,6 +14,7 @@ import failgood.TestContainer
 import failgood.TestDescription
 import failgood.TestPlusResult
 import failgood.internal.ContextInfo
+import failgood.internal.ContextResult
 import failgood.junit.FailGoodJunitTestEngine.JunitExecutionListener.TestExecutionEvent
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_LAZY
@@ -77,7 +78,9 @@ class FailGoodJunitTestEngine : TestEngine {
             println("test results collected at ${upt()}")
             @Suppress("DeferredResultUnused")
             if (lazy)
-                GlobalScope.async(Dispatchers.Default) { testResult.map { it.tests.values.awaitAll() } }
+                GlobalScope.async(Dispatchers.Default) {
+                    testResult.filterIsInstance<ContextInfo>().map { it.tests.values.awaitAll() }
+                }
             createResponse(
                 uniqueId,
                 testResult,
@@ -88,35 +91,40 @@ class FailGoodJunitTestEngine : TestEngine {
 
     private fun createResponse(
         uniqueId: UniqueId,
-        contextInfos: List<ContextInfo>,
+        contextInfos: List<ContextResult>,
         executionListener: JunitExecutionListener
     ): FailGoodEngineDescriptor {
         val result = FailGoodEngineDescriptor(uniqueId, contextInfos, executionListener)
         contextInfos.forEach { contextInfo ->
 
-            val tests = contextInfo.tests.entries
-            fun addChildren(node: TestDescriptor, context: Context) {
-                val contextNode = FailGoodTestDescriptor(
-                    TestDescriptor.Type.CONTAINER,
-                    uniqueId.append("container", context.stringPath() + context.uuid.toString()),
-                    context.name,
-                    context.stackTraceElement?.let { createFileSource(it) }
-                )
-                result.addMapping(context, contextNode)
-                val testsInThisContext = tests.filter { it.key.container == context }
-                testsInThisContext.forEach {
-                    val testDescription = it.key
-                    val testDescriptor = testDescription.toTestDescriptor(uniqueId)
-                    contextNode.addChild(testDescriptor)
-                    result.addMapping(testDescription, testDescriptor)
-                }
-                val contextsInThisContext = contextInfo.contexts.filter { it.parent == context }
-                contextsInThisContext.forEach { addChildren(contextNode, it) }
-                node.addChild(contextNode)
-            }
+            when (contextInfo) {
+                is ContextInfo -> {
+                    val tests = contextInfo.tests.entries
+                    fun addChildren(node: TestDescriptor, context: Context) {
+                        val contextNode = FailGoodTestDescriptor(
+                            TestDescriptor.Type.CONTAINER,
+                            uniqueId.append("container", context.stringPath() + context.uuid.toString()),
+                            context.name,
+                            context.stackTraceElement?.let { createFileSource(it) }
+                        )
+                        result.addMapping(context, contextNode)
+                        val testsInThisContext = tests.filter { it.key.container == context }
+                        testsInThisContext.forEach {
+                            val testDescription = it.key
+                            val testDescriptor = testDescription.toTestDescriptor(uniqueId)
+                            contextNode.addChild(testDescriptor)
+                            result.addMapping(testDescription, testDescriptor)
+                        }
+                        val contextsInThisContext = contextInfo.contexts.filter { it.parent == context }
+                        contextsInThisContext.forEach { addChildren(contextNode, it) }
+                        node.addChild(contextNode)
+                    }
 
-            val rootContext = contextInfo.contexts.singleOrNull { it.parent == null }
-            rootContext?.let { addChildren(result, it) }
+                    val rootContext = contextInfo.contexts.singleOrNull { it.parent == null }
+                    rootContext?.let { addChildren(result, it) }
+
+                }
+            }
         }
         return result
     }
@@ -213,8 +221,8 @@ class FailGoodJunitTestEngine : TestEngine {
                 }
             }
             // and wait for the results
-            val allContexts = root.testResult
-            allContexts.flatMap { it.tests.values }.awaitAll()
+            val succesfulContexts = root.testResult.filterIsInstance<ContextInfo>()
+            succesfulContexts.flatMap { it.tests.values }.awaitAll()
             executionListener.events.close()
 
             // finish forwarding test events before closing all the contexts

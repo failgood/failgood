@@ -44,7 +44,7 @@ internal class ContextExecutor(
      * context we create a SingleTestExecutor that executes the whole context path of that test together with the test.
      *
      */
-    suspend fun execute(): ContextInfo {
+    suspend fun execute(): ContextResult {
         val function = rootContext.function
         val rootContext = Context(rootContext.name, null, rootContext.stackTraceElement)
         while (true) {

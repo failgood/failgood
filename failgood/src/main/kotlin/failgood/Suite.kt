@@ -5,6 +5,7 @@ import failgood.internal.ContextInfo
 import failgood.internal.ContextPath
 import failgood.internal.ContextResult
 import failgood.internal.ContextTreeReporter
+import failgood.internal.FailedContext
 import failgood.internal.ResourcesCloser
 import failgood.internal.SingleTestExecutor
 import kotlinx.coroutines.CoroutineScope
@@ -70,6 +71,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                                         .joinToString("\n")
                                 )
                             }
+                            is FailedContext -> println("context ${context.context} failed: ${context.failure.stackTraceToString()}")
                         }
                     }
                 }

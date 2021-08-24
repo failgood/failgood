@@ -11,3 +11,5 @@ internal data class ContextInfo(
     val tests: Map<TestDescription, Deferred<TestPlusResult>>,
     val afterSuiteCallbacks: Set<suspend () -> Unit>
 ) : ContextResult
+
+internal data class FailedContext(val context: Context, val failure: Throwable) : ContextResult

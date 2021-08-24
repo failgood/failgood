@@ -15,6 +15,7 @@ import failgood.TestDescription
 import failgood.TestPlusResult
 import failgood.internal.ContextInfo
 import failgood.internal.ContextResult
+import failgood.internal.FailedContext
 import failgood.junit.FailGoodJunitTestEngine.JunitExecutionListener.TestExecutionEvent
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_LAZY
@@ -124,7 +125,16 @@ class FailGoodJunitTestEngine : TestEngine {
                     rootContext?.let { addChildren(result, it) }
 
                 }
-            }
+                is FailedContext -> {
+                    val context = contextInfo.context
+                    val testDescriptor = FailGoodTestDescriptor(TestDescriptor.Type.CONTAINER,
+                        uniqueId.append("container", context.stringPath() + context.uuid.toString()),
+                        context.name, context.stackTraceElement?.let { createFileSource(it) })
+                    result.addChild(testDescriptor)
+                    result.addMapping(context, testDescriptor)
+                    result.failedContexts.add(contextInfo)
+                }
+            }!!
         }
         return result
     }
@@ -163,6 +173,12 @@ class FailGoodJunitTestEngine : TestEngine {
         val startedContexts = mutableSetOf<TestContainer>()
         val junitListener = LoggingEngineExecutionListener(request.engineExecutionListener)
         junitListener.executionStarted(root)
+        root.failedContexts.forEach {
+            junitListener.executionFinished(
+                root.getMapping(it.context),
+                TestExecutionResult.failed(it.failure)
+            )
+        }
         val executionListener = root.executionListener
         runBlocking(Dispatchers.Default) {
             // report results while they come in. we use a channel because tests were already running before the execute

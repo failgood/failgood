@@ -51,7 +51,11 @@ internal class ContextExecutor(
             startTime = System.nanoTime()
             val resourcesCloser = ResourcesCloser(scope)
             val visitor = ContextVisitor(rootContext, resourcesCloser)
-            visitor.function()
+            try {
+                visitor.function()
+            } catch (e: Exception) {
+                return FailedContext(rootContext, e)
+            }
             investigatedContexts.add(rootContext)
             if (!visitor.contextsLeft) break
         }
@@ -73,8 +77,7 @@ internal class ContextExecutor(
         var contextsLeft = false // are there sub contexts left to run?
 
         override suspend fun test(name: String, function: TestLambda) {
-            if (!namesInThisContext.add(name))
-                throw FailGoodException("duplicate name $name in context $parentContext")
+            checkName(name)
             val testPath = ContextPath(parentContext, name)
             // we process each test only once
             if (!processedTests.add(testPath)) {
@@ -121,8 +124,7 @@ internal class ContextExecutor(
 
 
         override suspend fun context(name: String, function: ContextLambda) {
-            if (!namesInThisContext.add(name))
-                throw FailGoodException("duplicate name $name in context $parentContext")
+            checkName(name)
             // if we already ran a test in this context we don't need to visit the child context now
             if (ranATest) {
                 contextsLeft = true
@@ -157,6 +159,11 @@ internal class ContextExecutor(
             getStackTraceElement().lineNumber
 
             if (visitor.ranATest) ranATest = true
+        }
+
+        private fun checkName(name: String) {
+            if (!namesInThisContext.add(name))
+                throw FailGoodException("duplicate name \"$name\" in context \"${parentContext.name}\"")
         }
 
         private fun getStackTraceElement() =

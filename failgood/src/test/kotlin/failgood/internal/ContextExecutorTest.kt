@@ -1,6 +1,5 @@
 package failgood.internal
 
-import failgood.FailGoodException
 import failgood.Failed
 import failgood.RootContext
 import failgood.Success
@@ -9,8 +8,8 @@ import failgood.describe
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import strikt.api.expectThat
-import strikt.api.expectThrows
 import strikt.assertions.all
+import strikt.assertions.contains
 import strikt.assertions.containsExactly
 import strikt.assertions.doesNotContain
 import strikt.assertions.endsWith
@@ -21,6 +20,7 @@ import strikt.assertions.isGreaterThanOrEqualTo
 import strikt.assertions.isNotEmpty
 import strikt.assertions.isNotNull
 import strikt.assertions.map
+import strikt.assertions.message
 import strikt.assertions.single
 
 @Test
@@ -215,7 +215,7 @@ class ContextExecutorTest {
                 val ctx = RootContext("root context") {
                     throw RuntimeException()
                 }
-                val results = coroutineScope {
+                coroutineScope {
                     ContextExecutor(ctx, this).execute()
                 }
                 /*
@@ -230,17 +230,14 @@ class ContextExecutorTest {
                 it("fails with duplicate tests in one context") {
                     val ctx =
                         RootContext {
-                            test("duplicate test name") {}
-                            test("duplicate test name") {}
+                            test("dup test name") {}
+                            test("dup test name") {}
                         }
-                    coroutineScope {
-                        expectThrows<FailGoodException> {
-                            ContextExecutor(
-                                ctx,
-                                this
-                            ).execute()
-                        }
+                    val result = coroutineScope {
+                        ContextExecutor(ctx, this).execute()
                     }
+                    expectThat(result).isA<FailedContext>().get { failure }.message.isNotNull()
+                        .contains("duplicate name \"dup test name\" in context \"root\"")
                 }
                 it("does not fail when the tests with the same name are in different contexts") {
                     val ctx =
@@ -255,17 +252,14 @@ class ContextExecutorTest {
                 it("fails with duplicate contexts in one context") {
                     val ctx =
                         RootContext {
-                            context("duplicate test name") {}
-                            context("duplicate test name") {}
+                            context("dup ctx") {}
+                            context("dup ctx") {}
                         }
-                    coroutineScope {
-                        expectThrows<FailGoodException> {
-                            ContextExecutor(
-                                ctx,
-                                this
-                            ).execute()
-                        }
+                    val result = coroutineScope {
+                        ContextExecutor(ctx, this).execute()
                     }
+                    expectThat(result).isA<FailedContext>().get { failure }.message.isNotNull()
+                        .contains("duplicate name \"dup ctx\" in context \"root\"")
                 }
                 it("does not fail when the contexts with the same name are in different contexts") {
                     val ctx =
@@ -281,14 +275,11 @@ class ContextExecutorTest {
                             test("same name") {}
                             context("same name") {}
                         }
-                    coroutineScope {
-                        expectThrows<FailGoodException> {
-                            ContextExecutor(
-                                ctx,
-                                this
-                            ).execute()
-                        }
+                    val result = coroutineScope {
+                        ContextExecutor(ctx, this).execute()
                     }
+                    expectThat(result).isA<FailedContext>().get { failure }.message.isNotNull()
+                        .contains("duplicate name \"same name\" in context \"root\"")
                 }
 
             }

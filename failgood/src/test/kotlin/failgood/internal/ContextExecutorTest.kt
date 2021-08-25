@@ -209,13 +209,14 @@ class ContextExecutorTest {
                     expectThat(results.contexts).map { it.name }.doesNotContain("context 1")
                 }
             }
-            pending("handles failing root contexts") {
+            it("handles failing root contexts") {
                 val ctx = RootContext("root context") {
-                    throw RuntimeException()
+                    throw RuntimeException("root context failed")
                 }
-                coroutineScope {
+                val result = coroutineScope {
                     ContextExecutor(ctx, this).execute()
                 }
+                expectThat(result).isA<FailedContext>()
                 /*
                 expectThat(results.tests.values).hasSize(1)
                 val result = results.tests.values.single().await()

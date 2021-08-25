@@ -101,22 +101,21 @@ class ContextExecutorTest {
                 var context2Line = 0
                 var test1Line = 0
                 var test2Line = 0
-                val ctx =
-                    RootContext("root context") {
-                        rootContextLine = RuntimeException().stackTrace.first().lineNumber - 1
-                        describe("context 1") {
-                            context1Line = RuntimeException().stackTrace.first().lineNumber - 1
-                            it("test1") {
-                                test1Line = RuntimeException().stackTrace.first().lineNumber - 1
-                            }
-                        }
-                        describe("context 2") {
-                            context2Line = RuntimeException().stackTrace.first().lineNumber - 1
-                            it("test2") {
-                                test2Line = RuntimeException().stackTrace.first().lineNumber - 1
-                            }
+                val ctx = RootContext("root context") {
+                    rootContextLine = RuntimeException().stackTrace.first().lineNumber - 1
+                    describe("context 1") {
+                        context1Line = RuntimeException().stackTrace.first().lineNumber - 1
+                        it("test1") {
+                            test1Line = RuntimeException().stackTrace.first().lineNumber - 1
                         }
                     }
+                    describe("context 2") {
+                        context2Line = RuntimeException().stackTrace.first().lineNumber - 1
+                        it("test2") {
+                            test2Line = RuntimeException().stackTrace.first().lineNumber - 1
+                        }
+                    }
+                }
                 val contextResult = coroutineScope {
                     ContextExecutor(ctx, this).execute()
                 }
@@ -155,12 +154,11 @@ class ContextExecutorTest {
             describe("supports lazy execution") {
                 it("postpones test execution until the deferred is awaited when lazy is set to true") {
                     var testExecuted = false
-                    val ctx =
-                        RootContext("root context") {
-                            test("test 1") {
-                                testExecuted = true
-                            }
+                    val ctx = RootContext("root context") {
+                        test("test 1") {
+                            testExecuted = true
                         }
+                    }
                     coroutineScope {
                         val contextInfo = ContextExecutor(ctx, this, lazy = true).execute()
 
@@ -228,11 +226,10 @@ class ContextExecutorTest {
             describe("detects duplicated tests")
             {
                 it("fails with duplicate tests in one context") {
-                    val ctx =
-                        RootContext {
-                            test("dup test name") {}
-                            test("dup test name") {}
-                        }
+                    val ctx = RootContext {
+                        test("dup test name") {}
+                        test("dup test name") {}
+                    }
                     val result = coroutineScope {
                         ContextExecutor(ctx, this).execute()
                     }
@@ -240,21 +237,19 @@ class ContextExecutorTest {
                         .contains("duplicate name \"dup test name\" in context \"root\"")
                 }
                 it("does not fail when the tests with the same name are in different contexts") {
-                    val ctx =
-                        RootContext {
-                            test("duplicate test name") {}
-                            context("context") { test("duplicate test name") {} }
-                        }
+                    val ctx = RootContext {
+                        test("duplicate test name") {}
+                        context("context") { test("duplicate test name") {} }
+                    }
                     coroutineScope { ContextExecutor(ctx, this).execute() }
                 }
             }
             describe("detects duplicate contexts") {
                 it("fails with duplicate contexts in one context") {
-                    val ctx =
-                        RootContext {
-                            context("dup ctx") {}
-                            context("dup ctx") {}
-                        }
+                    val ctx = RootContext {
+                        context("dup ctx") {}
+                        context("dup ctx") {}
+                    }
                     val result = coroutineScope {
                         ContextExecutor(ctx, this).execute()
                     }
@@ -262,11 +257,10 @@ class ContextExecutorTest {
                         .contains("duplicate name \"dup ctx\" in context \"root\"")
                 }
                 it("does not fail when the contexts with the same name are in different contexts") {
-                    val ctx =
-                        RootContext {
-                            test("same context name") {}
-                            context("context") { test("same context name") {} }
-                        }
+                    val ctx = RootContext {
+                        test("same context name") {}
+                        context("context") { test("same context name") {} }
+                    }
                     coroutineScope { ContextExecutor(ctx, this).execute() }
                 }
                 it("fails when a context has the same name as a test in the same contexts") {

@@ -20,6 +20,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
+import kotlinx.coroutines.withTimeout
 
 internal class ContextExecutor(
     private val rootContext: RootContext,
@@ -27,6 +28,8 @@ internal class ContextExecutor(
     lazy: Boolean = false,
     val listener: ExecutionListener = NullExecutionListener
 ) {
+    // 20 seconds for now. This is not for finding slow tests, this is to keep the suite from hanging without a result
+    val testTimeoutMillis = 20000L
     val coroutineStart: CoroutineStart = if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT
     private var startTime = System.nanoTime()
 
@@ -89,11 +92,14 @@ internal class ContextExecutor(
                 ranATest = true
 
                 deferredTestResults[testDescription] = scope.async(start = coroutineStart) {
+
                     listener.testStarted(testDescription)
                     val testResult =
                         try {
-                            TestContext(resourcesCloser, listener, testDescription).function()
-                            resourcesCloser.close()
+                            withTimeout(testTimeoutMillis) {
+                                TestContext(resourcesCloser, listener, testDescription).function()
+                                resourcesCloser.close()
+                            }
                             Success((System.nanoTime() - startTime) / 1000)
                         } catch (e: Throwable) {
                             Failed(e)
@@ -106,17 +112,20 @@ internal class ContextExecutor(
                 val resourcesCloser = ResourcesCloser(scope)
                 val deferred =
                     scope.async(start = coroutineStart) {
-                        listener.testStarted(testDescription)
-                        val result =
-                            SingleTestExecutor(
-                                rootContext,
-                                testPath,
-                                TestContext(resourcesCloser, listener, testDescription),
-                                resourcesCloser
-                            ).execute()
-                        val testPlusResult = TestPlusResult(testDescription, result)
-                        listener.testFinished(testPlusResult)
-                        testPlusResult
+                        withTimeout(testTimeoutMillis) {
+
+                            listener.testStarted(testDescription)
+                            val result =
+                                SingleTestExecutor(
+                                    rootContext,
+                                    testPath,
+                                    TestContext(resourcesCloser, listener, testDescription),
+                                    resourcesCloser
+                                ).execute()
+                            val testPlusResult = TestPlusResult(testDescription, result)
+                            listener.testFinished(testPlusResult)
+                            testPlusResult
+                        }
                     }
                 deferredTestResults[testDescription] = deferred
             }

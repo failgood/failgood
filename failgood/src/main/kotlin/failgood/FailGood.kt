@@ -236,9 +236,9 @@ object FailGood {
     private fun printThreads() {
         val remainingThreads = Thread.getAllStackTraces().filterKeys { !it.isDaemon && it.name != "main" }
         if (remainingThreads.isNotEmpty()) {
-            println("the test suite left some non daemon threads running:")
+            println("Warning: The test suite left some non daemon threads running:")
             remainingThreads
-                .forEach { (t, s) -> println("\nthread:${t.name}: ${s.joinToString("\n")}") }
+                .forEach { (t, s) -> println("\n* Thread:${t.name}: ${s.joinToString("\n")}") }
             exitProcess(0)
         }
     }

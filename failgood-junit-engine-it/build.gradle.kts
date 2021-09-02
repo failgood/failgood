@@ -17,7 +17,9 @@ dependencies {
 }
 
 tasks {
-    withType<Test> { enabled = false }
+    withType<Test> {
+        useJUnitPlatform()
+    }
 }
 
 val testMain =

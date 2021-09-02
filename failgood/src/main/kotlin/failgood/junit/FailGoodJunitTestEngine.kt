@@ -101,12 +101,17 @@ class FailGoodJunitTestEngine : TestEngine {
             when (contextInfo) {
                 is ContextInfo -> {
                     val tests = contextInfo.tests.entries
-                    fun addChildren(node: TestDescriptor, context: Context) {
+                    fun addChildren(node: TestDescriptor, context: Context, isRootContext: Boolean) {
                         val contextNode = FailGoodTestDescriptor(
                             TestDescriptor.Type.CONTAINER,
                             uniqueId.append("container", context.stringPath() + context.uuid.toString()),
                             context.name,
-                            context.stackTraceElement?.let { createFileSource(it) }
+                            context.stackTraceElement?.let {
+                                if (isRootContext)
+                                    createClassSource(it)
+                                else
+                                    createFileSource(it)
+                            }
                         )
                         result.addMapping(context, contextNode)
                         val testsInThisContext = tests.filter { it.key.container == context }
@@ -117,12 +122,12 @@ class FailGoodJunitTestEngine : TestEngine {
                             result.addMapping(testDescription, testDescriptor)
                         }
                         val contextsInThisContext = contextInfo.contexts.filter { it.parent == context }
-                        contextsInThisContext.forEach { addChildren(contextNode, it) }
+                        contextsInThisContext.forEach { addChildren(contextNode, it, false) }
                         node.addChild(contextNode)
                     }
 
                     val rootContext = contextInfo.contexts.singleOrNull { it.parent == null }
-                    rootContext?.let { addChildren(result, it) }
+                    rootContext?.let { addChildren(result, it, true) }
 
                 }
                 is FailedContext -> {
@@ -332,6 +337,12 @@ private fun createFileSource(stackTraceElement: StackTraceElement): TestSource? 
             filePosition
         )
     else ClassSource.from(className, filePosition)
+}
+
+private fun createClassSource(stackTraceElement: StackTraceElement): TestSource? {
+    val className = stackTraceElement.className
+    val filePosition = FilePosition.from(stackTraceElement.lineNumber)
+    return ClassSource.from(className, filePosition)
 }
 
 class FailGoodTestDescriptor(

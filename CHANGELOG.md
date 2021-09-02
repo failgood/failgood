@@ -2,11 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## 0.4.6 - Unreleased
+## 0.4.6 - "Ok, Gradle" 2021-09-02
 
 ### Changed
 
-- Improve running the tests in gradle. It works pretty good now.
+- Improve running the tests in Gradle. It works pretty good now.
 - Report failures in root contexts instead of throwing and failing the whole suite
 - Introduce @Test annotation to replace junit platforms @Testable. This will probably change again before 0.5.0
 - Mocks: Replace `thenReturn(result)` with `then {result}`, and allow mock methods to throw exceptions

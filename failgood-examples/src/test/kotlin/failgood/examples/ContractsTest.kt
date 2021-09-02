@@ -12,10 +12,10 @@ import java.util.LinkedList
 class ContractsTest {
     val context = describe("Contracts") {
         describe("ArrayList") {
-            behavesAsMutableCollection(ArrayList<String>())
+            behavesAsMutableCollection(ArrayList())
         }
         describe("LinkedList") {
-            behavesAsMutableCollection(LinkedList<String>())
+            behavesAsMutableCollection(LinkedList())
         }
     }
 

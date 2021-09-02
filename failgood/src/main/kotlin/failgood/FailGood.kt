@@ -152,7 +152,7 @@ data class Context(
     override val parents: List<TestContainer> = parent?.parents?.plus(parent) ?: listOf()
     val path: List<String> = parent?.path?.plus(name) ?: listOf(name)
     override fun stringPath(): String = path.joinToString(" > ")
-    val uuid = UUID.randomUUID()
+    val uuid = UUID.randomUUID()!!
 }
 
 object FailGood {

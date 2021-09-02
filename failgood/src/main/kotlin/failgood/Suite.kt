@@ -178,6 +178,4 @@ internal fun uptime(totalTests: Int? = null): String {
         ""
 }
 
-
 internal fun pluralize(count: Int, item: String) = if (count == 1) "1 $item" else "$count ${item}s"
-private fun cpus() = Runtime.getRuntime().availableProcessors()

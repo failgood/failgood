@@ -196,11 +196,7 @@ class ContextExecutorTest {
                             get { testName }.isEqualTo("context 1")
                             get { container.name }.isEqualTo("root context")
                             get { stackTraceElement.toString() }.endsWith(
-                                "ContextExecutorTest.kt:${
-                                    getLineNumber(
-                                        error
-                                    ) - 1
-                                })"
+                                "ContextExecutorTest.kt:${getLineNumber(error) - 1})"
                             )
                         }
                     }

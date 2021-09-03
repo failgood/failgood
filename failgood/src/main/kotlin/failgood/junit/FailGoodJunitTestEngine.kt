@@ -139,7 +139,7 @@ class FailGoodJunitTestEngine : TestEngine {
                     result.addMapping(context, testDescriptor)
                     result.failedContexts.add(contextInfo)
                 }
-            }!!
+            }
         }
         return result
     }

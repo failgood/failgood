@@ -127,7 +127,8 @@ class FailGoodJunitTestEngine : TestEngine {
                     }
 
                     val rootContext = contextInfo.contexts.singleOrNull { it.parent == null }
-                    rootContext?.let { addChildren(result, it, true) }
+                    if (rootContext != null)
+                        addChildren(result, rootContext, true)
 
                 }
                 is FailedContext -> {

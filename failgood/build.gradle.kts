@@ -17,6 +17,9 @@ plugins {
 
 
 dependencies {
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$coroutinesVersion")
+    api("org.junit.platform:junit-platform-commons:$junitPlatformVersion")
+
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion"))
     implementation(kotlin("stdlib-jdk8"))
     compileOnly("org.pitest:pitest:$pitestVersion")
@@ -24,8 +27,6 @@ dependencies {
     testImplementation("io.strikt:strikt-core:$striktVersion")
     testImplementation("org.pitest:pitest:$pitestVersion")
     compileOnly("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
-    testImplementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
-    testImplementation("com.christophsturm:filepeek:0.1.3")
 }
 tasks {
     create<Jar>("sourceJar") {

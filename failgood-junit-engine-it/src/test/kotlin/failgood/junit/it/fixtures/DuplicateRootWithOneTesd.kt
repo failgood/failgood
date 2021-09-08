@@ -4,7 +4,7 @@ import failgood.Test
 import failgood.describe
 
 @Test
-// returnd a cyclic graph
+// returns a cyclic graph
 class DuplicateRootWithOneTesd {
     val context = listOf(
         describe("name") {

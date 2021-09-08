@@ -21,6 +21,7 @@ import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_LAZY
 import failgood.upt
 import failgood.uptime
+import failgood.util.StringUniquer
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -51,14 +52,14 @@ import org.junit.platform.engine.support.descriptor.FileSource
 import java.io.File
 import java.nio.file.Paths
 
-/*
-val logFile = File("failgood-junit.log").bufferedWriter()
-fun println(body: String) {
-    logFile.write(body+"\n")
-    logFile.flush()
-}
+const val CONTEXT_SEGMENT_TYPE = "class"
+const val TEST_SEGMENT_TYPE = "method"
 
+/*
+junit support is very hacky currently, mostly because it has no tests.
+nowadays, it works so well that I will probably have to refactor and test it.
  */
+
 class FailGoodJunitTestEngine : TestEngine {
     private var debug: Boolean = false
     override fun getId(): String = FailGoodJunitTestEngineConstants.id
@@ -95,6 +96,7 @@ class FailGoodJunitTestEngine : TestEngine {
         contextInfos: List<ContextResult>,
         executionListener: JunitExecutionListener
     ): FailGoodEngineDescriptor {
+        val uniqueMaker = StringUniquer()
         val result = FailGoodEngineDescriptor(uniqueId, contextInfos, executionListener)
         contextInfos.forEach { contextInfo ->
 
@@ -102,8 +104,8 @@ class FailGoodJunitTestEngine : TestEngine {
                 is ContextInfo -> {
                     val tests = contextInfo.tests.entries
                     fun addChildren(node: TestDescriptor, context: Context, isRootContext: Boolean) {
-                        val uniquePath = context.stringPath() + context.uuid.toString()
-                        val contextUniqueId = uniqueId.append("container", uniquePath)
+                        val path = uniqueMaker.makeUnique(context.stringPath())
+                        val contextUniqueId = uniqueId.append(CONTEXT_SEGMENT_TYPE, path)
                         val contextNode = FailGoodTestDescriptor(
                             TestDescriptor.Type.CONTAINER,
                             contextUniqueId,
@@ -136,7 +138,7 @@ class FailGoodJunitTestEngine : TestEngine {
                 is FailedContext -> {
                     val context = contextInfo.context
                     val testDescriptor = FailGoodTestDescriptor(TestDescriptor.Type.CONTAINER,
-                        uniqueId.append("container", context.stringPath() + context.uuid.toString()),
+                        uniqueId.append(CONTEXT_SEGMENT_TYPE, uniqueMaker.makeUnique(context.stringPath())),
                         context.name, context.stackTraceElement?.let { createFileSource(it) })
                     result.addChild(testDescriptor)
                     result.addMapping(context, testDescriptor)
@@ -324,7 +326,7 @@ private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor
     val testSource = createFileSource(stackTraceElement)
     return FailGoodTestDescriptor(
         TestDescriptor.Type.TEST,
-        uniqueId.append("Test", this.toString()),
+        uniqueId.append(TEST_SEGMENT_TYPE, this.toString()),
         this.testName,
         testSource
     )

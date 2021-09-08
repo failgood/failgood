@@ -9,23 +9,22 @@ import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
 import strikt.assertions.hasSize
 
-var failure: Throwable? = null
+fun throwableToString(t: Throwable) = t.stackTraceToString()
+val failure = AssertionError("failed")
+
+object Tests {
+    val context = describe("tests with different results") {
+        test("failing test") {
+            throw failure
+        }
+        pending("pending test")
+        test("successful test") {
+        }
+    }
+}
 
 @Test
 class FailGoodTestUnitFinderTest {
-
-    object Tests {
-        val context = describe("tests with different results") {
-            test("failing test") {
-                failure = AssertionError("failed")
-                throw failure!!
-            }
-            pending("pending test")
-            test("successful test") {
-            }
-        }
-    }
-
     val context =
         describe(FailGoodTestUnitFinder::class) {
             test("creates a test unit for each test") {
@@ -44,7 +43,7 @@ class FailGoodTestUnitFinderTest {
                         Event(
                             Description("tests with different results > failing test", Tests::class.java),
                             Type.END,
-                            failure
+                            throwableToString(failure)
                         ),
                         Event(
                             Description("tests with different results > pending test", Tests::class.java),
@@ -65,11 +64,11 @@ class FailGoodTestUnitFinderTest {
         END, START, SKIPPED
     }
 
-    private data class Event(val description: Description, val event: Type, val throwable: Throwable?)
+    private data class Event(val description: Description, val event: Type, val throwable: String?)
     private class TestResultCollector : ResultCollector {
         val events = mutableListOf<Event>()
         override fun notifyEnd(description: Description, t: Throwable) {
-            events.add(Event(description, Type.END, t))
+            events.add(Event(description, Type.END, throwableToString(t)))
         }
 
         override fun notifyEnd(description: Description) {

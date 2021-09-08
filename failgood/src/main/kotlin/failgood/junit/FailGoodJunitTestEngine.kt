@@ -102,9 +102,11 @@ class FailGoodJunitTestEngine : TestEngine {
                 is ContextInfo -> {
                     val tests = contextInfo.tests.entries
                     fun addChildren(node: TestDescriptor, context: Context, isRootContext: Boolean) {
+                        val uniquePath = context.stringPath() + context.uuid.toString()
+                        val contextUniqueId = uniqueId.append("container", uniquePath)
                         val contextNode = FailGoodTestDescriptor(
                             TestDescriptor.Type.CONTAINER,
-                            uniqueId.append("container", context.stringPath() + context.uuid.toString()),
+                            contextUniqueId,
                             context.name,
                             context.stackTraceElement?.let {
                                 if (isRootContext)
@@ -117,7 +119,7 @@ class FailGoodJunitTestEngine : TestEngine {
                         val testsInThisContext = tests.filter { it.key.container == context }
                         testsInThisContext.forEach {
                             val testDescription = it.key
-                            val testDescriptor = testDescription.toTestDescriptor(uniqueId)
+                            val testDescriptor = testDescription.toTestDescriptor(contextUniqueId)
                             contextNode.addChild(testDescriptor)
                             result.addMapping(testDescription, testDescriptor)
                         }

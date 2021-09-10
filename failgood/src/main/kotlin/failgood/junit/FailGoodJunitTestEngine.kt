@@ -1,39 +1,26 @@
 package failgood.junit
 
-import failgood.Context
 import failgood.ContextProvider
-import failgood.ExecutionListener
-import failgood.FailGood.findClassesInPath
-import failgood.FailGoodException
 import failgood.Failed
-import failgood.ObjectContextProvider
 import failgood.Pending
 import failgood.Success
 import failgood.Suite
 import failgood.TestContainer
 import failgood.TestDescription
-import failgood.TestPlusResult
 import failgood.internal.ContextInfo
-import failgood.internal.ContextResult
-import failgood.internal.FailedContext
-import failgood.junit.FailGoodJunitTestEngine.JunitExecutionListener.TestExecutionEvent
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_LAZY
+import failgood.junit.JunitExecutionListener.TestExecutionEvent
 import failgood.upt
 import failgood.uptime
-import failgood.util.StringUniquer
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.junit.platform.engine.DiscoveryFilter
-import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.engine.EngineDiscoveryRequest
 import org.junit.platform.engine.ExecutionRequest
 import org.junit.platform.engine.TestDescriptor
@@ -41,16 +28,8 @@ import org.junit.platform.engine.TestEngine
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.TestSource
 import org.junit.platform.engine.UniqueId
-import org.junit.platform.engine.discovery.ClassNameFilter
-import org.junit.platform.engine.discovery.ClassSelector
-import org.junit.platform.engine.discovery.ClasspathRootSelector
 import org.junit.platform.engine.reporting.ReportEntry
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
-import org.junit.platform.engine.support.descriptor.ClassSource
-import org.junit.platform.engine.support.descriptor.FilePosition
-import org.junit.platform.engine.support.descriptor.FileSource
-import java.io.File
-import java.nio.file.Paths
 
 const val CONTEXT_SEGMENT_TYPE = "class"
 const val TEST_SEGMENT_TYPE = "method"
@@ -91,90 +70,6 @@ class FailGoodJunitTestEngine : TestEngine {
         }
     }
 
-    private fun createResponse(
-        uniqueId: UniqueId,
-        contextInfos: List<ContextResult>,
-        executionListener: JunitExecutionListener
-    ): FailGoodEngineDescriptor {
-        val uniqueMaker = StringUniquer()
-        val result = FailGoodEngineDescriptor(uniqueId, contextInfos, executionListener)
-        contextInfos.forEach { contextInfo ->
-
-            when (contextInfo) {
-                is ContextInfo -> {
-                    val tests = contextInfo.tests.entries
-                    fun addChildren(node: TestDescriptor, context: Context, isRootContext: Boolean) {
-                        val path = uniqueMaker.makeUnique(context.stringPath())
-                        val contextUniqueId = uniqueId.append(CONTEXT_SEGMENT_TYPE, path)
-                        val contextNode = FailGoodTestDescriptor(
-                            TestDescriptor.Type.CONTAINER,
-                            contextUniqueId,
-                            context.name,
-                            context.stackTraceElement?.let {
-                                if (isRootContext)
-                                    createClassSource(it)
-                                else
-                                    createFileSource(it)
-                            }
-                        )
-                        result.addMapping(context, contextNode)
-                        val testsInThisContext = tests.filter { it.key.container == context }
-                        testsInThisContext.forEach {
-                            val testDescription = it.key
-                            val testDescriptor = testDescription.toTestDescriptor(contextUniqueId)
-                            contextNode.addChild(testDescriptor)
-                            result.addMapping(testDescription, testDescriptor)
-                        }
-                        val contextsInThisContext = contextInfo.contexts.filter { it.parent == context }
-                        contextsInThisContext.forEach { addChildren(contextNode, it, false) }
-                        node.addChild(contextNode)
-                    }
-
-                    val rootContext = contextInfo.contexts.singleOrNull { it.parent == null }
-                    if (rootContext != null)
-                        addChildren(result, rootContext, true)
-
-                }
-                is FailedContext -> {
-                    val context = contextInfo.context
-                    val testDescriptor = FailGoodTestDescriptor(TestDescriptor.Type.CONTAINER,
-                        uniqueId.append(CONTEXT_SEGMENT_TYPE, uniqueMaker.makeUnique(context.stringPath())),
-                        context.name, context.stackTraceElement?.let { createFileSource(it) })
-                    result.addChild(testDescriptor)
-                    result.addMapping(context, testDescriptor)
-                    result.failedContexts.add(contextInfo)
-                }
-            }
-        }
-        return result
-    }
-
-    class JunitExecutionListener : ExecutionListener {
-        sealed class TestExecutionEvent {
-            abstract val testDescription: TestDescription
-
-            data class Started(override val testDescription: TestDescription) : TestExecutionEvent()
-            data class Stopped(override val testDescription: TestDescription, val testResult: TestPlusResult) :
-                TestExecutionEvent()
-
-            data class TestEvent(override val testDescription: TestDescription, val type: String, val payload: String) :
-                TestExecutionEvent()
-        }
-
-        val events = Channel<TestExecutionEvent>(UNLIMITED)
-        override suspend fun testStarted(testDescription: TestDescription) {
-            events.send(TestExecutionEvent.Started(testDescription))
-        }
-
-        override suspend fun testFinished(testPlusResult: TestPlusResult) {
-            events.send(TestExecutionEvent.Stopped(testPlusResult.test, testPlusResult))
-        }
-
-        override suspend fun testEvent(testDescription: TestDescription, type: String, payload: String) {
-            events.send(TestExecutionEvent.TestEvent(testDescription, type, payload))
-        }
-
-    }
 
     override fun execute(request: ExecutionRequest) {
         val root = request.rootTestDescriptor
@@ -265,89 +160,6 @@ class FailGoodJunitTestEngine : TestEngine {
         println("finished after ${uptime()}")
     }
 
-    private suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): List<ContextProvider> {
-        if (debug) {
-            println(discoveryRequestToString(discoveryRequest))
-        }
-
-        // idea usually sends a classpath selector
-        val classPathSelectors = discoveryRequest.getSelectorsByType(ClasspathRootSelector::class.java)
-
-        // gradle sends a class selector for each class
-        val classSelectors = discoveryRequest.getSelectorsByType(ClassSelector::class.java)
-        val singleClassSelector = discoveryRequest.getSelectorsByType(ClassSelector::class.java).singleOrNull()
-        val classNamePredicates =
-            discoveryRequest.getFiltersByType(ClassNameFilter::class.java).map { it.toPredicate() }
-        return when {
-            classPathSelectors.isNotEmpty() -> {
-                return classPathSelectors.flatMap { classPathSelector ->
-                    val uri = classPathSelector.classpathRoot
-                    findClassesInPath(
-                        Paths.get(uri),
-                        Thread.currentThread().contextClassLoader,
-                        matchLambda = { className -> classNamePredicates.all { it.test(className) } }).map {
-                        ObjectContextProvider(it)
-                    }
-                }
-            }
-            classSelectors.isNotEmpty() -> {
-                val classes =
-                    if (classSelectors.size == 1) classSelectors else classSelectors.filter { it.className.endsWith("Test") }
-                classes
-                    .map { ObjectContextProvider(it.javaClass.kotlin) }
-            }
-
-            singleClassSelector != null -> {
-                listOf(ObjectContextProvider(singleClassSelector.javaClass))
-            }
-            else -> {
-                val message = "unknown selector in discovery request: ${
-                    discoveryRequestToString(
-                        discoveryRequest
-                    )
-                }"
-                System.err.println(message)
-                throw FailGoodException(
-                    message
-                )
-            }
-        }
-    }
-
-    private fun discoveryRequestToString(discoveryRequest: EngineDiscoveryRequest): String {
-        val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)
-        val allFilters = discoveryRequest.getFiltersByType(DiscoveryFilter::class.java)
-        return "selectors:${allSelectors.joinToString()}\nfilters:${allFilters.joinToString()}"
-    }
-}
-
-private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor {
-    val stackTraceElement = this.stackTraceElement
-    val testSource = createFileSource(stackTraceElement)
-    return FailGoodTestDescriptor(
-        TestDescriptor.Type.TEST,
-        uniqueId.append(TEST_SEGMENT_TYPE, this.toString()),
-        this.testName,
-        testSource
-    )
-}
-
-private fun createFileSource(stackTraceElement: StackTraceElement): TestSource? {
-    val className = stackTraceElement.className
-    val filePosition = FilePosition.from(stackTraceElement.lineNumber)
-    val file = File("src/test/kotlin/${className.substringBefore("$").replace(".", "/")}.kt")
-    return if (file.exists())
-        FileSource.from(
-            file,
-            filePosition
-        )
-    else ClassSource.from(className, filePosition)
-}
-
-private fun createClassSource(stackTraceElement: StackTraceElement): TestSource? {
-    val className = stackTraceElement.className
-    val filePosition = FilePosition.from(stackTraceElement.lineNumber)
-    return ClassSource.from(className, filePosition)
 }
 
 class FailGoodTestDescriptor(
@@ -355,11 +167,8 @@ class FailGoodTestDescriptor(
     id: UniqueId,
     name: String,
     testSource: TestSource? = null
-) :
-    AbstractTestDescriptor(id, name, testSource) {
-    override fun getType(): TestDescriptor.Type {
-        return type
-    }
+) : AbstractTestDescriptor(id, name, testSource) {
+    override fun getType(): TestDescriptor.Type = type
 
 }
 

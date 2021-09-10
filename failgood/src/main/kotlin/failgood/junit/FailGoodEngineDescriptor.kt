@@ -11,7 +11,7 @@ import org.junit.platform.engine.support.descriptor.EngineDescriptor
 internal class FailGoodEngineDescriptor(
     uniqueId: UniqueId,
     val testResult: List<ContextResult>,
-    val executionListener: FailGoodJunitTestEngine.JunitExecutionListener
+    val executionListener: JunitExecutionListener
 ) :
     EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.displayName) {
     val failedContexts = mutableListOf<FailedContext>()

@@ -2,11 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Fixed
+
+- Add a runtimeOnly dependency on junit launcher to make it easier to run test in idea.
+- Correctly handle the case where duplicate root contexts contain tests with the same name.
+
 ## 0.4.6 - "Ok, Gradle" 2021-09-02
 
 ### Changed
 
-- Improve running the tests in Gradle. It works pretty good now.
+- Improve running the tests in Gradle. It works pretty well now.
 - Report failures in root contexts instead of throwing and failing the whole suite
 - Introduce @Test annotation to replace junit platforms @Testable. This will probably change again before 0.5.0
 - Mocks: Replace `thenReturn(result)` with `then {result}`, and allow mock methods to throw exceptions

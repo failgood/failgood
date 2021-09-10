@@ -75,14 +75,13 @@ class FailGoodJunitTestEngine : TestEngine {
         val root = request.rootTestDescriptor
         if (root !is FailGoodEngineDescriptor)
             return
+        val mapper = root.mapper
         val startedContexts = mutableSetOf<TestContainer>()
         val junitListener = LoggingEngineExecutionListener(request.engineExecutionListener)
         junitListener.executionStarted(root)
+        // report failed contexts as failed immediately
         root.failedContexts.forEach {
-            junitListener.executionFinished(
-                root.getMapping(it.context),
-                TestExecutionResult.failed(it.failure)
-            )
+            junitListener.executionFinished(mapper.getMapping(it.context), TestExecutionResult.failed(it.failure))
         }
         val executionListener = root.executionListener
         runBlocking(Dispatchers.Default) {
@@ -96,22 +95,19 @@ class FailGoodJunitTestEngine : TestEngine {
                         break
                     }
 
-                    fun startParentContexts(
-                        testDescriptor: TestDescription,
-                        engineDescriptor: FailGoodEngineDescriptor
-                    ) {
+                    fun startParentContexts(testDescriptor: TestDescription) {
                         val context = testDescriptor.container
                         (context.parents + context).forEach {
                             if (startedContexts.add(it))
-                                junitListener.executionStarted(engineDescriptor.getMapping(it))
+                                junitListener.executionStarted(mapper.getMapping(it))
                         }
                     }
 
                     val description = event.testDescription
-                    val mapping = root.getMapping(description)
+                    val mapping = mapper.getMapping(description)
                     when (event) {
                         is TestExecutionEvent.Started -> {
-                            startParentContexts(description, root)
+                            startParentContexts(description)
                             junitListener.executionStarted(mapping)
                         }
                         is TestExecutionEvent.Stopped -> {
@@ -128,7 +124,7 @@ class FailGoodJunitTestEngine : TestEngine {
                                 )
 
                                 is Pending -> {
-                                    startParentContexts(event.testResult.test, root)
+                                    startParentContexts(event.testResult.test)
                                     junitListener.executionSkipped(mapping, "test is skipped")
                                 }
                             }
@@ -151,7 +147,7 @@ class FailGoodJunitTestEngine : TestEngine {
             // close child contexts before their parent
             val leafToRootContexts = startedContexts.sortedBy { -it.parents.size }
             leafToRootContexts.forEach { context ->
-                junitListener.executionFinished(root.getMapping(context), TestExecutionResult.successful())
+                junitListener.executionFinished(mapper.getMapping(context), TestExecutionResult.successful())
             }
 
             junitListener.executionFinished(root, TestExecutionResult.successful())

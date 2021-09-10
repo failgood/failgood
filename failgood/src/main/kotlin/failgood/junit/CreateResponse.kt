@@ -50,6 +50,7 @@ internal fun createResponse(
 ): FailGoodEngineDescriptor {
     val uniqueMaker = StringUniquer()
     val engineDescriptor = FailGoodEngineDescriptor(uniqueId, contextInfos, executionListener)
+    val mapper = engineDescriptor.mapper
     contextInfos.forEach { contextInfo ->
         when (contextInfo) {
             is ContextInfo -> {
@@ -68,13 +69,13 @@ internal fun createResponse(
                                 createFileSource(it)
                         }
                     )
-                    engineDescriptor.addMapping(context, contextNode)
+                    mapper.addMapping(context, contextNode)
                     val testsInThisContext = tests.filter { it.key.container == context }
                     testsInThisContext.forEach {
                         val testDescription = it.key
                         val testDescriptor = testDescription.toTestDescriptor(contextUniqueId)
                         contextNode.addChild(testDescriptor)
-                        engineDescriptor.addMapping(testDescription, testDescriptor)
+                        mapper.addMapping(testDescription, testDescriptor)
                     }
                     val contextsInThisContext = contextInfo.contexts.filter { it.parent == context }
                     contextsInThisContext.forEach { addChildren(contextNode, it, false) }
@@ -92,7 +93,7 @@ internal fun createResponse(
                     uniqueId.append(CONTEXT_SEGMENT_TYPE, uniqueMaker.makeUnique(context.stringPath())),
                     context.name, context.stackTraceElement?.let { createFileSource(it) })
                 engineDescriptor.addChild(testDescriptor)
-                engineDescriptor.addMapping(context, testDescriptor)
+                mapper.addMapping(context, testDescriptor)
                 engineDescriptor.failedContexts.add(contextInfo)
             }
         }

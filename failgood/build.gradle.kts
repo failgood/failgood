@@ -19,6 +19,8 @@ plugins {
 dependencies {
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$coroutinesVersion")
     api("org.junit.platform:junit-platform-commons:$junitPlatformVersion")
+    // to enable running test in idea without having to add the dependency manually
+    runtimeOnly("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
 
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion"))
     implementation(kotlin("stdlib-jdk8"))

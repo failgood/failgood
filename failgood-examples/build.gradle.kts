@@ -1,5 +1,4 @@
 import failgood.versions.coroutinesVersion
-import failgood.versions.junitPlatformVersion
 import failgood.versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
@@ -12,7 +11,6 @@ plugins {
 dependencies {
     testImplementation(project(":failgood"))
     testImplementation("io.strikt:strikt-core:$striktVersion")
-    testImplementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
 
     testImplementation("io.mockk:mockk:1.12.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")

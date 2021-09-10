@@ -6,7 +6,7 @@ class StringUniquer {
         return if (used.add(path))
             path
         else {
-            (1..9).asSequence()
+            (1..Int.MAX_VALUE).asSequence()
                 .map { "$path-$it" }
                 .first { used.add(it) }
 

@@ -14,7 +14,6 @@ import java.nio.file.Paths
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileTime
-import java.util.UUID
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
@@ -152,7 +151,6 @@ data class Context(
     override val parents: List<TestContainer> = parent?.parents?.plus(parent) ?: listOf()
     val path: List<String> = parent?.path?.plus(name) ?: listOf(name)
     override fun stringPath(): String = path.joinToString(" > ")
-    val uuid = UUID.randomUUID()!!
 }
 
 object FailGood {

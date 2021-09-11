@@ -84,23 +84,20 @@ dependencies {
 
 There are two ways to run your failgood suite:
 
-* A main method that calls `FailGood.runAllTests()`
 * A junit-platform engine
+* A main method that calls `FailGood.runAllTests()`
 
 ### the junit-platform-engine
 
-To use the JUnit engine add the JUnit platform launcher to your gradle file dependency block:
+Failgood comes with a JUnit Platform Engine that should make it easy to run Failgood tests with IDEAs integrated test
+runner. You can run all tests in a package, or run Single test classes (if they are annotated with failgood.Test)
 
-```kotlin
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.7.2")
-```
+For best results, select "run tests in IDEA" in your gradle settings, although running in gradle works pretty well
+already too
 
-Make sure to select "run tests in IDEA" in your gradle settings, running via gradle is currently not supported (coming
-soon)
+### The "main method"
 
-### The "main method method"
-
-
+If you like it old school you can still run failgood tests by declaring a main method:
 ```kotlin
 fun main() {
     // this will find tests in all files named *Test in the same source root as the main class

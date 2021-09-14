@@ -119,7 +119,7 @@ data class TestDescription(
     val stackTraceElement: StackTraceElement
 ) {
     internal constructor(testPath: ContextPath, stackTraceElement: StackTraceElement) : this(
-        testPath.parentContext,
+        testPath.container,
         testPath.name,
         stackTraceElement
     )
@@ -134,7 +134,6 @@ interface TestContainer {
     val parents: List<TestContainer>
     val name: String
     fun stringPath(): String
-
 }
 
 data class Context(

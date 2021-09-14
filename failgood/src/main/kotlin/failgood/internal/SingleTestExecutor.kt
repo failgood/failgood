@@ -23,7 +23,7 @@ internal class SingleTestExecutor(
 ) {
     private val startTime = System.nanoTime()
     suspend fun execute(): TestResult {
-        val dsl: ContextDSL = contextDSL(test.parentContext.path.drop(1))
+        val dsl: ContextDSL = contextDSL(test.container.path.drop(1))
         return try {
             dsl.(context.function)()
             throw FailGoodException("specified test not found: $test")

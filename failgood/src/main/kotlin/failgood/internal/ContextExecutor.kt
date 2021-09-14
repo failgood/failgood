@@ -153,8 +153,7 @@ internal class ContextExecutor(
 
                 processedTests.add(contextPath) // don't visit this context again
                 val testPlusResult = TestPlusResult(testDescriptor, Failed(exceptionInContext))
-                deferredTestResults[testDescriptor] =
-                    CompletableDeferred(testPlusResult)
+                deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
                 listener.testFinished(testPlusResult)
                 ranATest = true
                 return

@@ -19,7 +19,7 @@ private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor
     val testSource = createFileSource(stackTraceElement)
     return FailGoodTestDescriptor(
         TestDescriptor.Type.TEST,
-        uniqueId.append(TEST_SEGMENT_TYPE, this.toString()),
+        uniqueId.append(TEST_SEGMENT_TYPE, testName),
         this.testName,
         testSource
     )

@@ -50,9 +50,7 @@ suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): List<Context
                 )
             }"
             System.err.println(message)
-            throw FailGoodException(
-                message
-            )
+            throw FailGoodException(message)
         }
     }
 }

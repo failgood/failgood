@@ -55,8 +55,11 @@ internal fun createResponse(
         when (contextInfo) {
             is ContextInfo -> {
                 val tests = contextInfo.tests.entries
-                fun addChildren(node: TestDescriptor, context: Context, isRootContext: Boolean) {
-                    val path = uniqueMaker.makeUnique(context.stringPath())
+                fun addChildren(node: TestDescriptor, context: Context, isRootContext: Boolean, uniqueId: UniqueId) {
+                    val path = if (isRootContext)
+                        uniqueMaker.makeUnique(context.name)
+                    else
+                        context.name
                     val contextUniqueId = uniqueId.append(CONTEXT_SEGMENT_TYPE, path)
                     val contextNode = FailGoodTestDescriptor(
                         TestDescriptor.Type.CONTAINER,
@@ -78,13 +81,13 @@ internal fun createResponse(
                         mapper.addMapping(testDescription, testDescriptor)
                     }
                     val contextsInThisContext = contextInfo.contexts.filter { it.parent == context }
-                    contextsInThisContext.forEach { addChildren(contextNode, it, false) }
+                    contextsInThisContext.forEach { addChildren(contextNode, it, false, contextUniqueId) }
                     node.addChild(contextNode)
                 }
 
                 val rootContext = contextInfo.contexts.singleOrNull { it.parent == null }
                 if (rootContext != null)
-                    addChildren(engineDescriptor, rootContext, true)
+                    addChildren(engineDescriptor, rootContext, true, uniqueId)
 
             }
             is FailedContext -> {

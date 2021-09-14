@@ -21,6 +21,7 @@ dependencies {
     api("org.junit.platform:junit-platform-commons:$junitPlatformVersion")
     // to enable running test in idea without having to add the dependency manually
     runtimeOnly("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
+    compileOnly("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
 
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion"))
     implementation(kotlin("stdlib-jdk8"))
@@ -28,7 +29,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     testImplementation("io.strikt:strikt-core:$striktVersion")
     testImplementation("org.pitest:pitest:$pitestVersion")
-    compileOnly("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
+    testImplementation("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
 }
 tasks {
     create<Jar>("sourceJar") {

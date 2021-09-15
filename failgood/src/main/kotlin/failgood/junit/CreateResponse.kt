@@ -57,7 +57,7 @@ internal fun createResponse(
                 val tests = contextInfo.tests.entries
                 fun addChildren(node: TestDescriptor, context: Context, isRootContext: Boolean, uniqueId: UniqueId) {
                     val path = if (isRootContext)
-                        uniqueMaker.makeUnique(context.name)
+                        uniqueMaker.makeUnique("${context.name}(${(context.stackTraceElement?.className) ?: ""})")
                     else
                         context.name
                     val contextUniqueId = uniqueId.append(CONTEXT_SEGMENT_TYPE, path)

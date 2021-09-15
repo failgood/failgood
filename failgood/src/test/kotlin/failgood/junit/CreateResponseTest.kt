@@ -17,7 +17,8 @@ import strikt.assertions.single
 @Test
 class CreateResponseTest {
     val context = describe(::createResponse.name) {
-        val rootContext = Context("root context name")
+        val stackTraceElement = StackTraceElement("package.ClassName", "method", "file", 100)
+        val rootContext = Context("root context name", null, stackTraceElement)
         describe("contexts") {
             val rootContextDescriptor = createResponse(
                 UniqueId.forEngine("failgood"),
@@ -26,16 +27,16 @@ class CreateResponseTest {
             )
             it("creates friendly uniqueid for a root context") {
                 expectThat(rootContextDescriptor.children).single().get { uniqueId.toString() }
-                    .isEqualTo("[engine:failgood]/[class:root context name]")
+                    .isEqualTo("[engine:failgood]/[class:root context name(package.ClassName)]")
             }
             it("creates friendly uniqueid for a sub context") {
                 expectThat(rootContextDescriptor.children).single().get { children }.single()
                     .get { uniqueId.toString() }
-                    .isEqualTo("[engine:failgood]/[class:root context name]/[class:sub context name]")
+                    .isEqualTo("[engine:failgood]/[class:root context name(package.ClassName)]/[class:sub context name]")
             }
         }
         it("creates friendly uuids for tests") {
-            val test = TestDescription(rootContext, "test", StackTraceElement("class", "method", "file", 100))
+            val test = TestDescription(rootContext, "test", stackTraceElement)
             val rootContextDescriptor = createResponse(
                 UniqueId.forEngine("failgood"),
                 listOf(
@@ -49,7 +50,7 @@ class CreateResponseTest {
             )
             expectThat(rootContextDescriptor.children).single().get { children }.filter { it.isTest }.single()
                 .get { uniqueId.toString() }
-                .isEqualTo("[engine:failgood]/[class:root context name]/[method:test]")
+                .isEqualTo("[engine:failgood]/[class:root context name(package.ClassName)]/[method:test]")
 
         }
     }

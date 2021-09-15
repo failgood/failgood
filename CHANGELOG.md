@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 0.5.0 - "Ok, IDEA" - Unreleased
+
+### Planned
+
+- Run a single tests from IDEA with the junit runner via uniqueId selector
+
 ### Fixed
 
 - Add a runtimeOnly dependency on junit launcher to make it easier to run test in idea.

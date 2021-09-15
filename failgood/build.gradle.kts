@@ -30,6 +30,7 @@ dependencies {
     testImplementation("io.strikt:strikt-core:$striktVersion")
     testImplementation("org.pitest:pitest:$pitestVersion")
     testImplementation("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
+    testImplementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
 }
 tasks {
     create<Jar>("sourceJar") {

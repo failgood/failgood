@@ -4,6 +4,7 @@ import failgood.ContextProvider
 import failgood.FailGood
 import failgood.FailGoodException
 import failgood.ObjectContextProvider
+import failgood.TestFilter
 import org.junit.platform.engine.DiscoveryFilter
 import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.engine.EngineDiscoveryRequest
@@ -14,14 +15,16 @@ import org.junit.platform.engine.discovery.UniqueIdSelector
 import java.nio.file.Paths
 import java.util.LinkedList
 
-suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): List<ContextProvider> {
+data class ContextsAndFilters(val contexts: List<ContextProvider>, val filter: TestFilter)
+
+suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): ContextsAndFilters {
     val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)
     val classNamePredicates =
         discoveryRequest.getFiltersByType(ClassNameFilter::class.java).map { it.toPredicate() }
 
     // when there is only a single class selector we run the test even when it does not end in *Class
     val singleSelector = allSelectors.size == 1
-    return allSelectors.flatMapTo(LinkedList()) { selector ->
+    val contexts = allSelectors.flatMapTo(LinkedList()) { selector ->
         when (selector) {
             is ClasspathRootSelector -> {
                 val uri = selector.classpathRoot
@@ -54,7 +57,7 @@ suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): List<Context
         }
 
     }
-
+    return ContextsAndFilters(contexts, TestFilter())
 }
 
 private fun discoveryRequestToString(discoveryRequest: EngineDiscoveryRequest): String {

@@ -51,11 +51,17 @@ class FailGoodJunitTestEngine : TestEngine {
         debug = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_DEBUG).orElse(false)
 
         return runBlocking(Dispatchers.Default) {
-            val providers: List<ContextProvider> = findContexts(discoveryRequest)
+            val contextsAndFilters = findContexts(discoveryRequest)
+            val providers: List<ContextProvider> = contextsAndFilters.contexts
             val suite = Suite(providers)
             val executionListener = JunitExecutionListener()
 
-            val testResult = suite.findTests(GlobalScope, !lazy, listener = executionListener).awaitAll()
+            val testResult = suite.findTests(
+                GlobalScope,
+                !lazy,
+                listener = executionListener,
+                executionFilter = contextsAndFilters.filter
+            ).awaitAll()
             println("test results collected at ${upt()}")
             @Suppress("DeferredResultUnused")
             if (lazy)

@@ -18,8 +18,10 @@ class DiscoverTestsTest {
             val request = LauncherDiscoveryRequestBuilder.request()
                 .selectors(DiscoverySelectors.selectUniqueId(UniqueId.parse("[engine:failgood]/[class:$rootName($className)]/[method:finds a single test with a uniqueId selector]")))
                 .build()
-            expectThat(findContexts(request)).single().get { getContexts() }.single().get { this.name }
-                .isEqualTo(rootName)
+            expectThat(findContexts(request)) {
+                get { contexts }.single().get { getContexts() }.single().get { this.name }
+                    .isEqualTo(rootName)
+            }
         }
 
     }

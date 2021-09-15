@@ -18,7 +18,6 @@ suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): List<Context
 
     // gradle sends a class selector for each class
     val classSelectors = discoveryRequest.getSelectorsByType(ClassSelector::class.java)
-    val singleClassSelector = discoveryRequest.getSelectorsByType(ClassSelector::class.java).singleOrNull()
     val classNamePredicates =
         discoveryRequest.getFiltersByType(ClassNameFilter::class.java).map { it.toPredicate() }
     return when {
@@ -38,10 +37,6 @@ suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): List<Context
                 if (classSelectors.size == 1) classSelectors else classSelectors.filter { it.className.endsWith("Test") }
             classes
                 .map { ObjectContextProvider(it.javaClass.kotlin) }
-        }
-
-        singleClassSelector != null -> {
-            listOf(ObjectContextProvider(singleClassSelector.javaClass))
         }
         else -> {
             val message = "unknown selector in discovery request: ${

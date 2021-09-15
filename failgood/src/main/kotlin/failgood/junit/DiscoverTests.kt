@@ -10,6 +10,7 @@ import org.junit.platform.engine.EngineDiscoveryRequest
 import org.junit.platform.engine.discovery.ClassNameFilter
 import org.junit.platform.engine.discovery.ClassSelector
 import org.junit.platform.engine.discovery.ClasspathRootSelector
+import org.junit.platform.engine.discovery.UniqueIdSelector
 import java.nio.file.Paths
 import java.util.LinkedList
 
@@ -18,7 +19,8 @@ suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): List<Context
     val classNamePredicates =
         discoveryRequest.getFiltersByType(ClassNameFilter::class.java).map { it.toPredicate() }
 
-
+    // when there is only a single class selector we run the test even when it does not end in *Class
+    val singleSelector = allSelectors.size == 1
     return allSelectors.flatMapTo(LinkedList()) { selector ->
         when (selector) {
             is ClasspathRootSelector -> {
@@ -31,7 +33,16 @@ suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): List<Context
                 }
             }
             is ClassSelector -> {
-                listOf(ObjectContextProvider(selector.javaClass.kotlin))
+                if (singleSelector || selector.className.endsWith("Test"))
+                    listOf(ObjectContextProvider(selector.javaClass.kotlin))
+                else
+                    listOf()
+            }
+            is UniqueIdSelector -> {
+                val contextName = selector.uniqueId.segments[1].value
+                val className = contextName.substringAfter("(").substringBefore(")")
+                val javaClass = Thread.currentThread().contextClassLoader.loadClass(className)
+                listOf(ObjectContextProvider(javaClass.kotlin))
             }
             else -> {
                 val message = "unknown selector in discovery request: ${

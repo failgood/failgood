@@ -11,19 +11,18 @@ import org.junit.platform.engine.discovery.ClassNameFilter
 import org.junit.platform.engine.discovery.ClassSelector
 import org.junit.platform.engine.discovery.ClasspathRootSelector
 import java.nio.file.Paths
+import java.util.LinkedList
 
 suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): List<ContextProvider> {
-    // idea usually sends a classpath selector
-    val classPathSelectors = discoveryRequest.getSelectorsByType(ClasspathRootSelector::class.java)
-
-    // gradle sends a class selector for each class
-    val classSelectors = discoveryRequest.getSelectorsByType(ClassSelector::class.java)
+    val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)
     val classNamePredicates =
         discoveryRequest.getFiltersByType(ClassNameFilter::class.java).map { it.toPredicate() }
-    return when {
-        classPathSelectors.isNotEmpty() -> {
-            return classPathSelectors.flatMap { classPathSelector ->
-                val uri = classPathSelector.classpathRoot
+
+
+    return allSelectors.flatMapTo(LinkedList()) { selector ->
+        when (selector) {
+            is ClasspathRootSelector -> {
+                val uri = selector.classpathRoot
                 FailGood.findClassesInPath(
                     Paths.get(uri),
                     Thread.currentThread().contextClassLoader,
@@ -31,23 +30,20 @@ suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): List<Context
                     ObjectContextProvider(it)
                 }
             }
+            is ClassSelector -> {
+                listOf(ObjectContextProvider(selector.javaClass.kotlin))
+            }
+            else -> {
+                val message = "unknown selector in discovery request: ${
+                    discoveryRequestToString(discoveryRequest)
+                }"
+                System.err.println(message)
+                throw FailGoodException(message)
+            }
         }
-        classSelectors.isNotEmpty() -> {
-            val classes =
-                if (classSelectors.size == 1) classSelectors else classSelectors.filter { it.className.endsWith("Test") }
-            classes
-                .map { ObjectContextProvider(it.javaClass.kotlin) }
-        }
-        else -> {
-            val message = "unknown selector in discovery request: ${
-                discoveryRequestToString(
-                    discoveryRequest
-                )
-            }"
-            System.err.println(message)
-            throw FailGoodException(message)
-        }
+
     }
+
 }
 
 private fun discoveryRequestToString(discoveryRequest: EngineDiscoveryRequest): String {

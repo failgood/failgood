@@ -26,7 +26,8 @@ internal class ContextExecutor(
     private val rootContext: RootContext,
     val scope: CoroutineScope,
     lazy: Boolean = false,
-    val listener: ExecutionListener = NullExecutionListener
+    val listener: ExecutionListener = NullExecutionListener,
+    val filter: List<String>?
 ) {
     // 20 seconds for now. This is not for finding slow tests, this is to keep the suite from hanging without a result
     val testTimeoutMillis = 20000L
@@ -82,6 +83,8 @@ internal class ContextExecutor(
         override suspend fun test(name: String, function: TestLambda) {
             checkName(name)
             val testPath = ContextPath(parentContext, name)
+            if (!testPath.startsWith(filter))
+                return
             // we process each test only once
             if (!processedTests.add(testPath)) {
                 return
@@ -141,6 +144,9 @@ internal class ContextExecutor(
                 return
             }
             val contextPath = ContextPath(parentContext, name)
+            if (!contextPath.startsWith(filter))
+                return
+
             if (processedTests.contains(contextPath)) return
             val stackTraceElement = getStackTraceElement()
             val context = Context(name, parentContext, stackTraceElement)

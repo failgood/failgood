@@ -55,7 +55,7 @@ class FailGoodJunitTestEngine : TestEngine {
             val suite = Suite(providers)
             val executionListener = JunitExecutionListener()
 
-            val testResult = suite.findTests(GlobalScope, !lazy, executionListener).awaitAll()
+            val testResult = suite.findTests(GlobalScope, !lazy, listener = executionListener).awaitAll()
             println("test results collected at ${upt()}")
             @Suppress("DeferredResultUnused")
             if (lazy)

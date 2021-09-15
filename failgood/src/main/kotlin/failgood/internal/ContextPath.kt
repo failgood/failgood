@@ -16,4 +16,14 @@ internal data class ContextPath(val container: Context, val name: String) {
     override fun toString(): String {
         return "${container.stringPath()} > $name"
     }
+
+    fun startsWith(filter: List<String>?): Boolean {
+        if (filter == null)
+            return true
+
+        val path = container.path + name
+        if (filter.size > path.size)
+            return false
+        return filter == path.subList(0, filter.size)
+    }
 }

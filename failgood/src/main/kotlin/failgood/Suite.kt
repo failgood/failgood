@@ -107,20 +107,34 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     internal suspend fun findTests(
         coroutineScope: CoroutineScope,
         executeTests: Boolean = true,
+        executionFilter: Map<RootContext, List<String>> = mapOf(),
         listener: ExecutionListener = NullExecutionListener
     ): List<Deferred<ContextResult>> {
         return contextProviders
             .map { coroutineScope.async { it.getContexts() } }.flatMap { it.await() }.sortedBy { it.order }
             .map { context: RootContext ->
+                val filterString = executionFilter[context]
                 coroutineScope.async {
                     if (!context.disabled) {
                         try {
                             if (contextTimeout != null) {
                                 withTimeout(contextTimeout) {
-                                    ContextExecutor(context, coroutineScope, !executeTests, listener).execute()
+                                    ContextExecutor(
+                                        context,
+                                        coroutineScope,
+                                        !executeTests,
+                                        listener,
+                                        filterString
+                                    ).execute()
                                 }
                             } else {
-                                ContextExecutor(context, coroutineScope, !executeTests, listener).execute()
+                                ContextExecutor(
+                                    context,
+                                    coroutineScope,
+                                    !executeTests,
+                                    listener,
+                                    filterString
+                                ).execute()
                             }
                         } catch (e: TimeoutCancellationException) {
                             throw FailGoodException("context ${context.name} timed out")

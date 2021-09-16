@@ -17,7 +17,9 @@ import java.util.LinkedList
 
 data class ContextsAndFilters(val contexts: List<ContextProvider>, val filter: TestFilter)
 
+data class RootContextInClass(val className: String, val contextName: String)
 suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): ContextsAndFilters {
+    val filterConfig = mutableMapOf<RootContextInClass, List<String>>()
     val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)
     val classNamePredicates =
         discoveryRequest.getFiltersByType(ClassNameFilter::class.java).map { it.toPredicate() }
@@ -42,8 +44,12 @@ suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): ContextsAndF
                     listOf()
             }
             is UniqueIdSelector -> {
-                val contextName = selector.uniqueId.segments[1].value
-                val className = contextName.substringAfter("(").substringBefore(")")
+                val segments = selector.uniqueId.segments
+                val segment1 = segments[1].value
+                val rootContextName = segment1.substringBefore("(")
+                val filterString = listOf(rootContextName) + segments.drop(2).map { it.value }
+                val className = segment1.substringAfter("(").substringBefore(")")
+                filterConfig[RootContextInClass(className, rootContextName)] = filterString
                 val javaClass = Thread.currentThread().contextClassLoader.loadClass(className)
                 listOf(ObjectContextProvider(javaClass.kotlin))
             }
@@ -57,7 +63,7 @@ suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): ContextsAndF
         }
 
     }
-    return ContextsAndFilters(contexts, TestFilter())
+    return ContextsAndFilters(contexts, TestFilter(filterConfig))
 }
 
 private fun discoveryRequestToString(discoveryRequest: EngineDiscoveryRequest): String {

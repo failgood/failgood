@@ -107,13 +107,13 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     internal suspend fun findTests(
         coroutineScope: CoroutineScope,
         executeTests: Boolean = true,
-        executionFilter: TestFilter = TestFilter(),
+        executionFilter: TestFilter = TestFilter(mapOf()),
         listener: ExecutionListener = NullExecutionListener
     ): List<Deferred<ContextResult>> {
         return contextProviders
             .map { coroutineScope.async { it.getContexts() } }.flatMap { it.await() }.sortedBy { it.order }
             .map { context: RootContext ->
-                val filterString = executionFilter.forContext(context)
+                val filterString = executionFilter.forContext(context.stackTraceElement.className, context.name)
                 coroutineScope.async {
                     if (!context.disabled) {
                         try {

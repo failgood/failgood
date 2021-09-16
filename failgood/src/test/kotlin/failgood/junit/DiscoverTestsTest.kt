@@ -6,21 +6,27 @@ import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.discovery.DiscoverySelectors
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 import strikt.api.expectThat
+import strikt.assertions.containsExactly
 import strikt.assertions.isEqualTo
+import strikt.assertions.isNotNull
 import strikt.assertions.single
 
 @Test
 class DiscoverTestsTest {
     val rootName = ::findContexts.name
     val context = describe(rootName) {
-        it("finds a single test with a uniqueId selector") {
-            val className = DiscoverTestsTest::class.qualifiedName
+        val testName = "finds a single test with a uniqueId selector"
+        it(testName) {
+            val className = DiscoverTestsTest::class.qualifiedName!!
+            val s = "[engine:failgood]/[class:$rootName($className)]/[method:$testName]"
+            println("Uid: $s")
             val request = LauncherDiscoveryRequestBuilder.request()
-                .selectors(DiscoverySelectors.selectUniqueId(UniqueId.parse("[engine:failgood]/[class:$rootName($className)]/[method:finds a single test with a uniqueId selector]")))
+                .selectors(DiscoverySelectors.selectUniqueId(UniqueId.parse(s)))
                 .build()
             expectThat(findContexts(request)) {
                 get { contexts }.single().get { getContexts() }.single().get { this.name }
                     .isEqualTo(rootName)
+                get { filter.forContext(className, rootName) }.isNotNull().containsExactly(rootName, testName)
             }
         }
 

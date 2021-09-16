@@ -83,7 +83,7 @@ internal class ContextExecutor(
         override suspend fun test(name: String, function: TestLambda) {
             checkName(name)
             val testPath = ContextPath(parentContext, name)
-            if (!testPath.startsWith(filter))
+            if (!testPath.filter(filter))
                 return
             // we process each test only once
             if (!processedTests.add(testPath)) {
@@ -144,7 +144,7 @@ internal class ContextExecutor(
                 return
             }
             val contextPath = ContextPath(parentContext, name)
-            if (!contextPath.startsWith(filter))
+            if (!contextPath.filter(filter))
                 return
 
             if (processedTests.contains(contextPath)) return

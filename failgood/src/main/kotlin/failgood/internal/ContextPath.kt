@@ -17,13 +17,15 @@ internal data class ContextPath(val container: Context, val name: String) {
         return "${container.stringPath()} > $name"
     }
 
-    fun startsWith(filter: List<String>?): Boolean {
+    /**
+     * return true when this context path needs to be executed to satisfy the filter.
+     */
+    fun filter(filter: List<String>?): Boolean {
         if (filter == null)
             return true
 
         val path = container.path + name
-        if (filter.size > path.size)
-            return false
-        return filter == path.subList(0, filter.size)
+        val smallerSize = minOf(filter.size, path.size)
+        return filter.subList(0, smallerSize) == path.subList(0, smallerSize)
     }
 }

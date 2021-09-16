@@ -6,9 +6,13 @@ All notable changes to this project will be documented in this file.
 
 ## 0.5.0 - "Ok, IDEA" - Unreleased
 
-### Planned
+### Added
 
-- Run a single tests from IDEA with the junit runner via uniqueId selector
+- Support UniqueId junit selectors to run single tests or subcontexts. This already works in idea if you select uniqueId
+  in the run config and enter the uniqueId selector like
+  this: `[engine:failgood]/[class:The+ContextExecutor(failgood.internal.ContextExecutorTest)]/[method:with+a+valid+root+context]/[method:reports+line+numbers]` (
+  with + instead of space). Now idea just needs to do this
+  automatically:https://youtrack.jetbrains.com/issue/IDEA-277855
 
 ### Fixed
 

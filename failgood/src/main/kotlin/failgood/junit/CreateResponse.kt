@@ -19,7 +19,7 @@ private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor
     val testSource = createFileSource(stackTraceElement)
     return FailGoodTestDescriptor(
         TestDescriptor.Type.TEST,
-        uniqueId.append(TEST_SEGMENT_TYPE, testName),
+        uniqueId.appendTest(testName),
         this.testName,
         testSource
     )
@@ -60,7 +60,7 @@ internal fun createResponse(
                         uniqueMaker.makeUnique("${context.name}(${(context.stackTraceElement?.className) ?: ""})")
                     else
                         context.name
-                    val contextUniqueId = uniqueId.append(CONTEXT_SEGMENT_TYPE, path)
+                    val contextUniqueId = uniqueId.appendContext(path)
                     val contextNode = FailGoodTestDescriptor(
                         TestDescriptor.Type.CONTAINER,
                         contextUniqueId,
@@ -93,7 +93,7 @@ internal fun createResponse(
             is FailedContext -> {
                 val context = contextInfo.context
                 val testDescriptor = FailGoodTestDescriptor(TestDescriptor.Type.CONTAINER,
-                    uniqueId.append(CONTEXT_SEGMENT_TYPE, uniqueMaker.makeUnique(context.stringPath())),
+                    uniqueId.appendContext(uniqueMaker.makeUnique(context.name)),
                     context.name, context.stackTraceElement?.let { createFileSource(it) })
                 engineDescriptor.addChild(testDescriptor)
                 mapper.addMapping(context, testDescriptor)
@@ -103,3 +103,6 @@ internal fun createResponse(
     }
     return engineDescriptor
 }
+
+private fun UniqueId.appendContext(path: String): UniqueId = append(CONTEXT_SEGMENT_TYPE, path)
+private fun UniqueId.appendTest(path: String): UniqueId = append(TEST_SEGMENT_TYPE, path)

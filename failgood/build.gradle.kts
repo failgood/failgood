@@ -13,7 +13,8 @@ plugins {
     signing
     id("failgood.common")
 }
-
+// to release:
+// ./gradlew publishToSonatype closeSonatypeStagingRepository (or closeAndReleaseSonatypeStagingRepository)
 
 
 dependencies {

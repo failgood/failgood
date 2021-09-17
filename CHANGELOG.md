@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
-## 0.5.0 - "Ok, IDEA" - Unreleased
+## 0.4.7 - "Let's try this" - 2021-09-17
 
 ### Added
 

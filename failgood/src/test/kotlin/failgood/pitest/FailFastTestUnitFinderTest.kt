@@ -7,9 +7,13 @@ import org.pitest.testapi.ResultCollector
 import org.pitest.testapi.TestUnitFinder
 import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
+import strikt.assertions.filter
 import strikt.assertions.hasSize
+import strikt.assertions.isEqualTo
+import strikt.assertions.single
 
-fun throwableToString(t: Throwable) = t.stackTraceToString()
+// only compare the first 4 lines of the stacktrace because something is messing with stacktraces
+fun throwableToString(t: Throwable) = t.stackTraceToString().lineSequence().take(4).joinToString()
 val failure = AssertionError("failed")
 
 object Tests {
@@ -35,16 +39,18 @@ class FailGoodTestUnitFinderTest {
                 testUnits.forEach {
                     it.execute(collector)
                 }
+                val failedEvent = Event(
+                    Description("tests with different results > failing test", Tests::class.java),
+                    Type.END,
+                    throwableToString(failure)
+                )
+                expectThat(collector.events).filter { it.throwable != null }.single().isEqualTo(failedEvent)
                 expectThat(collector.events).containsExactlyInAnyOrder(
                     listOf(
                         Event(testUnits[0].description, Type.START, null),
                         Event(testUnits[1].description, Type.START, null),
                         Event(testUnits[2].description, Type.START, null),
-                        Event(
-                            Description("tests with different results > failing test", Tests::class.java),
-                            Type.END,
-                            throwableToString(failure)
-                        ),
+                        failedEvent,
                         Event(
                             Description("tests with different results > pending test", Tests::class.java),
                             Type.SKIPPED,

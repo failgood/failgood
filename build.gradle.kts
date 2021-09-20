@@ -2,10 +2,10 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
     id("com.github.ben-manes.versions") version "0.39.0"
-    kotlin("jvm") version "1.5.21" apply false
+    kotlin("jvm") version "1.5.31" apply false
     id("info.solidsoft.pitest") version "1.6.0" apply false
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
-    id("com.autonomousapps.dependency-analysis") version "0.77.0"
+    id("com.autonomousapps.dependency-analysis") version "0.78.0"
 }
 
 

@@ -1,6 +1,7 @@
 import failgood.versions.coroutinesVersion
 import failgood.versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm")
@@ -19,8 +20,8 @@ dependencies {
 }
 
 tasks {
-    withType<Test> { enabled = false }
-    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> { kotlinOptions.jvmTarget = "1.8" }
+    withType<Test> { useJUnitPlatform() }
+    withType<KotlinCompile> { kotlinOptions.jvmTarget = "1.8" }
 }
 
 val testMain =

@@ -38,7 +38,8 @@ tasks {
         from(sourceSets.main.get().allSource)
         archiveClassifier.set("sources")
     }
-    withType<Test> { enabled = false }
+    withType<Test> { useJUnitPlatform() }
+
     withType<JavaCompile> {
         sourceCompatibility = "1.8"
         targetCompatibility = "1.8"

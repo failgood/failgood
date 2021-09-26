@@ -4,7 +4,7 @@ import failgood.ContextProvider
 import failgood.FailGood
 import failgood.FailGoodException
 import failgood.ObjectContextProvider
-import failgood.TestFilter
+import failgood.TestFilterProvider
 import org.junit.platform.engine.DiscoveryFilter
 import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.engine.EngineDiscoveryRequest
@@ -15,7 +15,7 @@ import org.junit.platform.engine.discovery.UniqueIdSelector
 import java.nio.file.Paths
 import java.util.LinkedList
 
-data class ContextsAndFilters(val contexts: List<ContextProvider>, val filter: TestFilter)
+data class ContextsAndFilters(val contexts: List<ContextProvider>, val filter: TestFilterProvider)
 
 data class RootContextInClass(val className: String, val contextName: String)
 suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): ContextsAndFilters {
@@ -63,7 +63,7 @@ suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): ContextsAndF
         }
 
     }
-    return ContextsAndFilters(contexts, TestFilter(filterConfig))
+    return ContextsAndFilters(contexts, TestFilterProvider(filterConfig))
 }
 
 private fun discoveryRequestToString(discoveryRequest: EngineDiscoveryRequest): String {

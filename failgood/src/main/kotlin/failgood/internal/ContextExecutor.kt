@@ -27,9 +27,8 @@ internal class ContextExecutor(
     val scope: CoroutineScope,
     lazy: Boolean = false,
     val listener: ExecutionListener = NullExecutionListener,
-    filter: List<String>?
+    val testFilter: TestFilter = ExecuteAllTests
 ) {
-    val testFilter = StringTestFilter(filter)
 
     // use a timeout of 20 seconds for now. This is not for finding slow tests,
     // this is to keep the suite from hanging without a result

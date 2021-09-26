@@ -8,6 +8,7 @@ import failgood.internal.ContextTreeReporter
 import failgood.internal.FailedContext
 import failgood.internal.ResourcesCloser
 import failgood.internal.SingleTestExecutor
+import failgood.internal.StringTestFilter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -107,7 +108,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     internal suspend fun findTests(
         coroutineScope: CoroutineScope,
         executeTests: Boolean = true,
-        executionFilter: TestFilter = TestFilter(mapOf()),
+        executionFilter: TestFilterProvider = TestFilterProvider(mapOf()),
         listener: ExecutionListener = NullExecutionListener
     ): List<Deferred<ContextResult>> {
         return contextProviders
@@ -124,7 +125,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                                         coroutineScope,
                                         !executeTests,
                                         listener,
-                                        filterString
+                                        StringTestFilter(filterString)
                                     ).execute()
                                 }
                             } else {
@@ -133,7 +134,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                                     coroutineScope,
                                     !executeTests,
                                     listener,
-                                    filterString
+                                    StringTestFilter(filterString)
                                 ).execute()
                             }
                         } catch (e: TimeoutCancellationException) {

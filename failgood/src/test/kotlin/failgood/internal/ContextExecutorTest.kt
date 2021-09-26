@@ -47,7 +47,7 @@ class ContextExecutorTest {
                     }
                 describe("executing all the tests") {
                     val contextResult = coroutineScope {
-                        ContextExecutor(ctx, this, filter = null).execute()
+                        ContextExecutor(ctx, this).execute()
                     }
                     val contextInfo = expectThat(contextResult).isA<ContextInfo>().subject
                     it("returns tests in the same order as they are declared in the file") {
@@ -86,7 +86,11 @@ class ContextExecutorTest {
                 }
                 it("can execute a subset of tests") {
                     val contextResult = coroutineScope {
-                        ContextExecutor(ctx, this, filter = listOf("root context", "test 1")).execute()
+                        ContextExecutor(
+                            ctx,
+                            this,
+                            testFilter = StringTestFilter(listOf("root context", "test 1"))
+                        ).execute()
                     }
                     val contextInfo = expectThat(contextResult).isA<ContextInfo>().subject
                     expectThat(contextInfo) {
@@ -117,7 +121,7 @@ class ContextExecutorTest {
                         }
                     }
                     val contextResult = coroutineScope {
-                        ContextExecutor(ctx, this, filter = null).execute()
+                        ContextExecutor(ctx, this).execute()
                     }
                     expectThat(contextResult).isA<ContextInfo>()
 
@@ -160,7 +164,12 @@ class ContextExecutorTest {
                             }
                         }
                         coroutineScope {
-                            val contextInfo = ContextExecutor(ctx, this, lazy = true, filter = null).execute()
+                            val contextInfo = ContextExecutor(
+                                ctx,
+                                this,
+                                lazy = true,
+                                testFilter = ExecuteAllTests
+                            ).execute()
 
                             expectThat(testExecuted).isEqualTo(false)
                             expectThat(contextInfo).isA<ContextInfo>()
@@ -185,7 +194,7 @@ class ContextExecutorTest {
                         context("context 4") { test("test 4") {} }
                     }
                     val contextInfo = coroutineScope {
-                        ContextExecutor(ctx, this, filter = null).execute()
+                        ContextExecutor(ctx, this).execute()
                     }
                     expectThat(contextInfo).isA<ContextInfo>()
                     val results = contextInfo as ContextInfo
@@ -210,7 +219,7 @@ class ContextExecutorTest {
                         throw RuntimeException("root context failed")
                     }
                     val result = coroutineScope {
-                        ContextExecutor(ctx, this, filter = null).execute()
+                        ContextExecutor(ctx, this).execute()
                     }
                     expectThat(result).isA<FailedContext>()
                     /*
@@ -228,7 +237,7 @@ class ContextExecutorTest {
                             test("dup test name") {}
                         }
                         val result = coroutineScope {
-                            ContextExecutor(ctx, this, filter = null).execute()
+                            ContextExecutor(ctx, this).execute()
                         }
                         expectThat(result).isA<FailedContext>().get { failure }.message.isNotNull()
                             .contains("duplicate name \"dup test name\" in context \"root\"")
@@ -238,7 +247,13 @@ class ContextExecutorTest {
                             test("duplicate test name") {}
                             context("context") { test("duplicate test name") {} }
                         }
-                        coroutineScope { ContextExecutor(ctx, this, filter = null).execute() }
+                        coroutineScope {
+                            ContextExecutor(
+                                ctx,
+                                this,
+                                testFilter = ExecuteAllTests
+                            ).execute()
+                        }
                     }
                 }
                 describe("detects duplicate contexts") {
@@ -248,7 +263,7 @@ class ContextExecutorTest {
                             context("dup ctx") {}
                         }
                         val result = coroutineScope {
-                            ContextExecutor(ctx, this, filter = null).execute()
+                            ContextExecutor(ctx, this).execute()
                         }
                         expectThat(result).isA<FailedContext>().get { failure }.message.isNotNull()
                             .contains("duplicate name \"dup ctx\" in context \"root\"")
@@ -258,7 +273,13 @@ class ContextExecutorTest {
                             test("same context name") {}
                             context("context") { test("same context name") {} }
                         }
-                        coroutineScope { ContextExecutor(ctx, this, filter = null).execute() }
+                        coroutineScope {
+                            ContextExecutor(
+                                ctx,
+                                this,
+                                testFilter = ExecuteAllTests
+                            ).execute()
+                        }
                     }
                     it("fails when a context has the same name as a test in the same contexts") {
                         val ctx =
@@ -267,7 +288,7 @@ class ContextExecutorTest {
                                 context("same name") {}
                             }
                         val result = coroutineScope {
-                            ContextExecutor(ctx, this, filter = null).execute()
+                            ContextExecutor(ctx, this).execute()
                         }
                         expectThat(result).isA<FailedContext>().get { failure }.message.isNotNull()
                             .contains("duplicate name \"same name\" in context \"root\"")
@@ -285,7 +306,7 @@ class ContextExecutorTest {
 
                         }
                         val contextResult = coroutineScope {
-                            ContextExecutor(context, this, filter = null).execute()
+                            ContextExecutor(context, this).execute()
                         }
                         expectThat(contextResult).isA<ContextResult>()
                         (contextResult as ContextInfo).tests.values.awaitAll()

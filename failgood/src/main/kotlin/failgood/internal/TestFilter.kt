@@ -17,3 +17,6 @@ internal class StringTestFilter(private val filterList: List<String>?) : TestFil
         return filterList.subList(0, smallerSize) == path.subList(0, smallerSize)
     }
 }
+internal object ExecuteAllTests : TestFilter {
+    override fun shouldRun(testPath: ContextPath) = true
+}

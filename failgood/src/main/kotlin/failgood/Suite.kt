@@ -9,7 +9,6 @@ import failgood.internal.ExecuteAllTestFilterProvider
 import failgood.internal.FailedContext
 import failgood.internal.ResourcesCloser
 import failgood.internal.SingleTestExecutor
-import failgood.internal.StringTestFilter
 import failgood.internal.TestFilterProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -116,7 +115,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         return contextProviders
             .map { coroutineScope.async { it.getContexts() } }.flatMap { it.await() }.sortedBy { it.order }
             .map { context: RootContext ->
-                val filterString = executionFilter.forContext(context.stackTraceElement.className, context.name)
+                val testFilter = executionFilter.forContext(context.stackTraceElement.className, context.name)
                 coroutineScope.async {
                     if (!context.disabled) {
                         try {
@@ -127,7 +126,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                                         coroutineScope,
                                         !executeTests,
                                         listener,
-                                        StringTestFilter(filterString)
+                                        testFilter
                                     ).execute()
                                 }
                             } else {
@@ -136,7 +135,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                                     coroutineScope,
                                     !executeTests,
                                     listener,
-                                    StringTestFilter(filterString)
+                                    testFilter
                                 ).execute()
                             }
                         } catch (e: TimeoutCancellationException) {

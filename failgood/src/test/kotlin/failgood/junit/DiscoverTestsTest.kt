@@ -2,13 +2,14 @@ package failgood.junit
 
 import failgood.Test
 import failgood.describe
+import failgood.internal.StringTestFilter
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.discovery.DiscoverySelectors
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
+import strikt.assertions.isA
 import strikt.assertions.isEqualTo
-import strikt.assertions.isNotNull
 import strikt.assertions.single
 
 @Test
@@ -26,7 +27,8 @@ class DiscoverTestsTest {
             expectThat(findContexts(request)) {
                 get { contexts }.single().get { getContexts() }.single().get { this.name }
                     .isEqualTo(rootName)
-                get { filter.forContext(className, rootName) }.isNotNull().containsExactly(rootName, testName)
+                get { filter.forContext(className, rootName) }.isA<StringTestFilter>().get { filterList }
+                    .containsExactly(rootName, testName)
             }
         }
 

@@ -5,10 +5,12 @@ import failgood.internal.ContextInfo
 import failgood.internal.ContextPath
 import failgood.internal.ContextResult
 import failgood.internal.ContextTreeReporter
+import failgood.internal.ExecuteAllTestFilterProvider
 import failgood.internal.FailedContext
 import failgood.internal.ResourcesCloser
 import failgood.internal.SingleTestExecutor
 import failgood.internal.StringTestFilter
+import failgood.internal.TestFilterProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -108,7 +110,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     internal suspend fun findTests(
         coroutineScope: CoroutineScope,
         executeTests: Boolean = true,
-        executionFilter: TestFilterProvider = TestFilterProvider(mapOf()),
+        executionFilter: TestFilterProvider = ExecuteAllTestFilterProvider,
         listener: ExecutionListener = NullExecutionListener
     ): List<Deferred<ContextResult>> {
         return contextProviders

@@ -4,7 +4,8 @@ import failgood.ContextProvider
 import failgood.FailGood
 import failgood.FailGoodException
 import failgood.ObjectContextProvider
-import failgood.TestFilterProvider
+import failgood.internal.RootContextAndClassTestFilterProvider
+import failgood.internal.TestFilterProvider
 import org.junit.platform.engine.DiscoveryFilter
 import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.engine.EngineDiscoveryRequest
@@ -15,11 +16,12 @@ import org.junit.platform.engine.discovery.UniqueIdSelector
 import java.nio.file.Paths
 import java.util.LinkedList
 
-data class ContextsAndFilters(val contexts: List<ContextProvider>, val filter: TestFilterProvider)
+internal data class ContextsAndFilters(val contexts: List<ContextProvider>, val filter: TestFilterProvider)
 
-data class RootContextInClass(val className: String, val contextName: String)
-suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): ContextsAndFilters {
-    val filterConfig = mutableMapOf<RootContextInClass, List<String>>()
+internal data class RootContextAndClass(val className: String, val contextName: String)
+
+internal suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): ContextsAndFilters {
+    val filterConfig = mutableMapOf<RootContextAndClass, List<String>>()
     val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)
     val classNamePredicates =
         discoveryRequest.getFiltersByType(ClassNameFilter::class.java).map { it.toPredicate() }
@@ -49,7 +51,7 @@ suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): ContextsAndF
                 val rootContextName = segment1.substringBefore("(")
                 val filterString = listOf(rootContextName) + segments.drop(2).map { it.value }
                 val className = segment1.substringAfter("(").substringBefore(")")
-                filterConfig[RootContextInClass(className, rootContextName)] = filterString
+                filterConfig[RootContextAndClass(className, rootContextName)] = filterString
                 val javaClass = Thread.currentThread().contextClassLoader.loadClass(className)
                 listOf(ObjectContextProvider(javaClass.kotlin))
             }
@@ -63,7 +65,7 @@ suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): ContextsAndF
         }
 
     }
-    return ContextsAndFilters(contexts, TestFilterProvider(filterConfig))
+    return ContextsAndFilters(contexts, RootContextAndClassTestFilterProvider(filterConfig))
 }
 
 private fun discoveryRequestToString(discoveryRequest: EngineDiscoveryRequest): String {

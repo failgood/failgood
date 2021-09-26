@@ -17,15 +17,4 @@ internal data class ContextPath(val container: Context, val name: String) {
         return "${container.stringPath()} > $name"
     }
 
-    /**
-     * return true when this context path needs to be executed to satisfy the filter.
-     */
-    fun filter(filter: List<String>?): Boolean {
-        if (filter == null)
-            return true
-
-        val path = container.path + name
-        val smallerSize = minOf(filter.size, path.size)
-        return filter.subList(0, smallerSize) == path.subList(0, smallerSize)
-    }
 }

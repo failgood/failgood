@@ -27,9 +27,12 @@ internal class ContextExecutor(
     val scope: CoroutineScope,
     lazy: Boolean = false,
     val listener: ExecutionListener = NullExecutionListener,
-    val filter: List<String>?
+    filter: List<String>?
 ) {
-    // 20 seconds for now. This is not for finding slow tests, this is to keep the suite from hanging without a result
+    val testFilter = StringTestFilter(filter)
+
+    // use a timeout of 20 seconds for now. This is not for finding slow tests,
+    // this is to keep the suite from hanging without a result
     val testTimeoutMillis = 20000L
     val coroutineStart: CoroutineStart = if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT
     private var startTime = System.nanoTime()
@@ -83,7 +86,7 @@ internal class ContextExecutor(
         override suspend fun test(name: String, function: TestLambda) {
             checkName(name)
             val testPath = ContextPath(parentContext, name)
-            if (!testPath.filter(filter))
+            if (!testFilter.shouldRun(testPath))
                 return
             // we process each test only once
             if (!processedTests.add(testPath)) {
@@ -144,7 +147,7 @@ internal class ContextExecutor(
                 return
             }
             val contextPath = ContextPath(parentContext, name)
-            if (!contextPath.filter(filter))
+            if (!testFilter.shouldRun(contextPath))
                 return
 
             if (processedTests.contains(contextPath)) return

@@ -75,6 +75,7 @@ class FailGoodJunitTestEngine : TestEngine {
 
 
     override fun execute(request: ExecutionRequest) {
+        val failedTests = mutableListOf<TestDescription>()
         val root = request.rootTestDescriptor
         if (root !is FailGoodEngineDescriptor)
             return
@@ -116,10 +117,13 @@ class FailGoodJunitTestEngine : TestEngine {
                         is TestExecutionEvent.Stopped -> {
                             val testPlusResult = event.testResult
                             when (testPlusResult.result) {
-                                is Failed -> junitListener.executionFinished(
-                                    mapping,
-                                    TestExecutionResult.failed(testPlusResult.result.failure)
-                                )
+                                is Failed -> {
+                                    junitListener.executionFinished(
+                                        mapping,
+                                        TestExecutionResult.failed(testPlusResult.result.failure)
+                                    )
+                                    failedTests.add(description)
+                                }
 
                                 is Success -> junitListener.executionFinished(
                                     mapping,
@@ -156,6 +160,16 @@ class FailGoodJunitTestEngine : TestEngine {
             junitListener.executionFinished(root, TestExecutionResult.successful())
         }
 //        println(junitListener.events.joinToString("\n"))
+        if (failedTests.isNotEmpty()) {
+            println("failed tests with uniqueId to run from IDEA:")
+            failedTests.forEach {
+                println(
+                    "${it.testName} ${
+                        mapper.getMapping(it)!!.uniqueId.toString().replace(" ", "+")
+                    }"
+                )
+            }
+        }
         println("finished after ${uptime()}")
     }
 

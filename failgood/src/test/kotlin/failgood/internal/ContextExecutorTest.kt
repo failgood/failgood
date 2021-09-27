@@ -89,7 +89,7 @@ class ContextExecutorTest {
                         ContextExecutor(
                             ctx,
                             this,
-                            testFilter = StringTestFilter(listOf("root context", "test 1"))
+                            testFilter = StringListTestFilter(listOf("root context", "test 1"))
                         ).execute()
                     }
                     val contextInfo = expectThat(contextResult).isA<ContextInfo>().subject

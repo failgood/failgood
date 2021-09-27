@@ -13,6 +13,7 @@ internal object ExecuteAllTestFilterProvider : TestFilterProvider {
 internal class RootContextAndClassTestFilterProvider(private val filterConfig: Map<RootContextAndClass, List<String>>) :
     TestFilterProvider {
     override fun forContext(className: String, rootName: String): TestFilter {
-        return filterConfig[RootContextAndClass(className, rootName)]?.let { StringTestFilter(it) } ?: ExecuteAllTests
+        return filterConfig[RootContextAndClass(className, rootName)]?.let { StringListTestFilter(it) }
+            ?: ExecuteAllTests
     }
 }

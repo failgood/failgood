@@ -7,9 +7,9 @@ import strikt.assertions.isFalse
 import strikt.assertions.isTrue
 
 @Test
-class StringTestFilterTest {
-    val context = describe(StringTestFilter::class) {
-        val f = StringTestFilter(listOf("path", "to", "context"))
+class StringListTestFilterTest {
+    val context = describe(StringListTestFilter::class) {
+        val f = StringListTestFilter(listOf("path", "to", "context"))
         it("executes a path that leads to a context") {
             expectThat(f.shouldRun(ContextPath.fromList("path", "to"))).isTrue()
         }

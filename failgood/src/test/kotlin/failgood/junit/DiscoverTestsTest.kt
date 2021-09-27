@@ -2,7 +2,7 @@ package failgood.junit
 
 import failgood.Test
 import failgood.describe
-import failgood.internal.StringTestFilter
+import failgood.internal.StringListTestFilter
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.discovery.DiscoverySelectors
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
@@ -27,7 +27,7 @@ class DiscoverTestsTest {
             expectThat(findContexts(request)) {
                 get { contexts }.single().get { getContexts() }.single().get { this.name }
                     .isEqualTo(rootName)
-                get { filter.forContext(className, rootName) }.isA<StringTestFilter>().get { filterList }
+                get { filter.forContext(className, rootName) }.isA<StringListTestFilter>().get { filterList }
                     .containsExactly(rootName, testName)
             }
         }

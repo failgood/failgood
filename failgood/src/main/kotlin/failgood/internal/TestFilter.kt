@@ -7,7 +7,7 @@ internal interface TestFilter {
     fun shouldRun(testPath: ContextPath): Boolean
 }
 
-internal class StringTestFilter(internal val filterList: List<String>) : TestFilter {
+internal class StringListTestFilter(internal val filterList: List<String>) : TestFilter {
     override fun shouldRun(testPath: ContextPath): Boolean {
         val path = testPath.container.path + testPath.name
         val smallerSize = minOf(filterList.size, path.size)

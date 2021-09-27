@@ -8,9 +8,11 @@ import failgood.Context
 internal data class ContextPath(val container: Context, val name: String) {
     companion object {
         fun fromString(path: String): ContextPath {
-            val pathElements = path.split(">").map { it.trim() }
-            return ContextPath(Context.fromPath(pathElements.dropLast(1)), pathElements.last())
+            return fromList(*path.split(">").map { it.trim() }.toTypedArray())
         }
+
+        fun fromList(vararg pathElements: String) =
+            ContextPath(Context.fromPath(pathElements.dropLast(1)), pathElements.last())
     }
 
     override fun toString(): String {

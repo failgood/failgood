@@ -52,7 +52,11 @@ internal suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): Con
                 val filterString = listOf(rootContextName) + segments.drop(2).map { it.value }
                 val className = segment1.substringAfter("(").substringBefore(")")
                 filterConfig[RootContextAndClass(className, rootContextName)] = filterString
-                val javaClass = Thread.currentThread().contextClassLoader.loadClass(className)
+                val javaClass = try {
+                    Thread.currentThread().contextClassLoader.loadClass(className)
+                } catch (e: ClassNotFoundException) {
+                    throw FailGoodException("error loading class $className", e)
+                }
                 listOf(ObjectContextProvider(javaClass.kotlin))
             }
             else -> {

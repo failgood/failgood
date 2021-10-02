@@ -29,7 +29,7 @@ jobs:
         run: |
           ./gradlew build
       - name: Test Report ${{matrix.java}}
-        uses: ScaCap/action-surefire-report@v1.0.5
+        uses: ScaCap/action-surefire-report@v1.0.13
         with:
           check_name: Test Report ${{matrix.java}}
           report_paths: '**/build/test-results/test/TEST-*.xml'

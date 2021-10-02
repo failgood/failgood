@@ -1,5 +1,6 @@
 package failgood.pitest
 
+import failgood.ContextProvider
 import failgood.Failed
 import failgood.ObjectContextProvider
 import failgood.Pending
@@ -22,9 +23,9 @@ import org.pitest.testapi.TestUnitFinder
 object FailGoodTestUnitFinder : TestUnitFinder {
     @OptIn(DelicateCoroutinesApi::class)
     override fun findTestUnits(clazz: Class<*>): List<TestUnit> {
-        val contextProvider: ObjectContextProvider =
+        val contextProvider =
             try {
-                ObjectContextProvider(clazz).apply { getContexts() }
+                ContextProvider { ObjectContextProvider(clazz).getContexts() }
             } catch (e: Exception) {
                 return listOf()
             }

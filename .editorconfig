@@ -18,3 +18,6 @@ ij_visual_guides = none
 ij_wrap_on_typing = false
 
 ij_kotlin_name_count_to_use_star_import_for_members = 5
+
+[*.{yml,yaml}]
+indent_size = 2

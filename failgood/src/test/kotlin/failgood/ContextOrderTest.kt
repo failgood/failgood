@@ -23,7 +23,7 @@ class ContextOrderTest {
                             }
                         },
                     )
-                ).run(parallelism = 1).allOk
+                ).run(parallelism = 1, silent = true).allOk
             ).isTrue()
             expectThat(events).containsExactly("context 2", "context 1")
         }

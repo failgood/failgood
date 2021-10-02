@@ -42,7 +42,7 @@ class TestLifecycleTest {
                 test("test4: tests can be defined after contexts") {
                     testEvents.add(TEST_4_EXECUTED)
                 }
-            }.run()
+            }.run(silent = true)
 
             expectThat(totalEvents)
                 .containsExactlyInAnyOrder(

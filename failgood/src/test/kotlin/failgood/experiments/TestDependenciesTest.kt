@@ -42,7 +42,7 @@ class TestDependenciesTest {
                     }
                 }
             }
-            Suite(context).run()
+            Suite(context).run(silent = true)
         }
     }
 

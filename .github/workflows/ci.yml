@@ -4,26 +4,24 @@ on: [push, pull_request]
 
 jobs:
   build:
-    name: test-on-${{matrix.java}}
+      name: test-on-${{matrix.java}}
     runs-on: ubuntu-latest
     strategy:
       matrix:
         java: [1.8, 14]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      -   name: Set up Java
-        uses: actions/setup-java@v2
-          with:
-              distribution: 'temurin'
-              java-version: ${{ matrix.java }}
-      - name: Cache Gradle packages
-        uses: actions/cache@v2.1.6
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
-          restore-keys: ${{ runner.os }}-gradle
-      - name: Build with Gradle
+        -   uses: actions/checkout@v2
+        -   uses: actions/setup-java@v2
+            with:
+                distribution: 'temurin'
+                java-version: ${{ matrix.java }}
+        -   name: Cache Gradle packages
+            uses: actions/cache@v2.1.6
+            with:
+                path: ~/.gradle/caches
+                key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
+                restore-keys: ${{ runner.os }}-gradle
+        -   name: Build with Gradle
         continue-on-error: true
         env:
           CI: true

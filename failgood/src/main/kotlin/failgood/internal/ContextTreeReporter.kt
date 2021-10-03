@@ -51,7 +51,7 @@ internal class ContextTreeReporter {
                                     "\\n"
                                 )
                             }",
-                            "$indentString    ${testResult.test.stackTraceElement}"
+                            "$indentString    ${testResult.test.stackTraceElement.likeStackTrace(testResult.test.testName)}"
                         )
                         is Pending -> listOf("$indentString  $PENDING ${testResult.test.testName} ${YELLOW}PENDING$RESET")
                     }

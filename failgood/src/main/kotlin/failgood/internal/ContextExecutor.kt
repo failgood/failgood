@@ -10,6 +10,7 @@ import failgood.NullExecutionListener
 import failgood.Pending
 import failgood.ResourcesDSL
 import failgood.RootContext
+import failgood.SourceInfo
 import failgood.Success
 import failgood.TestContext
 import failgood.TestDescription
@@ -91,7 +92,7 @@ internal class ContextExecutor(
             if (!processedTests.add(testPath)) {
                 return
             }
-            val testDescription = TestDescription(parentContext, name, getStackTraceElement())
+            val testDescription = TestDescription(parentContext, name, SourceInfo(getStackTraceElement()))
             if (!ranATest) {
                 // we did not yet run a test, so we are going to run this test ourselves
                 ranATest = true
@@ -150,7 +151,7 @@ internal class ContextExecutor(
                 return
 
             if (processedTests.contains(contextPath)) return
-            val stackTraceElement = getStackTraceElement()
+            val stackTraceElement = SourceInfo(getStackTraceElement())
             val context = Context(name, parentContext, stackTraceElement)
             val visitor = ContextVisitor(context, resourcesCloser)
             try {
@@ -198,7 +199,8 @@ internal class ContextExecutor(
             val testPath = ContextPath(parentContext, behaviorDescription)
 
             if (processedTests.add(testPath)) {
-                val testDescriptor = TestDescription(parentContext, behaviorDescription, getStackTraceElement())
+                val testDescriptor =
+                    TestDescription(parentContext, behaviorDescription, SourceInfo(getStackTraceElement()))
                 val result = Pending
 
                 @Suppress("DeferredResultUnused")

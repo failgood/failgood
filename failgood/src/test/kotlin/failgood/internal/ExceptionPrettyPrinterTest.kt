@@ -2,6 +2,7 @@
 
 package failgood.internal
 
+import failgood.SourceInfo
 import failgood.Test
 import failgood.describe
 import strikt.api.expectThat
@@ -27,7 +28,7 @@ class ExceptionPrettyPrinterTest {
             it("shows only stack trace lines for assertion errors that are in the test file") {
                 val assertionError = AssertionError("message")
                 val stackTraceElement =
-                    assertionError.stackTrace.first { it.className.startsWith(ExceptionPrettyPrinterTest::class.qualifiedName!!) }
+                    SourceInfo(assertionError.stackTrace.first { it.className.startsWith(ExceptionPrettyPrinterTest::class.qualifiedName!!) })
                 expectThat(
                     ExceptionPrettyPrinter(assertionError, stackTraceElement).prettyPrint().split("\n")
                 ).allIndexed { idx ->

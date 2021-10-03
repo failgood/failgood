@@ -1,6 +1,7 @@
 package failgood.junit
 
 import failgood.Context
+import failgood.SourceInfo
 import failgood.Success
 import failgood.Test
 import failgood.TestDescription
@@ -17,8 +18,8 @@ import strikt.assertions.single
 @Test
 class CreateResponseTest {
     val context = describe(::createResponse.name) {
-        val stackTraceElement = StackTraceElement("package.ClassName", "method", "file", 100)
-        val rootContext = Context("root context name", null, stackTraceElement)
+        val sourceInfo = SourceInfo("package.ClassName", "file", 100)
+        val rootContext = Context("root context name", null, sourceInfo)
         describe("contexts") {
             val rootContextDescriptor = createResponse(
                 UniqueId.forEngine("failgood"),
@@ -36,7 +37,7 @@ class CreateResponseTest {
             }
         }
         it("creates friendly uuids for tests") {
-            val test = TestDescription(rootContext, "test", stackTraceElement)
+            val test = TestDescription(rootContext, "test", sourceInfo)
             val rootContextDescriptor = createResponse(
                 UniqueId.forEngine("failgood"),
                 listOf(

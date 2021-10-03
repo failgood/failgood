@@ -20,7 +20,13 @@ data class RootContext(
     val order: Int = 0,
     val function: ContextLambda
 ) {
-    val stackTraceElement = findCallerSTE()
+    val stackTraceElement = SourceInfo(findCallerSTE())
+}
+
+data class SourceInfo(val className: String, val fileName: String, val lineNumber: Int) {
+    fun likeStackTrace(testName: String) = "$className.${testName.replace(" ", "-")}($fileName:$lineNumber)"
+
+    constructor(ste: StackTraceElement) : this(ste.className, ste.fileName!!, ste.lineNumber)
 }
 
 typealias ContextLambda = suspend ContextDSL.() -> Unit
@@ -42,9 +48,9 @@ fun describe(subjectType: KClass<*>, disabled: Boolean = false, order: Int = 0, 
 data class TestDescription(
     val container: TestContainer,
     val testName: String,
-    val stackTraceElement: StackTraceElement
+    val stackTraceElement: SourceInfo
 ) {
-    internal constructor(testPath: ContextPath, stackTraceElement: StackTraceElement) : this(
+    internal constructor(testPath: ContextPath, stackTraceElement: SourceInfo) : this(
         testPath.container,
         testPath.name,
         stackTraceElement
@@ -65,7 +71,7 @@ interface TestContainer {
 data class Context(
     override val name: String,
     val parent: Context? = null,
-    val stackTraceElement: StackTraceElement? = null
+    val stackTraceElement: SourceInfo? = null
 ) : TestContainer {
     companion object {
         fun fromPath(path: List<String>): Context {

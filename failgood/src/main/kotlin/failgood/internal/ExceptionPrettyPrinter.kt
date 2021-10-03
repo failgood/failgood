@@ -1,13 +1,15 @@
 package failgood.internal
 
-class ExceptionPrettyPrinter(private val throwable: Throwable, testStackTrace: StackTraceElement? = null) {
+import failgood.SourceInfo
+
+class ExceptionPrettyPrinter(private val throwable: Throwable, sourceInfo: SourceInfo? = null) {
     val stackTrace = run {
         val onlyElementsWithLineNumber = throwable.stackTrace
             .filter { it.lineNumber > 0 }
 
         val onlyFromFailGoodUp = onlyElementsWithLineNumber.dropLastWhile { !it.className.startsWith("failgood") }
         val onlyInTest = if (throwable !is AssertionError) onlyFromFailGoodUp else
-            onlyFromFailGoodUp.filter { testStackTrace == null || it.className.contains(testStackTrace.className) }
+            onlyFromFailGoodUp.filter { sourceInfo == null || it.className.contains(sourceInfo.className) }
         onlyInTest.ifEmpty { onlyFromFailGoodUp.ifEmpty { onlyElementsWithLineNumber } }
     }
 

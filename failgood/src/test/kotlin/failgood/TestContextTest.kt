@@ -11,7 +11,7 @@ import strikt.assertions.single
 class TestContextTest {
     val context = describe(TestDSL::class) {
         it("publishes a test event for stdout printing") {
-            val testDescription = TestDescription(Context("root"), "testname", StackTraceElement("a", "b", "c", 1))
+            val testDescription = TestDescription(Context("root"), "testname", SourceInfo("a", "b", 1))
             val listener = mock<ExecutionListener>()
             TestContext(mock(), listener, testDescription).println("printing to stdout")
             expectThat(getCalls(listener)).single()

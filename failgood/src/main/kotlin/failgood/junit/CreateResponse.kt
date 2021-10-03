@@ -1,6 +1,7 @@
 package failgood.junit
 
 import failgood.Context
+import failgood.SourceInfo
 import failgood.TestDescription
 import failgood.internal.ContextInfo
 import failgood.internal.ContextResult
@@ -25,7 +26,7 @@ private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor
     )
 }
 
-private fun createFileSource(stackTraceElement: StackTraceElement): TestSource? {
+private fun createFileSource(stackTraceElement: SourceInfo): TestSource? {
     val className = stackTraceElement.className
     val filePosition = FilePosition.from(stackTraceElement.lineNumber)
     val file = File("src/test/kotlin/${className.substringBefore("$").replace(".", "/")}.kt")
@@ -37,7 +38,7 @@ private fun createFileSource(stackTraceElement: StackTraceElement): TestSource? 
     else ClassSource.from(className, filePosition)
 }
 
-private fun createClassSource(stackTraceElement: StackTraceElement): TestSource? {
+private fun createClassSource(stackTraceElement: SourceInfo): TestSource? {
     val className = stackTraceElement.className
     val filePosition = FilePosition.from(stackTraceElement.lineNumber)
     return ClassSource.from(className, filePosition)

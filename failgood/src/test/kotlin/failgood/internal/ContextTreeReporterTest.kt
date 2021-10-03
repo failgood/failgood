@@ -1,5 +1,6 @@
 package failgood.internal
 
+import failgood.SourceInfo
 import failgood.Success
 import failgood.Test
 import failgood.TestDescription
@@ -15,8 +16,9 @@ import failgood.internal.TestResultFixtures.subSubContext
 import failgood.internal.TestResultFixtures.testResults
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
+import strikt.assertions.isEqualTo
 
-val stackTraceElement = StackTraceElement("class", "method", "file", 123)
+val sourceInfo = SourceInfo("class", "file", 123)
 
 @Test
 class ContextTreeReporterTest {
@@ -25,19 +27,18 @@ class ContextTreeReporterTest {
             val reporter = ContextTreeReporter()
             it("outputs test results in tree form") {
                 expectThat(
-                    reporter.stringReport(testResults, listOf(rootContext, subContext))
+                    reporter.stringReport(testResults, listOf(rootContext, subContext)).joinToString("\n")
+                ).isEqualTo(
+                    listOf(
+                        "* the test runner",
+                        "  $SUCCESS supports describe/it syntax (0.01ms)",
+                        "  * contexts can be nested",
+                        "    $SUCCESS sub-contexts also contain tests (0.02ms)",
+                        "    $FAILED failed test ${RED}FAILED${RESET}",
+                        "      failure message\\nwith newline",
+                        "      ClassName.failed-test(file:123)"
+                    ).joinToString("\n")
                 )
-                    .containsExactly(
-                        listOf(
-                            "* the test runner",
-                            "  $SUCCESS supports describe/it syntax (0.01ms)",
-                            "  * contexts can be nested",
-                            "    $SUCCESS sub-contexts also contain tests (0.02ms)",
-                            "    $FAILED failed test ${RED}FAILED${RESET}",
-                            "      failure message\\nwith newline",
-                            "      ClassName.method(file:123)"
-                        )
-                    )
             }
             it("outputs empty root context") {
                 expectThat(
@@ -46,7 +47,7 @@ class ContextTreeReporterTest {
                             TestPlusResult(
                                 TestDescription(
                                     subContext,
-                                    "sub-contexts also contain tests", stackTraceElement
+                                    "sub-contexts also contain tests", sourceInfo
                                 ),
                                 Success(
                                     10
@@ -68,7 +69,7 @@ class ContextTreeReporterTest {
                     reporter.stringReport(
                         listOf(
                             TestPlusResult(
-                                TestDescription(subSubContext, "sub-contexts also contain tests", stackTraceElement),
+                                TestDescription(subSubContext, "sub-contexts also contain tests", sourceInfo),
                                 Success(
                                     10
                                 )
@@ -91,11 +92,11 @@ class ContextTreeReporterTest {
                     reporter.stringReport(
                         listOf(
                             TestPlusResult(
-                                TestDescription(rootContext, "test", stackTraceElement),
+                                TestDescription(rootContext, "test", sourceInfo),
                                 Success(10)
                             ),
                             TestPlusResult(
-                                TestDescription(rootContext, "slow test", stackTraceElement),
+                                TestDescription(rootContext, "slow test", sourceInfo),
                                 Success(1010001)
                             )
                         ),

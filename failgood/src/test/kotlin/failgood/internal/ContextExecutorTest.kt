@@ -12,7 +12,6 @@ import strikt.assertions.all
 import strikt.assertions.contains
 import strikt.assertions.containsExactly
 import strikt.assertions.doesNotContain
-import strikt.assertions.endsWith
 import strikt.assertions.get
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
@@ -204,9 +203,11 @@ class ContextExecutorTest {
                             get { test }.and {
                                 get { testName }.isEqualTo("context 1")
                                 get { container.name }.isEqualTo("root context")
-                                get { stackTraceElement.toString() }.endsWith(
-                                    "ContextExecutorTest.kt:${getLineNumber(error) - 1})"
-                                )
+                                get { stackTraceElement }.and {
+                                    get { lineNumber }.isEqualTo(getLineNumber(error) - 1)
+                                    get { className }.contains("ContextExecutorTest")
+                                }
+
                             }
                         }
                     }

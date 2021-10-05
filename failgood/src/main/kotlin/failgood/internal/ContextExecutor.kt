@@ -92,7 +92,7 @@ internal class ContextExecutor(
             if (!processedTests.add(testPath)) {
                 return
             }
-            val testDescription = TestDescription(parentContext, name, SourceInfo(getStackTraceElement()))
+            val testDescription = TestDescription(parentContext, name, sourceInfo())
             if (!ranATest) {
                 // we did not yet run a test, so we are going to run this test ourselves
                 ranATest = true
@@ -151,7 +151,7 @@ internal class ContextExecutor(
                 return
 
             if (processedTests.contains(contextPath)) return
-            val sourceInfo = SourceInfo(getStackTraceElement())
+            val sourceInfo = sourceInfo()
             val context = Context(name, parentContext, sourceInfo)
             val visitor = ContextVisitor(context, resourcesCloser)
             try {
@@ -173,7 +173,7 @@ internal class ContextExecutor(
                 foundContexts.add(context)
                 processedTests.add(contextPath)
             }
-            getStackTraceElement().lineNumber
+            sourceInfo().lineNumber
 
             if (visitor.ranATest) ranATest = true
         }
@@ -183,8 +183,8 @@ internal class ContextExecutor(
                 throw FailGoodException("duplicate name \"$name\" in context \"${parentContext.name}\"")
         }
 
-        private fun getStackTraceElement() =
-            RuntimeException().stackTrace.first { !(it.fileName?.endsWith("ContextExecutor.kt") ?: true) }!!
+        private fun sourceInfo() =
+            SourceInfo(RuntimeException().stackTrace.first { !(it.fileName?.endsWith("ContextExecutor.kt") ?: true) }!!)
 
         override suspend fun describe(name: String, function: ContextLambda) {
             context(name, function)
@@ -200,7 +200,7 @@ internal class ContextExecutor(
 
             if (processedTests.add(testPath)) {
                 val testDescriptor =
-                    TestDescription(parentContext, behaviorDescription, SourceInfo(getStackTraceElement()))
+                    TestDescription(parentContext, behaviorDescription, sourceInfo())
                 val result = Pending
 
                 @Suppress("DeferredResultUnused")

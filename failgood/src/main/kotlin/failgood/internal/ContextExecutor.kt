@@ -53,7 +53,7 @@ internal class ContextExecutor(
      */
     suspend fun execute(): ContextResult {
         val function = rootContext.function
-        val rootContext = Context(rootContext.name, null, rootContext.stackTraceElement)
+        val rootContext = Context(rootContext.name, null, rootContext.sourceInfo)
         while (true) {
             startTime = System.nanoTime()
             val resourcesCloser = ResourcesCloser(scope)
@@ -67,7 +67,7 @@ internal class ContextExecutor(
             if (!visitor.contextsLeft) break
         }
         // context order: first root context, then sub-contexts ordered by line number
-        val contexts = listOf(rootContext) + foundContexts.sortedBy { it.stackTraceElement!!.lineNumber }
+        val contexts = listOf(rootContext) + foundContexts.sortedBy { it.sourceInfo!!.lineNumber }
         return ContextInfo(contexts, deferredTestResults, afterSuiteCallbacks)
     }
 
@@ -151,14 +151,14 @@ internal class ContextExecutor(
                 return
 
             if (processedTests.contains(contextPath)) return
-            val stackTraceElement = SourceInfo(getStackTraceElement())
-            val context = Context(name, parentContext, stackTraceElement)
+            val sourceInfo = SourceInfo(getStackTraceElement())
+            val context = Context(name, parentContext, sourceInfo)
             val visitor = ContextVisitor(context, resourcesCloser)
             try {
                 visitor.function()
                 investigatedContexts.add(context)
             } catch (exceptionInContext: Throwable) {
-                val testDescriptor = TestDescription(parentContext, name, stackTraceElement)
+                val testDescriptor = TestDescription(parentContext, name, sourceInfo)
 
                 processedTests.add(contextPath) // don't visit this context again
                 val testPlusResult = TestPlusResult(testDescriptor, Failed(exceptionInContext))

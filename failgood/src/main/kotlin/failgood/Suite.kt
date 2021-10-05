@@ -115,7 +115,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         return contextProviders
             .map { coroutineScope.async { it.getContexts() } }.flatMap { it.await() }.sortedBy { it.order }
             .map { context: RootContext ->
-                val testFilter = executionFilter.forContext(context.stackTraceElement.className, context.name)
+                val testFilter = executionFilter.forContext(context.sourceInfo.className, context.name)
                 coroutineScope.async {
                     if (!context.disabled) {
                         try {

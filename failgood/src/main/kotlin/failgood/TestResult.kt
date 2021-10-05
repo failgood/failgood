@@ -13,9 +13,9 @@ data class TestPlusResult(val test: TestDescription, val result: TestResult) {
         val testDescription = test.toString()
         return when (result) {
             is Failed -> {
-                val exceptionInfo = ExceptionPrettyPrinter(result.failure, test.stackTraceElement).prettyPrint()
+                val exceptionInfo = ExceptionPrettyPrinter(result.failure, test.sourceInfo).prettyPrint()
 
-                "$testDescription:$RED failed$RESET with $exceptionInfo.\ntest: ${test.stackTraceElement}"
+                "$testDescription:$RED failed$RESET with $exceptionInfo.\ntest: ${test.sourceInfo}"
             }
             is Success -> "$testDescription passed"
             is Pending -> "$testDescription skipped"

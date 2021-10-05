@@ -127,29 +127,29 @@ class ContextExecutorTest {
                     val contextInfo = contextResult as ContextInfo
                     it("returns file info for all subcontexts") {
                         expectThat(contextInfo.contexts).all {
-                            get { stackTraceElement }.isNotNull().and {
+                            get { sourceInfo }.isNotNull().and {
                                 get { fileName }.isEqualTo("ContextExecutorTest.kt")
                             }
                         }
                     }
                     it("returns line number for contexts") {
                         expectThat(contextInfo.contexts) {
-                            get(0).get { stackTraceElement }.isNotNull().get { lineNumber }.isEqualTo(rootContextLine)
-                            get(1).get { stackTraceElement }.isNotNull().get { lineNumber }.isEqualTo(context1Line)
-                            get(2).get { stackTraceElement }.isNotNull().get { lineNumber }.isEqualTo(context2Line)
+                            get(0).get { sourceInfo }.isNotNull().get { lineNumber }.isEqualTo(rootContextLine)
+                            get(1).get { sourceInfo }.isNotNull().get { lineNumber }.isEqualTo(context1Line)
+                            get(2).get { sourceInfo }.isNotNull().get { lineNumber }.isEqualTo(context2Line)
                         }
                     }
                     it("reports file name for all tests") {
                         expectThat(contextInfo.tests.keys).all {
-                            get { stackTraceElement }.and {
+                            get { sourceInfo }.and {
                                 get { fileName }.isEqualTo("ContextExecutorTest.kt")
                             }
                         }
                     }
                     it("reports line number for all tests") {
                         expectThat(contextInfo.tests.keys.toList()) {
-                            get(0).get { stackTraceElement }.get { lineNumber }.isEqualTo(test1Line)
-                            get(1).get { stackTraceElement }.get { lineNumber }.isEqualTo(test2Line)
+                            get(0).get { sourceInfo }.get { lineNumber }.isEqualTo(test1Line)
+                            get(1).get { sourceInfo }.get { lineNumber }.isEqualTo(test2Line)
                         }
                     }
 
@@ -203,7 +203,7 @@ class ContextExecutorTest {
                             get { test }.and {
                                 get { testName }.isEqualTo("context 1")
                                 get { container.name }.isEqualTo("root context")
-                                get { stackTraceElement }.and {
+                                get { sourceInfo }.and {
                                     get { lineNumber }.isEqualTo(getLineNumber(error) - 1)
                                     get { className }.contains("ContextExecutorTest")
                                 }

@@ -9,7 +9,7 @@ class RootContextTest {
         val ste = Throwable().stackTrace.first()
         val testContext = RootContext {}
         it("knows its file and line number") {
-            expectThat(testContext.stackTraceElement) {
+            expectThat(testContext.sourceInfo) {
                 get { lineNumber }.isEqualTo(ste.lineNumber + 1)
                 get { className }.isEqualTo(ste.className)
             }

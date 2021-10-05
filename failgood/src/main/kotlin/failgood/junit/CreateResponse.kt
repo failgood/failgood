@@ -16,8 +16,7 @@ import org.junit.platform.engine.support.descriptor.FileSource
 import java.io.File
 
 private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor {
-    val stackTraceElement = this.stackTraceElement
-    val testSource = createFileSource(stackTraceElement)
+    val testSource = createFileSource(this.sourceInfo)
     return FailGoodTestDescriptor(
         TestDescriptor.Type.TEST,
         uniqueId.appendTest(testName),
@@ -26,9 +25,9 @@ private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor
     )
 }
 
-private fun createFileSource(stackTraceElement: SourceInfo): TestSource? {
-    val className = stackTraceElement.className
-    val filePosition = FilePosition.from(stackTraceElement.lineNumber)
+private fun createFileSource(sourceInfo: SourceInfo): TestSource? {
+    val className = sourceInfo.className
+    val filePosition = FilePosition.from(sourceInfo.lineNumber)
     val file = File("src/test/kotlin/${className.substringBefore("$").replace(".", "/")}.kt")
     return if (file.exists())
         FileSource.from(
@@ -38,9 +37,9 @@ private fun createFileSource(stackTraceElement: SourceInfo): TestSource? {
     else ClassSource.from(className, filePosition)
 }
 
-private fun createClassSource(stackTraceElement: SourceInfo): TestSource? {
-    val className = stackTraceElement.className
-    val filePosition = FilePosition.from(stackTraceElement.lineNumber)
+private fun createClassSource(sourceInfo: SourceInfo): TestSource? {
+    val className = sourceInfo.className
+    val filePosition = FilePosition.from(sourceInfo.lineNumber)
     return ClassSource.from(className, filePosition)
 }
 
@@ -58,7 +57,7 @@ internal fun createResponse(
                 val tests = contextInfo.tests.entries
                 fun addChildren(node: TestDescriptor, context: Context, isRootContext: Boolean, uniqueId: UniqueId) {
                     val path = if (isRootContext)
-                        uniqueMaker.makeUnique("${context.name}(${(context.stackTraceElement?.className) ?: ""})")
+                        uniqueMaker.makeUnique("${context.name}(${(context.sourceInfo?.className) ?: ""})")
                     else
                         context.name
                     val contextUniqueId = uniqueId.appendContext(path)
@@ -66,7 +65,7 @@ internal fun createResponse(
                         TestDescriptor.Type.CONTAINER,
                         contextUniqueId,
                         context.name,
-                        context.stackTraceElement?.let {
+                        context.sourceInfo?.let {
                             if (isRootContext)
                                 createClassSource(it)
                             else
@@ -95,7 +94,7 @@ internal fun createResponse(
                 val context = contextInfo.context
                 val testDescriptor = FailGoodTestDescriptor(TestDescriptor.Type.CONTAINER,
                     uniqueId.appendContext(uniqueMaker.makeUnique(context.name)),
-                    context.name, context.stackTraceElement?.let { createFileSource(it) })
+                    context.name, context.sourceInfo?.let { createFileSource(it) })
                 engineDescriptor.addChild(testDescriptor)
                 mapper.addMapping(context, testDescriptor)
                 engineDescriptor.failedContexts.add(contextInfo)

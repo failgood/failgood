@@ -20,7 +20,7 @@ data class RootContext(
     val order: Int = 0,
     val function: ContextLambda
 ) {
-    val stackTraceElement = SourceInfo(findCallerSTE())
+    val sourceInfo = SourceInfo(findCallerSTE())
 }
 
 data class SourceInfo(val className: String, val fileName: String, val lineNumber: Int) {
@@ -48,12 +48,12 @@ fun describe(subjectType: KClass<*>, disabled: Boolean = false, order: Int = 0, 
 data class TestDescription(
     val container: TestContainer,
     val testName: String,
-    val stackTraceElement: SourceInfo
+    val sourceInfo: SourceInfo
 ) {
-    internal constructor(testPath: ContextPath, stackTraceElement: SourceInfo) : this(
+    internal constructor(testPath: ContextPath, sourceInfo: SourceInfo) : this(
         testPath.container,
         testPath.name,
-        stackTraceElement
+        sourceInfo
     )
 
     override fun toString(): String {
@@ -71,7 +71,7 @@ interface TestContainer {
 data class Context(
     override val name: String,
     val parent: Context? = null,
-    val stackTraceElement: SourceInfo? = null
+    val sourceInfo: SourceInfo? = null
 ) : TestContainer {
     companion object {
         fun fromPath(path: List<String>): Context {

@@ -183,8 +183,6 @@ internal class ContextExecutor(
                 throw FailGoodException("duplicate name \"$name\" in context \"${parentContext.name}\"")
         }
 
-        private fun sourceInfo() =
-            SourceInfo(RuntimeException().stackTrace.first { !(it.fileName?.endsWith("ContextExecutor.kt") ?: true) }!!)
 
         override suspend fun describe(name: String, function: ContextLambda) {
             context(name, function)
@@ -215,5 +213,8 @@ internal class ContextExecutor(
                 afterSuiteCallbacks.add(function)
         }
     }
+
+    private fun sourceInfo() =
+        SourceInfo(RuntimeException().stackTrace.first { !(it.fileName?.endsWith("ContextExecutor.kt") ?: true) }!!)
 }
 

@@ -43,7 +43,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
             this(listOf(ContextProvider { listOf(rootContext) }))
 
     constructor(function: ContextLambda) :
-            this(RootContext("root", false, 0, function))
+            this(RootContext("root", false, 0, function = function))
 
     fun run(
         parallelism: Int? = null,
@@ -144,12 +144,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                     } else
                         ContextInfo(emptyList(), mapOf(), setOf())
                 }
-            }.also { log("findTests finished") }
-    }
-
-    @Suppress("UNUSED_PARAMETER")
-    private fun log(string: String) {
-//        println("${upt()}: $string")
+            }
     }
 
     fun runSingle(test: String): TestResult {

@@ -18,10 +18,9 @@ data class RootContext(
     val name: String = "root",
     val disabled: Boolean = false,
     val order: Int = 0,
+    val sourceInfo: SourceInfo = SourceInfo(findCallerSTE()),
     val function: ContextLambda
-) {
-    val sourceInfo = SourceInfo(findCallerSTE())
-}
+)
 
 data class SourceInfo(val className: String, val fileName: String, val lineNumber: Int) {
     fun likeStackTrace(testName: String) = "$className.${testName.replace(" ", "-")}($fileName:$lineNumber)"
@@ -34,16 +33,16 @@ typealias ContextLambda = suspend ContextDSL.() -> Unit
 typealias TestLambda = suspend TestDSL.() -> Unit
 
 fun context(description: String, disabled: Boolean = false, order: Int = 0, function: ContextLambda): RootContext =
-    RootContext(description, disabled, order, function)
+    RootContext(description, disabled, order, function = function)
 
 fun describe(subjectDescription: String, disabled: Boolean = false, order: Int = 0, function: ContextLambda):
-        RootContext = RootContext(subjectDescription, disabled, order, function)
+        RootContext = RootContext(subjectDescription, disabled, order, function = function)
 
 inline fun <reified T> describe(disabled: Boolean = false, order: Int = 0, noinline function: ContextLambda):
         RootContext = describe(T::class, disabled, order, function)
 
 fun describe(subjectType: KClass<*>, disabled: Boolean = false, order: Int = 0, function: ContextLambda):
-        RootContext = RootContext("The ${subjectType.simpleName}", disabled, order, function)
+        RootContext = RootContext("The ${subjectType.simpleName}", disabled, order, function = function)
 
 data class TestDescription(
     val container: TestContainer,

@@ -9,9 +9,6 @@ import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import strikt.assertions.single
 
-fun main() {
-    FailGood.runTest("The ObjectContextProvider > provides a context from an class in a kotlin class (MyTest::class.java)")
-}
 
 @Test
 class ObjectContextProviderTest {
@@ -42,5 +39,20 @@ class ObjectContextProviderTest {
                     .isA<RootContext>()
                     .and { get(RootContext::name).isEqualTo("test context declared on top level") }
             }
+            pending("corrects the root context source info when its not coming from the loaded class") {
+                val contexts =
+                    ObjectContextProvider(TestClassThatUsesUtilityMethodToCreateTestContexts::class).getContexts()
+                expectThat(contexts).hasSize(2)
+                    .all { get { sourceInfo.className }.isEqualTo(TestClassThatUsesUtilityMethodToCreateTestContexts::class.qualifiedName) }
+            }
         }
+}
+
+private class TestClassThatUsesUtilityMethodToCreateTestContexts {
+    val context = ContextTools.createContexts()
+}
+
+private object ContextTools {
+    fun createContexts() = listOf(describe("Anything") {}, describe("Another thing") {})
+
 }

@@ -14,6 +14,7 @@ import strikt.assertions.containsExactly
 import strikt.assertions.doesNotContain
 import strikt.assertions.get
 import strikt.assertions.isA
+import strikt.assertions.isEmpty
 import strikt.assertions.isEqualTo
 import strikt.assertions.isGreaterThanOrEqualTo
 import strikt.assertions.isNotEmpty
@@ -83,20 +84,35 @@ class ContextExecutorTest {
                         }
                     }
                 }
-                it("can execute a subset of tests") {
-                    val contextResult = coroutineScope {
-                        ContextExecutor(
-                            ctx,
-                            this,
-                            testFilter = StringListTestFilter(listOf("root context", "test 1"))
-                        ).execute()
+                describe("executing a subset of tests") {
+                    it("can execute a subset of tests") {
+                        val contextResult = coroutineScope {
+                            ContextExecutor(
+                                ctx,
+                                this,
+                                testFilter = StringListTestFilter(listOf("root context", "test 1"))
+                            ).execute()
+                        }
+                        val contextInfo = expectThat(contextResult).isA<ContextInfo>().subject
+                        expectThat(contextInfo) {
+                            get { tests.keys }.map { it.testName }.containsExactly("test 1")
+                            get { contexts }.map { it.name }.containsExactly("root context")
+                        }
                     }
-                    val contextInfo = expectThat(contextResult).isA<ContextInfo>().subject
-                    expectThat(contextInfo) {
-                        get { tests.keys }.map { it.testName }.containsExactly("test 1")
-                        get { contexts }.map { it.name }.containsExactly("root context")
+                    pending("does not execute the context at all if the root name does not match") {
+                        val contextResult = coroutineScope {
+                            ContextExecutor(
+                                ctx,
+                                this,
+                                testFilter = StringListTestFilter(listOf("other root context", "test 1"))
+                            ).execute()
+                        }
+                        val contextInfo = expectThat(contextResult).isA<ContextInfo>().subject
+                        expectThat(contextInfo) {
+                            get { tests }.isEmpty()
+                            get { contexts }.isEmpty()
+                        }
                     }
-
                 }
                 describe("reports line numbers") {
                     var rootContextLine = 0

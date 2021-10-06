@@ -20,7 +20,10 @@ data class RootContext(
     val order: Int = 0,
     val sourceInfo: SourceInfo = SourceInfo(findCallerSTE()),
     val function: ContextLambda
-)
+) : failgood.internal.Path {
+    override val path: List<String>
+        get() = listOf(name)
+}
 
 data class SourceInfo(val className: String, val fileName: String?, val lineNumber: Int) {
     fun likeStackTrace(testName: String) = "$className.${testName.replace(" ", "-")}($fileName:$lineNumber)"

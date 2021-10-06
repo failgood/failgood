@@ -99,7 +99,7 @@ class ContextExecutorTest {
                             get { contexts }.map { it.name }.containsExactly("root context")
                         }
                     }
-                    pending("does not execute the context at all if the root name does not match") {
+                    it("does not execute the context at all if the root name does not match") {
                         val contextResult = coroutineScope {
                             ContextExecutor(
                                 ctx,

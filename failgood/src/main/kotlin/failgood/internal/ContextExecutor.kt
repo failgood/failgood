@@ -52,6 +52,8 @@ internal class ContextExecutor(
      *
      */
     suspend fun execute(): ContextResult {
+        if (!testFilter.shouldRun(rootContext))
+            return ContextInfo(listOf(), mapOf(), setOf())
         val function = rootContext.function
         val rootContext = Context(rootContext.name, null, rootContext.sourceInfo)
         while (true) {

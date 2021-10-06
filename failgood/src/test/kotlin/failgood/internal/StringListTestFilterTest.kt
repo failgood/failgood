@@ -1,5 +1,6 @@
 package failgood.internal
 
+import failgood.RootContext
 import failgood.Test
 import failgood.describe
 import strikt.api.expectThat
@@ -18,6 +19,12 @@ class StringListTestFilterTest {
         }
         it("does not execute a different path") {
             expectThat(f.shouldRun(ContextPath.fromList("path", "to", "some", "other", "context"))).isFalse()
+        }
+        it("executes a root context when the path fits") {
+            expectThat(f.shouldRun(RootContext("path") {})).isTrue()
+        }
+        it("does not execute a root context when the path is different") {
+            expectThat(f.shouldRun(RootContext("not path") {})).isFalse()
         }
     }
 }

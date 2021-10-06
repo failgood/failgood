@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- Output UniqueIds of failed tests in junit engine runner to make it possible to re run them in IDEA.
+
+### Fixed
+
+- Fix some run-tests-by-uniqueId edge cases
+
 ## 0.4.7 - "Let's try this" - 2021-09-17
 
 ### Added

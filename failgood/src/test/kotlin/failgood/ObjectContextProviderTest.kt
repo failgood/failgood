@@ -7,6 +7,7 @@ import strikt.assertions.all
 import strikt.assertions.hasSize
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
+import strikt.assertions.isNotEqualTo
 import strikt.assertions.single
 
 
@@ -39,20 +40,47 @@ class ObjectContextProviderTest {
                     .isA<RootContext>()
                     .and { get(RootContext::name).isEqualTo("test context declared on top level") }
             }
-            pending("corrects the root context source info when its not coming from the loaded class") {
-                val contexts =
-                    ObjectContextProvider(TestClassThatUsesUtilityMethodToCreateTestContexts::class).getContexts()
-                expectThat(contexts).hasSize(2)
-                    .all { get { sourceInfo.className }.isEqualTo(TestClassThatUsesUtilityMethodToCreateTestContexts::class.qualifiedName) }
+            describe("correcting source info") {
+                it("corrects the root context source info if its not coming from the loaded class") {
+                    val contexts =
+                        ObjectContextProvider(TestClassThatUsesUtilityMethodToCreateTestContexts::class).getContexts()
+                    expectThat(contexts).hasSize(2)
+                        .all {
+                            get { sourceInfo } and {
+                                get { className }.isEqualTo(
+                                    TestClassThatUsesUtilityMethodToCreateTestContexts::class.qualifiedName
+                                )
+                                get { lineNumber }.isEqualTo(1) // junit engine does not like line number 0
+                            }
+                        }
+                }
+                it("does not touch the source info if it comes from the loaded class") {
+                    val contexts =
+                        ObjectContextProvider(OrdinaryTestClass::class).getContexts()
+                    expectThat(contexts).hasSize(2)
+                        .all {
+                            get { sourceInfo }.and {
+                                get { className }.isEqualTo(OrdinaryTestClass::class.qualifiedName)
+                                get { lineNumber }.isNotEqualTo(0)
+                            }
+                        }
+                }
+
             }
         }
 }
 
 private class TestClassThatUsesUtilityMethodToCreateTestContexts {
+    @Suppress("unused")
     val context = ContextTools.createContexts()
 }
 
 private object ContextTools {
     fun createContexts() = listOf(describe("Anything") {}, describe("Another thing") {})
+}
+
+private class OrdinaryTestClass {
+    @Suppress("unused")
+    val context = listOf(describe("Anything") {}, describe("Another thing") {})
 
 }

@@ -30,12 +30,13 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
                 return listOf()
             }
         }
-        return contexts
         // now correct the sourceinfo if the context thinks it does not come from the class we just loaded
-/*        return contexts.map {
+        return contexts.map {
             if (it.sourceInfo.className != jClass.name)
-                it.copy(sourceInfo = )
-        }*/
+                it.copy(sourceInfo = SourceInfo(jClass.name, null, 1))
+            else
+                it
+        }
 
         // slow failsafe version that uses kotlin reflect:
         //        return kClass.declaredMemberProperties.single { it.name == "context"

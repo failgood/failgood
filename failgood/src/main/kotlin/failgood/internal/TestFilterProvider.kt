@@ -1,19 +1,17 @@
 package failgood.internal
 
-import failgood.junit.RootContextAndClass
-
 internal interface TestFilterProvider {
-    fun forContext(className: String, rootName: String): TestFilter
+    fun forClass(className: String): TestFilter
 }
 
 internal object ExecuteAllTestFilterProvider : TestFilterProvider {
-    override fun forContext(className: String, rootName: String) = ExecuteAllTests
+    override fun forClass(className: String) = ExecuteAllTests
 }
 
-internal class RootContextAndClassTestFilterProvider(private val filterConfig: Map<RootContextAndClass, List<String>>) :
+internal class ClassTestFilterProvider(private val filterConfig: Map<String, List<String>>) :
     TestFilterProvider {
-    override fun forContext(className: String, rootName: String): TestFilter {
-        return filterConfig[RootContextAndClass(className, rootName)]?.let { StringListTestFilter(it) }
+    override fun forClass(className: String): TestFilter {
+        return filterConfig[className]?.let { StringListTestFilter(it) }
             ?: ExecuteAllTests
     }
 }

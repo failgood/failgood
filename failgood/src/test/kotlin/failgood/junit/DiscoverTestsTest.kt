@@ -27,7 +27,7 @@ class DiscoverTestsTest {
             expectThat(findContexts(request)) {
                 get { contexts }.single().get { getContexts() }.single().get { this.name }
                     .isEqualTo(rootName)
-                get { filter.forContext(className, rootName) }.isA<StringListTestFilter>().get { filterList }
+                get { filter.forClass(className) }.isA<StringListTestFilter>().get { filterList }
                     .containsExactly(rootName, testName)
             }
         }

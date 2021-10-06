@@ -4,7 +4,7 @@ import failgood.ContextProvider
 import failgood.FailGood
 import failgood.FailGoodException
 import failgood.ObjectContextProvider
-import failgood.internal.RootContextAndClassTestFilterProvider
+import failgood.internal.ClassTestFilterProvider
 import failgood.internal.TestFilterProvider
 import org.junit.platform.engine.DiscoveryFilter
 import org.junit.platform.engine.DiscoverySelector
@@ -18,10 +18,8 @@ import java.util.LinkedList
 
 internal data class ContextsAndFilters(val contexts: List<ContextProvider>, val filter: TestFilterProvider)
 
-internal data class RootContextAndClass(val className: String, val contextName: String)
-
 internal suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): ContextsAndFilters {
-    val filterConfig = mutableMapOf<RootContextAndClass, List<String>>()
+    val filterConfig = mutableMapOf<String, List<String>>()
     val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)
     val classNamePredicates =
         discoveryRequest.getFiltersByType(ClassNameFilter::class.java).map { it.toPredicate() }
@@ -51,7 +49,7 @@ internal suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): Con
                 val rootContextName = segment1.substringBefore("(")
                 val filterString = listOf(rootContextName) + segments.drop(2).map { it.value }
                 val className = segment1.substringAfter("(").substringBefore(")")
-                filterConfig[RootContextAndClass(className, rootContextName)] = filterString
+                filterConfig[className] = filterString
                 val javaClass = try {
                     Thread.currentThread().contextClassLoader.loadClass(className)
                 } catch (e: ClassNotFoundException) {
@@ -69,7 +67,7 @@ internal suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): Con
         }
 
     }
-    return ContextsAndFilters(contexts, RootContextAndClassTestFilterProvider(filterConfig))
+    return ContextsAndFilters(contexts, ClassTestFilterProvider(filterConfig))
 }
 
 private fun discoveryRequestToString(discoveryRequest: EngineDiscoveryRequest): String {

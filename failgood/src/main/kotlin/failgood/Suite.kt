@@ -119,6 +119,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                 val testFilter = executionFilter.forClass(context.sourceInfo.className)
                 coroutineScope.async {
                     if (!context.disabled) {
+                        println("starting $context")
                         ContextExecutor(
                             context,
                             coroutineScope,
@@ -126,7 +127,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                             listener,
                             testFilter,
                             timeoutMillis
-                        ).execute()
+                        ).execute().also { println("finished $context") }
                     } else
                         ContextInfo(emptyList(), mapOf(), setOf())
                 }

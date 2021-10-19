@@ -99,7 +99,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
 
     // when timeout is not set use the default.
 // if it's set to a number use that as the timeout. if it's not a number turn the timeout off
-    private val contextTimeout = System.getenv("TIMEOUT").let {
+    private val contextTimeout: Long? = System.getenv("TIMEOUT").let {
         when (it) {
             null -> DEFAULT_CONTEXT_TIMEOUT
             else -> it.toLongOrNull()
@@ -119,17 +119,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                 coroutineScope.async {
                     if (!context.disabled) {
                         try {
-                            if (contextTimeout != null) {
-                                withTimeout(contextTimeout) {
-                                    ContextExecutor(
-                                        context,
-                                        coroutineScope,
-                                        !executeTests,
-                                        listener,
-                                        testFilter
-                                    ).execute()
-                                }
-                            } else {
+                            withTimeout(contextTimeout ?: Long.MAX_VALUE) {
                                 ContextExecutor(
                                     context,
                                     coroutineScope,

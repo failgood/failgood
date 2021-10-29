@@ -31,9 +31,9 @@ internal class ContextExecutor(
     val testFilter: TestFilter = ExecuteAllTests
 ) {
 
-    // use a timeout of 20 seconds for now. This is not for finding slow tests,
+    // use a timeout of 40 seconds for now. This is not for finding slow tests,
     // this is to keep the suite from hanging without a result
-    val testTimeoutMillis = 20000L
+    val testTimeoutMillis = 40000L
     val coroutineStart: CoroutineStart = if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT
     private var startTime = System.nanoTime()
 

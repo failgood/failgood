@@ -24,7 +24,7 @@ import java.lang.management.ManagementFactory
 import java.util.concurrent.Executors
 import kotlin.reflect.KClass
 
-const val DEFAULT_CONTEXT_TIMEOUT: Long = 20000
+const val DEFAULT_CONTEXT_TIMEOUT: Long = 40000
 
 class Suite(val contextProviders: Collection<ContextProvider>) {
     companion object {

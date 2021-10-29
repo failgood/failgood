@@ -2,11 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 0.4.8 - "Good Looking" - 2021-10-29
+
+### Changed
+
+- bump timeout to 40 seconds for now.
 
 ### Added
 
-- Output UniqueIds of failed tests in junit engine runner to make it possible to re run them in IDEA.
+- Output UniqueIds of failed tests in junit engine runner to make it possible to re-run them in IDEA.
 
 ### Fixed
 

@@ -13,27 +13,29 @@ class LoggingEngineExecutionListener(private val delegate: EngineExecutionListen
     }
 
     override fun executionSkipped(testDescriptor: TestDescriptor?, reason: String?) {
-        event("executionSkipped " + testDescriptor!!.displayName)
+        event("executionSkipped " + name(testDescriptor))
         delegate.executionSkipped(testDescriptor, reason)
     }
 
     override fun executionStarted(testDescriptor: TestDescriptor?) {
-        event("executionStarted " + testDescriptor!!.displayName)
+        event("executionStarted " + name(testDescriptor))
         delegate.executionStarted(testDescriptor)
     }
 
     override fun executionFinished(testDescriptor: TestDescriptor?, testExecutionResult: TestExecutionResult?) {
-        event("executionFinished " + testDescriptor!!.displayName + ": " + testExecutionResult)
+        event("executionFinished " + name(testDescriptor) + ": " + testExecutionResult)
         delegate.executionFinished(testDescriptor, testExecutionResult)
     }
 
     override fun dynamicTestRegistered(testDescriptor: TestDescriptor?) {
-        event("dynamicTestRegistered " + testDescriptor!!.displayName)
+        event("dynamicTestRegistered " + name(testDescriptor))
         delegate.dynamicTestRegistered(testDescriptor)
     }
 
     override fun reportingEntryPublished(testDescriptor: TestDescriptor?, entry: ReportEntry?) {
-        event("reportingEntryPublished" + testDescriptor!!.displayName + entry)
+        event("reportingEntryPublished" + name(testDescriptor) + entry)
         delegate.reportingEntryPublished(testDescriptor, entry)
     }
+
+    private fun name(testDescriptor: TestDescriptor?) = "${testDescriptor!!.displayName}(${testDescriptor.uniqueId})"
 }

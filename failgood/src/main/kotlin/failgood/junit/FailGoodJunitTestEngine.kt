@@ -34,11 +34,6 @@ import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
 const val CONTEXT_SEGMENT_TYPE = "class"
 const val TEST_SEGMENT_TYPE = "method"
 
-/*
-junit support is very hacky currently, mostly because it has no tests.
-nowadays, it works so well that I will probably have to refactor and test it.
- */
-
 class FailGoodJunitTestEngine : TestEngine {
     private var debug: Boolean = false
     override fun getId(): String = FailGoodJunitTestEngineConstants.id

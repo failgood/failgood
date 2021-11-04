@@ -8,6 +8,7 @@ import failgood.TestDescription
 import failgood.TestPlusResult
 import failgood.describe
 import failgood.internal.ContextInfo
+import failgood.internal.FailedContext
 import kotlinx.coroutines.CompletableDeferred
 import org.junit.platform.engine.UniqueId
 import strikt.api.expectThat
@@ -34,6 +35,17 @@ class CreateResponseTest {
                 expectThat(rootContextDescriptor.children).single().get { children }.single()
                     .get { uniqueId.toString() }
                     .isEqualTo("[engine:failgood]/[class:root context name(package.ClassName)]/[class:sub context name]")
+            }
+        }
+        describe("failed contexts") {
+            val rootContextDescriptor = createResponse(
+                UniqueId.forEngine("failgood"),
+                listOf(FailedContext(rootContext, RuntimeException())),
+                JunitExecutionListener()
+            )
+            it("creates a friendly uniqueid for a failed root context") {
+                expectThat(rootContextDescriptor.children).single().get { uniqueId.toString() }
+                    .isEqualTo("[engine:failgood]/[class:root context name(package.ClassName)]")
             }
         }
         it("creates friendly uuids for tests") {

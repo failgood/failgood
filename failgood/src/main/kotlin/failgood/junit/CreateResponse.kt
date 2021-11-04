@@ -93,7 +93,7 @@ internal fun createResponse(
             is FailedContext -> {
                 val context = contextInfo.context
                 val testDescriptor = FailGoodTestDescriptor(TestDescriptor.Type.CONTAINER,
-                    uniqueId.appendContext(uniqueMaker.makeUnique(context.name)),
+                    uniqueId.appendContext(uniqueMaker.makeUnique("${context.name}(${(context.sourceInfo?.className) ?: ""})")),
                     context.name, context.sourceInfo?.let { createFileSource(it) })
                 engineDescriptor.addChild(testDescriptor)
                 mapper.addMapping(context, testDescriptor)

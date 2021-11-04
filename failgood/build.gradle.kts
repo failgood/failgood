@@ -14,7 +14,7 @@ plugins {
     id("failgood.common")
 }
 // to release:
-// ./gradlew publishToSonatype closeSonatypeStagingRepository (or closeAndReleaseSonatypeStagingRepository)
+// ./gradlew publishToSonatype closeSonatypeStagingRepository (or ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository)
 
 
 dependencies {

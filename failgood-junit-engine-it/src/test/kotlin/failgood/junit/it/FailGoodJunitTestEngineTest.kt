@@ -17,6 +17,7 @@ import org.junit.platform.engine.ExecutionRequest
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.UniqueId
+import org.junit.platform.engine.discovery.DiscoverySelectors
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 import strikt.assertions.isTrue
@@ -29,7 +30,10 @@ class FailGoodJunitTestEngineTest {
         val engine = FailGoodJunitTestEngine()
         describe("can discover tests") {
             val testDescriptor =
-                engine.discover(launcherDiscoveryRequest(TestFixtureTest::class), UniqueId.forEngine(engine.id))
+                engine.discover(
+                    launcherDiscoveryRequest(DiscoverySelectors.selectClass(TestFixtureTest::class.qualifiedName)),
+                    UniqueId.forEngine(engine.id)
+                )
             it("returns a root descriptor") {
                 expectThat(testDescriptor.isRoot)
                 expectThat(testDescriptor.displayName).isEqualTo("FailGood")
@@ -46,7 +50,7 @@ class FailGoodJunitTestEngineTest {
             it("starts and stops contexts in the correct order") {
                 val testDescriptor =
                     engine.discover(
-                        launcherDiscoveryRequest(TestWithNestedContextsTest::class),
+                        launcherDiscoveryRequest(DiscoverySelectors.selectClass(TestWithNestedContextsTest::class.qualifiedName)),
                         UniqueId.forEngine(engine.id)
                     )
                 val listener = RememberingExecutionListener()
@@ -83,7 +87,7 @@ class FailGoodJunitTestEngineTest {
             it("sends one skip event and no start event for skipped tests") {
                 val testDescriptor =
                     engine.discover(
-                        launcherDiscoveryRequest(PendingTestFixtureTest::class),
+                        launcherDiscoveryRequest(DiscoverySelectors.selectClass(PendingTestFixtureTest::class.qualifiedName)),
                         UniqueId.forEngine(engine.id)
                     )
                 val listener = RememberingExecutionListener()

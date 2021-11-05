@@ -83,7 +83,6 @@ class FailGoodTestUnitFinderTest {
 
         override fun notifyStart(description: Description) {
             events.add(Event(description, Type.START, null))
-
         }
 
         override fun notifySkipped(description: Description) {
@@ -93,4 +92,3 @@ class FailGoodTestUnitFinderTest {
         override fun shouldExit() = false
     }
 }
-

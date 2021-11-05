@@ -2,6 +2,8 @@ plugins {
     java
     `maven-publish`
     signing
+    id("org.jlleitschuh.gradle.ktlint")
+    kotlin("jvm")
 }
 
 val pub = "mavenJava-${project.name}"

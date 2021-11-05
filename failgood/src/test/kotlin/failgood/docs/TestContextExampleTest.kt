@@ -12,7 +12,5 @@ class TestContextExampleTest {
             // in the junit test runner.
             println("this is my debug output")
         }
-
     }
-
 }

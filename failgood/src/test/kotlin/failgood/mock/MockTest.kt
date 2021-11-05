@@ -67,8 +67,10 @@ class MockTest {
         }
         it("mocks can throw") {
             whenever(mock) { stringReturningFunction() }.then { throw RuntimeException("message") }
-            expectThat(kotlin.runCatching { mock.stringReturningFunction() }
-                .exceptionOrNull()).isA<RuntimeException>().message.isEqualTo("message")
+            expectThat(
+                kotlin.runCatching { mock.stringReturningFunction() }
+                    .exceptionOrNull()
+            ).isA<RuntimeException>().message.isEqualTo("message")
         }
         it("defines results via calling the mock even works for nullable functions") {
             whenever(mock) { functionThatReturnsNullableString() }.then { "resultString" }
@@ -115,7 +117,6 @@ class MockTest {
         }
     }
 
-
     interface InterfaceWithOverloadedMethods {
         fun function()
         fun function(a: String)
@@ -133,8 +134,4 @@ class MockTest {
         suspend fun function(a: String, b: String, c: String, d: String)
         suspend fun function(a: String, b: String, c: String, d: String, e: String)
     }
-
 }
-
-
-

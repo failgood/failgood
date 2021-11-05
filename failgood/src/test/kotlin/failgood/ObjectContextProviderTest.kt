@@ -10,7 +10,6 @@ import strikt.assertions.isEqualTo
 import strikt.assertions.isNotEqualTo
 import strikt.assertions.single
 
-
 @Test
 class ObjectContextProviderTest {
     val context =
@@ -36,7 +35,10 @@ class ObjectContextProviderTest {
                 }
             }
             it("provides a top level context from a kotlin class") {
-                expectThat(ObjectContextProvider(ObjectContextProviderTest::class.java.classLoader.loadClass("failgood.docs.TestContextOnTopLevelTest").kotlin).getContexts()).single()
+                val classLoader = ObjectContextProviderTest::class.java.classLoader
+                val clazz =
+                    classLoader.loadClass("failgood.docs.TestContextOnTopLevelTest")
+                expectThat(ObjectContextProvider(clazz.kotlin).getContexts()).single()
                     .isA<RootContext>()
                     .and { get(RootContext::name).isEqualTo("test context declared on top level") }
             }
@@ -65,7 +67,6 @@ class ObjectContextProviderTest {
                             }
                         }
                 }
-
             }
         }
 }
@@ -82,5 +83,4 @@ private object ContextTools {
 private class OrdinaryTestClass {
     @Suppress("unused")
     val context = listOf(describe("Anything") {}, describe("Another thing") {})
-
 }

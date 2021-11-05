@@ -97,7 +97,5 @@ class SingleTestExecutorTest {
                     expectThat(result).isA<Failed>().get { failure }.isEqualTo(runtimeException)
                 }
             }
-
         }
-
 }

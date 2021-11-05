@@ -34,7 +34,7 @@ class ContextTreeReporterTest {
                         "  $SUCCESS supports describe/it syntax (0.01ms)",
                         "  * contexts can be nested",
                         "    $SUCCESS sub-contexts also contain tests (0.02ms)",
-                        "    $FAILED failed test ${RED}FAILED${RESET}",
+                        "    $FAILED failed test ${RED}FAILED$RESET",
                         "      failure message\\nwith newline",
                         "      ClassName.failed-test(file:123)"
                     ).joinToString("\n")
@@ -53,7 +53,8 @@ class ContextTreeReporterTest {
                                     10
                                 )
                             )
-                        ), listOf(rootContext, subContext)
+                        ),
+                        listOf(rootContext, subContext)
                     )
                 )
                     .containsExactly(

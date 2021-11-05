@@ -38,10 +38,8 @@ class ContextExecutorTest {
                             assertionError = AssertionError("failed")
                             throw assertionError!!
                         }
-                        context("context 1")
-                        {
-                            context("context 2")
-                            { test("test 3") {} }
+                        context("context 1") {
+                            context("context 2") { test("test 3") {} }
                         }
                         context("context 4") { test("test 4") {} }
                     }
@@ -68,8 +66,10 @@ class ContextExecutorTest {
                             .containsExactly("root context", "context 1", "context 2", "context 4")
                     }
                     it("reports time of successful tests") {
-                        expectThat(contextInfo.tests.values.awaitAll().map { it.result }
-                            .filterIsInstance<Success>()).isNotEmpty()
+                        expectThat(
+                            contextInfo.tests.values.awaitAll().map { it.result }
+                                .filterIsInstance<Success>()
+                        ).isNotEmpty()
                             .all { get { timeMicro }.isGreaterThanOrEqualTo(1) }
                     }
                     describe("reports failed tests") {
@@ -168,7 +168,6 @@ class ContextExecutorTest {
                             get(1).get { sourceInfo }.get { lineNumber }.isEqualTo(test2Line)
                         }
                     }
-
                 }
                 describe("supports lazy execution") {
                     it("postpones test execution until the deferred is awaited when lazy is set to true") {
@@ -192,7 +191,6 @@ class ContextExecutorTest {
                             expectThat(deferred.await().result).isA<Success>()
                             expectThat(testExecuted).isEqualTo(true)
                         }
-
                     }
                 }
 
@@ -223,7 +221,6 @@ class ContextExecutorTest {
                                     get { lineNumber }.isEqualTo(getLineNumber(error) - 1)
                                     get { className }.contains("ContextExecutorTest")
                                 }
-
                             }
                         }
                     }
@@ -246,8 +243,7 @@ class ContextExecutorTest {
                         get {isFailed}.isTrue()
                     }*/
                 }
-                describe("detects duplicated tests")
-                {
+                describe("detects duplicated tests") {
                     it("fails with duplicate tests in one context") {
                         val ctx = RootContext {
                             test("dup test name") {}
@@ -310,7 +306,6 @@ class ContextExecutorTest {
                         expectThat(result).isA<FailedContext>().get { failure }.message.isNotNull()
                             .contains("duplicate name \"same name\" in context \"root\"")
                     }
-
                 }
                 describe("handles strange contexts correctly") {
                     it("a context with only one pending test") {
@@ -320,17 +315,15 @@ class ContextExecutorTest {
                                 }
                             }
                             test("test") {}
-
                         }
                         val contextResult = coroutineScope {
                             ContextExecutor(context, this).execute()
                         }
                         expectThat(contextResult).isA<ContextResult>()
                         (contextResult as ContextInfo).tests.values.awaitAll()
-
                     }
                     test("tests can not contain nested contexts") {
-                        //context("this does not even compile") {}
+                        // context("this does not even compile") {}
                     }
                 }
             }

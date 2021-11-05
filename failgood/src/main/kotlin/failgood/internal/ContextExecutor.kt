@@ -139,7 +139,6 @@ internal class ContextExecutor(
             }
         }
 
-
         override suspend fun context(name: String, function: ContextLambda) {
             checkName(name)
             // if we already ran a test in this context we don't need to visit the child context now
@@ -185,11 +184,9 @@ internal class ContextExecutor(
                 throw FailGoodException("duplicate name \"$name\" in context \"${parentContext.name}\"")
         }
 
-
         override suspend fun describe(name: String, function: ContextLambda) {
             context(name, function)
         }
-
 
         override suspend fun it(behaviorDescription: String, function: TestLambda) {
             test(behaviorDescription, function)
@@ -219,4 +216,3 @@ internal class ContextExecutor(
     private fun sourceInfo() =
         SourceInfo(RuntimeException().stackTrace.first { !(it.fileName?.endsWith("ContextExecutor.kt") ?: true) }!!)
 }
-

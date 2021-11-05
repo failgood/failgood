@@ -35,7 +35,9 @@ class CreateResponseTest {
             it("creates friendly uniqueid for a sub context") {
                 expectThat(rootContextDescriptor.children).single().get { children }.single()
                     .get { uniqueId.toString() }
-                    .isEqualTo("[engine:failgood]/[class:root context name(package.ClassName)]/[class:sub context name]")
+                    .isEqualTo(
+                        "[engine:failgood]/[class:root context name(package.ClassName)]/[class:sub context name]"
+                    )
             }
         }
         describe("failed contexts") {
@@ -68,7 +70,6 @@ class CreateResponseTest {
             expectThat(rootContextDescriptor.children).single().get { children }.filter { it.isTest }.single()
                 .get { uniqueId.toString() }
                 .isEqualTo("[engine:failgood]/[class:root context name(package.ClassName)]/[method:test]")
-
         }
     }
 }

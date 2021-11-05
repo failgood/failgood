@@ -29,5 +29,4 @@ class JunitExecutionListener : ExecutionListener {
     override suspend fun testEvent(testDescription: TestDescription, type: String, payload: String) {
         events.send(TestExecutionEvent.TestEvent(testDescription, type, payload))
     }
-
 }

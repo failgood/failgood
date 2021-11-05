@@ -3,7 +3,6 @@ package failgood
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
-
 @Test
 class ContextTest {
     val context =

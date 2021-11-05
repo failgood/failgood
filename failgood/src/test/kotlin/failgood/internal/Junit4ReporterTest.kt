@@ -5,7 +5,6 @@ import failgood.describe
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 
-
 @Test
 class Junit4ReporterTest {
     val context = describe(Junit4Reporter::class) {
@@ -13,6 +12,7 @@ class Junit4ReporterTest {
             val control = Junit4Reporter(TestResultFixtures.testResults).stringReport()
 
             expectThat(control).containsExactly(
+                /* ktlint-disable */
                 listOf(
                     """<testsuite tests="3">""",
                     """<testcase classname="the test runner" name="supports describe/it syntax"/>""",
@@ -28,4 +28,3 @@ class Junit4ReporterTest {
         }
     }
 }
-

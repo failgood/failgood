@@ -51,5 +51,6 @@ suspend fun main() {
 
     FailGood.runAllTests(true)
 
-    expectThat(ManagementFactory.getRuntimeMXBean().uptime).isLessThan(1000) // let's see how far we can get with one second
+    // let's see how far we can get with one second
+    expectThat(ManagementFactory.getRuntimeMXBean().uptime).isLessThan(1000)
 }

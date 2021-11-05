@@ -42,5 +42,4 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
         //        return kClass.declaredMemberProperties.single { it.name == "context"
         // }.call(kClass.objectInstance) as RootContext
     }
-
 }

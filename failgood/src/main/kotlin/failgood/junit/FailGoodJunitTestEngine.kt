@@ -69,7 +69,6 @@ class FailGoodJunitTestEngine : TestEngine {
         }
     }
 
-
     override fun execute(request: ExecutionRequest) {
         val failedTests = mutableListOf<TestDescription>()
         val root = request.rootTestDescriptor
@@ -131,7 +130,6 @@ class FailGoodJunitTestEngine : TestEngine {
                                     junitListener.executionSkipped(mapping, "test is skipped")
                                 }
                             }
-
                         }
                         is TestExecutionEvent.TestEvent -> junitListener.reportingEntryPublished(
                             mapping,
@@ -161,14 +159,13 @@ class FailGoodJunitTestEngine : TestEngine {
             failedTests.forEach {
                 println(
                     "${it.testName} ${
-                        mapper.getMapping(it)!!.uniqueId.toString().replace(" ", "+")
+                    mapper.getMapping(it)!!.uniqueId.toString().replace(" ", "+")
                     }"
                 )
             }
         }
         println("finished after ${uptime()}")
     }
-
 }
 
 class FailGoodTestDescriptor(
@@ -178,7 +175,4 @@ class FailGoodTestDescriptor(
     testSource: TestSource? = null
 ) : AbstractTestDescriptor(id, name, testSource) {
     override fun getType(): TestDescriptor.Type = type
-
 }
-
-

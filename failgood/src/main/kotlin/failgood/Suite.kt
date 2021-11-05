@@ -40,10 +40,10 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     }
 
     constructor(rootContext: RootContext) :
-            this(listOf(ContextProvider { listOf(rootContext) }))
+        this(listOf(ContextProvider { listOf(rootContext) }))
 
     constructor(function: ContextLambda) :
-            this(RootContext("root", false, 0, function = function))
+        this(RootContext("root", false, 0, function = function))
 
     fun run(
         parallelism: Int? = null,
@@ -73,7 +73,9 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                                         .joinToString("\n")
                                 )
                             }
-                            is FailedContext -> println("context ${context.context} failed: ${context.failure.stackTraceToString()}")
+                            is FailedContext -> {
+                                println("context ${context.context} failed: ${context.failure.stackTraceToString()}")
+                            }
                         }
                     }
                 }
@@ -93,7 +95,8 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
             SuiteResult(
                 results,
                 results.filter { it.isFailed },
-                successfulContexts.flatMap { it.contexts })
+                successfulContexts.flatMap { it.contexts }
+            )
         }
     }
 
@@ -145,15 +148,19 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         val desc = ContextPath.fromString(test)
         return runBlocking {
             val resourcesCloser = ResourcesCloser(this)
-            SingleTestExecutor(context, desc, object : TestDSL, ResourcesDSL by resourcesCloser {
-                override suspend fun println(body: String) {
-                    kotlin.io.println(body)
-                }
+            SingleTestExecutor(
+                context, desc,
+                object : TestDSL, ResourcesDSL by resourcesCloser {
+                    override suspend fun println(body: String) {
+                        kotlin.io.println(body)
+                    }
 
-                override suspend fun _test_event(type: String, body: String) {
-                    kotlin.io.println(body)
-                }
-            }, resourcesCloser).execute()
+                    override suspend fun _test_event(type: String, body: String) {
+                        kotlin.io.println(body)
+                    }
+                },
+                resourcesCloser
+            ).execute()
         }
     }
 }
@@ -173,7 +180,7 @@ internal fun uptime(totalTests: Int? = null): String {
     val uptime = upt()
     val cpuTime = operatingSystemMXBean.processCpuTime / 1000000
     val percentage = cpuTime * 100 / uptime
-    return "total:${uptime}ms cpu:${cpuTime}ms, load:${percentage}%." + if (totalTests != null) {
+    return "total:${uptime}ms cpu:${cpuTime}ms, load:$percentage%." + if (totalTests != null) {
         " " + pluralize(totalTests * 1000 / uptime.toInt(), "test") + "/sec"
     } else
         ""

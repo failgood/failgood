@@ -5,7 +5,6 @@ import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
 import java.util.concurrent.CopyOnWriteArrayList
 
-
 @Test
 class TestLifecycleTest {
     private enum class Event {

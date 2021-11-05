@@ -27,8 +27,14 @@ class ExceptionPrettyPrinterTest {
             }
             it("shows only stack trace lines for assertion errors that are in the test file") {
                 val assertionError = AssertionError("message")
+                val prefix =
+                    ExceptionPrettyPrinterTest::class.qualifiedName!!
                 val sourceInfo =
-                    SourceInfo(assertionError.stackTrace.first { it.className.startsWith(ExceptionPrettyPrinterTest::class.qualifiedName!!) })
+                    SourceInfo(
+                        assertionError.stackTrace.first {
+                            it.className.startsWith(prefix)
+                        }
+                    )
                 expectThat(
                     ExceptionPrettyPrinter(assertionError, sourceInfo).prettyPrint().split("\n")
                 ).allIndexed { idx ->

@@ -16,7 +16,6 @@ plugins {
 // to release:
 // ./gradlew publishToSonatype closeSonatypeStagingRepository (or ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository)
 
-
 dependencies {
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$coroutinesVersion")
     api("org.junit.platform:junit-platform-commons:$junitPlatformVersion")
@@ -54,7 +53,6 @@ tasks {
     }
 }
 
-
 val testMain =
     task("testMain", JavaExec::class) {
         mainClass.set("failgood.FailGoodBootstrapKt")
@@ -78,7 +76,7 @@ plugins.withId("info.solidsoft.pitest") {
         jvmArgs.set(listOf("-Xmx512m")) // necessary on CI
         testPlugin.set("failgood")
         avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))
-        targetClasses.set(setOf("failgood.*")) //by default "${project.group}.*"
+        targetClasses.set(setOf("failgood.*")) // by default "${project.group}.*"
         targetTests.set(setOf("failgood.*Test", "failgood.**.*Test"))
         pitestVersion.set(failgood.versions.pitestVersion)
         threads.set(
@@ -87,4 +85,3 @@ plugins.withId("info.solidsoft.pitest") {
         outputFormats.set(setOf("XML", "HTML"))
     }
 }
-

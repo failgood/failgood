@@ -31,6 +31,5 @@ class DiscoverTestsTest {
                     .containsExactly(rootName, testName)
             }
         }
-
     }
 }

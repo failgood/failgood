@@ -21,5 +21,4 @@ internal data class ContextPath(val container: Context, val name: String) : Path
     override fun toString(): String {
         return "${container.stringPath()} > $name"
     }
-
 }

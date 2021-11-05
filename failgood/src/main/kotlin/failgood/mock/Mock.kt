@@ -8,7 +8,6 @@ import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
 
-
 /**
  * create a mock for class Mock
  *
@@ -36,7 +35,7 @@ fun <Mock : Any> mock(kClass: KClass<Mock>): Mock {
  *
  */
 suspend fun <Mock : Any, Result> whenever(mock: Mock, lambda: suspend Mock.() -> Result):
-        MockReplyRecorder<Result> = getHandler(mock).whenever(lambda)
+    MockReplyRecorder<Result> = getHandler(mock).whenever(lambda)
 
 /**
  * Verify mock invocations
@@ -55,7 +54,6 @@ suspend fun <Mock : Any> verify(mock: Mock, lambda: suspend Mock.() -> Unit) {
     getHandler(mock).verify(lambda)
 }
 
-
 /**
  * Return calls to a mock to check with your favorite assertion lib (or the assertion lib you use) in combination with
  * the [call] helper.
@@ -67,7 +65,6 @@ suspend fun <Mock : Any> verify(mock: Mock, lambda: suspend Mock.() -> Unit) {
 fun getCalls(mock: Any) = getHandler(mock).calls.map { FunctionCall(it.method.name, it.arguments) }
 
 data class FunctionCall(val function: String, val arguments: List<Any?>)
-
 
 class MockException internal constructor(msg: String) : AssertionError(msg)
 
@@ -82,7 +79,6 @@ private data class MethodWithArguments(val method: Method, val arguments: List<A
         return "${method.name}(" + arguments.joinToString() + ")"
     }
 }
-
 
 private fun getHandler(mock: Any): MockHandler {
     return Proxy.getInvocationHandler(mock) as? MockHandler
@@ -132,7 +128,6 @@ private class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
                 throw MockException("expected call $call never happened. calls: ${calls.joinToString()}")
             return null
         }
-
     }
 
     class MockReplyRecorderImpl<Type>(val mockHandler: MockHandler, val recordingHandler: RecordingHandler) :

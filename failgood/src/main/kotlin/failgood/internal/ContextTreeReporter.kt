@@ -46,14 +46,16 @@ internal class ContextTreeReporter {
                         is Failed -> listOf(
                             "$indentString  $FAILED ${testResult.test.testName} ${RED}FAILED$RESET",
                             "$indentString    ${
-                                testResult.result.failure.message?.replace(
-                                    "\n",
-                                    "\\n"
-                                )
+                            testResult.result.failure.message?.replace(
+                                "\n",
+                                "\\n"
+                            )
                             }",
                             "$indentString    ${testResult.test.sourceInfo.likeStackTrace(testResult.test.testName)}"
                         )
-                        is Pending -> listOf("$indentString  $PENDING ${testResult.test.testName} ${YELLOW}PENDING$RESET")
+                        is Pending -> {
+                            listOf("$indentString  $PENDING ${testResult.test.testName} ${YELLOW}PENDING$RESET")
+                        }
                     }
 
                 result.addAll(lines)
@@ -66,5 +68,4 @@ internal class ContextTreeReporter {
 
     fun time(timeMicro: Long): String = timeFormat.format(timeMicro.toDouble() / 1000)!!
     private val timeFormat = DecimalFormat("#,##0.0#", DecimalFormatSymbols(Locale.US))
-
 }

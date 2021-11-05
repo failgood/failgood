@@ -19,12 +19,14 @@ object TestResultFixtures {
             Success(10)
         ),
         TestPlusResult(
-            TestDescription(subContext, "sub-contexts also contain tests", sourceInfo), Success(
+            TestDescription(subContext, "sub-contexts also contain tests", sourceInfo),
+            Success(
                 20
             )
         ),
         TestPlusResult(
-            TestDescription(subContext, "failed test", sourceInfo), Failed(
+            TestDescription(subContext, "failed test", sourceInfo),
+            Failed(
                 failure
             )
         )

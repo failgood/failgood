@@ -21,3 +21,7 @@ ij_kotlin_name_count_to_use_star_import_for_members = 5
 
 [*.{yml,yaml}]
 indent_size = 2
+
+# noinspection EditorConfigKeyCorrectness
+[*.{kt,kts}]
+disabled_rules=no-wildcard-imports

@@ -88,13 +88,15 @@ internal fun createResponse(
                 val rootContext = contextInfo.contexts.singleOrNull { it.parent == null }
                 if (rootContext != null)
                     addChildren(engineDescriptor, rootContext, true, uniqueId)
-
             }
             is FailedContext -> {
                 val context = contextInfo.context
-                val testDescriptor = FailGoodTestDescriptor(TestDescriptor.Type.TEST,
-                    uniqueId.appendContext(uniqueMaker.makeUnique("${context.name}(${(context.sourceInfo?.className) ?: ""})")),
-                    context.name, context.sourceInfo?.let { createFileSource(it) })
+                val path = "${context.name}(${(context.sourceInfo?.className) ?: ""})"
+                val testDescriptor = FailGoodTestDescriptor(
+                    TestDescriptor.Type.TEST,
+                    uniqueId.appendContext(uniqueMaker.makeUnique(path)),
+                    context.name, context.sourceInfo?.let { createFileSource(it) }
+                )
                 engineDescriptor.addChild(testDescriptor)
                 mapper.addMapping(context, testDescriptor)
                 engineDescriptor.failedContexts.add(contextInfo)

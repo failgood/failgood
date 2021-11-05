@@ -7,4 +7,3 @@ interface TestDSL : ResourcesDSL {
     @Suppress("FunctionName")
     suspend fun _test_event(type: String, body: String)
 }
-

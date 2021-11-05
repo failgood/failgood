@@ -49,5 +49,4 @@ class Junit4Reporter(private val testResults: List<TestPlusResult>) {
         result.add("</testsuite>")
         return result
     }
-
 }

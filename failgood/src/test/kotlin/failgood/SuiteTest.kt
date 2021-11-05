@@ -31,11 +31,13 @@ class SuiteTest {
                     .isEqualTo("root")
             }
             test("runSingleTest works") {
-                expectThat(Suite {
-                    test("test") {
-                        println("")
-                    }
-                }.runSingle("root > test")).isA<Success>()
+                expectThat(
+                    Suite {
+                        test("test") {
+                            println("")
+                        }
+                    }.runSingle("root > test")
+                ).isA<Success>()
             }
         }
 }

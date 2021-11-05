@@ -14,12 +14,10 @@ data class SuiteResult(
 ) {
     val allOk = failedTests.isEmpty()
 
-
     @Suppress("UNREACHABLE_CODE")
     fun check(throwException: Boolean = false, writeReport: Boolean = false) {
 
-
-        //**/build/test-results/test/TEST-*.xml'
+        // **/build/test-results/test/TEST-*.xml'
         if (writeReport) {
             val reportDir = Paths.get("build", "test-results", "test")
             Files.createDirectories(reportDir)
@@ -38,9 +36,9 @@ data class SuiteResult(
                 val pending = pendingTests.size
                 println(
                     pluralize(totalTests, "test") + ". ${totalTests - pending} ok, $pending pending. time: ${
-                        uptime(
-                            totalTests
-                        )
+                    uptime(
+                        totalTests
+                    )
                     }"
                 )
                 return
@@ -64,7 +62,6 @@ data class SuiteResult(
             println("\nPending tests:")
             pendingTests.forEach { println(it.test) }
         }
-
     }
 
     private fun printSlowestTests() {
@@ -74,5 +71,4 @@ data class SuiteResult(
         println("Slowest tests:")
         slowTests.forEach { println("${contextTreeReporter.time((it.result as Success).timeMicro)}ms ${it.test}") }
     }
-
 }

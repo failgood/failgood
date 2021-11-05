@@ -11,5 +11,4 @@ object Colors {
     internal val SUCCESS = GREEN + (if (isWindows) "√" else "✔") + RESET
     internal val FAILED = RED + (if (isWindows) "X" else "✘") + RESET
     internal const val PENDING = "$YELLOW-$RESET"
-
 }

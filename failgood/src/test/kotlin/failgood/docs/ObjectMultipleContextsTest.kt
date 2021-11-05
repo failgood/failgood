@@ -13,5 +13,6 @@ class ObjectMultipleContextsTest {
         },
         describe("second of multiple contexts defined in one object") {
             it("describes behavior") { expectThat("test").isEqualTo("test") }
-        })
+        }
+    )
 }

@@ -33,7 +33,8 @@ internal suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): Con
                 FailGood.findClassesInPath(
                     Paths.get(uri),
                     Thread.currentThread().contextClassLoader,
-                    matchLambda = { className -> classNamePredicates.all { it.test(className) } }).map {
+                    matchLambda = { className -> classNamePredicates.all { it.test(className) } }
+                ).map {
                     ObjectContextProvider(it)
                 }
             }
@@ -59,13 +60,12 @@ internal suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): Con
             }
             else -> {
                 val message = "unknown selector in discovery request: ${
-                    discoveryRequestToString(discoveryRequest)
+                discoveryRequestToString(discoveryRequest)
                 }"
                 System.err.println(message)
                 throw FailGoodException(message)
             }
         }
-
     }
     return ContextsAndFilters(contexts, ClassTestFilterProvider(filterConfig))
 }

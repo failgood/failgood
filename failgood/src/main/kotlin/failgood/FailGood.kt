@@ -13,7 +13,6 @@ import java.nio.file.attribute.FileTime
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
-
 data class RootContext(
     val name: String = "root",
     val disabled: Boolean = false,
@@ -39,13 +38,13 @@ fun context(description: String, disabled: Boolean = false, order: Int = 0, func
     RootContext(description, disabled, order, function = function)
 
 fun describe(subjectDescription: String, disabled: Boolean = false, order: Int = 0, function: ContextLambda):
-        RootContext = RootContext(subjectDescription, disabled, order, function = function)
+    RootContext = RootContext(subjectDescription, disabled, order, function = function)
 
 inline fun <reified T> describe(disabled: Boolean = false, order: Int = 0, noinline function: ContextLambda):
-        RootContext = describe(T::class, disabled, order, function)
+    RootContext = describe(T::class, disabled, order, function)
 
 fun describe(subjectType: KClass<*>, disabled: Boolean = false, order: Int = 0, function: ContextLambda):
-        RootContext = RootContext("The ${subjectType.simpleName}", disabled, order, function = function)
+    RootContext = RootContext("The ${subjectType.simpleName}", disabled, order, function = function)
 
 data class TestDescription(
     val container: TestContainer,
@@ -123,7 +122,9 @@ object FailGood {
             object : SimpleFileVisitor<Path>() {
                 override fun visitFile(file: Path?, attrs: BasicFileAttributes?): FileVisitResult {
                     val path = root.relativize(file!!).toString()
-                    if (path.matches(classIncludeRegex) && (newerThan == null || attrs!!.lastModifiedTime() > newerThan)) {
+                    if (path.matches(classIncludeRegex) &&
+                        (newerThan == null || attrs!!.lastModifiedTime() > newerThan)
+                    ) {
                         val className = path.substringBefore(".class").replace("/", ".")
                         if (matchLambda(className))
                             results.add(
@@ -190,7 +191,6 @@ object FailGood {
 
     // find first class that is not defined in this file.
     private fun findCaller() = javaClass.classLoader.loadClass(findCallerName()).kotlin
-
 }
 
 private fun findCallerName(): String = findCallerSTE().className

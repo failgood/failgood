@@ -17,6 +17,7 @@ import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 import org.junit.platform.launcher.core.LauncherFactory
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
+import strikt.assertions.message
 
 fun launcherDiscoveryRequest(selector: DiscoverySelector): LauncherDiscoveryRequest {
     return LauncherDiscoveryRequestBuilder.request()
@@ -27,6 +28,7 @@ fun launcherDiscoveryRequest(selector: DiscoverySelector): LauncherDiscoveryRequ
 
 @Test
 class JunitPlatformFunctionalTest {
+    @Suppress("unused")
     val context = describe("The Junit Platform Engine") {
         it("can execute test in a class") {
             val listener = TEListener()
@@ -39,7 +41,7 @@ class JunitPlatformFunctionalTest {
             )
             expectThat(listener.result.await()).get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
         }
-        pending("works for a failing root context") {
+        it("works for a failing root context") {
             val listener = TEListener()
             LauncherFactory.create().execute(
                 launcherDiscoveryRequest(
@@ -48,7 +50,10 @@ class JunitPlatformFunctionalTest {
                     )
                 ), listener
             )
-            expectThat(listener.result.await()).get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
+            expectThat(listener.result.await()) {
+                get { status }.isEqualTo(TestExecutionResult.Status.FAILED)
+                get { throwable.get() }.message.isEqualTo(FailingRootContext.thrownException.message)
+            }
         }
     }
 }

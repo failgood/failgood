@@ -14,6 +14,7 @@ import org.junit.platform.engine.UniqueId
 import strikt.api.expectThat
 import strikt.assertions.filter
 import strikt.assertions.isEqualTo
+import strikt.assertions.isTrue
 import strikt.assertions.single
 
 @Test
@@ -44,8 +45,11 @@ class CreateResponseTest {
                 JunitExecutionListener()
             )
             it("creates a friendly uniqueid for a failed root context") {
-                expectThat(rootContextDescriptor.children).single().get { uniqueId.toString() }
-                    .isEqualTo("[engine:failgood]/[class:root context name(package.ClassName)]")
+                expectThat(rootContextDescriptor.children).single().and {
+                    get { isTest }.isTrue() // failed contexts must be tests or junit does not find them
+                    get { uniqueId.toString() }
+                        .isEqualTo("[engine:failgood]/[class:root context name(package.ClassName)]")
+                }
             }
         }
         it("creates friendly uuids for tests") {

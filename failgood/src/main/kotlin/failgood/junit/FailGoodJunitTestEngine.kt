@@ -63,8 +63,9 @@ class FailGoodJunitTestEngine : TestEngine {
                 GlobalScope.async(Dispatchers.Default) {
                     testResult.filterIsInstance<ContextInfo>().map { it.tests.values.awaitAll() }
                 }
-            createResponse(uniqueId, testResult, executionListener)
-                .also { println("discover finished at uptime ${upt()}") }
+            val response = createResponse(uniqueId, testResult, executionListener)
+            println("discover finished at uptime ${upt()}")
+            response
         }
     }
 

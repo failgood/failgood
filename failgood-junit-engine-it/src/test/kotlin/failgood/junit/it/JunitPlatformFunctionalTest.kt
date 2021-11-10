@@ -3,12 +3,13 @@ package failgood.junit.it
 import failgood.Test
 import failgood.describe
 import failgood.junit.FailGoodJunitTestEngine
+import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_TEST_CLASS_SUFFIX
 import failgood.junit.it.fixtures.DuplicateTestNameTest
 import failgood.junit.it.fixtures.FailingRootContext
 import kotlinx.coroutines.CompletableDeferred
 import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.engine.TestExecutionResult
-import org.junit.platform.engine.discovery.DiscoverySelectors
+import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.junit.platform.launcher.EngineFilter
 import org.junit.platform.launcher.LauncherDiscoveryRequest
 import org.junit.platform.launcher.TestExecutionListener
@@ -17,12 +18,12 @@ import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 import org.junit.platform.launcher.core.LauncherFactory
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
-import strikt.assertions.message
 
-fun launcherDiscoveryRequest(selector: DiscoverySelector): LauncherDiscoveryRequest {
+fun launcherDiscoveryRequest(selectors: List<DiscoverySelector>, config: Map<String, String> = mapOf() ): LauncherDiscoveryRequest {
     return LauncherDiscoveryRequestBuilder.request()
         .filters(EngineFilter.includeEngines(FailGoodJunitTestEngine().id))
-        .selectors(selector)
+        .configurationParameters(config)
+        .selectors(selectors)
         .build()
 }
 
@@ -34,34 +35,34 @@ class JunitPlatformFunctionalTest {
             val listener = TEListener()
             LauncherFactory.create().execute(
                 launcherDiscoveryRequest(
-                    DiscoverySelectors.selectClass(
+                    listOf(selectClass(
                         DuplicateTestNameTest::class.qualifiedName
-                    )
+                    ))
                 ), listener
             )
-            expectThat(listener.result.await()).get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
+            expectThat(listener.rootResult.await()).get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
         }
         it("works for a failing root context") {
             val listener = TEListener()
             LauncherFactory.create().execute(
-                launcherDiscoveryRequest(
-                    DiscoverySelectors.selectClass(
-                        FailingRootContext::class.qualifiedName
-                    )
-                ), listener
+                launcherDiscoveryRequest(listOf(
+                    selectClass(FailingRootContext::class.qualifiedName),
+                    selectClass(DuplicateTestNameTest::class.qualifiedName)
+                ), mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")), listener
             )
-            expectThat(listener.result.await()) {
-                get { status }.isEqualTo(TestExecutionResult.Status.FAILED)
-                get { throwable.get() }.message.isEqualTo(FailingRootContext.thrownException.message)
+            expectThat(listener.rootResult.await()) {
+                get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
             }
         }
     }
 }
 
 class TEListener : TestExecutionListener {
-    val result = CompletableDeferred<TestExecutionResult>()
+    val rootResult = CompletableDeferred<TestExecutionResult>()
     override fun executionFinished(testIdentifier: TestIdentifier?, testExecutionResult: TestExecutionResult?) {
-        result.complete(testExecutionResult!!)
+        val parentId = testIdentifier!!.parentId
+        if (parentId.isEmpty)
+            rootResult.complete(testExecutionResult!!)
     }
 }
 

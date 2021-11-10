@@ -31,7 +31,7 @@ class FailGoodJunitTestEngineTest {
         describe("can discover tests") {
             val testDescriptor =
                 engine.discover(
-                    launcherDiscoveryRequest(DiscoverySelectors.selectClass(TestFixtureTest::class.qualifiedName)),
+                    launcherDiscoveryRequest(listOf(DiscoverySelectors.selectClass(TestFixtureTest::class.qualifiedName))),
                     UniqueId.forEngine(engine.id)
                 )
             it("returns a root descriptor") {
@@ -50,7 +50,7 @@ class FailGoodJunitTestEngineTest {
             it("starts and stops contexts in the correct order") {
                 val testDescriptor =
                     engine.discover(
-                        launcherDiscoveryRequest(DiscoverySelectors.selectClass(TestWithNestedContextsTest::class.qualifiedName)),
+                        launcherDiscoveryRequest(listOf(DiscoverySelectors.selectClass(TestWithNestedContextsTest::class.qualifiedName))),
                         UniqueId.forEngine(engine.id)
                     )
                 val listener = RememberingExecutionListener()
@@ -87,7 +87,7 @@ class FailGoodJunitTestEngineTest {
             it("sends one skip event and no start event for skipped tests") {
                 val testDescriptor =
                     engine.discover(
-                        launcherDiscoveryRequest(DiscoverySelectors.selectClass(PendingTestFixtureTest::class.qualifiedName)),
+                        launcherDiscoveryRequest(listOf(DiscoverySelectors.selectClass(PendingTestFixtureTest::class.qualifiedName))),
                         UniqueId.forEngine(engine.id)
                     )
                 val listener = RememberingExecutionListener()

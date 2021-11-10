@@ -10,6 +10,7 @@ import failgood.TestDescription
 import failgood.internal.ContextInfo
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_LAZY
+import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_TEST_CLASS_SUFFIX
 import failgood.junit.JunitExecutionListener.TestExecutionEvent
 import failgood.upt
 import failgood.uptime
@@ -46,7 +47,8 @@ class FailGoodJunitTestEngine : TestEngine {
         debug = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_DEBUG).orElse(false)
 
         return runBlocking(Dispatchers.Default) {
-            val contextsAndFilters = ContextFinder().findContexts(discoveryRequest)
+            val testSuffix = discoveryRequest.configurationParameters.get(CONFIG_KEY_TEST_CLASS_SUFFIX).orElse("Test")
+            val contextsAndFilters = ContextFinder(testSuffix).findContexts(discoveryRequest)
             val providers: List<ContextProvider> = contextsAndFilters.contexts
             val suite = Suite(providers)
             val executionListener = JunitExecutionListener()

@@ -1,5 +1,6 @@
 package failgood.junit
 
+import failgood.FailGoodException
 import failgood.TestContainer
 import failgood.TestDescription
 import org.junit.platform.engine.TestDescriptor
@@ -11,8 +12,12 @@ class TestMapper {
         testDescription2JunitTestDescriptor[testDescription] = testDescriptor
     }
 
-    fun getMapping(testDescription: TestDescription) = testDescription2JunitTestDescriptor[testDescription]
-    fun getMapping(context: TestContainer): TestDescriptor = context2JunitTestDescriptor[context]!!
+    fun getMapping(testDescription: TestDescription): TestDescriptor = testDescription2JunitTestDescriptor[testDescription]
+        ?: throw FailGoodException("no mapping found for $testDescription")
+
+    fun getMapping(context: TestContainer): TestDescriptor =
+        context2JunitTestDescriptor[context] ?: throw FailGoodException("no mapping found for $context")
+
     fun addMapping(context: TestContainer, testDescriptor: TestDescriptor) {
         context2JunitTestDescriptor[context] = testDescriptor
     }

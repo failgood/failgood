@@ -161,7 +161,7 @@ class FailGoodJunitTestEngine : TestEngine {
             failedTests.forEach {
                 println(
                     "${it.testName} ${
-                    mapper.getMapping(it)!!.uniqueId.toString().replace(" ", "+")
+                    mapper.getMapping(it).uniqueId.toString().replace(" ", "+")
                     }"
                 )
             }

@@ -93,7 +93,7 @@ internal fun createResponse(
                 val context = contextInfo.context
                 val path = "${context.name}(${(context.sourceInfo?.className) ?: ""})"
                 val testDescriptor = FailGoodTestDescriptor(
-                    TestDescriptor.Type.TEST,
+                    TestDescriptor.Type.CONTAINER,
                     uniqueId.appendContext(uniqueMaker.makeUnique(path)),
                     context.name, context.sourceInfo?.let { createFileSource(it) }
                 )

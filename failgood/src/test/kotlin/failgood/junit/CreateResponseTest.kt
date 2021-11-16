@@ -46,9 +46,11 @@ class CreateResponseTest {
                 listOf(FailedContext(rootContext, RuntimeException())),
                 JunitExecutionListener()
             )
-            it("creates a friendly uniqueid for a failed root context") {
-                expectThat(rootContextDescriptor.children).single().and {
-                    get { isTest }.isTrue() // failed contexts must be tests or junit does not find them
+            it("creates a container and a test node with friendly uniqueid for a failed root context") {
+                val children = rootContextDescriptor.children
+
+                expectThat(children).single().and {
+                    get { isContainer }.isTrue() // failed contexts must be tests or junit does not find them
                     get { uniqueId.toString() }
                         .isEqualTo("[engine:failgood]/[class:root context name(package.ClassName)]")
                 }

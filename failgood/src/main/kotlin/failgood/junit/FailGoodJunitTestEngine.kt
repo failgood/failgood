@@ -68,7 +68,7 @@ class FailGoodJunitTestEngine : TestEngine {
             val response = createResponse(uniqueId, testResult, executionListener)
             println("discover finished at uptime ${upt()}")
             if (debug) {
-                println("response: $response")
+                println("nodes returned: ${response.allDescendants()}")
             }
             response
         }
@@ -79,6 +79,9 @@ class FailGoodJunitTestEngine : TestEngine {
         val root = request.rootTestDescriptor
         if (root !is FailGoodEngineDescriptor)
             return
+        if (debug) {
+            println("nodes received: ${root.allDescendants()}")
+        }
         val mapper = root.mapper
         val startedContexts = mutableSetOf<TestContainer>()
         val junitListener = LoggingEngineExecutionListener(request.engineExecutionListener)

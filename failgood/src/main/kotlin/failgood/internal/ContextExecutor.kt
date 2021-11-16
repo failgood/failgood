@@ -28,12 +28,10 @@ internal class ContextExecutor(
     val scope: CoroutineScope,
     lazy: Boolean = false,
     val listener: ExecutionListener = NullExecutionListener,
-    val testFilter: TestFilter = ExecuteAllTests
+    val testFilter: TestFilter = ExecuteAllTests,
+    val timeoutMillis: Long = 40000L
 ) {
 
-    // use a timeout of 40 seconds for now. This is not for finding slow tests,
-    // this is to keep the suite from hanging without a result
-    val testTimeoutMillis = 40000L
     val coroutineStart: CoroutineStart = if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT
     private var startTime = System.nanoTime()
 
@@ -104,7 +102,7 @@ internal class ContextExecutor(
                     listener.testStarted(testDescription)
                     val testResult =
                         try {
-                            withTimeout(testTimeoutMillis) {
+                            withTimeout(timeoutMillis) {
                                 TestContext(resourcesCloser, listener, testDescription).function()
                                 resourcesCloser.close()
                             }
@@ -120,7 +118,7 @@ internal class ContextExecutor(
                 val resourcesCloser = ResourcesCloser(scope)
                 val deferred =
                     scope.async(start = coroutineStart) {
-                        withTimeout(testTimeoutMillis) {
+                        withTimeout(timeoutMillis) {
 
                             listener.testStarted(testDescription)
                             val result =

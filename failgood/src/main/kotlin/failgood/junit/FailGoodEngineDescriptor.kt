@@ -13,6 +13,6 @@ internal class FailGoodEngineDescriptor(
     val failedContexts = mutableListOf<FailedContext>()
     val mapper = TestMapper()
     override fun toString(): String {
-        return children.joinToString  { "${it.uniqueId} ${it.type}" }
+        return children.joinToString { "${it.uniqueId} ${it.type}" }
     }
 }

@@ -68,7 +68,7 @@ class FailGoodJunitTestEngine : TestEngine {
             val response = createResponse(uniqueId, testResult, executionListener)
             println("discover finished at uptime ${upt()}")
             if (debug) {
-                println("response: ${response}")
+                println("response: $response")
             }
             response
         }

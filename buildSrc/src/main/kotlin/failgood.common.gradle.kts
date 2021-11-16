@@ -6,6 +6,10 @@ plugins {
     kotlin("jvm")
 }
 
+dependencies {
+    ktlint("com.pinterest:ktlint:0.43.0")
+}
+
 val pub = "mavenJava-${project.name}"
 publishing {
     repositories {

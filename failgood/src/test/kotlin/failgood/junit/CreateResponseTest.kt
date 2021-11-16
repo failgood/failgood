@@ -10,9 +10,12 @@ import failgood.describe
 import failgood.internal.ContextInfo
 import failgood.internal.FailedContext
 import kotlinx.coroutines.CompletableDeferred
+import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.UniqueId
+import org.junit.platform.engine.support.descriptor.ClassSource
 import strikt.api.expectThat
 import strikt.assertions.filter
+import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import strikt.assertions.isTrue
 import strikt.assertions.single
@@ -46,11 +49,12 @@ class CreateResponseTest {
                 listOf(FailedContext(rootContext, RuntimeException())),
                 JunitExecutionListener()
             )
-            it("creates a container and a test node with friendly uniqueid for a failed root context") {
+            it("creates a test node with friendly uniqueid for a failed root context") {
                 val children = rootContextDescriptor.children
 
                 expectThat(children).single().and {
-                    get { isContainer }.isTrue() // failed contexts must be tests or junit does not find them
+                    get { type }.isEqualTo(TestDescriptor.Type.TEST) // failed contexts must be tests or junit does not find them
+                    get { source.get() }.isA<ClassSource>() // gradle needs all root contexts to have a class source
                     get { uniqueId.toString() }
                         .isEqualTo("[engine:failgood]/[class:root context name(package.ClassName)]")
                 }

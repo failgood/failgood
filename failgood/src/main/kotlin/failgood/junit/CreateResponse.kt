@@ -93,9 +93,9 @@ internal fun createResponse(
                 val context = contextInfo.context
                 val path = "${context.name}(${(context.sourceInfo?.className) ?: ""})"
                 val testDescriptor = FailGoodTestDescriptor(
-                    TestDescriptor.Type.CONTAINER,
+                    TestDescriptor.Type.TEST,
                     uniqueId.appendContext(uniqueMaker.makeUnique(path)),
-                    context.name, context.sourceInfo?.let { createFileSource(it) }
+                    context.name, context.sourceInfo?.let { createClassSource(it) }
                 )
                 engineDescriptor.addChild(testDescriptor)
                 mapper.addMapping(context, testDescriptor)

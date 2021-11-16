@@ -67,6 +67,9 @@ class FailGoodJunitTestEngine : TestEngine {
                 }
             val response = createResponse(uniqueId, testResult, executionListener)
             println("discover finished at uptime ${upt()}")
+            if (debug) {
+                println("response: ${response}")
+            }
             response
         }
     }
@@ -82,7 +85,9 @@ class FailGoodJunitTestEngine : TestEngine {
         junitListener.executionStarted(root)
         // report failed contexts as failed immediately
         root.failedContexts.forEach {
-            junitListener.executionFinished(mapper.getMapping(it.context), TestExecutionResult.failed(it.failure))
+            val testDescriptor = mapper.getMapping(it.context)
+            junitListener.executionStarted(testDescriptor)
+            junitListener.executionFinished(testDescriptor, TestExecutionResult.failed(it.failure))
         }
         val executionListener = root.executionListener
         runBlocking(Dispatchers.Default) {

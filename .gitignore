@@ -11,3 +11,4 @@ out/
 /.autotest.failgood
 /.vscode
 .autotest.failgood
+junit-platform.properties

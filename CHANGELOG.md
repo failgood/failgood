@@ -1,9 +1,12 @@
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
 ## 0.4.9 - "No U-Turn" - Unreleased
 
 ### Fixed
+
+- Correctly report errors in root contexts even in gradle. (#34)
 
 
 

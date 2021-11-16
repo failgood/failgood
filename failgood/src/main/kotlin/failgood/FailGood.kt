@@ -2,6 +2,7 @@ package failgood
 
 import failgood.internal.ContextPath
 import failgood.internal.ExceptionPrettyPrinter
+import java.io.File
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.NoSuchFileException
@@ -125,7 +126,7 @@ object FailGood {
                     if (path.matches(classIncludeRegex) &&
                         (newerThan == null || attrs!!.lastModifiedTime() > newerThan)
                     ) {
-                        val className = path.substringBefore(".class").replace("/", ".")
+                        val className = path.substringBefore(".class").replace(File.separatorChar, '.')
                         if (matchLambda(className))
                             results.add(
                                 classloader.loadClass(className).kotlin

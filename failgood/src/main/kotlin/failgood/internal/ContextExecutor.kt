@@ -54,17 +54,19 @@ internal class ContextExecutor(
             return ContextInfo(listOf(), mapOf(), setOf())
         val function = rootContext.function
         val rootContext = Context(rootContext.name, null, rootContext.sourceInfo)
-        while (true) {
-            startTime = System.nanoTime()
-            val resourcesCloser = ResourcesCloser(scope)
-            val visitor = ContextVisitor(rootContext, resourcesCloser)
-            try {
-                visitor.function()
-            } catch (e: Exception) {
-                return FailedContext(rootContext, e)
+        try {
+            withTimeout(timeoutMillis) {
+                while (true) {
+                    startTime = System.nanoTime()
+                    val resourcesCloser = ResourcesCloser(scope)
+                    val visitor = ContextVisitor(rootContext, resourcesCloser)
+                    visitor.function()
+                    investigatedContexts.add(rootContext)
+                    if (!visitor.contextsLeft) break
+                }
             }
-            investigatedContexts.add(rootContext)
-            if (!visitor.contextsLeft) break
+        } catch (e: Exception) {
+            return FailedContext(rootContext, e)
         }
         // context order: first root context, then sub-contexts ordered by line number
         val contexts = listOf(rootContext) + foundContexts.sortedBy { it.sourceInfo!!.lineNumber }

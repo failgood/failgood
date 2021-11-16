@@ -13,18 +13,16 @@ import failgood.internal.TestFilterProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
 import java.lang.management.ManagementFactory
 import java.util.concurrent.Executors
 import kotlin.reflect.KClass
 
-const val DEFAULT_CONTEXT_TIMEOUT: Long = 40000
+const val DEFAULT_TIMEOUT: Long = 40000
 
 class Suite(val contextProviders: Collection<ContextProvider>) {
     companion object {
@@ -100,14 +98,14 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         }
     }
 
-    // when timeout is not set use the default.
-// if it's set to a number use that as the timeout. if it's not a number turn the timeout off
-    private val contextTimeout: Long? = System.getenv("TIMEOUT").let {
+    // set timeout to the timeout in milliseconds, an empty string to turn it off
+    private val timeoutMillis: Long = System.getenv("TIMEOUT").let {
         when (it) {
-            null -> DEFAULT_CONTEXT_TIMEOUT
-            else -> it.toLongOrNull()
+            null -> DEFAULT_TIMEOUT
+            "" -> null
+            else -> it.toLongOrNull() ?: throw FailGoodException("TIMEOUT must be a number or an empty string")
         }
-    }
+    } ?: Long.MAX_VALUE
 
     internal suspend fun findTests(
         coroutineScope: CoroutineScope,
@@ -121,19 +119,14 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                 val testFilter = executionFilter.forClass(context.sourceInfo.className)
                 coroutineScope.async {
                     if (!context.disabled) {
-                        try {
-                            withTimeout(contextTimeout ?: Long.MAX_VALUE) {
-                                ContextExecutor(
-                                    context,
-                                    coroutineScope,
-                                    !executeTests,
-                                    listener,
-                                    testFilter
-                                ).execute()
-                            }
-                        } catch (e: TimeoutCancellationException) {
-                            throw FailGoodException("context ${context.name} timed out")
-                        }
+                        ContextExecutor(
+                            context,
+                            coroutineScope,
+                            !executeTests,
+                            listener,
+                            testFilter,
+                            timeoutMillis
+                        ).execute()
                     } else
                         ContextInfo(emptyList(), mapOf(), setOf())
                 }

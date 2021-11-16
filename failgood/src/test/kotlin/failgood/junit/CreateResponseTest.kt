@@ -17,7 +17,6 @@ import strikt.api.expectThat
 import strikt.assertions.filter
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
-import strikt.assertions.isTrue
 import strikt.assertions.single
 
 @Test
@@ -53,8 +52,10 @@ class CreateResponseTest {
                 val children = rootContextDescriptor.children
 
                 expectThat(children).single().and {
-                    get { type }.isEqualTo(TestDescriptor.Type.TEST) // failed contexts must be tests or junit does not find them
-                    get { source.get() }.isA<ClassSource>() // gradle needs all root contexts to have a class source
+                    // failed contexts must be tests or junit does not find them
+                    get { type }.isEqualTo(TestDescriptor.Type.TEST)
+                    // gradle needs all root contexts to have a class source
+                    get { source.get() }.isA<ClassSource>()
                     get { uniqueId.toString() }
                         .isEqualTo("[engine:failgood]/[class:root context name(package.ClassName)]")
                 }

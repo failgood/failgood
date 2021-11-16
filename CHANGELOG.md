@@ -2,7 +2,18 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
-## 0.4.9 - "No U-Turn" - Unreleased
+
+## 0.5.0 - "Reinforced" - Unreleased
+
+### Added
+
+- Use the same timeout for context evaluation and test execution (configurable via env var TIMEOUT in milliseconds)
+
+### Changed
+
+- Report timeouts in context evaluation as Failed Context instead of throwing and failing the whole suite.
+
+## 0.4.9 - "No U-Turn" - 2021-11-16
 
 ### Fixed
 

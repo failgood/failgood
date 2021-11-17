@@ -55,7 +55,7 @@ class ContextExecutorTest {
                     it("returns deferred test results") {
                         val testResults = contextInfo.tests.values.awaitAll()
                         val successful = testResults.filter { it.isSuccess }
-                        val failed = testResults - successful
+                        val failed = testResults - successful.toSet()
                         expectThat(successful.map { it.test.testName })
                             .containsExactly("test 1", "test 2", "test 3", "test 4")
                         expectThat(failed).map { it.test.testName }.containsExactly("failed test")

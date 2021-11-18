@@ -18,6 +18,7 @@ data class RootContext(
     val name: String = "root",
     val disabled: Boolean = false,
     val order: Int = 0,
+    val isolation: Boolean = true,
     val sourceInfo: SourceInfo = SourceInfo(findCallerSTE()),
     val function: ContextLambda
 ) : failgood.internal.Path {
@@ -38,8 +39,14 @@ typealias TestLambda = suspend TestDSL.() -> Unit
 fun context(description: String, disabled: Boolean = false, order: Int = 0, function: ContextLambda): RootContext =
     RootContext(description, disabled, order, function = function)
 
-fun describe(subjectDescription: String, disabled: Boolean = false, order: Int = 0, function: ContextLambda):
-    RootContext = RootContext(subjectDescription, disabled, order, function = function)
+fun describe(
+    subjectDescription: String,
+    disabled: Boolean = false,
+    order: Int = 0,
+    isolation: Boolean = true,
+    function: ContextLambda
+):
+    RootContext = RootContext(subjectDescription, disabled, order, isolation, function = function)
 
 inline fun <reified T> describe(disabled: Boolean = false, order: Int = 0, noinline function: ContextLambda):
     RootContext = describe(T::class, disabled, order, function)

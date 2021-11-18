@@ -9,8 +9,10 @@ import failgood.TestLifecycleTest.Event.TEST_2_EXECUTED
 import failgood.TestLifecycleTest.Event.TEST_3_EXECUTED
 import failgood.TestLifecycleTest.Event.TEST_4_EXECUTED
 import strikt.api.expectThat
-import strikt.assertions.containsExactly
 import strikt.assertions.containsExactlyInAnyOrder
+import strikt.assertions.first
+import strikt.assertions.isEqualTo
+import strikt.assertions.last
 import strikt.assertions.single
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -68,8 +70,8 @@ class TestLifecycleTest {
                     )
             }
         }
-        describe("when a root context does not need isolation") {
-            pending("test run without recreating the dependencies") {
+        describe("a root context with isolation set to false") {
+            it("runs tests without recreating the dependencies") {
                 // tests run in parallel, so the total order of events is not defined.
                 // we track events in a list of lists and record the events that lead to each test
                 Suite(
@@ -94,16 +96,24 @@ class TestLifecycleTest {
                     }
                 ).run(silent = true)
 
-                expectThat(totalEvents).single().containsExactly(
-                    ROOT_CONTEXT_EXECUTED,
-                    TEST_1_EXECUTED,
-                    TEST_2_EXECUTED,
-                    CONTEXT_1_EXECUTED,
-                    CONTEXT_2_EXECUTED,
-                    TEST_3_EXECUTED,
-                    TEST_4_EXECUTED,
-                    DEPENDENCY_CLOSED
-                )
+                // we don't know the order of the tests because they run in parallel
+                // we do know that the root context runs first and the dependency must be closed after all tests are finished
+                expectThat(totalEvents).single().and {
+                    containsExactlyInAnyOrder(
+                        listOf(
+                            ROOT_CONTEXT_EXECUTED,
+                            TEST_1_EXECUTED,
+                            TEST_2_EXECUTED,
+                            CONTEXT_1_EXECUTED,
+                            CONTEXT_2_EXECUTED,
+                            TEST_3_EXECUTED,
+                            TEST_4_EXECUTED,
+                            DEPENDENCY_CLOSED
+                        )
+                    )
+                    first().isEqualTo(ROOT_CONTEXT_EXECUTED)
+                    last().isEqualTo(DEPENDENCY_CLOSED)
+                }
             }
         }
     }

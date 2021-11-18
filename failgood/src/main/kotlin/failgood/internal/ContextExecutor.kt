@@ -53,7 +53,7 @@ internal class ContextExecutor(
         if (!testFilter.shouldRun(rootContext))
             return ContextInfo(listOf(), mapOf(), setOf())
         val function = rootContext.function
-        val rootContext = Context(rootContext.name, null, rootContext.sourceInfo)
+        val rootContext = Context(rootContext.name, null, rootContext.sourceInfo, rootContext.isolation)
         try {
             withTimeout(timeoutMillis) {
                 while (true) {
@@ -62,6 +62,10 @@ internal class ContextExecutor(
                     val visitor = ContextVisitor(rootContext, resourcesCloser)
                     visitor.function()
                     investigatedContexts.add(rootContext)
+                    if (!rootContext.isolation) {
+                        afterSuiteCallbacks.add { resourcesCloser.close() }
+                        break
+                    }
                     if (!visitor.contextsLeft) break
                 }
             }
@@ -77,6 +81,7 @@ internal class ContextExecutor(
         private val parentContext: Context,
         private val resourcesCloser: ResourcesCloser
     ) : ContextDSL, ResourcesDSL by resourcesCloser {
+        val isolation = parentContext.isolation
         private val contextInvestigated = investigatedContexts.contains(parentContext)
         private val namesInThisContext = mutableSetOf<String>() // test and context names to detect duplicates
 
@@ -95,7 +100,9 @@ internal class ContextExecutor(
                 return
             }
             val testDescription = TestDescription(parentContext, name, sourceInfo())
-            if (!ranATest) {
+            if (!ranATest || !isolation) {
+                // if we don't need isolation we run all tests here.
+                // if we do:
                 // we did not yet run a test, so we are going to run this test ourselves
                 ranATest = true
 
@@ -106,7 +113,7 @@ internal class ContextExecutor(
                         try {
                             withTimeout(timeoutMillis) {
                                 TestContext(resourcesCloser, listener, testDescription).function()
-                                resourcesCloser.close()
+                                if (isolation) resourcesCloser.close()
                             }
                             Success((System.nanoTime() - startTime) / 1000)
                         } catch (e: Throwable) {
@@ -142,7 +149,7 @@ internal class ContextExecutor(
         override suspend fun context(name: String, function: ContextLambda) {
             checkName(name)
             // if we already ran a test in this context we don't need to visit the child context now
-            if (ranATest) {
+            if (isolation && ranATest) {
                 contextsLeft = true
                 // but we need to run the root context again to visit this child context
                 return
@@ -153,7 +160,7 @@ internal class ContextExecutor(
 
             if (processedTests.contains(contextPath)) return
             val sourceInfo = sourceInfo()
-            val context = Context(name, parentContext, sourceInfo)
+            val context = Context(name, parentContext, sourceInfo, isolation = isolation)
             val visitor = ContextVisitor(context, resourcesCloser)
             try {
                 visitor.function()

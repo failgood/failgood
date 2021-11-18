@@ -80,7 +80,8 @@ interface TestContainer {
 data class Context(
     override val name: String,
     val parent: Context? = null,
-    val sourceInfo: SourceInfo? = null
+    val sourceInfo: SourceInfo? = null,
+    val isolation: Boolean = true
 ) : TestContainer {
     companion object {
         fun fromPath(path: List<String>): Context {

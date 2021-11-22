@@ -1,14 +1,8 @@
 package failgood
 
-import failgood.TestLifecycleTest.Event.CONTEXT_1_EXECUTED
-import failgood.TestLifecycleTest.Event.CONTEXT_2_EXECUTED
-import failgood.TestLifecycleTest.Event.DEPENDENCY_CLOSED
-import failgood.TestLifecycleTest.Event.ROOT_CONTEXT_EXECUTED
-import failgood.TestLifecycleTest.Event.TEST_1_EXECUTED
-import failgood.TestLifecycleTest.Event.TEST_2_EXECUTED
-import failgood.TestLifecycleTest.Event.TEST_3_EXECUTED
-import failgood.TestLifecycleTest.Event.TEST_4_EXECUTED
+import failgood.TestLifecycleTest.Event.*
 import strikt.api.expectThat
+import strikt.assertions.containsExactly
 import strikt.assertions.containsExactlyInAnyOrder
 import strikt.assertions.first
 import strikt.assertions.isEqualTo
@@ -72,8 +66,8 @@ class TestLifecycleTest {
         }
         describe("a root context with isolation set to false") {
             it("runs tests without recreating the dependencies") {
-                // tests run in parallel, so the total order of events is not defined.
-                // we track events in a list of lists and record the events that lead to each test
+                // here we just know that the root context start is the first event and the resource closed the last
+                // other events can occur in any order
                 Suite(
                     describe("root context without isolation", isolation = false) {
                         val testEvents = mutableListOf<Event>()
@@ -113,6 +107,13 @@ class TestLifecycleTest {
                     )
                     first().isEqualTo(ROOT_CONTEXT_EXECUTED)
                     last().isEqualTo(DEPENDENCY_CLOSED)
+                    // assert that tests run after the contexts that they are in.
+                    get { intersect(setOf(CONTEXT_1_EXECUTED, CONTEXT_2_EXECUTED, TEST_3_EXECUTED)) }.containsExactly(
+                        listOf(CONTEXT_1_EXECUTED, CONTEXT_2_EXECUTED, TEST_3_EXECUTED)
+                    )
+                    get { intersect(setOf(CONTEXT_1_EXECUTED, CONTEXT_2_EXECUTED, TEST_4_EXECUTED)) }.containsExactly(
+                        listOf(CONTEXT_1_EXECUTED, CONTEXT_2_EXECUTED, TEST_4_EXECUTED)
+                    )
                 }
             }
         }

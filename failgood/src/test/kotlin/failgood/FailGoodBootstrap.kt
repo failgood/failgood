@@ -39,12 +39,14 @@ suspend fun main() {
         }.run()
     expectThat(results) {
         get(SuiteResult::allOk).isFalse()
-        get(SuiteResult::failedTests).hasSize(2)
-            .all {
+        get(SuiteResult::failedTests).and {
+            hasSize(2)
+            all {
                 get(TestPlusResult::test).get(TestDescription::testName).isEqualTo("failing test")
                 get { result }.isA<Failed>().get { failure }.isA<AssertionError>()
             }
-        get(SuiteResult::allTests).hasSize(3)
+            get(SuiteResult::allTests).hasSize(3)
+        }
     }
     testFinished.await()
     println("bootstrapped after: ${uptime()}ms")

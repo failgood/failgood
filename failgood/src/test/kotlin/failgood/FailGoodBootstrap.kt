@@ -36,7 +36,7 @@ suspend fun main() {
                     }
                 }
             }
-        }.run()
+        }.run(silent = true)
     expectThat(results) {
         get(SuiteResult::allOk).isFalse()
         get(SuiteResult::failedTests).and {

@@ -66,15 +66,20 @@ internal class SingleTestExecutor(
         override suspend fun test(name: String, function: TestLambda) {
             if (test.name == name) {
                 throw TestResultAvailable(
-                    try {
-                        testDSL.function()
-                        resourcesCloser.close()
-                        Success((System.nanoTime() - startTime) / 1000)
-                    } catch (e: Throwable) {
-                        Failed(e)
-                    }
+                    executeTest(function)
                 )
             }
+        }
+
+        private suspend fun executeTest(function: TestLambda): TestResult {
+            try {
+                testDSL.function()
+            } catch (e: Throwable) {
+                resourcesCloser.close()
+                return Failed(e)
+            }
+            resourcesCloser.close()
+            return Success((System.nanoTime() - startTime) / 1000)
         }
     }
 

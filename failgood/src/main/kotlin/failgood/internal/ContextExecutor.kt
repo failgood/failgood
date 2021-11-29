@@ -16,6 +16,7 @@ import failgood.TestContext
 import failgood.TestDescription
 import failgood.TestLambda
 import failgood.TestPlusResult
+import failgood.TestResult
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -109,16 +110,7 @@ internal class ContextExecutor(
                 deferredTestResults[testDescription] = scope.async(start = coroutineStart) {
 
                     listener.testStarted(testDescription)
-                    val testResult =
-                        try {
-                            withTimeout(timeoutMillis) {
-                                TestContext(resourcesCloser, listener, testDescription).function()
-                                if (isolation) resourcesCloser.close()
-                            }
-                            Success((System.nanoTime() - startTime) / 1000)
-                        } catch (e: Throwable) {
-                            Failed(e)
-                        }
+                    val testResult = executeTest(testDescription, function)
                     val testPlusResult = TestPlusResult(testDescription, testResult)
                     listener.testFinished(testPlusResult)
                     testPlusResult
@@ -143,6 +135,19 @@ internal class ContextExecutor(
                         }
                     }
                 deferredTestResults[testDescription] = deferred
+            }
+        }
+
+        private suspend fun executeTest(testDescription: TestDescription, function: TestLambda): TestResult {
+            return withTimeout(timeoutMillis) {
+                try {
+                    TestContext(resourcesCloser, listener, testDescription).function()
+                } catch (e: Throwable) {
+                    if (isolation) resourcesCloser.close()
+                    return@withTimeout Failed(e)
+                }
+                if (isolation) resourcesCloser.close()
+                Success((System.nanoTime() - startTime) / 1000)
             }
         }
 

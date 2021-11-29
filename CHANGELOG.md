@@ -3,7 +3,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 0.5.0 - "Reinforced" - Unreleased
+## 0.5.0 - "Reinforced" - 2021-11-29
 
 ### Added
 

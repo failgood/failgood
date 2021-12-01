@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    ktlint("com.pinterest:ktlint:0.43.0")
+    ktlint("com.pinterest:ktlint:0.43.2")
 }
 
 val pub = "mavenJava-${project.name}"

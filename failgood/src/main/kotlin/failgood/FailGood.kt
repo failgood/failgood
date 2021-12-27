@@ -169,8 +169,8 @@ object FailGood {
         if (classes.isNotEmpty()) Suite(classes.map { ObjectContextProvider(it) }).run().check(false)
     }
 
-    suspend fun runAllTests(writeReport: Boolean = false) {
-        Suite.fromClasses(findTestClasses()).run().check(writeReport = writeReport)
+    suspend fun runAllTests(writeReport: Boolean = false, paralellism: Int? = null) {
+        Suite.fromClasses(findTestClasses()).run(parallelism = paralellism).check(writeReport = writeReport)
         printThreads()
     }
 

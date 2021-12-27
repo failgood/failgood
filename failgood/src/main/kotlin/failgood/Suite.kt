@@ -13,13 +13,12 @@ import failgood.internal.TestFilterProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.lang.management.ManagementFactory
-import java.util.concurrent.Executors
 import kotlin.reflect.KClass
 
 const val DEFAULT_TIMEOUT: Long = 40000
@@ -43,17 +42,15 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     constructor(function: ContextLambda) :
         this(RootContext("root", false, 0, function = function))
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun run(
         parallelism: Int? = null,
         silent: Boolean = false
     ): SuiteResult {
 
         val dispatcher =
-            when {
-                parallelism == null -> Dispatchers.Default
-                parallelism > 1 -> Executors.newWorkStealingPool(parallelism).asCoroutineDispatcher()
-                else -> Executors.newSingleThreadExecutor().asCoroutineDispatcher()
-            }
+            if (parallelism == null) Dispatchers.Default
+            else Dispatchers.Default.limitedParallelism(parallelism)
         return runBlocking(dispatcher) {
             val contextInfos = findTests(this)
             if (!silent) {
@@ -117,8 +114,10 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
             .map { coroutineScope.async { it.getContexts() } }.flatMap { it.await() }.sortedBy { it.order }
             .map { context: RootContext ->
                 val testFilter = executionFilter.forClass(context.sourceInfo.className)
+                println("starting scope for $context")
                 coroutineScope.async {
                     if (!context.disabled) {
+                        println("starting $context")
                         ContextExecutor(
                             context,
                             coroutineScope,
@@ -126,7 +125,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                             listener,
                             testFilter,
                             timeoutMillis
-                        ).execute()
+                        ).execute().also { println("finished $context") }
                     } else
                         ContextInfo(emptyList(), mapOf(), setOf())
                 }

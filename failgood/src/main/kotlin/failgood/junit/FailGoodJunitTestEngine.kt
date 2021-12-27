@@ -58,7 +58,7 @@ class FailGoodJunitTestEngine : TestEngine {
                 !lazy,
                 listener = executionListener,
                 executionFilter = contextsAndFilters.filter
-            ).awaitAll()
+            ).map { it.result }.awaitAll()
             println("test results collected at ${upt()}")
             @Suppress("DeferredResultUnused")
             if (lazy)

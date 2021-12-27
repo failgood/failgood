@@ -10,6 +10,7 @@ import failgood.internal.FailedContext
 import failgood.internal.ResourcesCloser
 import failgood.internal.SingleTestExecutor
 import failgood.internal.TestFilterProvider
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +19,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import java.lang.management.ManagementFactory
 import kotlin.reflect.KClass
 
@@ -56,7 +58,11 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
             if (!silent) {
                 contextInfos.forEach {
                     launch {
-                        val context = it.await()
+                        val context = try {
+                            withTimeout(timeoutMillis) { it.result.await() }
+                        } catch (e: CancellationException) {
+                            println("context ${it.context.name} never finished")
+                        }
                         val contextTreeReporter = ContextTreeReporter()
                         when (context) {
                             is ContextInfo -> {
@@ -75,7 +81,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                     }
                 }
             }
-            val resolvedContexts = contextInfos.awaitAll()
+            val resolvedContexts = contextInfos.map { it.result }.awaitAll()
             val successfulContexts = resolvedContexts.filterIsInstance<ContextInfo>()
             val results = successfulContexts.flatMap { it.tests.values }.awaitAll()
             successfulContexts.forEach {
@@ -104,29 +110,33 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         }
     } ?: Long.MAX_VALUE
 
+    data class FoundContext(val context: RootContext, val result: Deferred<ContextResult>)
     internal suspend fun findTests(
         coroutineScope: CoroutineScope,
         executeTests: Boolean = true,
         executionFilter: TestFilterProvider = ExecuteAllTestFilterProvider,
         listener: ExecutionListener = NullExecutionListener
-    ): List<Deferred<ContextResult>> {
+    ): List<FoundContext> {
         return contextProviders
             .map { coroutineScope.async { it.getContexts() } }.flatMap { it.await() }.sortedBy { it.order }
             .map { context: RootContext ->
                 val testFilter = executionFilter.forClass(context.sourceInfo.className)
-                coroutineScope.async {
-                    if (!context.disabled) {
-                        ContextExecutor(
-                            context,
-                            coroutineScope,
-                            !executeTests,
-                            listener,
-                            testFilter,
-                            timeoutMillis
-                        ).execute()
-                    } else
-                        ContextInfo(emptyList(), mapOf(), setOf())
-                }
+                FoundContext(
+                    context,
+                    coroutineScope.async {
+                        if (!context.disabled) {
+                            ContextExecutor(
+                                context,
+                                coroutineScope,
+                                !executeTests,
+                                listener,
+                                testFilter,
+                                timeoutMillis
+                            ).execute()
+                        } else
+                            ContextInfo(emptyList(), mapOf(), setOf())
+                    }
+                )
             }
     }
 

@@ -22,6 +22,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import java.lang.management.ManagementFactory
 import kotlin.reflect.KClass
+import kotlin.system.exitProcess
 
 const val DEFAULT_TIMEOUT: Long = 40000
 
@@ -62,6 +63,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                             withTimeout(timeoutMillis) { it.result.await() }
                         } catch (e: CancellationException) {
                             println("context ${it.context.name} never finished")
+                            exitProcess(-1)
                         }
                         val contextTreeReporter = ContextTreeReporter()
                         when (context) {

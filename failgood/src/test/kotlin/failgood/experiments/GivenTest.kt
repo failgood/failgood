@@ -11,9 +11,7 @@ import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
 /*
- * outline how an alternative dsl could look like.
- * right now I think that I'm not going to implement it because It's less intuitive, and I can have the same
- * effect by using normal context declared dependencies with `by dependency {....}`
+ experimental stubs for a `given` api
  */
 
 @Test
@@ -21,7 +19,7 @@ class TestDependenciesTest {
     val context = describe("Injecting Test Dependencies") {
         test("the context can create test dependencies") {
             val context = RootContext("TestContext for dependency Injection") {
-                describe(
+                given(
                     "context with dependency lambda",
                     { "StringDependency" }, { /* optional teardown*/ }
                 ) {
@@ -38,7 +36,7 @@ class TestDependenciesTest {
                             expectThat(string).isEqualTo("StringDependencyAddedString")
                         }
                     }
-                    describe(
+                    given(
                         "a child context that does not use the parent dependency." +
                             " for tests in this context the parent context dependencies" +
                             " are not constructed",
@@ -54,7 +52,7 @@ class TestDependenciesTest {
         }
     }
 
-    private fun <ContextDependency> ContextDSL.describe(
+    private fun <ContextDependency> ContextDSL.given(
         contextName: String,
         dependencies: suspend () -> ContextDependency,
         dependencyTeardown: suspend (ContextDependency) -> Unit = {},

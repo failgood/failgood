@@ -50,56 +50,67 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         parallelism: Int? = null,
         silent: Boolean = false
     ): SuiteResult {
-
         val dispatcher =
             if (parallelism == null) Dispatchers.Default
             else Dispatchers.Default.limitedParallelism(parallelism)
         return runBlocking(dispatcher) {
             val contextInfos = findTests(this)
-            if (!silent) {
-                contextInfos.forEach {
-                    launch {
-                        val context = try {
-                            withTimeout(timeoutMillis) { it.result.await() }
-                        } catch (e: CancellationException) {
-                            println("context ${it.context.name} never finished")
-                            exitProcess(-1)
-                        }
-                        val contextTreeReporter = ContextTreeReporter()
-                        when (context) {
-                            is ContextInfo -> {
-                                println(
-                                    contextTreeReporter.stringReport(
-                                        context.tests.values.awaitAll(),
-                                        context.contexts
-                                    )
-                                        .joinToString("\n")
-                                )
-                            }
-                            is FailedContext -> {
-                                println("context ${context.context} failed: ${context.failure.stackTraceToString()}")
-                            }
-                        }
+            awaitTestResult(this, silent, contextInfos)
+        }
+    }
+
+    private suspend fun awaitTestResult(
+        coroutineScope: CoroutineScope,
+        silent: Boolean,
+        contextInfos: List<FoundContext>
+    ): SuiteResult {
+        if (!silent) {
+            printResults(coroutineScope, contextInfos)
+        }
+        val resolvedContexts = contextInfos.map { it.result }.awaitAll()
+        val successfulContexts = resolvedContexts.filterIsInstance<ContextInfo>()
+        val results = successfulContexts.flatMap { it.tests.values }.awaitAll()
+        successfulContexts.forEach {
+            it.afterSuiteCallbacks.forEach { callback ->
+                try {
+                    callback.invoke()
+                } catch (ignored: Exception) {
+                } catch (ignored: AssertionError) {
+                }
+            }
+        }
+        return SuiteResult(
+            results,
+            results.filter { it.isFailed },
+            successfulContexts.flatMap { it.contexts }
+        )
+    }
+
+    private fun printResults(coroutineScope: CoroutineScope, contextInfos: List<FoundContext>) {
+        contextInfos.forEach {
+            coroutineScope.launch {
+                val context = try {
+                    withTimeout(this@Suite.timeoutMillis) { it.result.await() }
+                } catch (e: CancellationException) {
+                    println("context ${it.context.name} never finished")
+                    exitProcess(-1)
+                }
+                val contextTreeReporter = ContextTreeReporter()
+                when (context) {
+                    is ContextInfo -> {
+                        println(
+                            contextTreeReporter.stringReport(
+                                context.tests.values.awaitAll(),
+                                context.contexts
+                            )
+                                .joinToString("\n")
+                        )
+                    }
+                    is FailedContext -> {
+                        println("context ${context.context} failed: ${context.failure.stackTraceToString()}")
                     }
                 }
             }
-            val resolvedContexts = contextInfos.map { it.result }.awaitAll()
-            val successfulContexts = resolvedContexts.filterIsInstance<ContextInfo>()
-            val results = successfulContexts.flatMap { it.tests.values }.awaitAll()
-            successfulContexts.forEach {
-                it.afterSuiteCallbacks.forEach { callback ->
-                    try {
-                        callback.invoke()
-                    } catch (ignored: Exception) {
-                    } catch (ignored: AssertionError) {
-                    }
-                }
-            }
-            SuiteResult(
-                results,
-                results.filter { it.isFailed },
-                successfulContexts.flatMap { it.contexts }
-            )
         }
     }
 

@@ -46,27 +46,22 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         this(RootContext("root", false, 0, function = function))
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun run(
-        parallelism: Int? = null,
-        silent: Boolean = false
-    ): SuiteResult {
+    fun run(parallelism: Int? = null, silent: Boolean = false): SuiteResult {
         val dispatcher =
             if (parallelism == null) Dispatchers.Default
             else Dispatchers.Default.limitedParallelism(parallelism)
         return runBlocking(dispatcher) {
             val contextInfos = findTests(this)
-            awaitTestResult(this, silent, contextInfos)
+            if (!silent) {
+                printResults(this, contextInfos)
+            }
+            awaitTestResult(contextInfos)
         }
     }
 
     private suspend fun awaitTestResult(
-        coroutineScope: CoroutineScope,
-        silent: Boolean,
         contextInfos: List<FoundContext>
     ): SuiteResult {
-        if (!silent) {
-            printResults(coroutineScope, contextInfos)
-        }
         val resolvedContexts = contextInfos.map { it.result }.awaitAll()
         val successfulContexts = resolvedContexts.filterIsInstance<ContextInfo>()
         val results = successfulContexts.flatMap { it.tests.values }.awaitAll()
@@ -124,6 +119,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     } ?: Long.MAX_VALUE
 
     data class FoundContext(val context: RootContext, val result: Deferred<ContextResult>)
+
     internal suspend fun findTests(
         coroutineScope: CoroutineScope,
         executeTests: Boolean = true,

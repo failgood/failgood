@@ -182,11 +182,11 @@ internal fun uptime(totalTests: Int? = null): String {
 }
 
 internal fun pluralize(count: Int, item: String) = if (count == 1) "1 $item" else "$count ${item}s"
-fun Collection<RootContext>.toSuite() =
-    Suite(map { ContextProvider { listOf(it) } })
+fun Suite(rootContexts: Collection<RootContext>) =
+    Suite(rootContexts.map { ContextProvider { listOf(it) } })
 
-fun List<KClass<*>>.toSuite() =
-    Suite(map { ObjectContextProvider(it) })
+fun Suite(kClasses: List<KClass<*>>) =
+    Suite(kClasses.map { ObjectContextProvider(it) })
 
-fun RootContext.toSuite() = Suite(listOf(ContextProvider { listOf(this) }))
-fun Suite(lambda: ContextLambda) = RootContext("root", false, 0, function = lambda).toSuite()
+fun Suite(rootContext: RootContext) = Suite(listOf(ContextProvider { listOf(rootContext) }))
+fun Suite(lambda: ContextLambda) = Suite(RootContext("root", false, 0, function = lambda))

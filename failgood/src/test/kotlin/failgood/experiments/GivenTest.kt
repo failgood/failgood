@@ -6,7 +6,7 @@ import failgood.ContextDSL
 import failgood.RootContext
 import failgood.Test
 import failgood.describe
-import failgood.toSuite
+import failgood.Suite
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
@@ -48,7 +48,7 @@ class TestDependenciesTest {
                     }
                 }
             }
-            context.toSuite().run(silent = true)
+            Suite(context).run(silent = true)
         }
     }
 

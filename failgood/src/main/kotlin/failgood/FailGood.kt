@@ -170,7 +170,7 @@ object FailGood {
     }
 
     suspend fun runAllTests(writeReport: Boolean = false, paralellism: Int? = null) {
-        findTestClasses().toSuite().run(parallelism = paralellism).check(writeReport = writeReport)
+        Suite(findTestClasses()).run(parallelism = paralellism).check(writeReport = writeReport)
         printThreads()
     }
 
@@ -186,7 +186,7 @@ object FailGood {
 
     fun runTest(singleTest: String? = null) {
         val classes = listOf(javaClass.classLoader.loadClass((findCallerName().substringBefore("Kt"))).kotlin)
-        val suite = classes.toSuite()
+        val suite = Suite(classes)
         if (singleTest == null)
             suite.run().check()
         else {

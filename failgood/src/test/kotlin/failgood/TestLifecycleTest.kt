@@ -76,7 +76,7 @@ class TestLifecycleTest {
                 // here we just know that the root context start is the first event and the resource closed the last
                 // other events can occur in any order
 
-                describe("root context without isolation", isolation = false) {
+                Suite(describe("root context without isolation", isolation = false) {
                     val testEvents = mutableListOf<Event>()
                     totalEvents.add(testEvents)
                     testEvents.add(ROOT_CONTEXT_EXECUTED)
@@ -94,7 +94,7 @@ class TestLifecycleTest {
                     test("test4: tests can be defined after contexts") {
                         testEvents.add(TEST_4_EXECUTED)
                     }
-                }.toSuite()
+                })
                     .run(silent = true)
 
                 // we don't know the order of the tests because they run in parallel

@@ -1,7 +1,7 @@
 package failgood
 
 fun main() {
-    Suite(MultiThreadingPerformanceTestX().context).run(1000).check()
+    MultiThreadingPerformanceTestX().context.toSuite().run(1000).check()
 }
 
 @Test

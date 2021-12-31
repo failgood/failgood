@@ -21,12 +21,14 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withTimeout
 
-internal class ContextExecutor(
+internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
     private val rootContext: RootContext,
-    val scope: CoroutineScope,
+    val scope: CoroutineScope = GlobalScope,
     lazy: Boolean = false,
     val listener: ExecutionListener = NullExecutionListener,
     val testFilter: TestFilter = ExecuteAllTests,
@@ -117,23 +119,22 @@ internal class ContextExecutor(
                 }
             } else {
                 val resourcesCloser = ResourcesCloser(scope)
-                val deferred =
-                    scope.async(start = coroutineStart) {
-                        withTimeout(timeoutMillis) {
+                val deferred = scope.async(start = coroutineStart) {
+                    withTimeout(timeoutMillis) {
 
-                            listener.testStarted(testDescription)
-                            val result =
-                                SingleTestExecutor(
-                                    rootContext,
-                                    testPath,
-                                    TestContext(resourcesCloser, listener, testDescription),
-                                    resourcesCloser
-                                ).execute()
-                            val testPlusResult = TestPlusResult(testDescription, result)
-                            listener.testFinished(testPlusResult)
-                            testPlusResult
-                        }
+                        listener.testStarted(testDescription)
+                        val result =
+                            SingleTestExecutor(
+                                rootContext,
+                                testPath,
+                                TestContext(resourcesCloser, listener, testDescription),
+                                resourcesCloser
+                            ).execute()
+                        val testPlusResult = TestPlusResult(testDescription, result)
+                        listener.testFinished(testPlusResult)
+                        testPlusResult
                     }
+                }
                 deferredTestResults[testDescription] = deferred
             }
         }

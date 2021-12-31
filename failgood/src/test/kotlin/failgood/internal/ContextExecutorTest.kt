@@ -5,8 +5,12 @@ import failgood.RootContext
 import failgood.Success
 import failgood.Test
 import failgood.describe
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeout
 import strikt.api.expectThat
 import strikt.assertions.all
 import strikt.assertions.contains
@@ -27,21 +31,21 @@ import strikt.assertions.single
 @Test
 class ContextExecutorTest {
     private var assertionError: AssertionError? = null
+    @OptIn(DelicateCoroutinesApi::class)
     val context = describe(ContextExecutor::class) {
         describe("with a valid root context") {
-            val ctx =
-                RootContext("root context") {
-                    test("test 1") {}
-                    test("test 2") {}
-                    test("failed test") {
-                        assertionError = AssertionError("failed")
-                        throw assertionError!!
-                    }
-                    context("context 1") {
-                        context("context 2") { test("test 3") {} }
-                    }
-                    context("context 4") { test("test 4") {} }
+            val ctx = RootContext("root context") {
+                test("test 1") {}
+                test("test 2") {}
+                test("failed test") {
+                    assertionError = AssertionError("failed")
+                    throw assertionError!!
                 }
+                context("context 1") {
+                    context("context 2") { test("test 3") {} }
+                }
+                context("context 4") { test("test 4") {} }
+            }
             describe("executing all the tests") {
                 val contextResult = coroutineScope {
                     ContextExecutor(ctx, this).execute()
@@ -193,8 +197,22 @@ class ContextExecutorTest {
                 }
             }
         }
+        describe("timing") {
+            it("reports context structure before tests finish") {
+                val ctx = RootContext("root context") {
+                    test("test 1") {
+                        delay(1000)
+                    }
+                }
+                coroutineScope {
+                    withTimeout(100) {
+                        expectThat(ContextExecutor(ctx, GlobalScope).execute()).isA<ContextInfo>()
+                    }
+                }
+            }
+        }
 
-        describe("handles failing sub contexts") {
+        describe("failing sub contexts") {
             var error: Throwable? = null
 
             val ctx = RootContext("root context") {

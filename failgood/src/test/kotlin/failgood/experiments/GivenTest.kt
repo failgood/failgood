@@ -4,9 +4,9 @@ package failgood.experiments
 
 import failgood.ContextDSL
 import failgood.RootContext
+import failgood.Suite
 import failgood.Test
 import failgood.describe
-import failgood.Suite
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 

@@ -76,25 +76,27 @@ class TestLifecycleTest {
                 // here we just know that the root context start is the first event and the resource closed the last
                 // other events can occur in any order
 
-                Suite(describe("root context without isolation", isolation = false) {
-                    val testEvents = mutableListOf<Event>()
-                    totalEvents.add(testEvents)
-                    testEvents.add(ROOT_CONTEXT_EXECUTED)
-                    autoClose("dependency", closeFunction = { testEvents.add(DEPENDENCY_CLOSED) })
-                    test("test 1") { testEvents.add(TEST_1_EXECUTED) }
-                    test("test 2") { testEvents.add(TEST_2_EXECUTED) }
-                    context("context 1") {
-                        testEvents.add(CONTEXT_1_EXECUTED)
+                Suite(
+                    describe("root context without isolation", isolation = false) {
+                        val testEvents = mutableListOf<Event>()
+                        totalEvents.add(testEvents)
+                        testEvents.add(ROOT_CONTEXT_EXECUTED)
+                        autoClose("dependency", closeFunction = { testEvents.add(DEPENDENCY_CLOSED) })
+                        test("test 1") { testEvents.add(TEST_1_EXECUTED) }
+                        test("test 2") { testEvents.add(TEST_2_EXECUTED) }
+                        context("context 1") {
+                            testEvents.add(CONTEXT_1_EXECUTED)
 
-                        context("context 2") {
-                            testEvents.add(CONTEXT_2_EXECUTED)
-                            test("test 3") { testEvents.add(TEST_3_EXECUTED) }
+                            context("context 2") {
+                                testEvents.add(CONTEXT_2_EXECUTED)
+                                test("test 3") { testEvents.add(TEST_3_EXECUTED) }
+                            }
+                        }
+                        test("test4: tests can be defined after contexts") {
+                            testEvents.add(TEST_4_EXECUTED)
                         }
                     }
-                    test("test4: tests can be defined after contexts") {
-                        testEvents.add(TEST_4_EXECUTED)
-                    }
-                })
+                )
                     .run(silent = true)
 
                 // we don't know the order of the tests because they run in parallel

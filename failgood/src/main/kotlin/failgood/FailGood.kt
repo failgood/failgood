@@ -107,7 +107,7 @@ object FailGood {
      * @param randomTestClass usually not needed, but you can pass any test class here,
      *        and it will be used to find the classloader and source root
      */
-    suspend fun findTestClasses(
+    fun findTestClasses(
         classIncludeRegex: Regex = Regex(".*Test.class\$"),
         newerThan: FileTime? = null,
         randomTestClass: KClass<*> = findCaller()
@@ -117,8 +117,7 @@ object FailGood {
         return findClassesInPath(root, classloader, classIncludeRegex, newerThan)
     }
 
-    @Suppress("RedundantSuspendModifier", "BlockingMethodInNonBlockingContext")
-    internal suspend fun findClassesInPath(
+    internal fun findClassesInPath(
         root: Path,
         classloader: ClassLoader,
         classIncludeRegex: Regex = Regex(".*Test.class\$"),
@@ -153,7 +152,7 @@ object FailGood {
      * @param randomTestClass usually not needed, but you can pass any test class here,
      *        and it will be used to find the classloader and source root
      */
-    @Suppress("BlockingMethodInNonBlockingContext")
+    @Suppress("BlockingMethodInNonBlockingContext", "RedundantSuspendModifier")
     suspend fun autoTest(randomTestClass: KClass<*> = findCaller()) {
         val timeStampPath = Paths.get(".autotest.failgood")
         val lastRun: FileTime? =
@@ -169,6 +168,7 @@ object FailGood {
         if (classes.isNotEmpty()) Suite(classes.map { ObjectContextProvider(it) }).run().check(false)
     }
 
+    @Suppress("RedundantSuspendModifier")
     suspend fun runAllTests(writeReport: Boolean = false, paralellism: Int = cpus()) {
         Suite(findTestClasses()).run(parallelism = paralellism).check(writeReport = writeReport)
         printThreads()

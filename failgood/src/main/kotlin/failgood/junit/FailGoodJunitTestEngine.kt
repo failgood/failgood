@@ -47,12 +47,11 @@ class FailGoodJunitTestEngine : TestEngine {
         debug = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_DEBUG).orElse(false)
 
         val executionListener = JunitExecutionListener()
+        val testSuffix = discoveryRequest.configurationParameters.get(CONFIG_KEY_TEST_CLASS_SUFFIX).orElse("Test")
+        val contextsAndFilters = ContextFinder(testSuffix).findContexts(discoveryRequest)
+        val providers: List<ContextProvider> = contextsAndFilters.contexts
+        val suite = Suite(providers)
         val testResult = runBlocking(Dispatchers.Default) {
-            val testSuffix = discoveryRequest.configurationParameters.get(CONFIG_KEY_TEST_CLASS_SUFFIX).orElse("Test")
-            val contextsAndFilters = ContextFinder(testSuffix).findContexts(discoveryRequest)
-            val providers: List<ContextProvider> = contextsAndFilters.contexts
-            val suite = Suite(providers)
-
             val testResult = suite.findTests(
                 GlobalScope,
                 !lazy,
@@ -170,7 +169,7 @@ class FailGoodJunitTestEngine : TestEngine {
             failedTests.forEach {
                 println(
                     "${it.testName} ${
-                        mapper.getMapping(it).uniqueId.toString().replace(" ", "+")
+                    mapper.getMapping(it).uniqueId.toString().replace(" ", "+")
                     }"
                 )
             }

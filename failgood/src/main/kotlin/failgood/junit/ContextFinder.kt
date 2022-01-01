@@ -18,7 +18,7 @@ import java.util.LinkedList
 
 internal data class ContextsAndFilters(val contexts: List<ContextProvider>, val filter: TestFilterProvider)
 class ContextFinder(private val testSuffix: String = "Test") {
-    internal suspend fun findContexts(discoveryRequest: EngineDiscoveryRequest): ContextsAndFilters {
+    internal fun findContexts(discoveryRequest: EngineDiscoveryRequest): ContextsAndFilters {
         val filterConfig = mutableMapOf<String, List<String>>()
         val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)
         val classNamePredicates =

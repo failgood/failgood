@@ -4,7 +4,6 @@ import failgood.versions.kotlinVersion
 import failgood.versions.pitestVersion
 import failgood.versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm")
@@ -31,26 +30,6 @@ dependencies {
     testImplementation("org.pitest:pitest:$pitestVersion")
     testImplementation("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
     testImplementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
-}
-tasks {
-    create<Jar>("sourceJar") {
-        from(sourceSets.main.get().allSource)
-        archiveClassifier.set("sources")
-    }
-    withType<Test> { useJUnitPlatform() }
-
-    withType<JavaCompile> {
-        sourceCompatibility = "1.8"
-        targetCompatibility = "1.8"
-    }
-    withType<KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = "1.8"
-            freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn", "-Xuse-ir")
-            languageVersion = "1.5"
-            apiVersion = "1.5"
-        }
-    }
 }
 
 val testMain =

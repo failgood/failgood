@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     java
     `maven-publish`
@@ -65,4 +67,27 @@ java {
 
 signing {
     sign(publishing.publications[pub])
+}
+tasks {
+    create<Jar>("sourceJar") {
+        from(sourceSets.main.get().allSource)
+        archiveClassifier.set("sources")
+    }
+    withType<Test> {
+        useJUnitPlatform()
+        outputs.upToDateWhen { false }
+    }
+
+    withType<JavaCompile> {
+        sourceCompatibility = "1.8"
+        targetCompatibility = "1.8"
+    }
+    withType<KotlinCompile> {
+        kotlinOptions {
+            jvmTarget = "1.8"
+            freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn", "-Xuse-ir")
+            languageVersion = "1.6"
+            apiVersion = "1.6"
+        }
+    }
 }

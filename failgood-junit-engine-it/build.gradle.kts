@@ -13,14 +13,8 @@ dependencies {
     testImplementation(project(":failgood"))
     testImplementation("io.strikt:strikt-core:$striktVersion")
     testImplementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
-
 }
 
-tasks {
-    withType<Test> {
-        useJUnitPlatform()
-    }
-}
 
 val testMain =
     task("testMain", JavaExec::class) {

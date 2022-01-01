@@ -5,9 +5,11 @@ import failgood.RootContext
 import failgood.Success
 import failgood.Test
 import failgood.describe
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
@@ -31,6 +33,7 @@ import strikt.assertions.single
 @Test
 class ContextExecutorTest {
     private var assertionError: AssertionError? = null
+
     @OptIn(DelicateCoroutinesApi::class)
     val context = describe(ContextExecutor::class) {
         describe("with a valid root context") {
@@ -204,11 +207,11 @@ class ContextExecutorTest {
                         delay(1000)
                     }
                 }
-                coroutineScope {
-                    withTimeout(100) {
-                        expectThat(ContextExecutor(ctx, GlobalScope).execute()).isA<ContextInfo>()
-                    }
+                val scope = CoroutineScope(Dispatchers.Unconfined)
+                withTimeout(100) {
+                    expectThat(ContextExecutor(ctx, scope).execute()).isA<ContextInfo>()
                 }
+                scope.cancel()
             }
         }
 

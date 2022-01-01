@@ -13,14 +13,16 @@ import failgood.internal.TestFilterProvider
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import java.lang.management.ManagementFactory
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
@@ -32,16 +34,25 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun run(parallelism: Int? = null, silent: Boolean = false): SuiteResult {
-        val dispatcher =
-            if (parallelism == null) Dispatchers.Default
-            else Dispatchers.Default.limitedParallelism(parallelism)
-        return runBlocking(dispatcher) {
-            val contextInfos = findTests(this)
-            if (!silent) {
-                printResults(this, contextInfos)
-            }
-            awaitTestResult(contextInfos)
+    fun run(parallelism: Int = cpus(), silent: Boolean = false): SuiteResult {
+        val threadPool = if (parallelism > 1)
+            Executors.newWorkStealingPool(parallelism)
+        else
+            Executors.newSingleThreadExecutor()
+        return try {
+            threadPool.asCoroutineDispatcher()
+                .use { dispatcher ->
+                    runBlocking(dispatcher) {
+                        val contextInfos = findTests(this)
+                        if (!silent) {
+                            printResults(this, contextInfos)
+                        }
+                        awaitTestResult(contextInfos)
+                    }
+                }
+        } finally {
+            threadPool.awaitTermination(100, TimeUnit.SECONDS)
+            threadPool.shutdown()
         }
     }
 
@@ -190,3 +201,4 @@ fun Suite(kClasses: List<KClass<*>>) =
 
 fun Suite(rootContext: RootContext) = Suite(listOf(ContextProvider { listOf(rootContext) }))
 fun Suite(lambda: ContextLambda) = Suite(RootContext("root", false, 0, function = lambda))
+fun cpus() = Runtime.getRuntime().availableProcessors()

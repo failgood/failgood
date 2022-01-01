@@ -53,7 +53,7 @@ suspend fun main() {
 
     FailGood.runAllTests(true)
 
-    // let's see how far we can get with one second. on CI everything is much slower so we double the time there
+    // let's see how far we can get with one second. on CI everything is much slower, so we double the time there
     val limit: Long = if (System.getenv("CI") != null) 2000 else 1000
     expectThat(ManagementFactory.getRuntimeMXBean().uptime).isLessThan(limit)
 }

@@ -203,8 +203,10 @@ class ContextExecutorTest {
         describe("timing") {
             it("reports context structure before tests finish") {
                 val ctx = RootContext("root context") {
-                    test("test 1") {
-                        delay(1000)
+                    repeat(10) {
+                        test("test $it") {
+                            delay(1000)
+                        }
                     }
                 }
                 val scope = CoroutineScope(Dispatchers.Unconfined)

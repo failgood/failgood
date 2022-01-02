@@ -1,5 +1,11 @@
 package failgood
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeout
 import strikt.api.expectThat
 import strikt.api.expectThrows
 import strikt.assertions.isA
@@ -22,6 +28,29 @@ class SuiteTest {
                         }
                     }.runSingle("root > test")
                 ).isA<Success>()
+            }
+            describe("coroutine scope") {
+                it("does not wait for tests before returning context info") {
+                    val contexts = (1..10).map {
+                        RootContext("root context") {
+                            repeat(10) {
+                                test("test $it") {
+                                    delay(1000)
+                                }
+                            }
+
+                        }
+                    }
+                    val scope = CoroutineScope(Dispatchers.Unconfined)
+                    val deferredResult = withTimeout(100) {
+                        Suite(contexts).findTests(scope)
+                    }
+                    withTimeout(100) {
+                        deferredResult.map { it.result }.awaitAll()
+                    }
+                    scope.cancel()
+
+                }
             }
         }
 }

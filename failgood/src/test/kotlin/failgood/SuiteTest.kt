@@ -38,7 +38,6 @@ class SuiteTest {
                                     delay(1000)
                                 }
                             }
-
                         }
                     }
                     val scope = CoroutineScope(Dispatchers.Unconfined)
@@ -49,7 +48,6 @@ class SuiteTest {
                         deferredResult.map { it.result }.awaitAll()
                     }
                     scope.cancel()
-
                 }
             }
         }

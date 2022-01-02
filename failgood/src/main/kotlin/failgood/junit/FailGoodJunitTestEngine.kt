@@ -68,6 +68,7 @@ class FailGoodJunitTestEngine : TestEngine {
             testResult
         }
         return createResponse(uniqueId, testResult, executionListener).also {
+            println("returning result after ${upt()}")
             if (debug) {
                 println("nodes returned: ${it.allDescendants()}")
             }

@@ -28,5 +28,4 @@ class ClassTestContextTest {
             expectThat("test").isEqualTo("test")
         }
     }
-
 }

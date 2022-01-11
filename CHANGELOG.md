@@ -3,7 +3,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 0.5.1 - "Grand Royal" - Unreleased
 
 ### Added
 

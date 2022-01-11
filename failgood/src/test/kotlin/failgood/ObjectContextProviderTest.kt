@@ -4,7 +4,7 @@ import failgood.docs.ClassTestContextTest
 import failgood.docs.ObjectMultipleContextsTest
 import strikt.api.expectThat
 import strikt.assertions.all
-import strikt.assertions.containsExactly
+import strikt.assertions.containsExactlyInAnyOrder
 import strikt.assertions.hasSize
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
@@ -18,7 +18,7 @@ class ObjectContextProviderTest {
         describe(ObjectContextProvider::class) {
             it("provides a context from an class in a kotlin class (MyTest::class.java)") {
                 expectThat(ObjectContextProvider(ClassTestContextTest::class).getContexts()).map { it.name }
-                    .containsExactly(
+                    .containsExactlyInAnyOrder(
                         "test context defined in a kotlin class",
                         "another test context defined in a kotlin class"
                     )

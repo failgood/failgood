@@ -17,18 +17,17 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
                 null
             }
             val obj = if (instanceField != null)
+            // its a kotlin object
                 instanceField.get(null)
             else
-                jClass.constructors.single().newInstance()
+            // its a kotlin class or a top level context
+                jClass.constructors.singleOrNull()?.newInstance()
+
             val contexts = jClass.getDeclaredMethod("getContext").invoke(obj)
             @Suppress("UNCHECKED_CAST")
             contexts as? List<RootContext> ?: listOf(contexts as RootContext)
         } catch (e: Exception) {
-            try {
-                listOf(jClass.getDeclaredMethod("getContext").invoke(null) as RootContext)
-            } catch (e: Exception) {
-                return listOf()
-            }
+            listOf()
         }
         // now correct the sourceinfo if the context thinks it does not come from the class we just loaded
         return contexts.map {

@@ -20,7 +20,8 @@ class ObjectContextProviderTest {
                 expectThat(ObjectContextProvider(ClassTestContextTest::class).getContexts()).map { it.name }
                     .containsExactlyInAnyOrder(
                         "test context defined in a kotlin class",
-                        "another test context defined in a kotlin class"
+                        "another test context defined in a kotlin class",
+                        "a test context returned by a function"
                     )
             }
             it("provides a context from an object in a java class (MyTest::class.java)") {

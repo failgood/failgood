@@ -24,7 +24,7 @@ class ContextFinder(private val testSuffix: String = "Test") {
         val classNamePredicates =
             discoveryRequest.getFiltersByType(ClassNameFilter::class.java).map { it.toPredicate() }
 
-        // when there is only a single class selector we run the test even when it does not end in *Class
+        // when there is only a single class selector we run the test even when it does not end in *Test
         val singleSelector = allSelectors.size == 1
         val contexts = allSelectors.flatMapTo(LinkedList()) { selector ->
             when (selector) {

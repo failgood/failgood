@@ -9,8 +9,11 @@ fun interface ContextProvider {
 class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvider {
     constructor(kClass: KClass<*>) : this(kClass.java)
 
+    /**
+     * get root contexts from a class or object or defined at the top level
+     */
     override fun getContexts(): List<RootContext> {
-        val contexts = try {
+        val contexts: List<RootContext> = try {
             val instanceField = try {
                 jClass.getDeclaredField("INSTANCE")
             } catch (e: Exception) {
@@ -20,12 +23,18 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
             // its a kotlin object
                 instanceField.get(null)
             else
-            // its a kotlin class or a top level context
+            // it's a kotlin class or a top level context
                 jClass.constructors.singleOrNull()?.newInstance()
 
-            val contexts = jClass.getDeclaredMethod("getContext").invoke(obj)
-            @Suppress("UNCHECKED_CAST")
-            contexts as? List<RootContext> ?: listOf(contexts as RootContext)
+            // get contexts from all methods returning RootContext
+            val methodsReturningRootContext = jClass.methods.filter { it.returnType == RootContext::class.java }
+            // if there are no methods returning RootContext, maybe getContext returns a list of RootContexts
+            val contextGetters = methodsReturningRootContext.ifEmpty { listOf(jClass.getDeclaredMethod("getContext")) }
+            contextGetters.flatMap {
+                val contexts = it.invoke(obj)
+                @Suppress("UNCHECKED_CAST")
+                contexts as? List<RootContext> ?: listOf(contexts as RootContext)
+            }
         } catch (e: Exception) {
             listOf()
         }

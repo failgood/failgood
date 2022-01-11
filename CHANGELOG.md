@@ -3,6 +3,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Added
+
+- support contexts defined in other variables than `context`. This also enables multiple contexts in one class. (#49)
+
 ## 0.5.0 - "Reinforced" - 2021-11-29
 
 ### Added

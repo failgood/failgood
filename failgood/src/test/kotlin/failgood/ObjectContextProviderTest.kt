@@ -4,10 +4,12 @@ import failgood.docs.ClassTestContextTest
 import failgood.docs.ObjectMultipleContextsTest
 import strikt.api.expectThat
 import strikt.assertions.all
+import strikt.assertions.containsExactly
 import strikt.assertions.hasSize
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import strikt.assertions.isNotEqualTo
+import strikt.assertions.map
 import strikt.assertions.single
 
 @Test
@@ -15,9 +17,11 @@ class ObjectContextProviderTest {
     val context =
         describe(ObjectContextProvider::class) {
             it("provides a context from an class in a kotlin class (MyTest::class.java)") {
-                expectThat(ObjectContextProvider(ClassTestContextTest::class).getContexts()).single()
-                    .isA<RootContext>()
-                    .and { get(RootContext::name).isEqualTo("test context defined in a kotlin class") }
+                expectThat(ObjectContextProvider(ClassTestContextTest::class).getContexts()).map { it.name }
+                    .containsExactly(
+                        "test context defined in a kotlin class",
+                        "another test context defined in a kotlin class"
+                    )
             }
             it("provides a context from an object in a java class (MyTest::class.java)") {
                 expectThat(ObjectContextProvider(TestFinderTest::class.java).getContexts()).single()

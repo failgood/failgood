@@ -31,6 +31,7 @@ import org.junit.platform.engine.TestSource
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.reporting.ReportEntry
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
+import org.junit.platform.engine.support.descriptor.EngineDescriptor
 
 const val CONTEXT_SEGMENT_TYPE = "class"
 const val TEST_SEGMENT_TYPE = "method"
@@ -50,6 +51,9 @@ class FailGoodJunitTestEngine : TestEngine {
         val testSuffix = discoveryRequest.configurationParameters.get(CONFIG_KEY_TEST_CLASS_SUFFIX).orElse("Test")
         val contextsAndFilters = ContextFinder(testSuffix).findContexts(discoveryRequest)
         val providers: List<ContextProvider> = contextsAndFilters.contexts
+        if (providers.isEmpty())
+        // if we did not find any tests just remove an empty descriptor, maybe other engines have tests to run
+            return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.displayName)
         val suite = Suite(providers)
         val testResult = runBlocking(Dispatchers.Default) {
             val testResult = suite.findTests(

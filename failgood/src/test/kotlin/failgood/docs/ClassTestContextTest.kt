@@ -28,4 +28,13 @@ class ClassTestContextTest {
             expectThat("test").isEqualTo("test")
         }
     }
+    // these contexts are currently not found. only the field `context` is currently checked to be a list.
+    val contextList = listOf(
+        describe("first of multiple contexts defined in one object") {
+            it("describes behavior") { expectThat("test").isEqualTo("test") }
+        },
+        describe("second of multiple contexts defined in one object") {
+            it("describes behavior") { expectThat("test").isEqualTo("test") }
+        }
+    )
 }

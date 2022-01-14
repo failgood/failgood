@@ -85,7 +85,7 @@ tasks {
     withType<KotlinCompile> {
         kotlinOptions {
             jvmTarget = "1.8"
-            freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn", "-Xuse-ir")
+            freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn", "-progressive")
             languageVersion = "1.6"
             apiVersion = "1.6"
         }

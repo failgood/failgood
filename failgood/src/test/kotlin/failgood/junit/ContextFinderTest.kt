@@ -43,7 +43,7 @@ class ContextFinderTest {
                     .build()
                 val contextNames =
                     contextFinder.findContexts(request).contexts.flatMap { it.getContexts() }.map { it.name }
-                expectThat(contextNames).containsExactlyInAnyOrder("the ContextFinder", ::createResponse.name)
+                expectThat(contextNames).containsExactlyInAnyOrder(rootName, ::createResponse.name)
             }
         }
     }

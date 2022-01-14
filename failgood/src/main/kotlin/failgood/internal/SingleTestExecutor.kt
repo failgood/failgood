@@ -34,7 +34,7 @@ internal class SingleTestExecutor(
         }
     }
 
-    open inner class Base : ContextDSL, ResourcesDSL by resourcesCloser {
+    private open inner class Base : ContextDSL, ResourcesDSL by resourcesCloser {
         override suspend fun test(name: String, function: TestLambda) {}
         override suspend fun context(name: String, function: ContextLambda) {}
         override suspend fun describe(name: String, function: ContextLambda) {}
@@ -43,7 +43,7 @@ internal class SingleTestExecutor(
         override fun afterSuite(function: suspend () -> Unit) {}
     }
 
-    inner class ContextFinder(private val contexts: List<String>) : ContextDSL, Base() {
+    private inner class ContextFinder(private val contexts: List<String>) : ContextDSL, Base() {
         override suspend fun context(name: String, function: ContextLambda) {
             if (contexts.first() != name) return
 
@@ -58,7 +58,7 @@ internal class SingleTestExecutor(
     private fun contextDSL(parentContexts: List<String>): ContextDSL =
         if (parentContexts.isEmpty()) TestFinder() else ContextFinder(parentContexts)
 
-    inner class TestFinder : Base() {
+    private inner class TestFinder : Base() {
         override suspend fun it(behaviorDescription: String, function: TestLambda) {
             test(behaviorDescription, function)
         }

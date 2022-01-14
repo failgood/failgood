@@ -12,6 +12,7 @@ import org.junit.platform.engine.EngineDiscoveryRequest
 import org.junit.platform.engine.discovery.ClassNameFilter
 import org.junit.platform.engine.discovery.ClassSelector
 import org.junit.platform.engine.discovery.ClasspathRootSelector
+import org.junit.platform.engine.discovery.PackageNameFilter
 import org.junit.platform.engine.discovery.UniqueIdSelector
 import java.nio.file.Paths
 import java.util.LinkedList
@@ -23,7 +24,9 @@ class ContextFinder(private val testSuffix: String = "Test") {
         val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)
         val classNamePredicates =
             discoveryRequest.getFiltersByType(ClassNameFilter::class.java).map { it.toPredicate() }
-
+        val packageNamePredicates =
+            discoveryRequest.getFiltersByType(PackageNameFilter::class.java).map { it.toPredicate() }
+        val allPredicates = classNamePredicates + packageNamePredicates
         // when there is only a single class selector we run the test even when it does not end in *Test
         val singleSelector = allSelectors.size == 1
         val contexts = allSelectors.flatMapTo(LinkedList()) { selector ->
@@ -33,7 +36,7 @@ class ContextFinder(private val testSuffix: String = "Test") {
                     FailGood.findClassesInPath(
                         Paths.get(uri),
                         Thread.currentThread().contextClassLoader,
-                        matchLambda = { className -> classNamePredicates.all { it.test(className) } }
+                        matchLambda = { className -> allPredicates.all { it.test(className) } }
                     ).map {
                         ObjectContextProvider(it)
                     }

@@ -3,10 +3,15 @@
 
 All notable changes to this project will be documented in this file.
 
-## 0.5.1 - "Grand Royal" - Unreleased
+## 0.5.1 - "Grand Royal" - 2022-01-14
+
+### Fixed
+
+- don't throw an error when the junit engine finds no tests, to allow other engines to run their tests. (#48)
 
 ### Added
 
+- add support for package filtering. this fixes running all tests in a package from IDEA. (#50)
 - support contexts defined in other variables than `context`. This also enables multiple contexts in one class. (#49)
 
 ## 0.5.0 - "Reinforced" - 2021-11-29

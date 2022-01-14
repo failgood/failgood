@@ -46,7 +46,6 @@ class FailGoodJunitTestEngineTest {
             }
         }
         describe("test execution") {
-
             it("starts and stops contexts in the correct order") {
                 val testDescriptor =
                     engine.discover(

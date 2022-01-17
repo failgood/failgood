@@ -147,7 +147,13 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
                     if (isolation) resourcesCloser.close()
                     return@withTimeout Failed(e)
                 }
-                if (isolation) resourcesCloser.close()
+                if (isolation) {
+                    try {
+                        resourcesCloser.close()
+                    } catch (e: Exception) {
+                        return@withTimeout Failed(e)
+                    }
+                }
                 Success((System.nanoTime() - startTime) / 1000)
             }
         }

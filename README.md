@@ -61,7 +61,7 @@ class FailGoodTest {
 
 To see it in action check out the failgood-example project, or a project that uses FailGood, for example
 [the the.orm test suite](https://github.com/christophsturm/the.orm)
-or [the restaurant test suite](https://github.com/christophsturm/restaurant/tree/main/src/test/kotlin/restaurant)
+or [the restaurant test suite](https://github.com/christophsturm/restaurant/tree/main/core/src/test/kotlin/restaurant)
 
 ## Running the test suite
 

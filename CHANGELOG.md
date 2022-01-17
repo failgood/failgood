@@ -3,7 +3,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 0.5.2 - Unreleased
+## 0.5.2 - "Fiction" - 2022-01-17
 
 ### Fixed
 

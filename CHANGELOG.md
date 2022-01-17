@@ -3,6 +3,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.5.2 - Unreleased
+
+### Fixed
+
+- Report exceptions in autoClose callbacks as test failure (#53)
+
 ## 0.5.1 - "Grand Royal" - 2022-01-14
 
 ### Fixed

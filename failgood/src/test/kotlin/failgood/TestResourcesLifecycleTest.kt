@@ -5,15 +5,15 @@ import failgood.mock.getCalls
 import failgood.mock.mock
 import failgood.mock.verify
 import strikt.api.expectThat
+import strikt.assertions.all
 import strikt.assertions.containsExactly
 import strikt.assertions.containsExactlyInAnyOrder
+import strikt.assertions.hasSize
 import strikt.assertions.isA
-import strikt.assertions.isEqualTo
 import strikt.assertions.isFalse
 import strikt.assertions.isSameInstanceAs
 import strikt.assertions.isTrue
-import strikt.assertions.message
-import strikt.assertions.single
+import strikt.assertions.map
 import java.util.concurrent.CopyOnWriteArrayList
 
 @Test
@@ -119,13 +119,16 @@ class TestResourcesLifecycleTest {
                 it("errors in close callbacks count as failed tests") {
                     val result = Suite {
                         autoClose(null) { throw RuntimeException("error message") }
-                        test("my test") {
+                        test("first test") {
+                        }
+                        test("second test") {
                         }
                     }.run(silent = true)
                     expectThat(result) {
                         get { allOk }.isFalse()
-                        get { allTests }.single().get { this.result }.isA<Failed>()
-                            .get { failure }.message.isEqualTo("error message")
+                        get { allTests }.hasSize(2).all { get { this.result }.isA<Failed>() }.map { it.test.testName }.containsExactlyInAnyOrder(
+                            "first test", "second test"
+                        )
                     }
                 }
             }

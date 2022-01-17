@@ -126,9 +126,10 @@ class TestResourcesLifecycleTest {
                     }.run(silent = true)
                     expectThat(result) {
                         get { allOk }.isFalse()
-                        get { allTests }.hasSize(2).all { get { this.result }.isA<Failed>() }.map { it.test.testName }.containsExactlyInAnyOrder(
-                            "first test", "second test"
-                        )
+                        get { allTests }.hasSize(2).all { get { this.result }.isA<Failed>() }.map { it.test.testName }
+                            .containsExactlyInAnyOrder(
+                                "first test", "second test"
+                            )
                     }
                 }
             }

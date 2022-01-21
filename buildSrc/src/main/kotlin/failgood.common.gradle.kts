@@ -73,7 +73,7 @@ tasks {
         from(sourceSets.main.get().allSource)
         archiveClassifier.set("sources")
     }
-    withType<Test> {
+    test {
         useJUnitPlatform()
         outputs.upToDateWhen { false }
     }

@@ -3,7 +3,7 @@
 
 # FailGood
 
-Multithreaded test runner for Kotlin focusing on simplicity, usability and speed. Now including a simple mock library.
+Failgood is a test runner for Kotlin focusing on simplicity, usability and speed. Now including a simple mock library.
 Still zero dependencies.
 
 ## Goals / Features
@@ -23,9 +23,9 @@ people who write tests daily and iterate fast.
 ### setUp / beforeEach
 
 If you are used to junit you probably wonder where to place init code that you want to run before each test.
-Failgood has no setUp or beforeEach, because it is not a good fit for kotlins immutable vals.
+Failgood has no setUp or beforeEach, because it is not a good fit for kotlin's immutable `val`s.
 
-tests in other test runners sometimes look like this:
+Tests in other test runners sometimes look like this:
 ```kotlin
 class MyTest {
     lateinit var myWebserver: Server
@@ -40,7 +40,7 @@ class MyTest {
 }
 
 ```
-in Failgood you just start your dependencies where you declare them, and define a callback to close them, so the failgood
+In Failgood you just start your dependencies where you declare them, and define a callback to close them, so the failgood
 equivalent of the above code is just:
 
 ```kotlin
@@ -49,6 +49,7 @@ val context = describe(MyServer::class) {
 }
 
 ```
+
 
 ### Parametrized tests
 
@@ -64,7 +65,7 @@ val context = describe("String#reverse") {
 }
 
 ```
-in the case of the above example you may even want to add more test inputs and outputs for better coverage.
+In the case of the above example you may even want to add more test inputs and outputs for better coverage.
 
 
 
@@ -110,28 +111,6 @@ it  [instance per leaf](https://github.com/kotest/kotest/blob/master/doc/isolati
 
 It combines the power of a dsl with the simplicity of JUnit 4.
 
-## Autotest
-
-add a main method that just runs autotest:
-
-```kotlin
-fun main() {
-    autoTest()
-}
-```
-
-create a gradle exec task for it:
-
-```kotlin
-tasks.register("autotest", JavaExec::class) {
-    mainClass.set("failgood.AutoTestMainKt")
-    classpath = sourceSets["test"].runtimeClasspath
-}
-```
-
-run it with `./gradlew -t autotest`anytime a test file is recompiled it will run. This works pretty well, but it's not
-perfect, because not every change to a tested class triggers a recompile of the test class. Fixing this by reading
-dependencies from the test classes' constant pool is on the roadmap.
 
 ## Test coverage
 
@@ -151,3 +130,29 @@ Failgood runs your tests in parallel, so you need to avoid global state.
 * if you need a web server run it on a random port.
 * if you need a database create a db with a random name for each test. (see the.orm)
   or run the test in a transaction that is rolled back at the end
+
+## Autotest
+
+This is an experimental feature from the early days of failgood, but it still works.
+Stay tuned for improved autotest support in the future or use the current version it like described below, and tell me what you think about it.
+
+Add a main method that just runs autotest:
+
+```kotlin
+fun main() {
+    autoTest()
+}
+```
+
+create a gradle exec task for it:
+
+```kotlin
+tasks.register("autotest", JavaExec::class) {
+    mainClass.set("failgood.AutoTestMainKt")
+    classpath = sourceSets["test"].runtimeClasspath
+}
+```
+
+run it with `./gradlew -t autotest`anytime a test file is recompiled it will run. This works pretty well, but it's not
+perfect, because not every change to a tested class triggers a recompile of the test class. Fixing this by reading
+dependencies from the test classes' constant pool is on the roadmap.

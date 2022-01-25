@@ -116,19 +116,16 @@ To see it in action check out the failgood-example project, or a project that us
 [the "the.orm" test suite](https://github.com/christophsturm/the.orm)
 or [the restaurant test suite](https://github.com/christophsturm/restaurant/tree/main/core/src/test/kotlin/restaurant)
 
-## Running the test failgood test suite
+## Running the Failgood test suite
 
 to run FailGood's test suite just run `./gradlew check` or if you want to run it via idea just run
 the `FailGoodBootstrap.kt` class.
 
-
-
-
 ## Test coverage
 
-Failgood works well with the kover plugin, and if you want real mutation coverage, there is also a pitest plugin.
+Failgood works well with the [kover](https://github.com/Kotlin/kotlinx-kover) plugin, and if you want real mutation coverage, there is also a pitest plugin.
 
-## Even faster tests; best practices
+## Even faster tests - best practices
 
 * avoid heavyweight dependencies. the failgood test suite runs in < 1000ms. That's a lot of time for a computer, and a
   great target for your test suite. Slow tests are a code smell. An unexpected example for a heavyweight dependency is

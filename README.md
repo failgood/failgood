@@ -3,7 +3,7 @@
 
 # FailGood
 
-Multi-threaded test runner for Kotlin focusing on simplicity, usability and speed. Now including a simple mock library.
+Multithreaded test runner for Kotlin focusing on simplicity, usability and speed. Now including a simple mock library.
 Still zero dependencies.
 
 ## Goals / Features
@@ -18,47 +18,58 @@ people who write tests daily and iterate fast.
 * Autotest to run only changed tests.
 * Pitest plugin (see the build file).
 
-## How it looks like
+## How to write tests with Failgood
+
+### setUp / beforeEach
+
+If you are used to junit you probably wonder where to place init code that you want to run before each test.
+Failgood has no setUp or beforeEach, because it is not a good fit for kotlins immutable vals.
+
+tests in other test runners sometimes look like this:
+```kotlin
+class MyTest {
+    lateinit var myWebserver: Server
+
+    @BeforeEach
+    fun setUp() {
+        myWebserver = Server()
+    }
+    fun tearDown() {
+        myWebserver.close()
+    }
+}
+
+```
+in Failgood you just start your dependencies where you declare them, and define a callback to close them, so the failgood
+equivalent of the above code is just:
 
 ```kotlin
-@Test
-class FailGoodTest {
-    val context = describe("The test runner") {
-        it("supports describe/it syntax") { expectThat(true).isEqualTo(true) }
-        describe("nested contexts") {
-            it("can contain tests too") { expectThat(true).isEqualTo(true) }
-
-            context("dynamic tests") {
-                (1 until 5).forEach { contextNr ->
-                    context("dynamic context #$contextNr") {
-                        (1 until 5).forEach { testNr ->
-                            test("test #$testNr") {
-                                expectThat(testNr).isLessThan(10)
-                                expectThat(contextNr).isLessThan(10)
-                            }
-                        }
-                    }
-                }
-            }
-            describe("disabled/pending tests") {
-                pending("pending can be used to mark pending tests") {}
-                pending("for pending tests the test body is optional")
-            }
-            context("context/test syntax is also supported") {
-                test(
-                    "I prefer describe/it but if there is no subject to describe I use " +
-                            "context/test"
-                ) {}
-            }
-
-    }
-  }
+val context = describe(MyServer::class) {
+    val myWebserver = autoClose(Server()) {it.close()}
 }
 
 ```
 
+### Parametrized tests
+
+Failgood needs no special support for parametrized tests. You can just use `forEach` to create multiple versions of a test
+
+```kotlin
+val context = describe("String#reverse") {
+    listOf(Pair("otto", "otto"), Pair("racecar", "racecar")).forEach { (input, output) ->
+        it("reverses $input to $output") {
+            assertEquals(output, input.reversed())
+        }
+    }
+}
+
+```
+in the case of the above example you may even want to add more test inputs and outputs for better coverage.
+
+
+
 To see it in action check out the failgood-example project, or a project that uses FailGood, for example
-[the the.orm test suite](https://github.com/christophsturm/the.orm)
+[the "the.orm" test suite](https://github.com/christophsturm/the.orm)
 or [the restaurant test suite](https://github.com/christophsturm/restaurant/tree/main/core/src/test/kotlin/restaurant)
 
 ## Running the test suite

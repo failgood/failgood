@@ -50,7 +50,23 @@ val context = describe(MyServer::class) {
 
 ```
 
+Test dependencies will be recreated for every test. It just works as expected.
 
+If you want a dependency to not be recreated for every test, just declare it outside of the root context block, and if you have to close it, do it in an afterSuite callback.
+
+```kotlin
+class MyBeautifulTest {
+    val myHeavyWeightTestDependency = KafkaDockerMegaMonolith()
+    val context = describe("The web server") {
+        afterSuite {
+            myHeavyWeightTestDependency.close()
+        }
+        it("is fast") {
+            // ...
+        }
+    }
+}
+```
 ### Parametrized tests
 
 Failgood needs no special support for parametrized tests. You can just use `forEach` to create multiple versions of a test
@@ -67,18 +83,9 @@ val context = describe("String#reverse") {
 ```
 In the case of the above example you may even want to add more test inputs and outputs for better coverage.
 
+### Gradle build
 
-
-To see it in action check out the failgood-example project, or a project that uses FailGood, for example
-[the "the.orm" test suite](https://github.com/christophsturm/the.orm)
-or [the restaurant test suite](https://github.com/christophsturm/restaurant/tree/main/core/src/test/kotlin/restaurant)
-
-## Running the test suite
-
-to run FailGood's test suite just run `./gradlew check` or if you want to run it via idea just run
-the `FailGoodBootstrap.kt` class.
-
-## Gradle build
+Just add a failgood dependency and configure gradle to use the Junit platform. Your build file could look like this:
 
 ```kotlin
 repositories {
@@ -95,21 +102,26 @@ tasks.test {
 }
 ```
 
-### Running the test
+### Running the test in your favorite IDE
 
+This will only work if your favorite IDE is IntelliJ IDEA (or android studio).
 Failgood comes with a JUnit Platform Engine that should make it easy to run Failgood tests with IDEAs integrated test
 runner. You can run all tests in a package, or run Single test classes (if they are annotated with failgood.Test)
 
-For best results, select "run tests in IDEA" in your gradle settings, although running in gradle works pretty well
-already too
+For best results, select "run tests in IDEA" in your gradle settings, although running in gradle works pretty well already too
 
-## Test lifecycle
+### Example test suites
 
-Just declare your dependencies in the context blocks. They will be recreated for every test. It just works as expected.
-I think ScalaTest has a mode that works like that and kotest also supports it, and calls
-it  [instance per leaf](https://github.com/kotest/kotest/blob/master/doc/isolation_mode.md#instanceperleaf)
+To see it in action check out the failgood-example project, or a project that uses Failgood, for example
+[the "the.orm" test suite](https://github.com/christophsturm/the.orm)
+or [the restaurant test suite](https://github.com/christophsturm/restaurant/tree/main/core/src/test/kotlin/restaurant)
 
-It combines the power of a dsl with the simplicity of JUnit 4.
+## Running the test failgood test suite
+
+to run FailGood's test suite just run `./gradlew check` or if you want to run it via idea just run
+the `FailGoodBootstrap.kt` class.
+
+
 
 
 ## Test coverage

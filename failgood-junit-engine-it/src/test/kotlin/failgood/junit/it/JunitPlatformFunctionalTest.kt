@@ -4,6 +4,7 @@ import failgood.Test
 import failgood.describe
 import failgood.junit.FailGoodJunitTestEngine
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_TEST_CLASS_SUFFIX
+import failgood.junit.it.fixtures.DoubleTestNamesTest
 import failgood.junit.it.fixtures.DuplicateRootWithOneTest
 import failgood.junit.it.fixtures.DuplicateTestNameTest
 import failgood.junit.it.fixtures.FailingContext
@@ -41,8 +42,8 @@ fun launcherDiscoveryRequest(
 class JunitPlatformFunctionalTest {
     @Suppress("unused")
     val context = describe("The Junit Platform Engine") {
+        val listener = TEListener()
         it("can execute test in a class") {
-            val listener = TEListener()
             LauncherFactory.create().execute(
                 launcherDiscoveryRequest(
                     listOf(
@@ -54,8 +55,16 @@ class JunitPlatformFunctionalTest {
             )
             expectThat(listener.rootResult.await()).get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
         }
+        it("works with duplicate test names") {
+            LauncherFactory.create().execute(
+                launcherDiscoveryRequest(listOf(selectClass(DoubleTestNamesTest::class.qualifiedName)), mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")), listener
+            )
+            val result = listener.rootResult.await()
+            expectThat(result) {
+                get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
+            }
+        }
         it("works for a failing context or root context") {
-            val listener = TEListener()
             val selectors =
                 listOf(
                     DuplicateRootWithOneTest::class,
@@ -69,7 +78,8 @@ class JunitPlatformFunctionalTest {
             LauncherFactory.create().execute(
                 launcherDiscoveryRequest(selectors, mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")), listener
             )
-            expectThat(listener.rootResult.await()) {
+            val result = listener.rootResult.await()
+            expectThat(result) {
                 get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
             }
             expectThat(listener.results).hasSize(24)

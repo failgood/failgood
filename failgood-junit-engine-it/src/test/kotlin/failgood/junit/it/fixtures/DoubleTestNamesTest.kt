@@ -1,4 +1,4 @@
-package failgood.problematic
+package failgood.junit.it.fixtures
 
 import failgood.Test
 import failgood.describe

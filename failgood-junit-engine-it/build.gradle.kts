@@ -5,6 +5,7 @@ import failgood.versions.striktVersion
 
 plugins {
     kotlin("jvm")
+    id("com.bnorm.power.kotlin-power-assert").version("0.11.0")
 //    id("info.solidsoft.pitest")
 }
 

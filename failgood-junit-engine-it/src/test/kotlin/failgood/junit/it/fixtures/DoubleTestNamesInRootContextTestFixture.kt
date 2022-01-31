@@ -4,7 +4,7 @@ import failgood.Test
 import failgood.describe
 
 @Test
-class DoubleTestNamesTestFixture {
+class DoubleTestNamesInRootContextTestFixture {
     val context = describe("failing tests") {
         it("test") {
         }

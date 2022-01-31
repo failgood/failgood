@@ -4,7 +4,8 @@ import failgood.Test
 import failgood.describe
 import failgood.junit.FailGoodJunitTestEngine
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_TEST_CLASS_SUFFIX
-import failgood.junit.it.fixtures.DoubleTestNamesTestFixture
+import failgood.junit.it.fixtures.DoubleTestNamesInRootContextTestFixture
+import failgood.junit.it.fixtures.DoubleTestNamesInSubContextTestFixture
 import failgood.junit.it.fixtures.DuplicateRootWithOneTest
 import failgood.junit.it.fixtures.DuplicateTestNameTest
 import failgood.junit.it.fixtures.FailingContext
@@ -55,12 +56,21 @@ class JunitPlatformFunctionalTest {
             )
             expectThat(listener.rootResult.await()).get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
         }
-        it("works with duplicate test names") {
-            LauncherFactory.create().execute(
-                launcherDiscoveryRequest(listOf(selectClass(DoubleTestNamesTestFixture::class.qualifiedName)), mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")), listener
-            )
-            val rootResult = listener.rootResult.await()
-            assert(rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {rootResult.throwable.get().stackTraceToString()}
+        describe("works with duplicate test names") {
+            it("in root contexts") {
+                LauncherFactory.create().execute(
+                    launcherDiscoveryRequest(listOf(selectClass(DoubleTestNamesInRootContextTestFixture::class.qualifiedName)), mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")), listener
+                )
+                val rootResult = listener.rootResult.await()
+                assert(rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {rootResult.throwable.get().stackTraceToString()}
+            }
+            it("in sub contexts") {
+                LauncherFactory.create().execute(
+                    launcherDiscoveryRequest(listOf(selectClass(DoubleTestNamesInSubContextTestFixture::class.qualifiedName)), mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")), listener
+                )
+                val rootResult = listener.rootResult.await()
+                assert(rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {rootResult.throwable.get().stackTraceToString()}
+            }
         }
         it("works for a failing context or root context") {
             val selectors =

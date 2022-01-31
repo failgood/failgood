@@ -1,7 +1,6 @@
 package failgood.junit
 
 import failgood.ContextProvider
-import failgood.FailGoodException
 import failgood.Failed
 import failgood.Pending
 import failgood.Success
@@ -125,13 +124,12 @@ class FailGoodJunitTestEngine : TestEngine {
                     // its possible that we get a test event for a test that has no mapping because it is part of a failing context
                     if (mapping == null) {
                         val parents = description.container.parents
-
-                        /*
-                        val testContainer: TestContainer = parents.first() as Context
-                        if (failedContexts.none {it.context == testContainer} )*/
+                        // its a failing root context, so ignore it
                         if (parents.isEmpty())
                             continue
-                        throw FailGoodException("did not find a mapping for $description")
+                        // as a sanity check we try to find the mapping for the parent context, and if that works everything is fine
+                        mapper.getMapping(parents.last())
+                        continue
                     }
                     when (event) {
                         is TestExecutionEvent.Started -> {

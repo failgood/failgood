@@ -200,7 +200,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
 
         private fun checkName(name: String) {
             if (!namesInThisContext.add(name))
-                throw FailGoodException("duplicate name \"$name\" in context \"${parentContext.name}\"")
+                throw DuplicateNameInContextException("duplicate name \"$name\" in context \"${parentContext.name}\"")
         }
 
         override suspend fun describe(name: String, function: ContextLambda) {
@@ -231,6 +231,8 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
                 afterSuiteCallbacks.add(function)
         }
     }
+
+    private class DuplicateNameInContextException(s: String) : FailGoodException(s)
 
     private fun sourceInfo() =
         SourceInfo(RuntimeException().stackTrace.first { !(it.fileName?.endsWith("ContextExecutor.kt") ?: true) }!!)

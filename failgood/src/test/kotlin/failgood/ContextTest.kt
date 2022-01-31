@@ -17,5 +17,10 @@ class ContextTest {
                 val context = Context.fromPath(path)
                 expectThat(context.path).isEqualTo(path)
             }
+            it("parents is ordered") {
+                val path = listOf("Root", "subcontext", "subsubContext")
+                val context = Context.fromPath(path)
+                expectThat(context.parents.map { it.name }).isEqualTo(path.dropLast(1))
+            }
         }
 }

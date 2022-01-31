@@ -4,7 +4,7 @@ import failgood.Test
 import failgood.describe
 import failgood.junit.FailGoodJunitTestEngine
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_TEST_CLASS_SUFFIX
-import failgood.junit.it.fixtures.DoubleTestNamesTest
+import failgood.junit.it.fixtures.DoubleTestNamesTestFixture
 import failgood.junit.it.fixtures.DuplicateRootWithOneTest
 import failgood.junit.it.fixtures.DuplicateTestNameTest
 import failgood.junit.it.fixtures.FailingContext
@@ -57,7 +57,7 @@ class JunitPlatformFunctionalTest {
         }
         it("works with duplicate test names") {
             LauncherFactory.create().execute(
-                launcherDiscoveryRequest(listOf(selectClass(DoubleTestNamesTest::class.qualifiedName)), mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")), listener
+                launcherDiscoveryRequest(listOf(selectClass(DoubleTestNamesTestFixture::class.qualifiedName)), mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")), listener
             )
             val rootResult = listener.rootResult.await()
             assert(rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {rootResult.throwable.get().stackTraceToString()}

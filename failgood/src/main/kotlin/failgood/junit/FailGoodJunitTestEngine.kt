@@ -1,6 +1,7 @@
 package failgood.junit
 
 import failgood.ContextProvider
+import failgood.FailGoodException
 import failgood.Failed
 import failgood.Pending
 import failgood.Success
@@ -8,6 +9,7 @@ import failgood.Suite
 import failgood.TestContainer
 import failgood.TestDescription
 import failgood.internal.ContextInfo
+import failgood.internal.FailedContext
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_LAZY
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_TEST_CLASS_SUFFIX
@@ -92,7 +94,8 @@ class FailGoodJunitTestEngine : TestEngine {
         val junitListener = LoggingEngineExecutionListener(request.engineExecutionListener)
         junitListener.executionStarted(root)
         // report failed contexts as failed immediately
-        root.failedContexts.forEach {
+        val failedContexts: MutableList<FailedContext> = root.failedContexts
+        failedContexts.forEach {
             val testDescriptor = mapper.getMapping(it.context)
             junitListener.executionStarted(testDescriptor)
             junitListener.executionFinished(testDescriptor, TestExecutionResult.failed(it.failure))
@@ -118,7 +121,18 @@ class FailGoodJunitTestEngine : TestEngine {
                     }
 
                     val description = event.testDescription
-                    val mapping = mapper.getMapping(description)
+                    val mapping = mapper.getMappingOrNull(description)
+                    // its possible that we get a test event for a test that has no mapping because it is part of a failing context
+                    if (mapping == null) {
+                        val parents = description.container.parents
+
+                        /*
+                        val testContainer: TestContainer = parents.first() as Context
+                        if (failedContexts.none {it.context == testContainer} )*/
+                        if (parents.isEmpty())
+                            continue
+                        throw FailGoodException("did not find a mapping for $description")
+                    }
                     when (event) {
                         is TestExecutionEvent.Started -> {
                             startParentContexts(description)

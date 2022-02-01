@@ -3,6 +3,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.5.3 - "Warp" - 2022-02-01
+
+### Fixed
+
+- Correctly handle errors in contexts and root context, for example duplicate names (#58)
+
+
 ## 0.5.2 - "Fiction" - 2022-01-17
 
 ### Fixed

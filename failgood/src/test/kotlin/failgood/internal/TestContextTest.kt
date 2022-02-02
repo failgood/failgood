@@ -1,5 +1,12 @@
-package failgood
+package failgood.internal
 
+import failgood.Context
+import failgood.ExecutionListener
+import failgood.SourceInfo
+import failgood.Test
+import failgood.TestDSL
+import failgood.TestDescription
+import failgood.describe
 import failgood.mock.call
 import failgood.mock.getCalls
 import failgood.mock.mock

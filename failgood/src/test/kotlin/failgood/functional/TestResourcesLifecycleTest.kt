@@ -1,5 +1,10 @@
-package failgood
+package failgood.functional
 
+import failgood.Failed
+import failgood.Suite
+import failgood.SuiteResult
+import failgood.Test
+import failgood.describe
 import failgood.mock.call
 import failgood.mock.getCalls
 import failgood.mock.mock

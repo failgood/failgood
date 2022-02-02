@@ -1,5 +1,8 @@
-package failgood
+package failgood.functional
 
+import failgood.Suite
+import failgood.Test
+import failgood.describe
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.isTrue

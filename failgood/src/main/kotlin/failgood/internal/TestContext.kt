@@ -1,4 +1,9 @@
-package failgood
+package failgood.internal
+
+import failgood.ExecutionListener
+import failgood.ResourcesDSL
+import failgood.TestDSL
+import failgood.TestDescription
 
 class TestContext(
     resourcesDSL: ResourcesDSL,

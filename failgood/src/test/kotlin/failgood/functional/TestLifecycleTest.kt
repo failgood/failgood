@@ -1,13 +1,16 @@
-package failgood
+package failgood.functional
 
-import failgood.TestLifecycleTest.Event.CONTEXT_1_EXECUTED
-import failgood.TestLifecycleTest.Event.CONTEXT_2_EXECUTED
-import failgood.TestLifecycleTest.Event.DEPENDENCY_CLOSED
-import failgood.TestLifecycleTest.Event.ROOT_CONTEXT_EXECUTED
-import failgood.TestLifecycleTest.Event.TEST_1_EXECUTED
-import failgood.TestLifecycleTest.Event.TEST_2_EXECUTED
-import failgood.TestLifecycleTest.Event.TEST_3_EXECUTED
-import failgood.TestLifecycleTest.Event.TEST_4_EXECUTED
+import failgood.Suite
+import failgood.Test
+import failgood.describe
+import failgood.functional.TestLifecycleTest.Event.CONTEXT_1_EXECUTED
+import failgood.functional.TestLifecycleTest.Event.CONTEXT_2_EXECUTED
+import failgood.functional.TestLifecycleTest.Event.DEPENDENCY_CLOSED
+import failgood.functional.TestLifecycleTest.Event.ROOT_CONTEXT_EXECUTED
+import failgood.functional.TestLifecycleTest.Event.TEST_1_EXECUTED
+import failgood.functional.TestLifecycleTest.Event.TEST_2_EXECUTED
+import failgood.functional.TestLifecycleTest.Event.TEST_3_EXECUTED
+import failgood.functional.TestLifecycleTest.Event.TEST_4_EXECUTED
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.containsExactlyInAnyOrder

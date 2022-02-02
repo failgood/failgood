@@ -12,7 +12,6 @@ import failgood.ResourcesDSL
 import failgood.RootContext
 import failgood.SourceInfo
 import failgood.Success
-import failgood.TestContext
 import failgood.TestDescription
 import failgood.TestLambda
 import failgood.TestPlusResult

@@ -3,6 +3,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Fixed
+
+- Errors in close callbacks were not catched correctly after a test failure (#65)
+
 ## 0.5.3 - "Warp" - 2022-02-01
 
 ### Fixed

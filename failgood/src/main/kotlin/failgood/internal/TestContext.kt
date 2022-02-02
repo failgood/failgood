@@ -5,7 +5,7 @@ import failgood.ResourcesDSL
 import failgood.TestDSL
 import failgood.TestDescription
 
-class TestContext(
+internal class TestContext(
     resourcesDSL: ResourcesDSL,
     private val listener: ExecutionListener,
     private val testDescription: TestDescription

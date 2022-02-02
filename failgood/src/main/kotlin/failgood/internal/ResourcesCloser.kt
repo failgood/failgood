@@ -7,7 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import java.util.concurrent.ConcurrentLinkedQueue
 
-class ResourcesCloser(private val scope: CoroutineScope) : ResourcesDSL {
+internal class ResourcesCloser(private val scope: CoroutineScope) : ResourcesDSL {
     override fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T {
         add(SuspendAutoCloseable(wrapped, closeFunction))
         return wrapped

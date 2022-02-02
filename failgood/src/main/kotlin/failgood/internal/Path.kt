@@ -1,5 +1,5 @@
 package failgood.internal
 
-interface Path {
+internal interface Path {
     val path: List<String>
 }

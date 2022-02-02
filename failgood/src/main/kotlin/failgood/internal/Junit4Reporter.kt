@@ -6,7 +6,7 @@ import failgood.Success
 import failgood.TestPlusResult
 
 // based on a snippet by Ben Woodworth on the kotlin slack
-fun String.xmlEscape(): String = buildString(length + 30) {
+internal fun String.xmlEscape(): String = buildString(length + 30) {
     for (char in this@xmlEscape) {
         when (char) {
             '\n' -> append("&#13;&#10;")
@@ -20,7 +20,7 @@ fun String.xmlEscape(): String = buildString(length + 30) {
     }
 }
 
-class Junit4Reporter(private val testResults: List<TestPlusResult>) {
+internal class Junit4Reporter(private val testResults: List<TestPlusResult>) {
     fun stringReport(): List<String> {
         val result = mutableListOf("<testsuite tests=\"${testResults.size}\">")
         testResults.forEach {

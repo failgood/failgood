@@ -1,6 +1,6 @@
 package failgood.internal
 
-object Colors {
+internal object Colors {
     private val isWindows = System.getProperty("os.name").startsWith("Windows")
 
     @Suppress("MemberVisibilityCanBePrivate")

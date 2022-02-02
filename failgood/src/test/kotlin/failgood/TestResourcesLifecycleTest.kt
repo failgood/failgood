@@ -147,7 +147,6 @@ class TestResourcesLifecycleTest {
                     }.run(silent = true)
                     assertFailedGracefully(result)
                 }
-
             }
         }
         describe("after suite callback") {
@@ -212,5 +211,4 @@ class TestResourcesLifecycleTest {
             }
         }
     }
-
 }

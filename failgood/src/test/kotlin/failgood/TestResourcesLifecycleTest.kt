@@ -116,14 +116,7 @@ class TestResourcesLifecycleTest {
                 verify(closeable2) { close() }
             }
             describe("error handling") {
-                it("errors in close callbacks count as failed tests") {
-                    val result = Suite {
-                        autoClose(null) { throw RuntimeException("error message") }
-                        test("first test") {
-                        }
-                        test("second test") {
-                        }
-                    }.run(silent = true)
+                fun assertFailedGracefully(result: SuiteResult) {
                     expectThat(result) {
                         get { allOk }.isFalse()
                         get { allTests }.hasSize(2).all { get { this.result }.isA<Failed>() }.map { it.test.testName }
@@ -132,6 +125,29 @@ class TestResourcesLifecycleTest {
                             )
                     }
                 }
+                it("errors in close callbacks count as failed tests") {
+                    val result = Suite {
+                        autoClose(null) { throw RuntimeException("error message") }
+                        test("first test") {
+                        }
+                        test("second test") {
+                        }
+                    }.run(silent = true)
+                    assertFailedGracefully(result)
+                }
+                it("errors in close callbacks count as failed tests even when tests failed") {
+                    val result = Suite {
+                        autoClose(null) { throw RuntimeException("error message") }
+                        test("first test") {
+                            throw RuntimeException()
+                        }
+                        test("second test") {
+                            throw RuntimeException()
+                        }
+                    }.run(silent = true)
+                    assertFailedGracefully(result)
+                }
+
             }
         }
         describe("after suite callback") {
@@ -196,4 +212,5 @@ class TestResourcesLifecycleTest {
             }
         }
     }
+
 }

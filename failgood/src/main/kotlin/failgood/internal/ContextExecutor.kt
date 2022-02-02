@@ -144,7 +144,10 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
                 try {
                     TestContext(resourcesCloser, listener, testDescription).function()
                 } catch (e: Throwable) {
-                    if (isolation) resourcesCloser.close()
+                    if (isolation) try {
+                        resourcesCloser.close()
+                    } catch (_: RuntimeException) {
+                    }
                     return@withTimeout Failed(e)
                 }
                 if (isolation) {

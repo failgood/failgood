@@ -65,9 +65,7 @@ internal class SingleTestExecutor(
 
         override suspend fun test(name: String, function: TestLambda) {
             if (test.name == name) {
-                throw TestResultAvailable(
-                    executeTest(function)
-                )
+                throw TestResultAvailable(executeTest(function))
             }
         }
 

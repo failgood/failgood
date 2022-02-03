@@ -10,7 +10,6 @@ import failgood.internal.FailedContext
 import failgood.internal.ResourcesCloser
 import failgood.internal.SingleTestExecutor
 import failgood.internal.TestFilterProvider
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -19,12 +18,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
 import java.lang.management.ManagementFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
-import kotlin.system.exitProcess
 
 const val DEFAULT_TIMEOUT: Long = 40000
 
@@ -59,12 +56,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     private fun printResults(coroutineScope: CoroutineScope, contextInfos: List<FoundContext>) {
         contextInfos.forEach {
             coroutineScope.launch {
-                val context = try {
-                    withTimeout(this@Suite.timeoutMillis) { it.result.await() }
-                } catch (e: CancellationException) {
-                    println("context ${it.context.name} never finished")
-                    exitProcess(-1)
-                }
+                val context = it.result.await()
                 val contextTreeReporter = ContextTreeReporter()
                 when (context) {
                     is ContextInfo -> {

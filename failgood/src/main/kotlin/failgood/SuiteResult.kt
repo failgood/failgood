@@ -64,7 +64,7 @@ data class SuiteResult(
         }
     }
 
-    private fun printSlowestTests() {
+    fun printSlowestTests() {
         val contextTreeReporter = ContextTreeReporter()
         val slowTests =
             allTests.filter { it.isSuccess }.sortedBy { 0 - (it.result as Success).timeMicro }.take(5)

@@ -7,6 +7,7 @@ import failgood.Success
 import failgood.Suite
 import failgood.TestContainer
 import failgood.TestDescription
+import failgood.awaitContexts
 import failgood.internal.ContextInfo
 import failgood.internal.FailedContext
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
@@ -100,7 +101,7 @@ class FailGoodJunitTestEngine : TestEngine {
             junitListener.executionFinished(testDescriptor, TestExecutionResult.failed(it.failure))
         }
         val executionListener = root.executionListener
-        runBlocking(Dispatchers.Default) {
+        val results = runBlocking(Dispatchers.Default) {
             // report results while they come in. we use a channel because tests were already running before the execute
             // method was called so when we get here there are probably tests already finished
             val eventForwarder = launch {
@@ -166,8 +167,7 @@ class FailGoodJunitTestEngine : TestEngine {
                 }
             }
             // and wait for the results
-            val succesfulContexts = root.testResult.filterIsInstance<ContextInfo>()
-            succesfulContexts.flatMap { it.tests.values }.awaitAll()
+            val results = awaitContexts(root.testResult)
             executionListener.events.close()
 
             // finish forwarding test events before closing all the contexts
@@ -179,8 +179,13 @@ class FailGoodJunitTestEngine : TestEngine {
             }
 
             junitListener.executionFinished(root, TestExecutionResult.successful())
+            results
         }
-//        println(junitListener.events.joinToString("\n"))
+// for debugging        println(junitListener.events.joinToString("\n"))
+
+        if (System.getenv("PRINT_SLOWEST") != null)
+            results.printSlowestTests()
+
         if (failedTests.isNotEmpty()) {
             println("failed tests with uniqueId to run from IDEA:")
             failedTests.forEach {

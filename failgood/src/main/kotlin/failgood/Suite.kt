@@ -56,28 +56,6 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         }
     }
 
-    private suspend fun awaitTestResult(
-        contextInfos: List<FoundContext>
-    ): SuiteResult {
-        val resolvedContexts = contextInfos.map { it.result }.awaitAll()
-        val successfulContexts = resolvedContexts.filterIsInstance<ContextInfo>()
-        val results = successfulContexts.flatMap { it.tests.values }.awaitAll()
-        successfulContexts.forEach {
-            it.afterSuiteCallbacks.forEach { callback ->
-                try {
-                    callback.invoke()
-                } catch (ignored: Exception) {
-                } catch (ignored: AssertionError) {
-                }
-            }
-        }
-        return SuiteResult(
-            results,
-            results.filter { it.isFailed },
-            successfulContexts.flatMap { it.contexts }
-        )
-    }
-
     private fun printResults(coroutineScope: CoroutineScope, contextInfos: List<FoundContext>) {
         contextInfos.forEach {
             coroutineScope.launch {
@@ -190,6 +168,31 @@ internal fun uptime(totalTests: Int? = null): String {
         " " + pluralize(totalTests * 1000 / uptime.toInt(), "test") + "/sec"
     } else
         ""
+}
+
+private suspend fun awaitTestResult(
+    contextInfos: List<Suite.FoundContext>
+): SuiteResult {
+    return awaitContexts(contextInfos.map { it.result }.awaitAll())
+}
+
+internal suspend fun awaitContexts(resolvedContexts: List<ContextResult>): SuiteResult {
+    val successfulContexts = resolvedContexts.filterIsInstance<ContextInfo>()
+    val results = successfulContexts.flatMap { it.tests.values }.awaitAll()
+    successfulContexts.forEach {
+        it.afterSuiteCallbacks.forEach { callback ->
+            try {
+                callback.invoke()
+            } catch (ignored: Exception) {
+            } catch (ignored: AssertionError) {
+            }
+        }
+    }
+    return SuiteResult(
+        results,
+        results.filter { it.isFailed },
+        successfulContexts.flatMap { it.contexts }
+    )
 }
 
 internal fun pluralize(count: Int, item: String) = if (count == 1) "1 $item" else "$count ${item}s"

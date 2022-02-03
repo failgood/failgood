@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- Print slowest test after test run when env var PRINT_SLOWEST_TESTS is set also in junit engine.
+
 ### Fixed
 
 - Errors in close callbacks were not catched correctly after a test failure (#65)

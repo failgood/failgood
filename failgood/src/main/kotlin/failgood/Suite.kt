@@ -53,29 +53,6 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         }
     }
 
-    private fun printResults(coroutineScope: CoroutineScope, contextInfos: List<FoundContext>) {
-        contextInfos.forEach {
-            coroutineScope.launch {
-                val context = it.result.await()
-                val contextTreeReporter = ContextTreeReporter()
-                when (context) {
-                    is ContextInfo -> {
-                        println(
-                            contextTreeReporter.stringReport(
-                                context.tests.values.awaitAll(),
-                                context.contexts
-                            )
-                                .joinToString("\n")
-                        )
-                    }
-                    is FailedContext -> {
-                        println("context ${context.context} failed: ${context.failure.stackTraceToString()}")
-                    }
-                }
-            }
-        }
-    }
-
     // set timeout to the timeout in milliseconds, an empty string to turn it off
     private val timeoutMillis: Long = System.getenv("TIMEOUT").let {
         when (it) {
@@ -185,6 +162,28 @@ internal suspend fun awaitContexts(resolvedContexts: List<ContextResult>): Suite
         results.filter { it.isFailed },
         successfulContexts.flatMap { it.contexts }
     )
+}
+internal fun printResults(coroutineScope: CoroutineScope, contextInfos: List<Suite.FoundContext>) {
+    contextInfos.forEach {
+        coroutineScope.launch {
+            val context = it.result.await()
+            val contextTreeReporter = ContextTreeReporter()
+            when (context) {
+                is ContextInfo -> {
+                    println(
+                        contextTreeReporter.stringReport(
+                            context.tests.values.awaitAll(),
+                            context.contexts
+                        )
+                            .joinToString("\n")
+                    )
+                }
+                is FailedContext -> {
+                    println("context ${context.context} failed: ${context.failure.stackTraceToString()}")
+                }
+            }
+        }
+    }
 }
 
 internal fun pluralize(count: Int, item: String) = if (count == 1) "1 $item" else "$count ${item}s"

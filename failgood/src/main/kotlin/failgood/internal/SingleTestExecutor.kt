@@ -26,7 +26,10 @@ internal class SingleTestExecutor(
         val dsl: ContextDSL = contextDSL(test.container.path.drop(1))
         return try {
             dsl.(context.function)()
-            throw FailGoodException("specified test not found: $test")
+            throw FailGoodException(
+                "test not found: $test.\n" +
+                    "please make sure your test names contain no random parts"
+            )
         } catch (e: TestResultAvailable) {
             e.testResult
         } catch (e: Throwable) {

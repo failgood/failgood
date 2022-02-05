@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Changed
+
+- print a useful error message when test are not found because the test names change. (#61)
+-
 ### Added
 
 - Print slowest test after test run when env var PRINT_SLOWEST_TESTS is set also in junit engine.

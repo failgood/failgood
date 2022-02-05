@@ -54,7 +54,7 @@ class FailGoodJunitTestEngine : TestEngine {
         val contextsAndFilters = ContextFinder(testSuffix).findContexts(discoveryRequest)
         val providers: List<ContextProvider> = contextsAndFilters.contexts
         if (providers.isEmpty())
-        // if we did not find any tests just remove an empty descriptor, maybe other engines have tests to run
+        // if we did not find any tests just return an empty descriptor, maybe other engines have tests to run
             return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.displayName)
         val suite = Suite(providers)
         val testResult = runBlocking(Dispatchers.Default) {
@@ -166,6 +166,7 @@ class FailGoodJunitTestEngine : TestEngine {
                     }
                 }
             }
+//            printResults(this, )
             // and wait for the results
             val results = awaitContexts(root.testResult)
             executionListener.events.close()

@@ -82,120 +82,126 @@ class FailGoodJunitTestEngine : TestEngine {
     }
 
     override fun execute(request: ExecutionRequest) {
-        val failedTests = mutableListOf<TestDescription>()
-        val root = request.rootTestDescriptor
-        if (root !is FailGoodEngineDescriptor)
-            return
-        if (debug) {
-            println("nodes received: ${root.allDescendants()}")
-        }
-        val mapper = root.mapper
-        val startedContexts = mutableSetOf<TestContainer>()
-        val junitListener = LoggingEngineExecutionListener(request.engineExecutionListener)
-        junitListener.executionStarted(root)
-        // report failed contexts as failed immediately
-        val failedContexts: MutableList<FailedContext> = root.failedContexts
-        failedContexts.forEach {
-            val testDescriptor = mapper.getMapping(it.context)
-            junitListener.executionStarted(testDescriptor)
-            junitListener.executionFinished(testDescriptor, TestExecutionResult.failed(it.failure))
-        }
-        val executionListener = root.executionListener
-        val results = runBlocking(Dispatchers.Default) {
-            // report results while they come in. we use a channel because tests were already running before the execute
-            // method was called so when we get here there are probably tests already finished
-            val eventForwarder = launch {
-                while (true) {
-                    val event = try {
-                        executionListener.events.receive()
-                    } catch (e: ClosedReceiveChannelException) {
-                        break
-                    }
-
-                    fun startParentContexts(testDescriptor: TestDescription) {
-                        val context = testDescriptor.container
-                        (context.parents + context).forEach {
-                            if (startedContexts.add(it))
-                                junitListener.executionStarted(mapper.getMapping(it))
+        try {
+            val failedTests = mutableListOf<TestDescription>()
+            val root = request.rootTestDescriptor
+            if (root !is FailGoodEngineDescriptor)
+                return
+            if (debug) {
+                println("nodes received: ${root.allDescendants()}")
+            }
+            val mapper = root.mapper
+            val startedContexts = mutableSetOf<TestContainer>()
+            val junitListener = LoggingEngineExecutionListener(request.engineExecutionListener)
+            junitListener.executionStarted(root)
+            // report failed contexts as failed immediately
+            val failedContexts: MutableList<FailedContext> = root.failedContexts
+            failedContexts.forEach {
+                val testDescriptor = mapper.getMapping(it.context)
+                junitListener.executionStarted(testDescriptor)
+                junitListener.executionFinished(testDescriptor, TestExecutionResult.failed(it.failure))
+            }
+            val executionListener = root.executionListener
+            val results = runBlocking(Dispatchers.Default) {
+                // report results while they come in. we use a channel because tests were already running before the execute
+                // method was called so when we get here there are probably tests already finished
+                val eventForwarder = launch {
+                    while (true) {
+                        val event = try {
+                            executionListener.events.receive()
+                        } catch (e: ClosedReceiveChannelException) {
+                            break
                         }
-                    }
 
-                    val description = event.testDescription
-                    val mapping = mapper.getMappingOrNull(description)
-                    // its possible that we get a test event for a test that has no mapping because it is part of a failing context
-                    if (mapping == null) {
-                        val parents = description.container.parents
-                        // its a failing root context, so ignore it
-                        if (parents.isEmpty())
-                            continue
-                        // as a sanity check we try to find the mapping for the parent context, and if that works everything is fine
-                        mapper.getMapping(parents.last())
-                        continue
-                    }
-                    when (event) {
-                        is TestExecutionEvent.Started -> {
-                            startParentContexts(description)
-                            junitListener.executionStarted(mapping)
-                        }
-                        is TestExecutionEvent.Stopped -> {
-                            val testPlusResult = event.testResult
-                            when (testPlusResult.result) {
-                                is Failed -> {
-                                    junitListener.executionFinished(
-                                        mapping,
-                                        TestExecutionResult.failed(testPlusResult.result.failure)
-                                    )
-                                    failedTests.add(description)
-                                }
-
-                                is Success -> junitListener.executionFinished(
-                                    mapping,
-                                    TestExecutionResult.successful()
-                                )
-
-                                is Pending -> {
-                                    startParentContexts(event.testResult.test)
-                                    junitListener.executionSkipped(mapping, "test is skipped")
-                                }
+                        fun startParentContexts(testDescriptor: TestDescription) {
+                            val context = testDescriptor.container
+                            (context.parents + context).forEach {
+                                if (startedContexts.add(it))
+                                    junitListener.executionStarted(mapper.getMapping(it))
                             }
                         }
-                        is TestExecutionEvent.TestEvent -> junitListener.reportingEntryPublished(
-                            mapping,
-                            ReportEntry.from(event.type, event.payload)
-                        )
+
+                        val description = event.testDescription
+                        val mapping = mapper.getMappingOrNull(description)
+                        // its possible that we get a test event for a test that has no mapping because it is part of a failing context
+                        if (mapping == null) {
+                            val parents = description.container.parents
+                            // its a failing root context, so ignore it
+                            if (parents.isEmpty())
+                                continue
+                            // as a sanity check we try to find the mapping for the parent context, and if that works everything is fine
+                            mapper.getMapping(parents.last())
+                            continue
+                        }
+                        when (event) {
+                            is TestExecutionEvent.Started -> {
+                                startParentContexts(description)
+                                junitListener.executionStarted(mapping)
+                            }
+                            is TestExecutionEvent.Stopped -> {
+                                val testPlusResult = event.testResult
+                                when (testPlusResult.result) {
+                                    is Failed -> {
+                                        junitListener.executionFinished(
+                                            mapping,
+                                            TestExecutionResult.failed(testPlusResult.result.failure)
+                                        )
+                                        failedTests.add(description)
+                                    }
+
+                                    is Success -> junitListener.executionFinished(
+                                        mapping,
+                                        TestExecutionResult.successful()
+                                    )
+
+                                    is Pending -> {
+                                        startParentContexts(event.testResult.test)
+                                        junitListener.executionSkipped(mapping, "test is skipped")
+                                    }
+                                }
+                            }
+                            is TestExecutionEvent.TestEvent -> junitListener.reportingEntryPublished(
+                                mapping,
+                                ReportEntry.from(event.type, event.payload)
+                            )
+                        }
                     }
                 }
-            }
 //            printResults(this, )
-            // and wait for the results
-            val results = awaitContexts(root.testResult)
-            executionListener.events.close()
+                // and wait for the results
+                val results = awaitContexts(root.testResult)
+                executionListener.events.close()
 
-            // finish forwarding test events before closing all the contexts
-            eventForwarder.join()
-            // close child contexts before their parent
-            val leafToRootContexts = startedContexts.sortedBy { -it.parents.size }
-            leafToRootContexts.forEach { context ->
-                junitListener.executionFinished(mapper.getMapping(context), TestExecutionResult.successful())
+                // finish forwarding test events before closing all the contexts
+                eventForwarder.join()
+                // close child contexts before their parent
+                val leafToRootContexts = startedContexts.sortedBy { -it.parents.size }
+                leafToRootContexts.forEach { context ->
+                    junitListener.executionFinished(mapper.getMapping(context), TestExecutionResult.successful())
+                }
+
+                junitListener.executionFinished(root, TestExecutionResult.successful())
+                results
             }
-
-            junitListener.executionFinished(root, TestExecutionResult.successful())
-            results
-        }
 // for debugging        println(junitListener.events.joinToString("\n"))
 
-        if (System.getenv("PRINT_SLOWEST") != null)
-            results.printSlowestTests()
+            if (System.getenv("PRINT_SLOWEST") != null)
+                results.printSlowestTests()
 
-        if (failedTests.isNotEmpty()) {
-            println("failed tests with uniqueId to run from IDEA:")
-            failedTests.forEach {
-                println(
-                    "${it.testName} ${
-                    mapper.getMapping(it).uniqueId.toString().replace(" ", "+")
-                    }"
-                )
+            if (failedTests.isNotEmpty()) {
+                println("failed tests with uniqueId to run from IDEA:")
+                failedTests.forEach {
+                    println(
+                        "${it.testName} ${
+                            mapper.getMapping(it).uniqueId.toString().replace(" ", "+")
+                        }"
+                    )
+                }
             }
+        } catch (e: Exception) {
+            println("exception occurred inside failgood. if you run the latest version please submit a bug at https://github.com/failgood/failgood/issues")
+            e.printStackTrace()
+            throw e
         }
         println("finished after ${uptime()}")
     }

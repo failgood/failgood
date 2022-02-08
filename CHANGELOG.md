@@ -7,15 +7,17 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- print a useful error message when test are not found because the test names change. (#61)
--
+- Print a useful error message when test are not found because the test names change. (#61)
+
 ### Added
 
+- Catch errors in the junit engine, and log them to stdout. Tell users to submit an issue.
 - Print slowest test after test run when env var PRINT_SLOWEST_TESTS is set also in junit engine.
 
 ### Fixed
 
-- Errors in close callbacks were not catched correctly after a test failure (#65)
+- ignore errors in failed contexts (fixes #38)
+- Errors in close callbacks were not caught correctly after a test failure (#65)
 
 ## 0.5.3 - "Warp" - 2022-02-01
 

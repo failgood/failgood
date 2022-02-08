@@ -1,36 +1,15 @@
 package failgood.junit
 
-import failgood.ContextProvider
-import failgood.Failed
-import failgood.Pending
-import failgood.Success
-import failgood.Suite
-import failgood.TestContainer
-import failgood.TestDescription
-import failgood.awaitContexts
+import failgood.*
 import failgood.internal.ContextInfo
 import failgood.internal.FailedContext
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_LAZY
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_TEST_CLASS_SUFFIX
 import failgood.junit.JunitExecutionListener.TestExecutionEvent
-import failgood.upt
-import failgood.uptime
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import org.junit.platform.engine.EngineDiscoveryRequest
-import org.junit.platform.engine.ExecutionRequest
-import org.junit.platform.engine.TestDescriptor
-import org.junit.platform.engine.TestEngine
-import org.junit.platform.engine.TestExecutionResult
-import org.junit.platform.engine.TestSource
-import org.junit.platform.engine.UniqueId
+import org.junit.platform.engine.*
 import org.junit.platform.engine.reporting.ReportEntry
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
@@ -123,14 +102,17 @@ class FailGoodJunitTestEngine : TestEngine {
 
                         val description = event.testDescription
                         val mapping = mapper.getMappingOrNull(description)
-                        // its possible that we get a test event for a test that has no mapping because it is part of a failing context
+                        // it's possible that we get a test event for a test that has no mapping because it is part of a failing context
                         if (mapping == null) {
                             val parents = description.container.parents
                             // its a failing root context, so ignore it
                             if (parents.isEmpty())
                                 continue
                             // as a sanity check we try to find the mapping for the parent context, and if that works everything is fine
-                            mapper.getMapping(parents.last())
+                            mapper.getMappingOrNull(parents.last())
+                                // and if we don't find that maybe the root context of the context is failed
+                                ?: if (!failedContexts.any { it.context == parents.first() })
+                                    throw FailGoodException("did not find mapping for event $event.")
                             continue
                         }
                         when (event) {
@@ -193,13 +175,16 @@ class FailGoodJunitTestEngine : TestEngine {
                 failedTests.forEach {
                     println(
                         "${it.testName} ${
-                            mapper.getMapping(it).uniqueId.toString().replace(" ", "+")
+                        mapper.getMapping(it).uniqueId.toString().replace(" ", "+")
                         }"
                     )
                 }
             }
         } catch (e: Exception) {
-            println("exception occurred inside failgood. if you run the latest version please submit a bug at https://github.com/failgood/failgood/issues")
+            println(
+                "exception occurred inside failgood.\n" +
+                    "if you run the latest version please submit a bug at https://github.com/failgood/failgood/issues"
+            )
             e.printStackTrace()
             throw e
         }

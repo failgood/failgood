@@ -23,11 +23,13 @@ class TestMapper {
         testDescription2JunitTestDescriptor[testDescription]
 
     fun getMapping(context: TestContainer): TestDescriptor =
-        context2JunitTestDescriptor[context]
+        getMappingOrNull(context)
             ?: throw FailGoodException(
                 "no mapping found for context $context." +
                     " I have mappings for ${context2JunitTestDescriptor.keys.joinToString()}"
             )
+
+    fun getMappingOrNull(context: TestContainer) = context2JunitTestDescriptor[context]
 
     fun addMapping(context: TestContainer, testDescriptor: TestDescriptor) {
         context2JunitTestDescriptor[context] = testDescriptor

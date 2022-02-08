@@ -34,6 +34,8 @@ class MyTest {
     fun setUp() {
         myWebserver = Server()
     }
+    
+    @AfterEach
     fun tearDown() {
         myWebserver.close()
     }

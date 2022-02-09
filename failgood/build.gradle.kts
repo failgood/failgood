@@ -32,6 +32,7 @@ dependencies {
     testImplementation("org.pitest:pitest:$pitestVersion")
     testImplementation("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
     testImplementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
+    testImplementation(kotlin("test"))
 }
 
 val testMain =
@@ -66,4 +67,8 @@ plugins.withId("info.solidsoft.pitest") {
         )
         outputFormats.set(setOf("XML", "HTML"))
     }
+}
+
+configure<com.bnorm.power.PowerAssertGradleExtension> {
+    functions = listOf("kotlin.assert", "kotlin.test.assertTrue", "kotlin.test.assertNotNull")
 }

@@ -1,13 +1,13 @@
 package failgood.functional
 
-import failgood.*
+import failgood.Failed
+import failgood.Suite
+import failgood.Test
+import failgood.describe
 import strikt.api.expectThat
-import strikt.assertions.contains
-import strikt.assertions.isA
-import strikt.assertions.isNotNull
-import strikt.assertions.single
-import strikt.assertions.startsWith
-import java.util.UUID
+import strikt.assertions.*
+import java.util.*
+import kotlin.test.assertNotNull
 
 @Test
 class ErrorHandlingTest {
@@ -27,7 +27,7 @@ class ErrorHandlingTest {
             }
         }
         test("tests with wrong receiver") {
-            assert(Suite {
+            val suiteResult = Suite {
 
                 // in the next line the `ContextDSL.` receiver is missing, so it adds the test to the outer context,
                 // not the context that it is called from. this is now detected by treating only the current context as mutable,
@@ -42,8 +42,16 @@ class ErrorHandlingTest {
                 describe("context 2") {
                     testCreator()
                 }
-            }.run().failedContexts.singleOrNull()?.context?.name  == "root")
-
+            }.run()
+            val failedContext = assertNotNull(suiteResult.failedContexts.singleOrNull())
+            assert(failedContext.context.name == "root")
+            assert(
+                failedContext.failure.message
+                    ?.contains(
+                        "Trying to create a test in the wrong context. Make sure functions that create tests have " +
+                            "ContextDSL as receiver"
+                    ) == true
+            ) { failedContext.failure.stackTraceToString() }
         }
     }
 }

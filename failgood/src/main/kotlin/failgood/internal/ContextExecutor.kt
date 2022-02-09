@@ -213,7 +213,10 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             if (!namesInThisContext.add(name))
                 throw DuplicateNameInContextException("duplicate name \"$name\" in context \"${parentContext.name}\"")
             if (!mutable) {
-                throw ImmutableContextException("trying to change a context that is not active")
+                throw ImmutableContextException(
+                    "Trying to create a test in the wrong context. " +
+                        "Make sure functions that create tests have ContextDSL as receiver"
+                )
             }
         }
 
@@ -252,4 +255,3 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
     private fun sourceInfo() =
         SourceInfo(RuntimeException().stackTrace.first { !(it.fileName?.endsWith("ContextExecutor.kt") ?: true) }!!)
 }
-

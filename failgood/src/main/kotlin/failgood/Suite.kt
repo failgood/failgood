@@ -147,6 +147,7 @@ private suspend fun awaitTestResult(
 
 internal suspend fun awaitContexts(resolvedContexts: List<ContextResult>): SuiteResult {
     val successfulContexts = resolvedContexts.filterIsInstance<ContextInfo>()
+    val failedContexts: List<FailedContext> = resolvedContexts.filterIsInstance<FailedContext>()
     val results = successfulContexts.flatMap { it.tests.values }.awaitAll()
     successfulContexts.forEach {
         it.afterSuiteCallbacks.forEach { callback ->
@@ -160,7 +161,9 @@ internal suspend fun awaitContexts(resolvedContexts: List<ContextResult>): Suite
     return SuiteResult(
         results,
         results.filter { it.isFailed },
-        successfulContexts.flatMap { it.contexts }
+        successfulContexts.flatMap { it.contexts },
+        failedContexts
+
     )
 }
 internal fun printResults(coroutineScope: CoroutineScope, contextInfos: List<Suite.FoundContext>) {

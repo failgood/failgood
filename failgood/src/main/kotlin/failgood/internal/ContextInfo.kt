@@ -12,4 +12,4 @@ internal data class ContextInfo(
     val afterSuiteCallbacks: Set<suspend () -> Unit>
 ) : ContextResult
 
-internal data class FailedContext(val context: Context, val failure: Throwable) : ContextResult
+data class FailedContext(val context: Context, val failure: Throwable) : ContextResult

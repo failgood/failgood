@@ -2,6 +2,7 @@ package failgood
 
 import failgood.internal.Colors
 import failgood.internal.ContextTreeReporter
+import failgood.internal.FailedContext
 import failgood.internal.Junit4Reporter
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -10,7 +11,8 @@ import kotlin.system.exitProcess
 data class SuiteResult(
     val allTests: List<TestPlusResult>,
     val failedTests: List<TestPlusResult>,
-    val contexts: List<Context>
+    val contexts: List<Context>,
+    val failedContexts: List<FailedContext>
 ) {
     val allOk = failedTests.isEmpty()
 

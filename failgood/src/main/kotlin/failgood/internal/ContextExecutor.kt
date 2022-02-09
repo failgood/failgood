@@ -91,9 +91,10 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
         // run with the TestExecutor.
         private var ranATest = false
         var contextsLeft = false // are there sub contexts left to run?
+        var mutable = true // we allow changes only to the current context to catch errors in the context structure
 
         override suspend fun test(name: String, function: TestLambda) {
-            checkName(name)
+            checkForDuplicateName(name)
             val testPath = ContextPath(parentContext, name)
             if (!testFilter.shouldRun(testPath))
                 return
@@ -161,7 +162,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
         }
 
         override suspend fun context(name: String, function: ContextLambda) {
-            checkName(name)
+            checkForDuplicateName(name)
             // if we already ran a test in this context we don't need to visit the child context now
             if (isolation && ranATest) {
                 contextsLeft = true
@@ -176,10 +177,18 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             val sourceInfo = sourceInfo()
             val context = Context(name, parentContext, sourceInfo, isolation = isolation)
             val visitor = ContextVisitor(context, resourcesCloser)
+            this.mutable = false
             try {
+                visitor.mutable = true
                 visitor.function()
+                visitor.mutable = false
+                this.mutable = true
                 investigatedContexts.add(context)
+            } catch (exceptionInContext: ImmutableContextException) {
+                // this is fatal,and we treat the whole root context as failed, so we just rethrow
+                throw exceptionInContext
             } catch (exceptionInContext: Throwable) {
+                this.mutable = true
                 val testDescriptor = TestDescription(parentContext, name, sourceInfo)
 
                 processedTests.add(contextPath) // don't visit this context again
@@ -200,9 +209,12 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             if (visitor.ranATest) ranATest = true
         }
 
-        private fun checkName(name: String) {
+        private fun checkForDuplicateName(name: String) {
             if (!namesInThisContext.add(name))
                 throw DuplicateNameInContextException("duplicate name \"$name\" in context \"${parentContext.name}\"")
+            if (!mutable) {
+                throw ImmutableContextException("trying to change a context that is not active")
+            }
         }
 
         override suspend fun describe(name: String, function: ContextLambda) {
@@ -235,7 +247,9 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
     }
 
     private class DuplicateNameInContextException(s: String) : FailGoodException(s)
+    class ImmutableContextException(s: String) : FailGoodException(s)
 
     private fun sourceInfo() =
         SourceInfo(RuntimeException().stackTrace.first { !(it.fileName?.endsWith("ContextExecutor.kt") ?: true) }!!)
 }
+

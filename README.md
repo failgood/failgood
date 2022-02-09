@@ -34,7 +34,7 @@ class MyTest {
     fun setUp() {
         myWebserver = Server()
     }
-    
+
     @AfterEach
     fun tearDown() {
         myWebserver.close()
@@ -52,9 +52,9 @@ val context = describe(MyServer::class) {
 
 ```
 
-Test dependencies will be recreated for every test. It just works as expected.
+Test dependencies will be recreated for every test. It just works as expected. Failgood executes the context block again for each test to have separate instances of all test dependencies.
 
-If you want a dependency to not be recreated for every test, just declare it outside of the root context block, and if you have to close it, do it in an afterSuite callback.
+If you want a dependency to not be recreated for every test, just declare it outside the root context block, and if you have to close it, do it in an afterSuite callback.
 
 ```kotlin
 class MyBeautifulTest {
@@ -69,6 +69,7 @@ class MyBeautifulTest {
     }
 }
 ```
+
 ### Parametrized tests
 
 Failgood needs no special support for parametrized tests. You can just use `forEach` to create multiple versions of a test
@@ -95,7 +96,7 @@ repositories {
 }
 
 dependencies {
-    testImplementation("dev.failgood:failgood:0.5.2")
+    testImplementation("dev.failgood:failgood:0.5.3")
 }
 tasks.test {
     useJUnitPlatform {
@@ -125,7 +126,7 @@ the `FailGoodBootstrap.kt` class.
 
 ## Test coverage
 
-Failgood works well with the [kover](https://github.com/Kotlin/kotlinx-kover) plugin, and if you want real mutation coverage, there is also a pitest plugin.
+Failgood works well with the [kover](https://github.com/Kotlin/kotlinx-kover) plugin, and if you want real mutation coverage, there is also a pitest plugin. (See failgoods own build for an example pitest config)
 
 ## Even faster tests - best practices
 

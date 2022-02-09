@@ -19,7 +19,7 @@ plugins {
 dependencies {
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     api("org.junit.platform:junit-platform-commons:$junitPlatformVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:$coroutinesVersion")
+    runtimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-debug:$coroutinesVersion")
     // to enable running test in idea without having to add the dependency manually
     api("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
     compileOnly("org.junit.platform:junit-platform-engine:$junitPlatformVersion")

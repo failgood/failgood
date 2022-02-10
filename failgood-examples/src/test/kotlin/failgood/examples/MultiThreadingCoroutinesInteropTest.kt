@@ -30,7 +30,7 @@ class Example(
 }
 
 @Test
-class MultiThreadingInteropTest {
+class MultiThreadingCoroutinesInteropTest {
     val context = describe("multi threading issue from spek") {
         val stringProvider = mockk<StringProvider> {
             coEvery { world() } returns "world 2"

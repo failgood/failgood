@@ -117,54 +117,63 @@ class FailGoodJunitTestEngine : TestEngine {
                         }
                         when (event) {
                             is TestExecutionEvent.Started -> {
-                                startParentContexts(description)
-                                junitListener.executionStarted(mapping)
+                                withContext(Dispatchers.IO) {
+                                    startParentContexts(description)
+                                    junitListener.executionStarted(mapping)
+                                }
                             }
                             is TestExecutionEvent.Stopped -> {
                                 val testPlusResult = event.testResult
                                 when (testPlusResult.result) {
                                     is Failed -> {
-                                        junitListener.executionFinished(
-                                            mapping,
-                                            TestExecutionResult.failed(testPlusResult.result.failure)
-                                        )
+                                        withContext(Dispatchers.IO) {
+                                            junitListener.executionFinished(
+                                                mapping,
+                                                TestExecutionResult.failed(testPlusResult.result.failure)
+                                            )
+                                        }
                                         failedTests.add(description)
                                     }
 
-                                    is Success -> junitListener.executionFinished(
-                                        mapping,
-                                        TestExecutionResult.successful()
-                                    )
+                                    is Success -> withContext(Dispatchers.IO) {
+                                        junitListener.executionFinished(
+                                            mapping,
+                                            TestExecutionResult.successful()
+                                        )
+                                    }
 
                                     is Pending -> {
-                                        startParentContexts(event.testResult.test)
-                                        junitListener.executionSkipped(mapping, "test is skipped")
+                                        withContext(Dispatchers.IO) {
+                                            startParentContexts(event.testResult.test)
+                                            junitListener.executionSkipped(mapping, "test is skipped")
+                                        }
                                     }
                                 }
                             }
-                            is TestExecutionEvent.TestEvent -> junitListener.reportingEntryPublished(
-                                mapping,
-                                ReportEntry.from(event.type, event.payload)
-                            )
+                            is TestExecutionEvent.TestEvent -> withContext(Dispatchers.IO) {
+                                junitListener.reportingEntryPublished(
+                                    mapping,
+                                    ReportEntry.from(event.type, event.payload)
+                                )
+                            }
                         }
                     }
                 }
-//            printResults(this, )
                 // and wait for the results
                 val results = awaitContexts(root.testResult)
                 executionListener.events.close()
 
                 // finish forwarding test events before closing all the contexts
                 eventForwarder.join()
-                // close child contexts before their parent
-                val leafToRootContexts = startedContexts.sortedBy { -it.parents.size }
-                leafToRootContexts.forEach { context ->
-                    junitListener.executionFinished(mapper.getMapping(context), TestExecutionResult.successful())
-                }
-
-                junitListener.executionFinished(root, TestExecutionResult.successful())
                 results
             }
+            // close child contexts before their parent
+            val leafToRootContexts = startedContexts.sortedBy { -it.parents.size }
+            leafToRootContexts.forEach { context ->
+                junitListener.executionFinished(mapper.getMapping(context), TestExecutionResult.successful())
+            }
+
+            junitListener.executionFinished(root, TestExecutionResult.successful())
 // for debugging        println(junitListener.events.joinToString("\n"))
 
             if (System.getenv("PRINT_SLOWEST") != null)

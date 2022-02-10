@@ -4,15 +4,7 @@ import failgood.Test
 import failgood.describe
 import failgood.junit.FailGoodJunitTestEngine
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_TEST_CLASS_SUFFIX
-import failgood.junit.it.fixtures.DoubleTestNamesInRootContextTestFixture
-import failgood.junit.it.fixtures.DoubleTestNamesInSubContextTestFixture
-import failgood.junit.it.fixtures.DuplicateRootWithOneTest
-import failgood.junit.it.fixtures.DuplicateTestNameTest
-import failgood.junit.it.fixtures.FailingContext
-import failgood.junit.it.fixtures.FailingRootContext
-import failgood.junit.it.fixtures.PendingTestFixtureTest
-import failgood.junit.it.fixtures.TestFixtureTest
-import failgood.junit.it.fixtures.TestWithNestedContextsTest
+import failgood.junit.it.fixtures.*
 import kotlinx.coroutines.CompletableDeferred
 import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.engine.TestExecutionResult
@@ -94,6 +86,16 @@ class JunitPlatformFunctionalTest {
             expectThat(listener.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
                 .map { it.key.displayName }).containsExactlyInAnyOrder("Failing Root Context", "failing context")
         }
+        pending("works with Blockhound installed") {
+            LauncherFactory.create().execute(
+                launcherDiscoveryRequest(listOf(selectClass(BlockhoundTestFixture::class.qualifiedName)), mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")), listener
+            )
+            val rootResult = listener.rootResult.await()
+            assert(rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {rootResult.throwable.get().stackTraceToString()}
+            val entries = listener.results.entries
+            assert(entries.singleOrNull { (key, _) -> key.displayName == "interop with blockhound"}?.value?.throwable?.get()?.message?.contains("blocking") == true)
+        }
+
     }
 }
 

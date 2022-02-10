@@ -28,7 +28,6 @@ class ErrorHandlingTest {
         }
         test("tests with wrong receiver") {
             val suiteResult = Suite {
-
                 // in the next line the `ContextDSL.` receiver is missing, so it adds the test to the outer context,
                 // not the context that it is called from. this is now detected by treating only the current context as mutable,
                 // and throw when tests are added to other contexts

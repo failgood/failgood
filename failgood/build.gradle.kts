@@ -1,8 +1,4 @@
-import failgood.versions.coroutinesVersion
-import failgood.versions.junitPlatformVersion
-import failgood.versions.kotlinVersion
-import failgood.versions.pitestVersion
-import failgood.versions.striktVersion
+import failgood.versions.*
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
 plugins {
@@ -11,6 +7,7 @@ plugins {
     id("info.solidsoft.pitest")
     signing
     id("failgood.common")
+    id("failgood.publishing")
     id("com.bnorm.power.kotlin-power-assert").version("0.11.0")
 }
 // to release:

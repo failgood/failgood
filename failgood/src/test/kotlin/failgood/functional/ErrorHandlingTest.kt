@@ -41,7 +41,7 @@ class ErrorHandlingTest {
                 describe("context 2") {
                     testCreator()
                 }
-            }.run()
+            }.run(silent = true)
             val failedContext = assertNotNull(suiteResult.failedContexts.singleOrNull())
             assert(failedContext.context.name == "root")
             assert(

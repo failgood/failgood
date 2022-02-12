@@ -1,12 +1,8 @@
 @file:Suppress("unused", "UNUSED_PARAMETER")
 
-package failgood.experiments
+package failgood.experiments.given
 
-import failgood.ContextDSL
-import failgood.RootContext
-import failgood.Suite
-import failgood.Test
-import failgood.describe
+import failgood.*
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 

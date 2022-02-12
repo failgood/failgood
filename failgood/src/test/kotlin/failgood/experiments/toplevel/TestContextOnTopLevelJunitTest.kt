@@ -1,4 +1,4 @@
-package failgood.experiments
+package failgood.experiments.toplevel
 
 import failgood.ContextLambda
 import failgood.RootContext

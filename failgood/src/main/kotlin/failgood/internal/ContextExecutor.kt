@@ -204,7 +204,6 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
                 foundContexts.add(context)
                 processedTests.add(contextPath)
             }
-            sourceInfo().lineNumber
 
             if (visitor.ranATest) ranATest = true
         }

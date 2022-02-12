@@ -204,6 +204,6 @@ object FailGood {
 
 private fun findCallerName(): String = findCallerSTE().className
 
-private fun findCallerSTE(): StackTraceElement = Throwable().stackTrace.first {
+internal fun findCallerSTE(): StackTraceElement = Throwable().stackTrace.first {
     !(it.fileName?.endsWith("FailGood.kt") ?: true)
 }

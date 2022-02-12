@@ -42,7 +42,7 @@ class LoggingHandler(private val resourcesDSL: TestDSL) : InvocationHandler {
                         is String -> it
                         else -> throw RuntimeException(
                             "$methodName parameters have unexpected type: " +
-                                    "${it.javaClass} ${it.javaClass.superclass}"
+                                "${it.javaClass} ${it.javaClass.superclass}"
                         )
                     }
                 )

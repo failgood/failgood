@@ -19,18 +19,12 @@ dependencies {
 
 val testMain =
     task("testMain", JavaExec::class) {
-        jvmArgs = listOf("-XX:+AllowRedefinitionToAddDeleteMethods")
         mainClass.set("failgood.junit.it.AllTestsKt")
         classpath = sourceSets["test"].runtimeClasspath
     }
 task("autotest", JavaExec::class) {
     mainClass.set("failgood.junit.it.AutoTestMainKt")
     classpath = sourceSets["test"].runtimeClasspath
-}
-tasks.test {
-    jvmArgs = listOf("-XX:+AllowRedefinitionToAddDeleteMethods")
-    useJUnitPlatform()
-    outputs.upToDateWhen { false }
 }
 
 tasks.check { dependsOn(testMain) }

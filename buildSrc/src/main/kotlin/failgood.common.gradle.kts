@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    ktlint("com.pinterest:ktlint:0.43.2")
+    ktlint("com.pinterest:ktlint:0.42.1")
 }
 
 tasks {

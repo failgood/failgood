@@ -74,7 +74,6 @@ tasks {
         archiveClassifier.set("sources")
     }
     test {
-        jvmArgs=listOf("-XX:+AllowRedefinitionToAddDeleteMethods")
         useJUnitPlatform()
         outputs.upToDateWhen { false }
     }

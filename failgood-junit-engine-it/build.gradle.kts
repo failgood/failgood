@@ -9,23 +9,28 @@ plugins {
 //    id("info.solidsoft.pitest")
 }
 
-
 dependencies {
     testImplementation(project(":failgood"))
     testImplementation("io.strikt:strikt-core:$striktVersion")
     testImplementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
     testImplementation("io.projectreactor.tools:blockhound:1.0.6.RELEASE")
+    testImplementation(kotlin("test"))
 }
-
 
 val testMain =
     task("testMain", JavaExec::class) {
+        jvmArgs = listOf("-XX:+AllowRedefinitionToAddDeleteMethods")
         mainClass.set("failgood.junit.it.AllTestsKt")
         classpath = sourceSets["test"].runtimeClasspath
     }
 task("autotest", JavaExec::class) {
     mainClass.set("failgood.junit.it.AutoTestMainKt")
     classpath = sourceSets["test"].runtimeClasspath
+}
+tasks.test {
+    jvmArgs = listOf("-XX:+AllowRedefinitionToAddDeleteMethods")
+    useJUnitPlatform()
+    outputs.upToDateWhen { false }
 }
 
 tasks.check { dependsOn(testMain) }
@@ -47,3 +52,6 @@ plugins.withId("info.solidsoft.pitest") {
 }
 
 */
+configure<com.bnorm.power.PowerAssertGradleExtension> {
+    functions = listOf("kotlin.assert", "kotlin.test.assertTrue", "kotlin.test.assertNotNull")
+}

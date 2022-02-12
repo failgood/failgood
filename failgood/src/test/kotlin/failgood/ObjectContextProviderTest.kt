@@ -3,14 +3,7 @@ package failgood
 import failgood.docs.ClassTestContextTest
 import failgood.docs.ObjectMultipleContextsTest
 import strikt.api.expectThat
-import strikt.assertions.all
-import strikt.assertions.containsExactlyInAnyOrder
-import strikt.assertions.hasSize
-import strikt.assertions.isA
-import strikt.assertions.isEqualTo
-import strikt.assertions.isNotEqualTo
-import strikt.assertions.map
-import strikt.assertions.single
+import strikt.assertions.*
 
 @Test
 class ObjectContextProviderTest {
@@ -73,7 +66,22 @@ class ObjectContextProviderTest {
                         }
                 }
             }
+            describe("Error handling") {
+                it("rethrows exceptions that happen at class instantiation") {
+                    expectThat(
+                        kotlin.runCatching {
+                            ObjectContextProvider(ClassThatThrowsAtCreationTime::class).getContexts()
+                        }
+                    ).isFailure().isA<RuntimeException>().message.isEqualTo("boo i failed")
+                }
+            }
         }
+
+    class ClassThatThrowsAtCreationTime {
+        init {
+            throw RuntimeException("boo i failed")
+        }
+    }
 }
 
 private class TestClassThatUsesUtilityMethodToCreateTestContexts {

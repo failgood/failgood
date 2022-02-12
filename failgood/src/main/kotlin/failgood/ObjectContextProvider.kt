@@ -1,5 +1,6 @@
 package failgood
 
+import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
 
 fun interface ContextProvider {
@@ -13,41 +14,54 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
      * get root contexts from a class or object or defined at the top level
      */
     override fun getContexts(): List<RootContext> {
-        val contexts: List<RootContext> = try {
-            val instanceField = try {
-                jClass.getDeclaredField("INSTANCE")
-            } catch (e: Exception) {
-                null
-            }
-            val obj = if (instanceField != null)
-            // its a kotlin object
-                instanceField.get(null)
-            else
-            // it's a kotlin class or a top level context
-                jClass.constructors.singleOrNull()?.newInstance()
+        // the RootContext constructor tries to determine its file and line number.
+        // if the root context is created by a utility method outside the test class the file and line info
+        // points to the utility function instead of the test, and thats not what we want, so we check if the
+        // contexts we just loaded think that they are from the file we just loaded, and if they don't we
+        // overwrite that information with a pointer to the first line of the class we just loaded.
 
-            // get contexts from all methods returning RootContext
-            val methodsReturningRootContext = jClass.methods.filter { it.returnType == RootContext::class.java }
-            // if there are no methods returning RootContext, maybe getContext returns a list of RootContexts
-            val contextGetters = methodsReturningRootContext.ifEmpty { listOf(jClass.getDeclaredMethod("getContext")) }
-            contextGetters.flatMap {
-                val contexts = it.invoke(obj)
-                @Suppress("UNCHECKED_CAST")
-                contexts as? List<RootContext> ?: listOf(contexts as RootContext)
-            }
-        } catch (e: Exception) {
-            listOf()
-        }
-        // now correct the sourceinfo if the context thinks it does not come from the class we just loaded
-        return contexts.map {
+        return getContextsInternal().map {
             if (it.sourceInfo.className != jClass.name)
                 it.copy(sourceInfo = SourceInfo(jClass.name, null, 1))
             else
                 it
         }
+    }
 
-        // slow failsafe version that uses kotlin reflect:
-        //        return kClass.declaredMemberProperties.single { it.name == "context"
-        // }.call(kClass.objectInstance) as RootContext
+    private fun getContextsInternal(): List<RootContext> {
+        val instanceField = try {
+            jClass.getDeclaredField("INSTANCE")
+        } catch (e: Exception) {
+            null
+        }
+        val obj = if (instanceField != null)
+            instanceField.get(null)
+        else {
+            // its a kotlin object
+            // it's a kotlin class or a top level context
+            jClass.constructors.singleOrNull()?.let {
+                try {
+                    it.newInstance()
+                } catch (e: InvocationTargetException) {
+                    throw e.targetException
+                }
+            }
+        }
+
+        // get contexts from all methods returning RootContext
+        val methodsReturningRootContext = jClass.methods.filter { it.returnType == RootContext::class.java }
+        // if there are no methods returning RootContext, maybe getContext returns a list of RootContexts
+        val contextGetters = methodsReturningRootContext.ifEmpty {
+            try {
+                listOf(jClass.getDeclaredMethod("getContext"))
+            } catch (e: Exception) {
+                listOf()
+            }
+        }
+        return contextGetters.flatMap {
+            val contexts = it.invoke(obj)
+            @Suppress("UNCHECKED_CAST")
+            contexts as? List<RootContext> ?: listOf(contexts as RootContext)
+        }
     }
 }

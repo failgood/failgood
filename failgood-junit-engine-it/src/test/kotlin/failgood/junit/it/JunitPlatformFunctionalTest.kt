@@ -2,34 +2,21 @@ package failgood.junit.it
 
 import failgood.Test
 import failgood.describe
-import failgood.junit.FailGoodJunitTestEngine
+import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_TEST_CLASS_SUFFIX
 import failgood.junit.it.fixtures.*
 import kotlinx.coroutines.CompletableDeferred
-import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
-import org.junit.platform.launcher.EngineFilter
-import org.junit.platform.launcher.LauncherDiscoveryRequest
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestIdentifier
-import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 import org.junit.platform.launcher.core.LauncherFactory
 import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
 import strikt.assertions.hasSize
 import strikt.assertions.isEqualTo
+import kotlin.test.assertNotNull
 
-fun launcherDiscoveryRequest(
-    selectors: List<DiscoverySelector>,
-    config: Map<String, String> = mapOf()
-): LauncherDiscoveryRequest {
-    return LauncherDiscoveryRequestBuilder.request()
-        .filters(EngineFilter.includeEngines(FailGoodJunitTestEngine().id))
-        .configurationParameters(config)
-        .selectors(selectors)
-        .build()
-}
 
 @Test
 class JunitPlatformFunctionalTest {
@@ -88,12 +75,21 @@ class JunitPlatformFunctionalTest {
         }
         pending("works with Blockhound installed") {
             LauncherFactory.create().execute(
-                launcherDiscoveryRequest(listOf(selectClass(BlockhoundTestFixture::class.qualifiedName)), mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")), listener
+                launcherDiscoveryRequest(
+                    listOf(selectClass(BlockhoundTestFixture::class.qualifiedName)),
+                    mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "", CONFIG_KEY_DEBUG to "true")
+                ), listener
             )
             val rootResult = listener.rootResult.await()
-            assert(rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {rootResult.throwable.get().stackTraceToString()}
+            assert(rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {
+                rootResult.throwable.get().stackTraceToString()
+            }
             val entries = listener.results.entries
-            assert(entries.singleOrNull { (key, _) -> key.displayName == "interop with blockhound"}?.value?.throwable?.get()?.message?.contains("blocking") == true)
+
+            assert(entries.size > 1)
+            val throwable =
+                assertNotNull(entries.singleOrNull { (key, _) -> key.displayName == "interop with blockhound" }?.value?.throwable)
+            assert(throwable.get().message?.contains("blocking") == true)
         }
 
     }

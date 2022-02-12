@@ -20,7 +20,7 @@ class FailGoodTest {
             context("context/test syntax is also supported") {
                 test(
                     "I prefer describe/it but if there is no subject to describe I use " +
-                            "context/test"
+                        "context/test"
                 ) {}
             }
 

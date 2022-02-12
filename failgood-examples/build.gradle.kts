@@ -6,8 +6,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm")
     id("info.solidsoft.pitest")
+    id("failgood.common")
 }
-
 
 dependencies {
     testImplementation(project(":failgood"))
@@ -43,7 +43,7 @@ plugins.withId("info.solidsoft.pitest") {
         jvmArgs.set(listOf("-Xmx512m")) // necessary on CI
         testPlugin.set("failgood")
         avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))
-        targetClasses.set(setOf("failgood.examples.*")) //by default "${project.group}.*"
+        targetClasses.set(setOf("failgood.examples.*")) // by default "${project.group}.*"
         targetTests.set(setOf("failgood.examples.*Test", "failgood.examples.**.*Test"))
         pitestVersion.set("1.6.7")
         threads.set(
@@ -52,4 +52,3 @@ plugins.withId("info.solidsoft.pitest") {
         outputFormats.set(setOf("XML", "HTML"))
     }
 }
-

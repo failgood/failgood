@@ -26,5 +26,4 @@ class StriktIntegration : BlockHoundIntegration {
     override fun applyTo(builder: BlockHound.Builder) {
         builder.allowBlockingCallsInside("filepeek.FilePeek", "getCallerFileInfo")
     }
-
 }

@@ -10,7 +10,7 @@ import org.slf4j.Logger
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
-import java.util.Locale
+import java.util.*
 
 @Test
 class LoggingTest {
@@ -18,7 +18,6 @@ class LoggingTest {
         it("injects a logger") {
             LoggingComponent(kLogger()).functionThatLogs()
         }
-
     }
 }
 
@@ -41,7 +40,10 @@ class LoggingHandler(private val resourcesDSL: TestDSL) : InvocationHandler {
                 append(
                     when (it) {
                         is String -> it
-                        else -> throw RuntimeException("$methodName parameters have unexpected type: ${it.javaClass} ${it.javaClass.superclass}")
+                        else -> throw RuntimeException(
+                            "$methodName parameters have unexpected type: " +
+                                    "${it.javaClass} ${it.javaClass.superclass}"
+                        )
                     }
                 )
             }
@@ -51,7 +53,4 @@ class LoggingHandler(private val resourcesDSL: TestDSL) : InvocationHandler {
         }
         return Unit
     }
-
 }
-
-

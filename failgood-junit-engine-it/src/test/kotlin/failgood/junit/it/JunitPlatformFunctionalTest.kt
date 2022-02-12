@@ -17,7 +17,6 @@ import strikt.assertions.hasSize
 import strikt.assertions.isEqualTo
 import kotlin.test.assertNotNull
 
-
 @Test
 class JunitPlatformFunctionalTest {
     @Suppress("unused")
@@ -31,37 +30,49 @@ class JunitPlatformFunctionalTest {
                             DuplicateTestNameTest::class.qualifiedName
                         )
                     )
-                ), listener
+                ),
+                listener
             )
             expectThat(listener.rootResult.await()).get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
         }
         describe("works with duplicate test names") {
             it("in root contexts") {
                 LauncherFactory.create().execute(
-                    launcherDiscoveryRequest(listOf(selectClass(DoubleTestNamesInRootContextTestFixture::class.qualifiedName)), mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")), listener
+                    launcherDiscoveryRequest(
+                        listOf(selectClass(DoubleTestNamesInRootContextTestFixture::class.qualifiedName)),
+                        mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")
+                    ),
+                    listener
                 )
                 val rootResult = listener.rootResult.await()
-                assert(rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {rootResult.throwable.get().stackTraceToString()}
+                assert(rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {
+                    rootResult.throwable.get().stackTraceToString()
+                }
             }
             it("in sub contexts") {
                 LauncherFactory.create().execute(
-                    launcherDiscoveryRequest(listOf(selectClass(DoubleTestNamesInSubContextTestFixture::class.qualifiedName)), mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")), listener
+                    launcherDiscoveryRequest(
+                        listOf(selectClass(DoubleTestNamesInSubContextTestFixture::class.qualifiedName)),
+                        mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")
+                    ),
+                    listener
                 )
                 val rootResult = listener.rootResult.await()
-                assert(rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {rootResult.throwable.get().stackTraceToString()}
+                assert(rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {
+                    rootResult.throwable.get().stackTraceToString()
+                }
             }
         }
         it("works for a failing context or root context") {
-            val selectors =
-                listOf(
-                    DuplicateRootWithOneTest::class,
-                    DuplicateTestNameTest::class,
-                    FailingContext::class,
-                    FailingRootContext::class,
-                    PendingTestFixtureTest::class,
-                    TestFixtureTest::class,
-                    TestWithNestedContextsTest::class
-                ).map { selectClass(it.qualifiedName) }
+            val selectors = listOf(
+                DuplicateRootWithOneTest::class,
+                DuplicateTestNameTest::class,
+                FailingContext::class,
+                FailingRootContext::class,
+                PendingTestFixtureTest::class,
+                TestFixtureTest::class,
+                TestWithNestedContextsTest::class
+            ).map { selectClass(it.qualifiedName) }
             LauncherFactory.create().execute(
                 launcherDiscoveryRequest(selectors, mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")), listener
             )
@@ -70,15 +81,18 @@ class JunitPlatformFunctionalTest {
                 get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
             }
             expectThat(listener.results).hasSize(24)
-            expectThat(listener.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
-                .map { it.key.displayName }).containsExactlyInAnyOrder("Failing Root Context", "failing context")
+            expectThat(
+                listener.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
+                    .map { it.key.displayName }
+            ).containsExactlyInAnyOrder("Failing Root Context", "failing context")
         }
         pending("works with Blockhound installed") {
             LauncherFactory.create().execute(
                 launcherDiscoveryRequest(
                     listOf(selectClass(BlockhoundTestFixture::class.qualifiedName)),
                     mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "", CONFIG_KEY_DEBUG to "true")
-                ), listener
+                ),
+                listener
             )
             val rootResult = listener.rootResult.await()
             assert(rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {
@@ -88,10 +102,12 @@ class JunitPlatformFunctionalTest {
 
             assert(entries.size > 1)
             val throwable =
-                assertNotNull(entries.singleOrNull { (key, _) -> key.displayName == "interop with blockhound" }?.value?.throwable)
+                assertNotNull(
+                    entries.singleOrNull { (key, _) -> key.displayName == "interop with blockhound" }
+                        ?.value?.throwable
+                )
             assert(throwable.get().message?.contains("blocking") == true)
         }
-
     }
 }
 
@@ -101,9 +117,6 @@ class TEListener : TestExecutionListener {
     override fun executionFinished(testIdentifier: TestIdentifier, testExecutionResult: TestExecutionResult) {
         results[testIdentifier] = testExecutionResult
         val parentId = testIdentifier.parentId
-        if (parentId.isEmpty)
-            rootResult.complete(testExecutionResult)
+        if (parentId.isEmpty) rootResult.complete(testExecutionResult)
     }
 }
-
-

@@ -12,11 +12,7 @@ import failgood.junit.it.fixtures.TestWithNestedContextsTest.Companion.CHILD_CON
 import failgood.junit.it.fixtures.TestWithNestedContextsTest.Companion.ROOT_CONTEXT_NAME
 import failgood.junit.it.fixtures.TestWithNestedContextsTest.Companion.TEST2_NAME
 import failgood.junit.it.fixtures.TestWithNestedContextsTest.Companion.TEST_NAME
-import org.junit.platform.engine.EngineExecutionListener
-import org.junit.platform.engine.ExecutionRequest
-import org.junit.platform.engine.TestDescriptor
-import org.junit.platform.engine.TestExecutionResult
-import org.junit.platform.engine.UniqueId
+import org.junit.platform.engine.*
 import org.junit.platform.engine.discovery.DiscoverySelectors
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
@@ -29,11 +25,10 @@ class FailGoodJunitTestEngineTest {
     val context = describe(FailGoodJunitTestEngine::class) {
         val engine = FailGoodJunitTestEngine()
         describe("can discover tests") {
-            val testDescriptor =
-                engine.discover(
-                    launcherDiscoveryRequest(listOf(DiscoverySelectors.selectClass(TestFixtureTest::class.qualifiedName))),
-                    UniqueId.forEngine(engine.id)
-                )
+            val testDescriptor = engine.discover(
+                launcherDiscoveryRequest(listOf(DiscoverySelectors.selectClass(TestFixtureTest::class.qualifiedName))),
+                UniqueId.forEngine(engine.id)
+            )
             it("returns a root descriptor") {
                 expectThat(testDescriptor.isRoot)
                 expectThat(testDescriptor.displayName).isEqualTo("FailGood")
@@ -47,24 +42,22 @@ class FailGoodJunitTestEngineTest {
         }
         describe("test execution") {
             it("starts and stops contexts in the correct order") {
-                val testDescriptor =
-                    engine.discover(
-                        launcherDiscoveryRequest(listOf(DiscoverySelectors.selectClass(TestWithNestedContextsTest::class.qualifiedName))),
-                        UniqueId.forEngine(engine.id)
-                    )
+                val testDescriptor = engine.discover(
+                    launcherDiscoveryRequest(
+                        listOf(DiscoverySelectors.selectClass(TestWithNestedContextsTest::class.qualifiedName))
+                    ),
+                    UniqueId.forEngine(engine.id)
+                )
                 val listener = RememberingExecutionListener()
                 engine.execute(ExecutionRequest(testDescriptor, listener, null))
                 expectThat(
-                    listener.list.toList()
-                        .replace(
-                            // we don't know in what order the tests will run
-                            setOf(
-                                "start-$TEST_NAME",
-                                "stop-$TEST_NAME",
-                                "start-$TEST2_NAME",
-                                "stop-$TEST2_NAME"
-                            ), "some-test-event"
-                        )
+                    listener.list.toList().replace(
+                        // we don't know in what order the tests will run
+                        setOf(
+                            "start-$TEST_NAME", "stop-$TEST_NAME", "start-$TEST2_NAME", "stop-$TEST2_NAME"
+                        ),
+                        "some-test-event"
+                    )
                 ).isEqualTo(
                     listOf(
                         "start-${FailGoodJunitTestEngineConstants.displayName}",
@@ -81,14 +74,14 @@ class FailGoodJunitTestEngineTest {
                         "stop-${FailGoodJunitTestEngineConstants.displayName}"
                     )
                 )
-
             }
             it("sends one skip event and no start event for skipped tests") {
-                val testDescriptor =
-                    engine.discover(
-                        launcherDiscoveryRequest(listOf(DiscoverySelectors.selectClass(PendingTestFixtureTest::class.qualifiedName))),
-                        UniqueId.forEngine(engine.id)
-                    )
+                val testDescriptor = engine.discover(
+                    launcherDiscoveryRequest(
+                        listOf(DiscoverySelectors.selectClass(PendingTestFixtureTest::class.qualifiedName))
+                    ),
+                    UniqueId.forEngine(engine.id)
+                )
                 val listener = RememberingExecutionListener()
                 engine.execute(ExecutionRequest(testDescriptor, listener, null))
                 expectThat(listener.list.toList()).isEqualTo(
@@ -100,9 +93,7 @@ class FailGoodJunitTestEngineTest {
                         "stop-FailGood"
                     )
                 )
-
             }
-
         }
     }
 }

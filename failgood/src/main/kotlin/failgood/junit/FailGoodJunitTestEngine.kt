@@ -192,9 +192,9 @@ class FailGoodJunitTestEngine : TestEngine {
         } catch (e: Exception) {
             println(
                 "exception occurred inside failgood.\n" +
-                        "if you run the latest version please submit a bug at " +
-                        "https://github.com/failgood/failgood/issues " +
-                        "or tell someone in the #failgood channel in the kotlin-lang slack"
+                    "if you run the latest version please submit a bug at " +
+                    "https://github.com/failgood/failgood/issues " +
+                    "or tell someone in the #failgood channel in the kotlin-lang slack"
             )
             e.printStackTrace()
             throw e

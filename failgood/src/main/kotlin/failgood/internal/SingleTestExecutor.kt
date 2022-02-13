@@ -40,7 +40,7 @@ internal class SingleTestExecutor(
     private open inner class Base : ContextDSL, ResourcesDSL by resourcesCloser {
         override suspend fun test(name: String, function: TestLambda) {}
         override suspend fun context(name: String, function: ContextLambda) {}
-        override suspend fun describe(name: String, function: ContextLambda) {}
+        override suspend fun describe(name: String, vararg tags: String, function: ContextLambda) {}
         override suspend fun it(behaviorDescription: String, function: TestLambda) {}
         override suspend fun pending(behaviorDescription: String, function: TestLambda) {}
         override fun afterSuite(function: suspend () -> Unit) {}
@@ -53,7 +53,7 @@ internal class SingleTestExecutor(
             contextDSL(contexts.drop(1)).function()
         }
 
-        override suspend fun describe(name: String, function: ContextLambda) {
+        override suspend fun describe(name: String, vararg tags: String, function: ContextLambda) {
             context(name, function)
         }
     }

@@ -323,6 +323,30 @@ class ContextExecutorTest {
                     .contains("duplicate name \"same name\" in context \"root\"")
             }
         }
+        describe("filtering by tag") {
+            // start with the easy version
+            pending("can filter contexts in the root context by tag") {
+                val context = RootContext {
+                    describe("context without the tag") {
+                        it("should not be executed") {}
+                    }
+                    describe("context with the tag") {
+                        it("should be executed") {}
+                        describe("subcontext of the context with the tag") {
+                            it("should also be executed") {}
+                        }
+                    }
+                    test("test that should also not be executed") {}
+                }
+                val contextResult = coroutineScope {
+                    ContextExecutor(context, this).execute()
+                }
+                expectThat(contextResult).isA<ContextResult>()
+                (contextResult as ContextInfo).tests.values.awaitAll()
+
+
+            }
+        }
         describe("handles strange contexts correctly") {
             it("a context with only one pending test") {
                 val context = RootContext {

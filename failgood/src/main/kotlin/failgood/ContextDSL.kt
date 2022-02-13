@@ -25,7 +25,7 @@ interface ContextDSL : ResourcesDSL {
     /**
      * define a test context that describes a subject.
      */
-    suspend fun describe(name: String, function: ContextLambda)
+    suspend fun describe(name: String, vararg tags: String = arrayOf(), function: ContextLambda)
 
     /**
      * define a test that describes one aspect of a subject.

@@ -1,29 +1,7 @@
 package failgood.internal
 
-import failgood.Context
-import failgood.ContextDSL
-import failgood.ContextLambda
-import failgood.ExecutionListener
-import failgood.FailGoodException
-import failgood.Failed
-import failgood.NullExecutionListener
-import failgood.Pending
-import failgood.ResourcesDSL
-import failgood.RootContext
-import failgood.SourceInfo
-import failgood.Success
-import failgood.TestDescription
-import failgood.TestLambda
-import failgood.TestPlusResult
-import failgood.TestResult
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.withTimeout
+import failgood.*
+import kotlinx.coroutines.*
 
 internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
     private val rootContext: RootContext,
@@ -214,12 +192,12 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             if (!mutable) {
                 throw ImmutableContextException(
                     "Trying to create a test in the wrong context. " +
-                        "Make sure functions that create tests have ContextDSL as receiver"
+                            "Make sure functions that create tests have ContextDSL as receiver"
                 )
             }
         }
 
-        override suspend fun describe(name: String, function: ContextLambda) {
+        override suspend fun describe(name: String, vararg tags: String, function: ContextLambda) {
             context(name, function)
         }
 
@@ -251,6 +229,12 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
     private class DuplicateNameInContextException(s: String) : FailGoodException(s)
     class ImmutableContextException(s: String) : FailGoodException(s)
 
-    private fun sourceInfo() =
-        SourceInfo(RuntimeException().stackTrace.first { !(it.fileName?.endsWith("ContextExecutor.kt") ?: true) }!!)
+    private fun sourceInfo(): SourceInfo {
+        val runtimeException = RuntimeException()
+        // find the first stack trace element that is not in this class or ContextDSL
+        // (ContextDSL because of default parameters defined there)
+        return SourceInfo(runtimeException.stackTrace.first {
+            !(it.fileName?.let { fileName -> fileName.endsWith("ContextExecutor.kt") || fileName.endsWith("ContextDSL.kt")} ?: true)
+        }!!)
+    }
 }

@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 
 - Issue a warning when tests are created in the wrong context because a method has the wrong receiver.
 - Catch errors in the junit engine, and log them to stdout. Tell users to submit an issue.
-- Print slowest test after test run when env var PRINT_SLOWEST_TESTS is set also in junit engine.
+- Print slowest test after test run when env var PRINT_SLOWEST_TESTS is set in the junit engine
 
 ### Fixed
 

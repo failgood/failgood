@@ -35,7 +35,7 @@ interface ContextDSL : ResourcesDSL {
     /**
      * define a test context. if possible prefer [describe] with a description of behavior.
      */
-    suspend fun context(name: String, function: ContextLambda)
+    suspend fun context(name: String, vararg tags: String = arrayOf(), function: ContextLambda)
 
     /**
      * define a test. [it] is probably better suited.

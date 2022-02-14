@@ -325,12 +325,12 @@ class ContextExecutorTest {
         }
         describe("filtering by tag") {
             // start with the easy version
-            pending("can filter contexts in the root context by tag") {
+            it("can filter contexts in the root context by tag") {
                 val context = RootContext {
                     describe("context without the tag") {
                         it("should not be executed") {}
                     }
-                    describe("context with the tag") {
+                    describe("context with the tag", "single") {
                         it("should be executed") {}
                         describe("subcontext of the context with the tag") {
                             it("should also be executed") {}
@@ -339,7 +339,7 @@ class ContextExecutorTest {
                     test("test that should also not be executed") {}
                 }
                 val contextResult = coroutineScope {
-                    ContextExecutor(context, this).execute()
+                    ContextExecutor(context, this, onlyTag = "single").execute()
                 }
                 expectThat(contextResult).isA<ContextResult>()
                 (contextResult as ContextInfo).tests.values.awaitAll()
@@ -369,3 +369,4 @@ class ContextExecutorTest {
 
     private fun getLineNumber(runtimeException: Throwable?): Int = runtimeException!!.stackTrace.first().lineNumber
 }
+

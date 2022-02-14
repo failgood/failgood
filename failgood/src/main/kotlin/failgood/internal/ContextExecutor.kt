@@ -9,7 +9,8 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
     lazy: Boolean = false,
     val listener: ExecutionListener = NullExecutionListener,
     val testFilter: TestFilter = ExecuteAllTests,
-    val timeoutMillis: Long = 40000L
+    val timeoutMillis: Long = 40000L,
+    val onlyTag: String? = null
 ) {
 
     val coroutineStart: CoroutineStart = if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT
@@ -139,7 +140,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             }
         }
 
-        override suspend fun context(name: String, function: ContextLambda) {
+        override suspend fun context(name: String, vararg tags: String, function: ContextLambda) {
             checkForDuplicateName(name)
             // if we already ran a test in this context we don't need to visit the child context now
             if (isolation && ranATest) {
@@ -198,7 +199,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
         }
 
         override suspend fun describe(name: String, vararg tags: String, function: ContextLambda) {
-            context(name, function)
+            context(name, function = function)
         }
 
         override suspend fun it(behaviorDescription: String, function: TestLambda) {

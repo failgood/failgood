@@ -38,10 +38,10 @@ internal class SingleTestExecutor(
     }
 
     private open inner class Base : ContextDSL, ResourcesDSL by resourcesCloser {
-        override suspend fun test(name: String, function: TestLambda) {}
+        override suspend fun test(name: String, vararg tags: String, function: TestLambda) {}
         override suspend fun context(name: String, vararg tags: String, function: ContextLambda) {}
         override suspend fun describe(name: String, vararg tags: String, function: ContextLambda) {}
-        override suspend fun it(behaviorDescription: String, function: TestLambda) {}
+        override suspend fun it(behaviorDescription: String, vararg tags: String, function: TestLambda) {}
         override suspend fun pending(behaviorDescription: String, function: TestLambda) {}
         override fun afterSuite(function: suspend () -> Unit) {}
     }
@@ -62,11 +62,11 @@ internal class SingleTestExecutor(
         if (parentContexts.isEmpty()) TestFinder() else ContextFinder(parentContexts)
 
     private inner class TestFinder : Base() {
-        override suspend fun it(behaviorDescription: String, function: TestLambda) {
-            test(behaviorDescription, function)
+        override suspend fun it(behaviorDescription: String, vararg tags: String, function: TestLambda) {
+            test(behaviorDescription, function = function)
         }
 
-        override suspend fun test(name: String, function: TestLambda) {
+        override suspend fun test(name: String, vararg tags: String, function: TestLambda) {
             if (test.name == name) {
                 throw TestResultAvailable(executeTest(function))
             }

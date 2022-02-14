@@ -74,9 +74,9 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
         var contextsLeft = false // are there sub contexts left to run?
         var mutable = true // we allow changes only to the current context to catch errors in the context structure
 
-        override suspend fun test(name: String, function: TestLambda) {
+        override suspend fun test(name: String, vararg tags: String, function: TestLambda) {
             checkForDuplicateName(name)
-            if (filteringByTag && !executeAll)
+            if (!executeAll && (filteringByTag && !tags.contains(onlyTag)))
                 return
             val testPath = ContextPath(parentContext, name)
             if (!testFilter.shouldRun(testPath))
@@ -208,8 +208,8 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             context(name, *tags, function = function)
         }
 
-        override suspend fun it(behaviorDescription: String, function: TestLambda) {
-            test(behaviorDescription, function)
+        override suspend fun it(behaviorDescription: String, vararg tags: String, function: TestLambda) {
+            test(behaviorDescription, function = function)
         }
 
         override suspend fun pending(behaviorDescription: String, function: TestLambda) {

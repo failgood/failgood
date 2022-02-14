@@ -348,6 +348,29 @@ class ContextExecutorTest {
                     "test in context in context with tag"
                 )
             }
+            it("can filter tests in the root context by tag") {
+                val context = RootContext {
+                    describe("context without the tag") {
+                        events.add("context without tag")
+                    }
+                    test("test with the tag", "single") {
+                        events.add("test in root context with tag")
+                    }
+                    test("test that should also not be executed") {
+                        events.add("test in root context without tag")
+                    }
+                }
+                val contextResult = coroutineScope {
+                    ContextExecutor(context, this, onlyTag = "single").execute()
+                }
+                expectThat(contextResult).isA<ContextResult>()
+                (contextResult as ContextInfo).tests.values.awaitAll()
+                expectThat(events).containsExactlyInAnyOrder(
+                    "test in root context with tag"
+                )
+
+            }
+
         }
         describe("handles strange contexts correctly") {
             it("a context with only one pending test") {

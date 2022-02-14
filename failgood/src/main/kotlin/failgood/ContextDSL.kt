@@ -30,7 +30,7 @@ interface ContextDSL : ResourcesDSL {
     /**
      * define a test that describes one aspect of a subject.
      */
-    suspend fun it(behaviorDescription: String, function: TestLambda)
+    suspend fun it(behaviorDescription: String, vararg tags: String = arrayOf(), function: TestLambda)
 
     /**
      * define a test context. if possible prefer [describe] with a description of behavior.
@@ -40,7 +40,7 @@ interface ContextDSL : ResourcesDSL {
     /**
      * define a test. [it] is probably better suited.
      */
-    suspend fun test(name: String, function: TestLambda)
+    suspend fun test(name: String, vararg tags: String = arrayOf(), function: TestLambda)
 
     /**
      * define a pending test.

@@ -12,7 +12,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
     val timeoutMillis: Long = 40000L,
     val onlyTag: String? = null
 ) {
-
+    val filteringByTag = onlyTag != null
     val coroutineStart: CoroutineStart = if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT
     private var startTime = System.nanoTime()
 
@@ -60,7 +60,9 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
 
     private inner class ContextVisitor(
         private val parentContext: Context,
-        private val resourcesCloser: ResourcesCloser
+        private val resourcesCloser: ResourcesCloser,
+        // execute subcontexts and tests regardless of their tags, even when filtering
+        private val executeAll: Boolean = false
     ) : ContextDSL, ResourcesDSL by resourcesCloser {
         val isolation = parentContext.isolation
         private val contextInvestigated = investigatedContexts.contains(parentContext)
@@ -74,6 +76,8 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
 
         override suspend fun test(name: String, function: TestLambda) {
             checkForDuplicateName(name)
+            if (filteringByTag && !executeAll)
+                return
             val testPath = ContextPath(parentContext, name)
             if (!testFilter.shouldRun(testPath))
                 return
@@ -142,6 +146,8 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
 
         override suspend fun context(name: String, vararg tags: String, function: ContextLambda) {
             checkForDuplicateName(name)
+            if (!executeAll && (filteringByTag && !tags.contains(onlyTag)))
+                return
             // if we already ran a test in this context we don't need to visit the child context now
             if (isolation && ranATest) {
                 contextsLeft = true
@@ -155,7 +161,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             if (processedTests.contains(contextPath)) return
             val sourceInfo = sourceInfo()
             val context = Context(name, parentContext, sourceInfo, isolation = isolation)
-            val visitor = ContextVisitor(context, resourcesCloser)
+            val visitor = ContextVisitor(context, resourcesCloser, filteringByTag)
             this.mutable = false
             try {
                 visitor.mutable = true
@@ -193,13 +199,13 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             if (!mutable) {
                 throw ImmutableContextException(
                     "Trying to create a test in the wrong context. " +
-                            "Make sure functions that create tests have ContextDSL as receiver"
+                        "Make sure functions that create tests have ContextDSL as receiver"
                 )
             }
         }
 
         override suspend fun describe(name: String, vararg tags: String, function: ContextLambda) {
-            context(name, function = function)
+            context(name, *tags, function = function)
         }
 
         override suspend fun it(behaviorDescription: String, function: TestLambda) {
@@ -234,8 +240,15 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
         val runtimeException = RuntimeException()
         // find the first stack trace element that is not in this class or ContextDSL
         // (ContextDSL because of default parameters defined there)
-        return SourceInfo(runtimeException.stackTrace.first {
-            !(it.fileName?.let { fileName -> fileName.endsWith("ContextExecutor.kt") || fileName.endsWith("ContextDSL.kt")} ?: true)
-        }!!)
+        return SourceInfo(
+            runtimeException.stackTrace.first {
+                !(
+                    it.fileName?.let { fileName ->
+                        fileName.endsWith("ContextExecutor.kt") ||
+                            fileName.endsWith("ContextDSL.kt")
+                    } ?: true
+                    )
+            }!!
+        )
     }
 }

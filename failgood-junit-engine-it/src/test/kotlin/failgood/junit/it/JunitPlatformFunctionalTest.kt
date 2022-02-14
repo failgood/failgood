@@ -2,7 +2,6 @@ package failgood.junit.it
 
 import failgood.Test
 import failgood.describe
-import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_TEST_CLASS_SUFFIX
 import failgood.junit.it.fixtures.*
 import kotlinx.coroutines.CompletableDeferred
@@ -90,7 +89,7 @@ class JunitPlatformFunctionalTest {
             LauncherFactory.create().execute(
                 launcherDiscoveryRequest(
                     listOf(selectClass(BlockhoundTestFixture::class.qualifiedName)),
-                    mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "", CONFIG_KEY_DEBUG to "true")
+                    mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")
                 ),
                 listener
             )

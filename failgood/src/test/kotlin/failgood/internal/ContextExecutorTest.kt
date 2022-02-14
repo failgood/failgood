@@ -14,20 +14,8 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
 import strikt.api.expectThat
-import strikt.assertions.all
-import strikt.assertions.contains
-import strikt.assertions.containsExactly
-import strikt.assertions.doesNotContain
-import strikt.assertions.get
-import strikt.assertions.isA
-import strikt.assertions.isEmpty
-import strikt.assertions.isEqualTo
-import strikt.assertions.isGreaterThanOrEqualTo
-import strikt.assertions.isNotEmpty
-import strikt.assertions.isNotNull
-import strikt.assertions.map
-import strikt.assertions.message
-import strikt.assertions.single
+import strikt.assertions.*
+import java.util.concurrent.ConcurrentHashMap
 
 @Suppress("NAME_SHADOWING")
 @Test
@@ -324,27 +312,41 @@ class ContextExecutorTest {
             }
         }
         describe("filtering by tag") {
+            val events = ConcurrentHashMap.newKeySet<String>()
+
             // start with the easy version
             it("can filter contexts in the root context by tag") {
                 val context = RootContext {
                     describe("context without the tag") {
-                        it("should not be executed") {}
+                        events.add("context without tag")
                     }
                     describe("context with the tag", "single") {
-                        it("should be executed") {}
+                        events.add("context with tag")
+                        it("should be executed") {
+                            events.add("test in context with tag")
+                        }
                         describe("subcontext of the context with the tag") {
-                            it("should also be executed") {}
+                            events.add("context in context with tag")
+                            it("should also be executed") {
+                                events.add("test in context in context with tag")
+                            }
                         }
                     }
-                    test("test that should also not be executed") {}
+                    test("test that should also not be executed") {
+                        events.add("test in root context without tag")
+                    }
                 }
                 val contextResult = coroutineScope {
                     ContextExecutor(context, this, onlyTag = "single").execute()
                 }
                 expectThat(contextResult).isA<ContextResult>()
                 (contextResult as ContextInfo).tests.values.awaitAll()
-
-
+                expectThat(events).containsExactlyInAnyOrder(
+                    "context with tag",
+                    "test in context with tag",
+                    "context in context with tag",
+                    "test in context in context with tag"
+                )
             }
         }
         describe("handles strange contexts correctly") {
@@ -369,4 +371,3 @@ class ContextExecutorTest {
 
     private fun getLineNumber(runtimeException: Throwable?): Int = runtimeException!!.stackTrace.first().lineNumber
 }
-

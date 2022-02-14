@@ -209,9 +209,7 @@ class ContextExecutorTest {
                 }
                 context("context 4") { test("test 4") {} }
             }
-            val contextInfo = execute(ctx)
-            expectThat(contextInfo).isA<ContextInfo>()
-            val results = contextInfo as ContextInfo
+            val results = expectThat(execute(ctx)).isA<ContextInfo>().subject
 
             it("reports a failing context as a failing test") {
                 expectThat(results.tests.values.awaitAll().filter { it.isFailed }).single().and {
@@ -235,12 +233,6 @@ class ContextExecutorTest {
             }
             val result = execute(ctx)
             expectThat(result).isA<FailedContext>()
-            /*
-            expectThat(results.tests.values).hasSize(1)
-            val result = results.tests.values.single().await()
-            expectThat(result) {
-                get {isFailed}.isTrue()
-            }*/
         }
         describe("detects duplicated tests") {
             it("fails with duplicate tests in one context") {
@@ -323,8 +315,7 @@ class ContextExecutorTest {
                     }
                 }
                 val contextResult = execute(context, "single")
-                expectThat(contextResult).isA<ContextResult>()
-                (contextResult as ContextInfo).tests.values.awaitAll()
+                expectSuccess(contextResult)
                 expectThat(events).containsExactlyInAnyOrder(
                     "context with tag",
                     "test in context with tag",
@@ -345,8 +336,7 @@ class ContextExecutorTest {
                     }
                 }
                 val contextResult = execute(context, "single")
-                expectThat(contextResult).isA<ContextResult>()
-                (contextResult as ContextInfo).tests.values.awaitAll()
+                expectSuccess(contextResult)
                 expectThat(events).containsExactlyInAnyOrder(
                     "test in root context with tag"
                 )
@@ -370,8 +360,7 @@ class ContextExecutorTest {
                     }
                 }
                 val contextResult = execute(context, "single")
-                expectThat(contextResult).isA<ContextResult>()
-                (contextResult as ContextInfo).tests.values.awaitAll()
+                expectSuccess(contextResult)
                 expectThat(events).containsExactlyInAnyOrder(
                     "context without the tag that contains the test with the tag",
                     "test with the tag"
@@ -387,8 +376,7 @@ class ContextExecutorTest {
                     test("test") {}
                 }
                 val contextResult = execute(context)
-                expectThat(contextResult).isA<ContextResult>()
-                (contextResult as ContextInfo).tests.values.awaitAll()
+                expectSuccess(contextResult)
             }
             test("tests can not contain nested contexts") {
                 // context("this does not even compile") {}
@@ -396,7 +384,11 @@ class ContextExecutorTest {
         }
     }
 
-    private suspend fun execute(context: RootContext, tag: String? = null) : ContextResult {
+    private suspend fun expectSuccess(contextResult: ContextResult) {
+        expectThat(contextResult).isA<ContextInfo>().subject.tests.values.awaitAll()
+    }
+
+    private suspend fun execute(context: RootContext, tag: String? = null): ContextResult {
         return coroutineScope {
             ContextExecutor(context, this, onlyTag = tag).execute()
         }

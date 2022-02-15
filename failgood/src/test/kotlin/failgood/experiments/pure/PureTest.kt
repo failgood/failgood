@@ -7,7 +7,7 @@ package failgood.experiments.pure
  */
 class PureTest {
     private val suite = context(
-        "root", { MongoDB() },
+        "root", fixture = { MongoDB() },
         listOf(
             test("a test") { mongoDb: MongoDB -> },
             context(

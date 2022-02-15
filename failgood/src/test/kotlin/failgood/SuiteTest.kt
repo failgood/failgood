@@ -56,7 +56,7 @@ class SuiteTest {
                 pending("treats errors in getContexts as failed context") {
                     val scope = CoroutineScope(Dispatchers.Unconfined)
                     val objectContextProvider = mock<ContextProvider>()
-                    whenever(objectContextProvider) {getContexts()}.then {throw RuntimeException()}
+                    whenever(objectContextProvider) { getContexts() }.then { throw RuntimeException() }
 
                     Suite(listOf(objectContextProvider)).findTests(scope)
                 }

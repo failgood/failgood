@@ -24,8 +24,10 @@ fun <Mock : Any> mock(kClass: KClass<Mock>): Mock {
             MockHandler(kClass)
         )
     } catch (e: IllegalArgumentException) {
-        throw FailGoodException("error creating mock for ${kClass.qualifiedName}." +
-                " This simple mocking lib can only mock interfaces.")
+        throw FailGoodException(
+            "error creating mock for ${kClass.qualifiedName}." +
+                " This simple mocking lib can only mock interfaces."
+        )
     } as Mock
 }
 

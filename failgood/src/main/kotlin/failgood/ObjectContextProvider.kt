@@ -44,6 +44,11 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
                     it.newInstance()
                 } catch (e: InvocationTargetException) {
                     throw e.targetException
+                } catch (e: IllegalArgumentException) {
+                    // should we just ignore classes that fit the pattern but have no suitable constructor?
+                    throw throw FailGoodException("No suitable constructor found for class ${jClass.name}")
+                } catch (e: IllegalAccessException) { // just ignore private classes
+                    return listOf()
                 }
             }
         }

@@ -298,7 +298,7 @@ class ContextExecutorTest {
                     describe("context without the tag") {
                         events.add("context without tag")
                     }
-                    describe("context with the tag", tags=setOf("single")) {
+                    describe("context with the tag", tags = setOf("single")) {
                         events.add("context with tag")
                         it("should be executed") {
                             events.add("test in context with tag")
@@ -328,14 +328,14 @@ class ContextExecutorTest {
                     describe("context without the tag") {
                         events.add("context without tag")
                     }
-                    test("test with the tag", tags=setOf("single")) {
+                    test("test with the tag", tags = setOf("single")) {
                         events.add("test in root context with tag")
                     }
                     test("test that should also not be executed") {
                         events.add("test in root context without tag")
                     }
                 }
-                val contextResult = execute(context, tag="single")
+                val contextResult = execute(context, tag = "single")
                 expectSuccess(contextResult)
                 expectThat(events).containsExactlyInAnyOrder(
                     "test in root context with tag"
@@ -351,7 +351,7 @@ class ContextExecutorTest {
                     }
                     describe("context without the tag that contains the test with the tag") {
                         events.add("context without the tag that contains the test with the tag")
-                        test("test with the tag", tags=setOf("single")) {
+                        test("test with the tag", tags = setOf("single")) {
                             events.add("test with the tag")
                         }
                     }

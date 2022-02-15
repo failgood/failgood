@@ -38,22 +38,22 @@ internal class SingleTestExecutor(
     }
 
     private open inner class Base : ContextDSL, ResourcesDSL by resourcesCloser {
-        override suspend fun test(name: String, vararg tags: String, function: TestLambda) {}
-        override suspend fun context(name: String, vararg tags: String, function: ContextLambda) {}
-        override suspend fun describe(name: String, vararg tags: String, function: ContextLambda) {}
-        override suspend fun it(behaviorDescription: String, vararg tags: String, function: TestLambda) {}
+        override suspend fun test(name: String, tags: Set<String>, function: TestLambda) {}
+        override suspend fun context(name: String, tags: Set<String>, function: ContextLambda) {}
+        override suspend fun describe(name: String, tags: Set<String>, function: ContextLambda) {}
+        override suspend fun it(behaviorDescription: String, tags: Set<String>, function: TestLambda) {}
         override suspend fun pending(behaviorDescription: String, function: TestLambda) {}
         override fun afterSuite(function: suspend () -> Unit) {}
     }
 
     private inner class ContextFinder(private val contexts: List<String>) : ContextDSL, Base() {
-        override suspend fun context(name: String, vararg tags: String, function: ContextLambda) {
+        override suspend fun context(name: String, tags: Set<String>, function: ContextLambda) {
             if (contexts.first() != name) return
 
             contextDSL(contexts.drop(1)).function()
         }
 
-        override suspend fun describe(name: String, vararg tags: String, function: ContextLambda) {
+        override suspend fun describe(name: String, tags: Set<String>, function: ContextLambda) {
             context(name, function = function)
         }
     }
@@ -62,11 +62,11 @@ internal class SingleTestExecutor(
         if (parentContexts.isEmpty()) TestFinder() else ContextFinder(parentContexts)
 
     private inner class TestFinder : Base() {
-        override suspend fun it(behaviorDescription: String, vararg tags: String, function: TestLambda) {
+        override suspend fun it(behaviorDescription: String, tags: Set<String>, function: TestLambda) {
             test(behaviorDescription, function = function)
         }
 
-        override suspend fun test(name: String, vararg tags: String, function: TestLambda) {
+        override suspend fun test(name: String, tags: Set<String>, function: TestLambda) {
             if (test.name == name) {
                 throw TestResultAvailable(executeTest(function))
             }

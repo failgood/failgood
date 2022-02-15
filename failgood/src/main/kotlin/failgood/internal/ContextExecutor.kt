@@ -74,7 +74,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
         var contextsLeft = false // are there sub contexts left to run?
         var mutable = true // we allow changes only to the current context to catch errors in the context structure
 
-        override suspend fun test(name: String, vararg tags: String, function: TestLambda) {
+        override suspend fun test(name: String, tags: Set<String>, function: TestLambda) {
             checkForDuplicateName(name)
             if (!executeAll && (filteringByTag && !tags.contains(onlyTag)))
                 return
@@ -144,7 +144,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             }
         }
 
-        override suspend fun context(name: String, vararg tags: String, function: ContextLambda) {
+        override suspend fun context(name: String,tags: Set<String>, function: ContextLambda) {
             checkForDuplicateName(name)
             if (!executeAll && (filteringByTag && !tags.contains(onlyTag)))
                 return
@@ -204,11 +204,11 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             }
         }
 
-        override suspend fun describe(name: String, vararg tags: String, function: ContextLambda) {
-            context(name, *tags, function = function)
+        override suspend fun describe(name: String, tags: Set<String>, function: ContextLambda) {
+            context(name, tags, function = function)
         }
 
-        override suspend fun it(behaviorDescription: String, vararg tags: String, function: TestLambda) {
+        override suspend fun it(behaviorDescription: String, tags: Set<String>, function: TestLambda) {
             test(behaviorDescription, function = function)
         }
 

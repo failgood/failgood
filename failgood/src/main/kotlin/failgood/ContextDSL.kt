@@ -25,22 +25,22 @@ interface ContextDSL : ResourcesDSL {
     /**
      * define a test context that describes a subject.
      */
-    suspend fun describe(name: String, vararg tags: String = arrayOf(), function: ContextLambda)
+    suspend fun describe(name: String, tags: Set<String> = setOf(), function: ContextLambda)
 
     /**
      * define a test that describes one aspect of a subject.
      */
-    suspend fun it(behaviorDescription: String, vararg tags: String = arrayOf(), function: TestLambda)
+    suspend fun it(behaviorDescription: String, tags: Set<String> = setOf(), function: TestLambda)
 
     /**
      * define a test context. if possible prefer [describe] with a description of behavior.
      */
-    suspend fun context(name: String, vararg tags: String = arrayOf(), function: ContextLambda)
+    suspend fun context(name: String, tags: Set<String> = setOf(), function: ContextLambda)
 
     /**
      * define a test. [it] is probably better suited.
      */
-    suspend fun test(name: String, vararg tags: String = arrayOf(), function: TestLambda)
+    suspend fun test(name: String, tags: Set<String> = setOf(), function: TestLambda)
 
     /**
      * define a pending test.

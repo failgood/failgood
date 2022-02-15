@@ -17,11 +17,16 @@ inline fun <reified Mock : Any> mock() = mock(Mock::class)
 
 fun <Mock : Any> mock(kClass: KClass<Mock>): Mock {
     @Suppress("UNCHECKED_CAST")
-    return Proxy.newProxyInstance(
-        Thread.currentThread().contextClassLoader,
-        arrayOf(kClass.java),
-        MockHandler(kClass)
-    ) as Mock
+    return try {
+        Proxy.newProxyInstance(
+            Thread.currentThread().contextClassLoader,
+            arrayOf(kClass.java),
+            MockHandler(kClass)
+        )
+    } catch (e: IllegalArgumentException) {
+        throw FailGoodException("error creating mock for ${kClass.qualifiedName}." +
+                " This simple mocking lib can only mock interfaces.")
+    } as Mock
 }
 
 /**

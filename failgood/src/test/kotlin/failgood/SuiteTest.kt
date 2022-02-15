@@ -1,5 +1,7 @@
 package failgood
 
+import failgood.mock.mock
+import failgood.mock.whenever
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitAll
@@ -48,6 +50,15 @@ class SuiteTest {
                         deferredResult.map { it.result }.awaitAll()
                     }
                     scope.cancel()
+                }
+            }
+            describe("error handling") {
+                pending("treats errors in getContexts as failed context") {
+                    val scope = CoroutineScope(Dispatchers.Unconfined)
+                    val objectContextProvider = mock<ContextProvider>()
+                    whenever(objectContextProvider) {getContexts()}.then {throw RuntimeException()}
+
+                    Suite(listOf(objectContextProvider)).findTests(scope)
                 }
             }
         }

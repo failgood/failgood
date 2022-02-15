@@ -1,4 +1,4 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "UNUSED_ANONYMOUS_PARAMETER")
 
 package failgood.experiments.pure
 
@@ -7,13 +7,11 @@ package failgood.experiments.pure
  */
 class PureTest {
     private val suite = context(
-        "root",
+        "root", { MongoDB() },
         listOf(
-            dependency("mongodb") { MongoDB() },
-            test("a test") {},
-            test("a test that uses mongodb") { mongodb: MongoDB -> },
+            test("a test") { mongoDb: MongoDB -> },
             context(
-                "a subcontext",
+                "a subcontext", {},
                 listOf(
                     test("another test") {},
                 )
@@ -21,19 +19,18 @@ class PureTest {
         )
     )
 
-    private fun <T> test(name: String, function: suspend (T) -> Unit) = Test1(name, function)
-
-    private fun <T> dependency(name: String, function: () -> T) = Dependency(name, function)
-
     class MongoDB
 
-    private fun context(name: String, listOf: List<Node>) = Context(name, listOf)
+    private fun <Fixture> context(name: String, fixture: suspend () -> Fixture, listOf: List<Node<Fixture>>) =
+        Context(name, fixture, listOf)
 
-    private fun test(name: String, function: suspend () -> Unit) = Test(name, function)
+    private fun <Fixture> test(name: String, function: suspend (Fixture) -> Unit) = Test(name, function)
 
-    sealed interface Node
-    private data class Test1<T>(val name: String, val function: suspend (T) -> Unit) : Node
-    private data class Test(val name: String, val function: suspend () -> Unit) : Node
-    private data class Context(val name: String, val children: List<Node>) : Node
-    private data class Dependency<T>(val name: String, val factory: suspend () -> T) : Node
+    sealed interface Node<out Fixture>
+    private data class Test<Fixture>(val name: String, val function: suspend (Fixture) -> Unit) : Node<Fixture>
+    private data class Context<Fixture>(
+        val name: String,
+        val fixture: suspend () -> Fixture,
+        val children: List<Node<Fixture>>
+    ) : Node<Nothing>
 }

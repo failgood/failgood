@@ -11,7 +11,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
 import strikt.api.expectThat
 import strikt.api.expectThrows
-import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import kotlin.test.assertNotNull
 
@@ -23,15 +22,6 @@ class SuiteTest {
             test("Suite {} creates a root context") {
                 expectThat(Suite { test("test") {} }.contextProviders.single().getContexts().single().name)
                     .isEqualTo("root")
-            }
-            test("runSingleTest works") {
-                expectThat(
-                    Suite {
-                        test("test") {
-                            println("")
-                        }
-                    }.runSingle("root > test")
-                ).isA<Success>()
             }
             describe("coroutine scope") {
                 it("does not wait for tests before returning context info") {

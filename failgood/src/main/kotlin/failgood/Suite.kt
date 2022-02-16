@@ -2,13 +2,10 @@ package failgood
 
 import failgood.internal.ContextExecutor
 import failgood.internal.ContextInfo
-import failgood.internal.ContextPath
 import failgood.internal.ContextResult
 import failgood.internal.ContextTreeReporter
 import failgood.internal.ExecuteAllTestFilterProvider
 import failgood.internal.FailedContext
-import failgood.internal.ResourcesCloser
-import failgood.internal.SingleTestExecutor
 import failgood.internal.TestFilterProvider
 import kotlinx.coroutines.*
 import java.lang.management.ManagementFactory
@@ -92,30 +89,6 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                     }
                 }
             }
-    }
-
-    fun runSingle(test: String): TestResult {
-        val contextName = test.substringBefore(">").trim()
-        val context = contextProviders.flatMap { it.getContexts() }.singleOrNull {
-            it.name == contextName
-        } ?: throw FailGoodException("No Root context with name $contextName found")
-        val desc = ContextPath.fromString(test)
-        return runBlocking {
-            val resourcesCloser = ResourcesCloser(this)
-            SingleTestExecutor(
-                context, desc,
-                object : TestDSL, ResourcesDSL by resourcesCloser {
-                    override suspend fun println(body: String) {
-                        kotlin.io.println(body)
-                    }
-
-                    override suspend fun _test_event(type: String, body: String) {
-                        kotlin.io.println(body)
-                    }
-                },
-                resourcesCloser
-            ).execute()
-        }
     }
 }
 

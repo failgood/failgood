@@ -1,14 +1,8 @@
 package failgood
 
 import failgood.internal.ContextPath
-import failgood.internal.ExceptionPrettyPrinter
 import java.io.File
-import java.nio.file.FileVisitResult
-import java.nio.file.Files
-import java.nio.file.NoSuchFileException
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.nio.file.SimpleFileVisitor
+import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileTime
 import kotlin.reflect.KClass
@@ -29,6 +23,7 @@ data class RootContext(
     override val path: List<String>
         get() = listOf(name)
 }
+
 data class CouldNotLoadContext(val reason: Throwable) : LoadResult {
     override val order: Int
         get() = 0
@@ -192,18 +187,10 @@ object FailGood {
         }
     }
 
-    fun runTest(singleTest: String? = null) {
+    fun runTest() {
         val classes = listOf(javaClass.classLoader.loadClass((findCallerName().substringBefore("Kt"))).kotlin)
         val suite = Suite(classes)
-        if (singleTest == null)
-            suite.run().check()
-        else {
-            val result = suite.runSingle(singleTest)
-            if (result is Failed) {
-                println("$singleTest${ExceptionPrettyPrinter(result.failure).prettyPrint()}")
-            } else
-                println("$singleTest OK")
-        }
+        suite.run().check()
     }
 
     // find first class that is not defined in this file.

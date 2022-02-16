@@ -35,9 +35,9 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
             null
         }
         val obj = if (instanceField != null)
+            // its a kotlin object
             instanceField.get(null)
         else {
-            // its a kotlin object
             // it's a kotlin class or a top level context
             jClass.constructors.singleOrNull()?.let {
                 try {

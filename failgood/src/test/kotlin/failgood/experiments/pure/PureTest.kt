@@ -1,4 +1,4 @@
-@file:Suppress("unused", "UNUSED_ANONYMOUS_PARAMETER","UNUSED_PARAMETER")
+@file:Suppress("unused", "UNUSED_ANONYMOUS_PARAMETER", "UNUSED_PARAMETER")
 
 package failgood.experiments.pure
 
@@ -62,13 +62,16 @@ class PureTestVarargs {
         context(
             "dynamic tests",
             { PureTest.UpperCaser() },
-            *(listOf(Pair("chris", "CHRIS"), Pair("freddy", "FREDDY")).map { (name, uppercaseName) ->
-                test("uppercases $name to $uppercaseName") { uppercaser :PureTest.UpperCaser ->
-                    assert(uppercaser.toUpperCase(name) == uppercaseName)
-                }
-            }.toTypedArray())
+            *(
+                listOf(
+                    Pair("chris", "CHRIS"), Pair("freddy", "FREDDY")
+                ).map { (name, uppercaseName) ->
+                    test("uppercases $name to $uppercaseName") { uppercaser: PureTest.UpperCaser ->
+                        assert(uppercaser.toUpperCase(name) == uppercaseName)
+                    }
+                }.toTypedArray()
+                )
         )
-
     )
 
     class MongoDB

@@ -58,7 +58,17 @@ class PureTestVarargs {
         context(
             "a subcontext", {},
             test("another test") {},
+        ),
+        context(
+            "dynamic tests",
+            { PureTest.UpperCaser() },
+            *(listOf(Pair("chris", "CHRIS"), Pair("freddy", "FREDDY")).map { (name, uppercaseName) ->
+                test("uppercases $name to $uppercaseName") { uppercaser :PureTest.UpperCaser ->
+                    assert(uppercaser.toUpperCase(name) == uppercaseName)
+                }
+            }.toTypedArray())
         )
+
     )
 
     class MongoDB

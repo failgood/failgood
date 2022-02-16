@@ -1,4 +1,4 @@
-@file:Suppress("unused", "UNUSED_ANONYMOUS_PARAMETER")
+@file:Suppress("unused", "UNUSED_ANONYMOUS_PARAMETER","UNUSED_PARAMETER")
 
 package failgood.experiments.pure
 
@@ -7,7 +7,7 @@ package failgood.experiments.pure
  */
 class PureTest {
     private val suite = context(
-        "root", fixture = { MongoDB() },
+        "root", given = { MongoDB() },
         listOf(
             test("a test") { mongoDb: MongoDB -> },
             context(
@@ -15,23 +15,36 @@ class PureTest {
                 listOf(
                     test("another test") {},
                 )
+            ),
+            context(
+                "dynamic tests",
+                { UpperCaser() },
+                listOf(Pair("chris", "CHRIS"), Pair("freddy", "FREDDY")).map { (name, uppercaseName) ->
+                    test("uppercases $name to $uppercaseName") { uppercaser ->
+                        assert(uppercaser.toUpperCase(name) == uppercaseName)
+                    }
+                }
             )
         )
     )
 
+    class UpperCaser {
+        fun toUpperCase(name: String): String = "not yet"
+    }
+
     class MongoDB
 
-    private fun <Fixture> context(name: String, fixture: suspend () -> Fixture, children: List<Node<Fixture>>) =
-        Context(name, fixture, children)
+    private fun <GivenType> context(name: String, given: suspend () -> GivenType, children: List<Node<GivenType>>) =
+        Context(name, given, children)
 
-    private fun <Fixture> test(name: String, function: suspend (Fixture) -> Unit) = Test(name, function)
+    private fun <GivenType> test(name: String, function: suspend (GivenType) -> Unit) = Test(name, function)
 
-    sealed interface Node<out Fixture>
-    private data class Test<Fixture>(val name: String, val function: suspend (Fixture) -> Unit) : Node<Fixture>
-    private data class Context<Fixture>(
+    sealed interface Node<out GivenType>
+    private data class Test<GivenType>(val name: String, val function: suspend (GivenType) -> Unit) : Node<GivenType>
+    private data class Context<GivenType>(
         val name: String,
-        val fixture: suspend () -> Fixture,
-        val children: List<Node<Fixture>>
+        val given: suspend () -> GivenType,
+        val children: List<Node<GivenType>>
     ) : Node<Nothing>
 }
 
@@ -40,7 +53,7 @@ class PureTest {
  */
 class PureTestVarargs {
     private val suite = context(
-        "root", fixture = { MongoDB() },
+        "root", given = { MongoDB() },
         test("a test") { mongoDb: MongoDB -> },
         context(
             "a subcontext", {},
@@ -50,16 +63,16 @@ class PureTestVarargs {
 
     class MongoDB
 
-    private fun <Fixture> context(name: String, fixture: suspend () -> Fixture, vararg children: Node<Fixture>) =
-        Context(name, fixture, children.asList())
+    private fun <GivenType> context(name: String, given: suspend () -> GivenType, vararg children: Node<GivenType>) =
+        Context(name, given, children.asList())
 
-    private fun <Fixture> test(name: String, function: suspend (Fixture) -> Unit) = Test(name, function)
+    private fun <GivenType> test(name: String, function: suspend (GivenType) -> Unit) = Test(name, function)
 
-    sealed interface Node<out Fixture>
-    private data class Test<Fixture>(val name: String, val function: suspend (Fixture) -> Unit) : Node<Fixture>
-    private data class Context<Fixture>(
+    sealed interface Node<out GivenType>
+    private data class Test<GivenType>(val name: String, val function: suspend (GivenType) -> Unit) : Node<GivenType>
+    private data class Context<GivenType>(
         val name: String,
-        val fixture: suspend () -> Fixture,
-        val children: List<Node<Fixture>>
+        val given: suspend () -> GivenType,
+        val children: List<Node<GivenType>>
     ) : Node<Nothing>
 }

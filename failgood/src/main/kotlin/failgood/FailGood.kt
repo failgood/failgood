@@ -14,16 +14,24 @@ import java.nio.file.attribute.FileTime
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
+sealed interface LoadResult {
+    val order: Int
+}
+
 data class RootContext(
     val name: String = "root",
     val disabled: Boolean = false,
-    val order: Int = 0,
+    override val order: Int = 0,
     val isolation: Boolean = true,
     val sourceInfo: SourceInfo = SourceInfo(findCallerSTE()),
     val function: ContextLambda
-) : failgood.internal.Path {
+) : LoadResult, failgood.internal.Path {
     override val path: List<String>
         get() = listOf(name)
+}
+data class CouldNotLoadContext(val reason: Throwable) : LoadResult {
+    override val order: Int
+        get() = 0
 }
 
 data class SourceInfo(val className: String, val fileName: String?, val lineNumber: Int) {

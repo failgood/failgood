@@ -1,5 +1,6 @@
 package failgood
 
+import failgood.internal.FailedContext
 import failgood.mock.mock
 import failgood.mock.whenever
 import kotlinx.coroutines.CoroutineScope
@@ -12,6 +13,7 @@ import strikt.api.expectThat
 import strikt.api.expectThrows
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
+import kotlin.test.assertNotNull
 
 @Test
 class SuiteTest {
@@ -53,12 +55,16 @@ class SuiteTest {
                 }
             }
             describe("error handling") {
-                pending("treats errors in getContexts as failed context") {
+                it("treats errors in getContexts as failed context") {
                     val scope = CoroutineScope(Dispatchers.Unconfined)
                     val objectContextProvider = mock<ContextProvider>()
-                    whenever(objectContextProvider) { getContexts() }.then { throw RuntimeException() }
+                    whenever(objectContextProvider) { getContexts() }.then { throw RuntimeException("the error") }
 
-                    Suite(listOf(objectContextProvider)).findTests(scope)
+                    val contextResult = assertNotNull(
+                        Suite(listOf(objectContextProvider)).findTests(scope)
+                            .singleOrNull()?.await()
+                    )
+                    assert(contextResult is FailedContext && contextResult.failure.message == "the error")
                 }
             }
         }

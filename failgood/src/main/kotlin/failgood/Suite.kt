@@ -10,14 +10,7 @@ import failgood.internal.FailedContext
 import failgood.internal.ResourcesCloser
 import failgood.internal.SingleTestExecutor
 import failgood.internal.TestFilterProvider
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import java.lang.management.ManagementFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -69,21 +62,34 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         listener: ExecutionListener = NullExecutionListener
     ): List<Deferred<ContextResult>> {
         return contextProviders
-            .map { coroutineScope.async { it.getContexts() } }.flatMap { it.await() }.sortedBy { it.order }
-            .map { context: RootContext ->
-                val testFilter = executionFilter.forClass(context.sourceInfo.className)
+            .map {
                 coroutineScope.async {
-                    if (!context.disabled) {
-                        ContextExecutor(
-                            context,
-                            coroutineScope,
-                            !executeTests,
-                            listener,
-                            testFilter,
-                            timeoutMillis
-                        ).execute()
-                    } else
-                        ContextInfo(emptyList(), mapOf(), setOf())
+                    try {
+                        it.getContexts()
+                    } catch (e: Exception) {
+                        listOf(CouldNotLoadContext(e))
+                    }
+                }
+            }.flatMap { it.await() }.sortedBy { it.order }
+            .map { context: LoadResult ->
+                when (context) {
+                    is CouldNotLoadContext -> CompletableDeferred(FailedContext(Context("unknown"), context.reason))
+                    is RootContext -> {
+                        val testFilter = executionFilter.forClass(context.sourceInfo.className)
+                        coroutineScope.async {
+                            if (!context.disabled) {
+                                ContextExecutor(
+                                    context,
+                                    coroutineScope,
+                                    !executeTests,
+                                    listener,
+                                    testFilter,
+                                    timeoutMillis
+                                ).execute()
+                            } else
+                                ContextInfo(emptyList(), mapOf(), setOf())
+                        }
+                    }
                 }
             }
     }

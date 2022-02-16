@@ -30,7 +30,7 @@ object FailGoodTestUnitFinder : TestUnitFinder {
                 return listOf()
             }
         val tests = runBlocking {
-            Suite(listOf(contextProvider)).findTests(GlobalScope, false).map { it.result }.awaitAll()
+            Suite(listOf(contextProvider)).findTests(GlobalScope, false).awaitAll()
         }.filterIsInstance<ContextInfo>()
         return tests.flatMap { it.tests.entries }.map { FailGoodTestUnit(it.key, it.value, clazz) }
     }

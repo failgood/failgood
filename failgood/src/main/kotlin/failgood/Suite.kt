@@ -62,34 +62,29 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         }
     } ?: Long.MAX_VALUE
 
-    data class FoundContext(val context: RootContext, val result: Deferred<ContextResult>)
-
     internal suspend fun findTests(
         coroutineScope: CoroutineScope,
         executeTests: Boolean = true,
         executionFilter: TestFilterProvider = ExecuteAllTestFilterProvider,
         listener: ExecutionListener = NullExecutionListener
-    ): List<FoundContext> {
+    ): List<Deferred<ContextResult>> {
         return contextProviders
             .map { coroutineScope.async { it.getContexts() } }.flatMap { it.await() }.sortedBy { it.order }
             .map { context: RootContext ->
                 val testFilter = executionFilter.forClass(context.sourceInfo.className)
-                FoundContext(
-                    context,
-                    coroutineScope.async {
-                        if (!context.disabled) {
-                            ContextExecutor(
-                                context,
-                                coroutineScope,
-                                !executeTests,
-                                listener,
-                                testFilter,
-                                timeoutMillis
-                            ).execute()
-                        } else
-                            ContextInfo(emptyList(), mapOf(), setOf())
-                    }
-                )
+                coroutineScope.async {
+                    if (!context.disabled) {
+                        ContextExecutor(
+                            context,
+                            coroutineScope,
+                            !executeTests,
+                            listener,
+                            testFilter,
+                            timeoutMillis
+                        ).execute()
+                    } else
+                        ContextInfo(emptyList(), mapOf(), setOf())
+                }
             }
     }
 
@@ -140,9 +135,9 @@ internal fun uptime(totalTests: Int? = null): String {
 }
 
 private suspend fun awaitTestResult(
-    contextInfos: List<Suite.FoundContext>
+    contextInfos: List<Deferred<ContextResult>>
 ): SuiteResult {
-    return awaitContexts(contextInfos.map { it.result }.awaitAll())
+    return awaitContexts(contextInfos.awaitAll())
 }
 
 internal suspend fun awaitContexts(resolvedContexts: List<ContextResult>): SuiteResult {
@@ -166,10 +161,10 @@ internal suspend fun awaitContexts(resolvedContexts: List<ContextResult>): Suite
 
     )
 }
-internal fun printResults(coroutineScope: CoroutineScope, contextInfos: List<Suite.FoundContext>) {
+internal fun printResults(coroutineScope: CoroutineScope, contextInfos: List<Deferred<ContextResult>>) {
     contextInfos.forEach {
         coroutineScope.launch {
-            val context = it.result.await()
+            val context = it.await()
             val contextTreeReporter = ContextTreeReporter()
             when (context) {
                 is ContextInfo -> {

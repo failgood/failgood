@@ -47,7 +47,7 @@ class SuiteTest {
                         Suite(contexts).findTests(scope)
                     }
                     withTimeout(100) {
-                        deferredResult.map { it.result }.awaitAll()
+                        deferredResult.awaitAll()
                     }
                     scope.cancel()
                 }

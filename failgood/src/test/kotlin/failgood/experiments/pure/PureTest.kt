@@ -75,6 +75,9 @@ class PureTestVarargs {
     )
 
     class MongoDB
+    class UpperCaser {
+        fun toUpperCase(name: String): String = "not yet"
+    }
 
     private fun <GivenType> context(name: String, given: suspend () -> GivenType, vararg children: Node<GivenType>) =
         Context(name, given, children.asList())

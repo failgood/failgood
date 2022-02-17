@@ -58,6 +58,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         executionFilter: TestFilterProvider = ExecuteAllTestFilterProvider,
         listener: ExecutionListener = NullExecutionListener
     ): List<Deferred<ContextResult>> {
+        val tag = System.getenv("FAILGOOD_TAG")
         return contextProviders
             .map {
                 coroutineScope.async {
@@ -84,7 +85,8 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                                     !executeTests,
                                     listener,
                                     testFilter,
-                                    timeoutMillis
+                                    timeoutMillis,
+                                    onlyTag = tag
                                 ).execute()
                             } else
                                 ContextInfo(emptyList(), mapOf(), setOf())

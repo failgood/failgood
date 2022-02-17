@@ -11,6 +11,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- When a test fails print its uniqueId for easy re-running of that test from idea
+  (just create a junit run config that runs by uniqueId)
 - Issue a warning when tests are created in the wrong context because a method has the wrong receiver.
 - Catch errors in the junit engine, and log them to stdout. Tell users to submit an issue.
 - Print slowest test after test run when env var PRINT_SLOWEST_TESTS is set in the junit engine

@@ -62,7 +62,6 @@ class FailGoodJunitTestEngine : TestEngine {
 
     override fun execute(request: ExecutionRequest) {
         try {
-            val failedTests = mutableListOf<TestDescription>()
             val root = request.rootTestDescriptor
             if (root !is FailGoodEngineDescriptor)
                 return
@@ -131,8 +130,14 @@ class FailGoodJunitTestEngine : TestEngine {
                                                 mapping,
                                                 TestExecutionResult.failed(testPlusResult.result.failure)
                                             )
+                                            junitListener.reportingEntryPublished(
+                                                mapping,
+                                                ReportEntry.from(
+                                                    "uniqueId to rerun just this test",
+                                                    mapping.uniqueId.safeToString()
+                                                )
+                                            )
                                         }
-                                        failedTests.add(description)
                                     }
 
                                     is Success -> withContext(Dispatchers.IO) {
@@ -178,17 +183,6 @@ class FailGoodJunitTestEngine : TestEngine {
 
             if (System.getenv("PRINT_SLOWEST") != null)
                 results.printSlowestTests()
-
-            if (failedTests.isNotEmpty()) {
-                println("failed tests with uniqueId to run from IDEA:")
-                failedTests.forEach {
-                    println(
-                        "${it.testName} ${
-                        mapper.getMapping(it).uniqueId.toString().replace(" ", "+")
-                        }"
-                    )
-                }
-            }
         } catch (e: Exception) {
             println(
                 "exception occurred inside failgood.\n" +
@@ -201,6 +195,8 @@ class FailGoodJunitTestEngine : TestEngine {
         }
         println("finished after ${uptime()}")
     }
+
+    private fun UniqueId.safeToString() = toString().replace(" ", "+")
 }
 
 class FailGoodTestDescriptor(

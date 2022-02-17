@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 
 - Experimental run tests by tag. describe,it,test and context now have a tags parameter, and you can run a subset of tests
   by setting the env variable FAILGOOD_TAG. Currently only contexts that are in the root can be tagged, tags in subcontexts
-  of subcontexts are currently not found.
+  of subcontexts are currently not found
 - When a test fails print its uniqueId for easy re-running of that test from idea
   (just create a junit run config that runs by uniqueId)
 - Issue a warning when tests are created in the wrong context because a method has the wrong receiver

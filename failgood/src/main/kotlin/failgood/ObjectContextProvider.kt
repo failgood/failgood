@@ -46,7 +46,9 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
                     throw ErrorLoadingContextsFromClass("Could not load contexts from class", jClass, e.targetException)
                 } catch (e: IllegalArgumentException) {
                     // should we just ignore classes that fit the pattern but have no suitable constructor?
-                    throw ErrorLoadingContextsFromClass("No suitable constructor found for class ${jClass.name}", jClass, e)
+                    throw ErrorLoadingContextsFromClass(
+                        "No suitable constructor found for class ${jClass.name}", jClass, e
+                    )
                 } catch (e: IllegalAccessException) { // just ignore private classes
                     return listOf()
                 }

@@ -24,7 +24,7 @@ data class RootContext(
         get() = listOf(name)
 }
 
-data class CouldNotLoadContext(val reason: Throwable) : LoadResult {
+data class CouldNotLoadContext(val reason: Throwable, val jClass: Class<out Any>) : LoadResult {
     override val order: Int
         get() = 0
 }

@@ -60,12 +60,16 @@ class ObjectContextProviderTest {
             }
         }
         describe("Error handling") {
-            it("rethrows exceptions that happen at class instantiation") {
+            it("wraps exceptions that happen at class instantiation") {
                 expectThat(
                     kotlin.runCatching {
                         ObjectContextProvider(ClassThatThrowsAtCreationTime::class).getContexts()
                     }
-                ).isFailure().isA<RuntimeException>().message.isEqualTo("boo i failed")
+                ).isFailure().isA<ErrorLoadingContextsFromClass>().and {
+                    message.isEqualTo("Could not load contexts from class")
+                    get { cause }.message.isEqualTo("boo i failed")
+                    get { jClass }.isEqualTo(ClassThatThrowsAtCreationTime::class.java)
+                }
             }
             it("gives a helpful error when a class could not be instantiated") {
                 val kClass = ClassWithConstructorParameter::class

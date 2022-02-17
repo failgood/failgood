@@ -63,14 +63,17 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                 coroutineScope.async {
                     try {
                         it.getContexts()
-                    } catch (e: Exception) {
-                        listOf(CouldNotLoadContext(e))
+                    } catch (e: ErrorLoadingContextsFromClass) {
+                        listOf(CouldNotLoadContext(e, e.jClass))
                     }
                 }
             }.flatMap { it.await() }.sortedBy { it.order }
             .map { context: LoadResult ->
                 when (context) {
-                    is CouldNotLoadContext -> CompletableDeferred(FailedContext(Context("unknown"), context.reason))
+                    is CouldNotLoadContext ->
+                        CompletableDeferred(
+                            FailedContext(Context(context.jClass.name ?: "unknown"), context.reason)
+                        )
                     is RootContext -> {
                         val testFilter = executionFilter.forClass(context.sourceInfo.className)
                         coroutineScope.async {

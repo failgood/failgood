@@ -3,12 +3,7 @@ package failgood
 import failgood.internal.FailedContext
 import failgood.mock.mock
 import failgood.mock.whenever
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.*
 import strikt.api.expectThat
 import strikt.api.expectThrows
 import strikt.assertions.isEqualTo
@@ -46,15 +41,28 @@ class SuiteTest {
             }
             describe("error handling") {
                 it("treats errors in getContexts as failed context") {
+                    class MyErrorTest
+
                     val scope = CoroutineScope(Dispatchers.Unconfined)
                     val objectContextProvider = mock<ContextProvider>()
-                    whenever(objectContextProvider) { getContexts() }.then { throw RuntimeException("the error") }
+                    whenever(objectContextProvider) { getContexts() }.then {
+                        throw ErrorLoadingContextsFromClass(
+                            "the error",
+                            MyErrorTest::class.java,
+                            RuntimeException("exception error")
+                        )
+                    }
 
                     val contextResult = assertNotNull(
                         Suite(listOf(objectContextProvider)).findTests(scope)
                             .singleOrNull()?.await()
                     )
-                    assert(contextResult is FailedContext && contextResult.failure.message == "the error")
+                    assert(
+                        contextResult is FailedContext && (
+                            contextResult.failure.message == "the error" &&
+                                contextResult.context.name == MyErrorTest::class.java.name
+                            )
+                    )
                 }
             }
         }

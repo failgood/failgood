@@ -7,10 +7,6 @@ import failgood.Context
  */
 internal data class ContextPath(val container: Context, val name: String) : Path {
     companion object {
-        fun fromString(path: String): ContextPath {
-            return fromList(*path.split(">").map { it.trim() }.toTypedArray())
-        }
-
         fun fromList(vararg pathElements: String) =
             ContextPath(Context.fromPath(pathElements.dropLast(1)), pathElements.last())
     }

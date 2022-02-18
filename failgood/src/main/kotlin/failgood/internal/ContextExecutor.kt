@@ -104,7 +104,6 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
                 val resourcesCloser = ResourcesCloser(scope)
                 val deferred = scope.async(start = coroutineStart) {
                     withTimeout(timeoutMillis) {
-
                         listener.testStarted(testDescription)
                         val result =
                             SingleTestExecutor(

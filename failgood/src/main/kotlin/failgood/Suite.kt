@@ -20,7 +20,6 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         if (contextProviders.isEmpty()) throw EmptySuiteException()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     fun run(parallelism: Int = cpus(), silent: Boolean = false): SuiteResult {
         val threadPool = if (parallelism > 1)
             Executors.newWorkStealingPool(parallelism)

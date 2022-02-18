@@ -6,7 +6,6 @@ import failgood.Success
 import failgood.Test
 import failgood.describe
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
@@ -22,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap
 class ContextExecutorTest {
     private var assertionError: AssertionError? = null
 
-    @OptIn(DelicateCoroutinesApi::class)
     val context = describe(ContextExecutor::class) {
         describe("with a valid root context") {
             val ctx = RootContext("root context") {

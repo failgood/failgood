@@ -134,7 +134,7 @@ class FailGoodJunitTestEngine : TestEngine {
                                                 mapping,
                                                 ReportEntry.from(
                                                     "uniqueId to rerun just this test",
-                                                    mapping.uniqueId.safeToString()
+                                                    mapping.uniqueId.toString()
                                                 )
                                             )
                                         }
@@ -195,8 +195,6 @@ class FailGoodJunitTestEngine : TestEngine {
         }
         println("finished after ${uptime()}")
     }
-
-    private fun UniqueId.safeToString() = toString().replace(" ", "+")
 }
 
 class FailGoodTestDescriptor(

@@ -103,18 +103,23 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             } else {
                 val resourcesCloser = ResourcesCloser(scope)
                 val deferred = scope.async(start = coroutineStart) {
-                    withTimeout(timeoutMillis) {
-                        listener.testStarted(testDescription)
-                        val result =
-                            SingleTestExecutor(
-                                rootContext,
-                                testPath,
-                                TestContext(resourcesCloser, listener, testDescription),
-                                resourcesCloser
-                            ).execute()
-                        val testPlusResult = TestPlusResult(testDescription, result)
-                        listener.testFinished(testPlusResult)
-                        testPlusResult
+                    listener.testStarted(testDescription)
+                    val testPlusResult = try {
+                        withTimeout(timeoutMillis) {
+                            val result =
+                                SingleTestExecutor(
+                                    rootContext,
+                                    testPath,
+                                    TestContext(resourcesCloser, listener, testDescription),
+                                    resourcesCloser
+                                ).execute()
+                            TestPlusResult(testDescription, result)
+                        }
+                    } catch (e: TimeoutCancellationException) {
+                        TestPlusResult(testDescription, Failed(e))
+                    }
+                    testPlusResult.also {
+                        listener.testFinished(it)
                     }
                 }
                 deferredTestResults[testDescription] = deferred
@@ -122,24 +127,28 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
         }
 
         private suspend fun executeTest(testDescription: TestDescription, function: TestLambda): TestResult {
-            return withTimeout(timeoutMillis) {
-                try {
-                    TestContext(resourcesCloser, listener, testDescription).function()
-                } catch (e: Throwable) {
-                    if (isolation) try {
-                        resourcesCloser.close()
-                    } catch (_: RuntimeException) {
-                    }
-                    return@withTimeout Failed(e)
-                }
-                if (isolation) {
+            return try {
+                withTimeout(timeoutMillis) {
                     try {
-                        resourcesCloser.close()
-                    } catch (e: Exception) {
+                        TestContext(resourcesCloser, listener, testDescription).function()
+                    } catch (e: Throwable) {
+                        if (isolation) try {
+                            resourcesCloser.close()
+                        } catch (_: RuntimeException) {
+                        }
                         return@withTimeout Failed(e)
                     }
+                    if (isolation) {
+                        try {
+                            resourcesCloser.close()
+                        } catch (e: Exception) {
+                            return@withTimeout Failed(e)
+                        }
+                    }
+                    Success((System.nanoTime() - startTime) / 1000)
                 }
-                Success((System.nanoTime() - startTime) / 1000)
+            } catch (e: TimeoutCancellationException) {
+                Failed(e)
             }
         }
 

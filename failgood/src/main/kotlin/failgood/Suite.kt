@@ -120,10 +120,10 @@ internal fun uptime(totalTests: Int? = null): String {
 private suspend fun awaitTestResult(
     contextInfos: List<Deferred<ContextResult>>
 ): SuiteResult {
-    return awaitContexts(contextInfos.awaitAll())
+    return awaitTestResults(contextInfos.awaitAll())
 }
 
-internal suspend fun awaitContexts(resolvedContexts: List<ContextResult>): SuiteResult {
+internal suspend fun awaitTestResults(resolvedContexts: List<ContextResult>): SuiteResult {
     val successfulContexts = resolvedContexts.filterIsInstance<ContextInfo>()
     val failedContexts: List<FailedContext> = resolvedContexts.filterIsInstance<FailedContext>()
     val results = successfulContexts.flatMap { it.tests.values }.awaitAll()

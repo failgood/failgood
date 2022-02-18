@@ -165,7 +165,7 @@ class FailGoodJunitTestEngine : TestEngine {
                     }
                 }
                 // and wait for the results
-                val results = awaitContexts(root.testResult)
+                val results = awaitTestResults(root.testResult)
                 executionListener.events.close()
 
                 // finish forwarding test events before closing all the contexts

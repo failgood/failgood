@@ -22,6 +22,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- Treat test timeouts as failed test instead of throwing and failing the whole suite (#73)
 - ignore errors in failed contexts (fixes #38)
 - Errors in close callbacks were not caught correctly after a test failure (#65)
 

@@ -24,7 +24,8 @@ class FailGoodJunitTestEngine : TestEngine {
     @OptIn(DelicateCoroutinesApi::class)
     override fun discover(discoveryRequest: EngineDiscoveryRequest, uniqueId: UniqueId): TestDescriptor {
         val lazy = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_LAZY).orElse(false)
-        println("starting at uptime ${uptime()}" + if (lazy) " lazy mode enabled" else "")
+        val startedAt = upt()
+
 
         debug = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_DEBUG).orElse(false)
 
@@ -43,17 +44,16 @@ class FailGoodJunitTestEngine : TestEngine {
                 listener = executionListener,
                 executionFilter = contextsAndFilters.filter
             ).awaitAll()
-            println("test results collected at ${upt()}")
+            val testsCollectedAt = upt()
             @Suppress("DeferredResultUnused")
             if (lazy)
                 GlobalScope.async(Dispatchers.Default) {
                     testResult.filterIsInstance<ContextInfo>().map { it.tests.values.awaitAll() }
                 }
-            println("discover finished at uptime ${upt()}")
+            println("start: $startedAt tests collected at $testsCollectedAt, discover finished at ${upt()}")
             testResult
         }
         return createResponse(uniqueId, testResult, executionListener).also {
-            println("returning result after ${upt()}")
             if (debug) {
                 println("nodes returned: ${it.allDescendants()}")
             }

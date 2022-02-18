@@ -47,7 +47,7 @@ class SuiteTest {
                     val objectContextProvider = mock<ContextProvider>()
                     whenever(objectContextProvider) { getContexts() }.then {
                         throw ErrorLoadingContextsFromClass(
-                            "theerror",
+                            "the error",
                             MyErrorTest::class.java,
                             RuntimeException("exception error")
                         )

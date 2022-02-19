@@ -7,13 +7,13 @@ import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
 /*
- * given support will be a given!
+ * given support is a given
  */
 
 @Test
 class GivenTest {
-    val context = describe("Injecting Test Dependencies") {
-        test("the context can create test dependencies") {
+    val context = describe("Given support") {
+        it("passes the value of the contests given block to the test") {
             val context = RootContext("TestContext for dependency Injection") {
                 context(
                     "context with dependency lambda",
@@ -50,6 +50,21 @@ class GivenTest {
                 }
             }
             assert(Suite(context).run(silent = true).allOk)
+        }
+        describe("error handling") {
+            it("treats errors in the given block as test failures") {
+                val context = RootContext("root") {
+                    describe("context with a given that throws", given = {throw RuntimeException("given error")}) {
+                        it("will make the first tests fail") {}
+                        it("will make the second tests fail") {}
+                    }
+                }
+                val result = Suite(context).run(silent = true).allTests
+                assert(result.size == 2 && result.all {
+                    it.isFailed && (it.result as Failed).failure.message == "given error"})
+                assert(result.map { it.test.testName } ==
+                        listOf("will make the first tests fail", "will make the second tests fail"))
+            }
         }
     }
 

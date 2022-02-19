@@ -26,6 +26,17 @@ class GivenTest {
                         expectThat(string).isEqualTo("StringDependency")
                     }
                 }
+                describe(
+                    "describe context with dependency lambda",
+                    given = { "StringDependency" }
+                ) {
+                    test("test that takes a string dependency") { string ->
+                        expectThat(string).isEqualTo("StringDependency")
+                    }
+                    test("second test that takes a string dependency") { string ->
+                        expectThat(string).isEqualTo("StringDependency")
+                    }
+                }
             }
             assert(Suite(context).run(silent = true).allOk)
         }

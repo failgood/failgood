@@ -28,6 +28,12 @@ interface ContextDSL<GivenType> : ResourcesDSL {
         given: (suspend () -> ContextDependency),
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
     )
+    suspend fun <ContextDependency> describe(
+        contextName: String,
+        tags: Set<String> = setOf(),
+        given: (suspend () -> ContextDependency),
+        contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
+    )
     /**
      * define a test context that describes a subject.
      */

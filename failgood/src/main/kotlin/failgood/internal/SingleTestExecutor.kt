@@ -41,6 +41,13 @@ internal class SingleTestExecutor(
         }
 
         override suspend fun context(name: String, tags: Set<String>, function: ContextLambda) {}
+        override suspend fun <ContextDependency> describe(
+            contextName: String,
+            tags: Set<String>,
+            given: suspend () -> ContextDependency,
+            contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
+        ) {}
+
         override suspend fun describe(name: String, tags: Set<String>, function: ContextLambda) {}
         override suspend fun it(behaviorDescription: String, tags: Set<String>, function: GivenTestLambda<GivenType>) {}
         override suspend fun pending(behaviorDescription: String, function: TestLambda) {}
@@ -57,6 +64,15 @@ internal class SingleTestExecutor(
             if (contexts.first() != contextName) return
 
             contextDSL(given, contexts.drop(1)).contextLambda()
+        }
+
+        override suspend fun <ContextDependency> describe(
+            contextName: String,
+            tags: Set<String>,
+            given: suspend () -> ContextDependency,
+            contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
+        ) {
+            return context(contextName, tags, given, contextLambda)
         }
 
         override suspend fun context(name: String, tags: Set<String>, function: ContextLambda) {

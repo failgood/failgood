@@ -221,6 +221,13 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             context(name, tags, {}, function)
         }
 
+        override suspend fun <ContextDependency> describe(
+            contextName: String,
+            tags: Set<String>,
+            given: suspend () -> ContextDependency,
+            contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
+        ) = context(contextName, tags, given, contextLambda)
+
         private fun checkForDuplicateName(name: String) {
             if (!namesInThisContext.add(name))
                 throw DuplicateNameInContextException("duplicate name \"$name\" in context \"${parentContext.name}\"")

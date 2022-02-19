@@ -27,7 +27,6 @@ interface ContextDSL<GivenType> : ResourcesDSL {
         contextName: String,
         tags: Set<String> = setOf(),
         given: (suspend () -> ContextDependency)?,
-        givenTeardown: (suspend (ContextDependency) -> Unit)? = null,
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
     )
     /**

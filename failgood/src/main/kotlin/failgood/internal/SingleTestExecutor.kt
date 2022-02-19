@@ -36,7 +36,6 @@ internal class SingleTestExecutor(
             contextName: String,
             tags: Set<String>,
             given: (suspend () -> ContextDependency)?,
-            givenTeardown: (suspend (ContextDependency) -> Unit)?,
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
         }

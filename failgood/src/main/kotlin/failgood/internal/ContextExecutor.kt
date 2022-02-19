@@ -43,7 +43,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
                     val visitor = ContextVisitor<Unit>(
                         rootContext,
                         resourcesCloser,
-                        given = null, givenTeardown = null
+                        given = null
 
                     )
                     visitor.function()
@@ -68,8 +68,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
         private val resourcesCloser: ResourcesCloser,
         // execute subcontexts and tests regardless of their tags, even when filtering
         private val executeAll: Boolean = false,
-        val given: (suspend () -> GivenType)?,
-        val givenTeardown: (suspend (GivenType) -> Unit)?
+        val given: (suspend () -> GivenType)?
     ) : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
         val isolation = parentContext.isolation
         private val contextInvestigated = investigatedContexts.contains(parentContext)
@@ -168,7 +167,6 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             contextName: String,
             tags: Set<String>,
             given: (suspend () -> ContextDependency)?,
-            givenTeardown: (suspend (ContextDependency) -> Unit)?,
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
             checkForDuplicateName(contextName)
@@ -187,7 +185,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             if (processedTests.contains(contextPath)) return
             val sourceInfo = sourceInfo()
             val context = Context(contextName, parentContext, sourceInfo, isolation = isolation)
-            val visitor = ContextVisitor(context, resourcesCloser, filteringByTag, given, givenTeardown)
+            val visitor = ContextVisitor(context, resourcesCloser, filteringByTag, given)
             this.mutable = false
             try {
                 visitor.mutable = true
@@ -220,7 +218,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
         }
 
         override suspend fun context(name: String, tags: Set<String>, function: ContextLambda) {
-            context(name, tags, null, null, function)
+            context(name, tags, null, function)
         }
 
         private fun checkForDuplicateName(name: String) {

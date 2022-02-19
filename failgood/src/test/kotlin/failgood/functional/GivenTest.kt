@@ -17,7 +17,7 @@ class GivenTest {
             val context = RootContext("TestContext for dependency Injection") {
                 context(
                     "context with dependency lambda",
-                    given = { "StringDependency" }  /* optional teardown*/
+                    given = { "StringDependency" }
                 ) {
                     test("test that takes a string dependency") { string ->
                         expectThat(string).isEqualTo("StringDependency")

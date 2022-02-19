@@ -40,10 +40,10 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
                 while (true) {
                     startTime = System.nanoTime()
                     val resourcesCloser = ResourcesCloser(scope)
-                    val visitor = ContextVisitor<Unit>(
+                    val visitor = ContextVisitor(
                         rootContext,
                         resourcesCloser,
-                        given = null
+                        given = {}
 
                     )
                     visitor.function()
@@ -68,7 +68,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
         private val resourcesCloser: ResourcesCloser,
         // execute subcontexts and tests regardless of their tags, even when filtering
         private val executeAll: Boolean = false,
-        val given: (suspend () -> GivenType)?
+        val given: (suspend () -> GivenType)
     ) : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
         val isolation = parentContext.isolation
         private val contextInvestigated = investigatedContexts.contains(parentContext)
@@ -132,15 +132,15 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             }
         }
 
-        private suspend fun executeTest(testDescription: TestDescription, function: GivenTestLambda<GivenType>): TestResult {
+        private suspend fun executeTest(
+            testDescription: TestDescription,
+            function: GivenTestLambda<GivenType>
+        ): TestResult {
             return try {
                 withTimeout(timeoutMillis) {
                     try {
                         val testContext = TestContext(resourcesCloser, listener, testDescription)
-                        if (given != null)
-                            testContext.function(given.invoke())
-                        else
-                            testContext.function(Unit as GivenType)
+                        testContext.function(given.invoke())
                     } catch (e: Throwable) {
                         if (isolation) try {
                             resourcesCloser.close()
@@ -166,7 +166,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
         override suspend fun <ContextDependency> context(
             contextName: String,
             tags: Set<String>,
-            given: (suspend () -> ContextDependency)?,
+            given: (suspend () -> ContextDependency),
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
             checkForDuplicateName(contextName)
@@ -218,7 +218,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
         }
 
         override suspend fun context(name: String, tags: Set<String>, function: ContextLambda) {
-            context(name, tags, null, function)
+            context(name, tags, {}, function)
         }
 
         private fun checkForDuplicateName(name: String) {
@@ -227,7 +227,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             if (!mutable) {
                 throw ImmutableContextException(
                     "Trying to create a test in the wrong context. " +
-                        "Make sure functions that create tests have ContextDSL as receiver"
+                            "Make sure functions that create tests have ContextDSL as receiver"
                 )
             }
         }
@@ -271,11 +271,11 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
         return SourceInfo(
             runtimeException.stackTrace.first {
                 !(
-                    it.fileName?.let { fileName ->
-                        fileName.endsWith("ContextExecutor.kt") ||
-                            fileName.endsWith("ContextDSL.kt")
-                    } ?: true
-                    )
+                        it.fileName?.let { fileName ->
+                            fileName.endsWith("ContextExecutor.kt") ||
+                                    fileName.endsWith("ContextDSL.kt")
+                        } ?: true
+                        )
             }!!
         )
     }

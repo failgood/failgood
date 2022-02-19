@@ -26,7 +26,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     suspend fun <ContextDependency> context(
         contextName: String,
         tags: Set<String> = setOf(),
-        given: (suspend () -> ContextDependency)?,
+        given: (suspend () -> ContextDependency),
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
     )
     /**

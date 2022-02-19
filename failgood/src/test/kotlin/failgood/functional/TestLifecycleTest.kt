@@ -81,7 +81,7 @@ class TestLifecycleTest {
 
                 Suite(
                     describe("root context without isolation", isolation = false) {
-                        val testEvents = mutableListOf<Event>()
+                        val testEvents = CopyOnWriteArrayList<Event>()
                         totalEvents.add(testEvents)
                         testEvents.add(ROOT_CONTEXT_EXECUTED)
                         autoClose("dependency", closeFunction = { testEvents.add(DEPENDENCY_CLOSED) })

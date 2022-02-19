@@ -1,15 +1,8 @@
 package failgood.internal
 
-import failgood.ContextDSL
-import failgood.ContextLambda
-import failgood.FailGoodException
+import failgood.*
 import failgood.Failed
-import failgood.ResourcesDSL
-import failgood.RootContext
 import failgood.Success
-import failgood.TestDSL
-import failgood.TestLambda
-import failgood.TestResult
 
 /**
  * Executes a single test with all its parent contexts
@@ -23,7 +16,7 @@ internal class SingleTestExecutor(
 ) {
     private val startTime = System.nanoTime()
     suspend fun execute(): TestResult {
-        val dsl: ContextDSL = contextDSL(test.container.path.drop(1))
+        val dsl: ContextDSL<Unit> = contextDSL(test.container.path.drop(1))
         return try {
             dsl.(context.function)()
             throw FailGoodException(
@@ -37,16 +30,16 @@ internal class SingleTestExecutor(
         }
     }
 
-    private open inner class Base : ContextDSL, ResourcesDSL by resourcesCloser {
-        override suspend fun test(name: String, tags: Set<String>, function: TestLambda) {}
+    private open inner class Base<GivenType> : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
+        override suspend fun test(name: String, tags: Set<String>, function: GivenTestLambda<GivenType>) {}
         override suspend fun context(name: String, tags: Set<String>, function: ContextLambda) {}
         override suspend fun describe(name: String, tags: Set<String>, function: ContextLambda) {}
-        override suspend fun it(behaviorDescription: String, tags: Set<String>, function: TestLambda) {}
+        override suspend fun it(behaviorDescription: String, tags: Set<String>, function: GivenTestLambda<GivenType>) {}
         override suspend fun pending(behaviorDescription: String, function: TestLambda) {}
         override fun afterSuite(function: suspend () -> Unit) {}
     }
 
-    private inner class ContextFinder(private val contexts: List<String>) : ContextDSL, Base() {
+    private inner class ContextFinder<GivenType>(private val contexts: List<String>) : ContextDSL<GivenType>, Base<GivenType>() {
         override suspend fun context(name: String, tags: Set<String>, function: ContextLambda) {
             if (contexts.first() != name) return
 
@@ -58,23 +51,23 @@ internal class SingleTestExecutor(
         }
     }
 
-    private fun contextDSL(parentContexts: List<String>): ContextDSL =
+    private fun contextDSL(parentContexts: List<String>): ContextDSL<Unit> =
         if (parentContexts.isEmpty()) TestFinder() else ContextFinder(parentContexts)
 
-    private inner class TestFinder : Base() {
-        override suspend fun it(behaviorDescription: String, tags: Set<String>, function: TestLambda) {
+    private inner class TestFinder<GivenType> : Base<GivenType>() {
+        override suspend fun it(behaviorDescription: String, tags: Set<String>, function: GivenTestLambda<GivenType>) {
             test(behaviorDescription, function = function)
         }
 
-        override suspend fun test(name: String, tags: Set<String>, function: TestLambda) {
+        override suspend fun test(name: String, tags: Set<String>, function: GivenTestLambda<GivenType>) {
             if (test.name == name) {
                 throw TestResultAvailable(executeTest(function))
             }
         }
 
-        private suspend fun executeTest(function: TestLambda): TestResult {
+        private suspend fun executeTest(function: GivenTestLambda<GivenType>): TestResult {
             try {
-                testDSL.function()
+                testDSL.function(null as GivenType) // TODO given
             } catch (e: Throwable) {
                 resourcesCloser.close()
                 return Failed(e)

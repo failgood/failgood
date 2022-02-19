@@ -28,13 +28,6 @@ class GivenTest {
         }
     }
 
-    private fun <ContextDependency> ContextDSL.given(
-        contextName: String,
-        dependency: suspend () -> ContextDependency,
-        dependencyTeardown: suspend (ContextDependency) -> Unit = {},
-        contextLambda: suspend GivenDSL<ContextDependency>.() -> Unit
-    ) {
-    }
 
 }
 

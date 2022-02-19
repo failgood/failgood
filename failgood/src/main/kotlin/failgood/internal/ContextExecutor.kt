@@ -40,7 +40,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
                 while (true) {
                     startTime = System.nanoTime()
                     val resourcesCloser = ResourcesCloser(scope)
-                    val visitor = ContextVisitor(rootContext, resourcesCloser)
+                    val visitor = ContextVisitor<Unit>(rootContext, resourcesCloser)
                     visitor.function()
                     investigatedContexts.add(rootContext)
                     if (!rootContext.isolation) {
@@ -58,12 +58,12 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
         return ContextInfo(contexts, deferredTestResults, afterSuiteCallbacks)
     }
 
-    private inner class ContextVisitor(
+    private inner class ContextVisitor<GivenType>(
         private val parentContext: Context,
         private val resourcesCloser: ResourcesCloser,
         // execute subcontexts and tests regardless of their tags, even when filtering
         private val executeAll: Boolean = false
-    ) : ContextDSL, ResourcesDSL by resourcesCloser {
+    ) : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
         val isolation = parentContext.isolation
         private val contextInvestigated = investigatedContexts.contains(parentContext)
         private val namesInThisContext = mutableSetOf<String>() // test and context names to detect duplicates
@@ -74,7 +74,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
         var contextsLeft = false // are there sub contexts left to run?
         var mutable = true // we allow changes only to the current context to catch errors in the context structure
 
-        override suspend fun test(name: String, tags: Set<String>, function: TestLambda) {
+        override suspend fun test(name: String, tags: Set<String>, function: GivenTestLambda<GivenType>) {
             checkForDuplicateName(name)
             if (!executeAll && (filteringByTag && !tags.contains(onlyTag)))
                 return
@@ -126,11 +126,11 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             }
         }
 
-        private suspend fun executeTest(testDescription: TestDescription, function: TestLambda): TestResult {
+        private suspend fun executeTest(testDescription: TestDescription, function: GivenTestLambda<GivenType>): TestResult {
             return try {
                 withTimeout(timeoutMillis) {
                     try {
-                        TestContext(resourcesCloser, listener, testDescription).function()
+                        TestContext(resourcesCloser, listener, testDescription).function(null as GivenType) // TODO GIVEN
                     } catch (e: Throwable) {
                         if (isolation) try {
                             resourcesCloser.close()
@@ -169,7 +169,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             if (processedTests.contains(contextPath)) return
             val sourceInfo = sourceInfo()
             val context = Context(name, parentContext, sourceInfo, isolation = isolation)
-            val visitor = ContextVisitor(context, resourcesCloser, filteringByTag)
+            val visitor = ContextVisitor<Unit>(context, resourcesCloser, filteringByTag)
             this.mutable = false
             try {
                 visitor.mutable = true
@@ -216,7 +216,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             context(name, tags, function = function)
         }
 
-        override suspend fun it(behaviorDescription: String, tags: Set<String>, function: TestLambda) {
+        override suspend fun it(behaviorDescription: String, tags: Set<String>, function: GivenTestLambda<GivenType>) {
             test(behaviorDescription, function = function)
         }
 

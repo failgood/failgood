@@ -22,7 +22,15 @@ interface ResourcesDSL {
 }
 
 @FailGoodDSL
-interface ContextDSL : ResourcesDSL {
+interface ContextDSL<GivenType> : ResourcesDSL {
+    suspend fun <ContextDependency> given(
+        contextName: String,
+        dependency: suspend () -> ContextDependency,
+        dependencyTeardown: suspend (ContextDependency) -> Unit = {},
+        contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
+    ) {
+    }
+
     /**
      * define a test context that describes a subject.
      */
@@ -31,7 +39,7 @@ interface ContextDSL : ResourcesDSL {
     /**
      * define a test that describes one aspect of a subject.
      */
-    suspend fun it(behaviorDescription: String, tags: Set<String> = setOf(), function: TestLambda)
+    suspend fun it(behaviorDescription: String, tags: Set<String> = setOf(), function: GivenTestLambda<GivenType>)
 
     /**
      * define a test context. if possible prefer [describe] with a description of behavior.
@@ -41,7 +49,7 @@ interface ContextDSL : ResourcesDSL {
     /**
      * define a test. [it] is probably better suited.
      */
-    suspend fun test(name: String, tags: Set<String> = setOf(), function: TestLambda)
+    suspend fun test(name: String, tags: Set<String> = setOf(), function: GivenTestLambda<GivenType>)
 
     /**
      * define a pending test.

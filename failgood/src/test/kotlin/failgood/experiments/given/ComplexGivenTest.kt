@@ -15,11 +15,11 @@ class ComplexGivenTest {
     val context = describe("Injecting Test Dependencies") {
         test("the context can create test dependencies") {
             val context = RootContext("TestContext for dependency Injection") {
-                given(
+                given2(
                     "context with dependency lambda",
                     { "StringDependency" }  /* optional teardown*/
                 ) {
-                    test("test that takes a string dependency") { string ->
+                    test2("test that takes a string dependency") { string ->
                         expectThat(string).isEqualTo("StringDependency")
                     }
                     describe(
@@ -28,7 +28,7 @@ class ComplexGivenTest {
                                 " are constructed",
                         { parentDependency -> parentDependency + "AddedString" }
                     ) {
-                        test("another test that takes a string dependency") { string ->
+                        test2("another test that takes a string dependency") { string ->
                             expectThat(string).isEqualTo("StringDependencyAddedString")
                         }
                     }
@@ -38,7 +38,7 @@ class ComplexGivenTest {
                                 " are not constructed",
                         { -> "TotallyNewString" }
                     ) {
-                        test("another test that takes a string dependency") { string ->
+                        this@given2.test2("another test that takes a string dependency") { string ->
                             expectThat(string).isEqualTo("TotallyNewString")
                         }
                     }
@@ -48,7 +48,7 @@ class ComplexGivenTest {
         }
     }
 
-    private fun <ContextDependency> ContextDSL.given(
+    private fun <ContextDependency> ContextDSL<Unit>.given2(
         contextName: String,
         dependency: suspend () -> ContextDependency,
         dependencyTeardown: suspend (ContextDependency) -> Unit = {},
@@ -65,6 +65,6 @@ class ComplexGivenTest {
     }
 }
 
-interface GivenDSL<T> : ContextDSL {
-    suspend fun test(name: String, function: suspend (T) -> Unit)
+interface GivenDSL<T> : ContextDSL<Unit> {
+    suspend fun test2(name: String, function: suspend (T) -> Unit)
 }

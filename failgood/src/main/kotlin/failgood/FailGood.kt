@@ -35,9 +35,10 @@ data class SourceInfo(val className: String, val fileName: String?, val lineNumb
     constructor(ste: StackTraceElement) : this(ste.className, ste.fileName!!, ste.lineNumber)
 }
 
-typealias ContextLambda = suspend ContextDSL.() -> Unit
+typealias ContextLambda = suspend ContextDSL<Unit>.() -> Unit
 
 typealias TestLambda = suspend TestDSL.() -> Unit
+typealias GivenTestLambda<GivenType> = suspend TestDSL.(GivenType) -> Unit
 
 fun context(description: String, disabled: Boolean = false, order: Int = 0, function: ContextLambda): RootContext =
     RootContext(description, disabled, order, function = function)

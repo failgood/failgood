@@ -5,7 +5,6 @@ interface ResourcesDSL {
      * asynchronously create a dependency. This is great for blocking dependencies, like a docker container.
      * The creator lambda runs on the IO dispatcher to make a cpu thread free for a test
      */
-    @Deprecated("this does not feel so great. create an issue if you really like it.")
     suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit = {}): TestDependency<T>
 
     /**

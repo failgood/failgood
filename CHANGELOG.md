@@ -3,7 +3,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 0.5.4 - "Stones Throw" - Unreleased
+## 0.6.0 - "Stones Throw" - Unreleased
 
 ### Changed
 
@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Add support for given. Contexts can now define a lambda whose result is passed to tests
 - Experimental run tests by tag. describe,it,test and context now have a tags parameter, and you can run a subset of tests
   by setting the env variable FAILGOOD_TAG. Currently only contexts that are in the root can be tagged, tags in subcontexts
   of subcontexts are currently not found

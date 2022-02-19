@@ -68,8 +68,8 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
         private val resourcesCloser: ResourcesCloser,
         // execute subcontexts and tests regardless of their tags, even when filtering
         private val executeAll: Boolean = false,
-        given: (suspend () -> GivenType)?,
-        givenTeardown: (suspend (GivenType) -> Unit)?
+        val given: (suspend () -> GivenType)?,
+        val givenTeardown: (suspend (GivenType) -> Unit)?
     ) : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
         val isolation = parentContext.isolation
         private val contextInvestigated = investigatedContexts.contains(parentContext)
@@ -137,7 +137,11 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             return try {
                 withTimeout(timeoutMillis) {
                     try {
-                        TestContext(resourcesCloser, listener, testDescription).function(null as GivenType) // TODO GIVEN
+                        val testContext = TestContext(resourcesCloser, listener, testDescription)
+                        if (given != null)
+                            testContext.function(given.invoke())
+                        else
+                            testContext.function(Unit as GivenType)
                     } catch (e: Throwable) {
                         if (isolation) try {
                             resourcesCloser.close()

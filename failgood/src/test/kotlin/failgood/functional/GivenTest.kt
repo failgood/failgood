@@ -22,6 +22,9 @@ class GivenTest {
                     test("test that takes a string dependency") { string ->
                         expectThat(string).isEqualTo("StringDependency")
                     }
+                    test("second test that takes a string dependency") { string ->
+                        expectThat(string).isEqualTo("StringDependency")
+                    }
                 }
             }
             assert(Suite(context).run(silent = true).allOk)

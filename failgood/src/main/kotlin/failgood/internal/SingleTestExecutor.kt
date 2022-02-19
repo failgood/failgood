@@ -16,7 +16,7 @@ internal class SingleTestExecutor(
 ) {
     private val startTime = System.nanoTime()
     suspend fun execute(): TestResult {
-        val dsl: ContextDSL<Unit> = contextDSL(test.container.path.drop(1))
+        val dsl: ContextDSL<Unit> = contextDSL({}, test.container.path.drop(1))
         return try {
             dsl.(context.function)()
             throw FailGoodException(
@@ -48,10 +48,19 @@ internal class SingleTestExecutor(
     }
 
     private inner class ContextFinder<GivenType>(private val contexts: List<String>) : ContextDSL<GivenType>, Base<GivenType>() {
-        override suspend fun context(name: String, tags: Set<String>, function: ContextLambda) {
-            if (contexts.first() != name) return
+        override suspend fun <ContextDependency> context(
+            contextName: String,
+            tags: Set<String>,
+            given: suspend () -> ContextDependency,
+            contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
+        ) {
+            if (contexts.first() != contextName) return
 
-            contextDSL(contexts.drop(1)).function()
+            contextDSL(given, contexts.drop(1)).contextLambda()
+        }
+
+        override suspend fun context(name: String, tags: Set<String>, function: ContextLambda) {
+            context(name, tags, {}, function)
         }
 
         override suspend fun describe(name: String, tags: Set<String>, function: ContextLambda) {
@@ -59,10 +68,10 @@ internal class SingleTestExecutor(
         }
     }
 
-    private fun contextDSL(parentContexts: List<String>): ContextDSL<Unit> =
-        if (parentContexts.isEmpty()) TestFinder() else ContextFinder(parentContexts)
+    private fun <ContextDependency>contextDSL(given: suspend () -> ContextDependency, parentContexts: List<String>): ContextDSL<ContextDependency> =
+        if (parentContexts.isEmpty()) TestFinder(given) else ContextFinder(parentContexts)
 
-    private inner class TestFinder<GivenType> : Base<GivenType>() {
+    private inner class TestFinder<GivenType>(val given:suspend () -> GivenType) : Base<GivenType>() {
         override suspend fun it(behaviorDescription: String, tags: Set<String>, function: GivenTestLambda<GivenType>) {
             test(behaviorDescription, function = function)
         }
@@ -75,7 +84,7 @@ internal class SingleTestExecutor(
 
         private suspend fun executeTest(function: GivenTestLambda<GivenType>): TestResult {
             try {
-                testDSL.function(null as GivenType) // TODO given
+                testDSL.function(given())
             } catch (e: Throwable) {
                 resourcesCloser.close()
                 return Failed(e)

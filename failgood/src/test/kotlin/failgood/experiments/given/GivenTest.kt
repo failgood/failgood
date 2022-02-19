@@ -13,11 +13,11 @@ import strikt.assertions.isEqualTo
 @Test
 class GivenTest {
     val context = describe("Injecting Test Dependencies") {
-        test("the context can create test dependencies") {
+        pending("the context can create test dependencies") {
             val context = RootContext("TestContext for dependency Injection") {
-                given(
+                context(
                     "context with dependency lambda",
-                    { "StringDependency" }  /* optional teardown*/
+                    given = { "StringDependency" }  /* optional teardown*/
                 ) {
                     test("test that takes a string dependency") { string ->
                         expectThat(string).isEqualTo("StringDependency")

@@ -40,7 +40,12 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
                 while (true) {
                     startTime = System.nanoTime()
                     val resourcesCloser = ResourcesCloser(scope)
-                    val visitor = ContextVisitor<Unit>(rootContext, resourcesCloser)
+                    val visitor = ContextVisitor<Unit>(
+                        rootContext,
+                        resourcesCloser,
+                        given = null, givenTeardown = null
+
+                    )
                     visitor.function()
                     investigatedContexts.add(rootContext)
                     if (!rootContext.isolation) {
@@ -50,7 +55,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
                     if (!visitor.contextsLeft) break
                 }
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             return FailedContext(rootContext, e)
         }
         // context order: first root context, then sub-contexts ordered by line number
@@ -62,7 +67,9 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
         private val parentContext: Context,
         private val resourcesCloser: ResourcesCloser,
         // execute subcontexts and tests regardless of their tags, even when filtering
-        private val executeAll: Boolean = false
+        private val executeAll: Boolean = false,
+        given: (suspend () -> GivenType)?,
+        givenTeardown: (suspend (GivenType) -> Unit)?
     ) : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
         val isolation = parentContext.isolation
         private val contextInvestigated = investigatedContexts.contains(parentContext)
@@ -152,8 +159,15 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             }
         }
 
-        override suspend fun context(name: String, tags: Set<String>, function: ContextLambda) {
-            checkForDuplicateName(name)
+
+        override suspend fun <ContextDependency> context(
+            contextName: String,
+            tags: Set<String>,
+            given: (suspend () -> ContextDependency)?,
+            givenTeardown: (suspend (ContextDependency) -> Unit)?,
+            contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
+        ) {
+            checkForDuplicateName(contextName)
             if (!executeAll && (filteringByTag && !tags.contains(onlyTag)))
                 return
             // if we already ran a test in this context we don't need to visit the child context now
@@ -162,18 +176,18 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
                 // but we need to run the root context again to visit this child context
                 return
             }
-            val contextPath = ContextPath(parentContext, name)
+            val contextPath = ContextPath(parentContext, contextName)
             if (!testFilter.shouldRun(contextPath))
                 return
 
             if (processedTests.contains(contextPath)) return
             val sourceInfo = sourceInfo()
-            val context = Context(name, parentContext, sourceInfo, isolation = isolation)
-            val visitor = ContextVisitor<Unit>(context, resourcesCloser, filteringByTag)
+            val context = Context(contextName, parentContext, sourceInfo, isolation = isolation)
+            val visitor = ContextVisitor(context, resourcesCloser, filteringByTag, given, givenTeardown)
             this.mutable = false
             try {
                 visitor.mutable = true
-                visitor.function()
+                visitor.contextLambda()
                 visitor.mutable = false
                 this.mutable = true
                 investigatedContexts.add(context)
@@ -182,7 +196,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
                 throw exceptionInContext
             } catch (exceptionInContext: Throwable) {
                 this.mutable = true
-                val testDescriptor = TestDescription(parentContext, name, sourceInfo)
+                val testDescriptor = TestDescription(parentContext, contextName, sourceInfo)
 
                 processedTests.add(contextPath) // don't visit this context again
                 val testPlusResult = TestPlusResult(testDescriptor, Failed(exceptionInContext))
@@ -199,6 +213,10 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             }
 
             if (visitor.ranATest) ranATest = true
+        }
+
+        override suspend fun context(name: String, tags: Set<String>, function: ContextLambda) {
+            context(name, tags, null, null, function)
         }
 
         private fun checkForDuplicateName(name: String) {

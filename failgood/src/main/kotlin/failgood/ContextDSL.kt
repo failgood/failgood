@@ -23,14 +23,13 @@ interface ResourcesDSL {
 
 @FailGoodDSL
 interface ContextDSL<GivenType> : ResourcesDSL {
-    suspend fun <ContextDependency> given(
+    suspend fun <ContextDependency> context(
         contextName: String,
-        dependency: suspend () -> ContextDependency,
-        dependencyTeardown: suspend (ContextDependency) -> Unit = {},
+        tags: Set<String> = setOf(),
+        given: (suspend () -> ContextDependency)?,
+        givenTeardown: (suspend (ContextDependency) -> Unit)? = null,
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
-    ) {
-    }
-
+    )
     /**
      * define a test context that describes a subject.
      */

@@ -32,6 +32,15 @@ internal class SingleTestExecutor(
 
     private open inner class Base<GivenType> : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
         override suspend fun test(name: String, tags: Set<String>, function: GivenTestLambda<GivenType>) {}
+        override suspend fun <ContextDependency> context(
+            contextName: String,
+            tags: Set<String>,
+            given: (suspend () -> ContextDependency)?,
+            givenTeardown: (suspend (ContextDependency) -> Unit)?,
+            contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
+        ) {
+        }
+
         override suspend fun context(name: String, tags: Set<String>, function: ContextLambda) {}
         override suspend fun describe(name: String, tags: Set<String>, function: ContextLambda) {}
         override suspend fun it(behaviorDescription: String, tags: Set<String>, function: GivenTestLambda<GivenType>) {}

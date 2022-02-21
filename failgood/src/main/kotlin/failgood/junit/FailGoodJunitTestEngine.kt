@@ -26,7 +26,6 @@ class FailGoodJunitTestEngine : TestEngine {
         val lazy = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_LAZY).orElse(false)
         val startedAt = upt()
 
-
         debug = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_DEBUG).orElse(false)
 
         val executionListener = JunitExecutionListener()

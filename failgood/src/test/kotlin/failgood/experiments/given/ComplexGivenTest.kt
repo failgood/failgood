@@ -17,15 +17,15 @@ class ComplexGivenTest {
             val context = RootContext("TestContext for dependency Injection") {
                 given2(
                     "context with dependency lambda",
-                    { "StringDependency" }  /* optional teardown*/
+                    { "StringDependency" } /* optional teardown*/
                 ) {
                     test2("test that takes a string dependency") { string ->
                         expectThat(string).isEqualTo("StringDependency")
                     }
                     describe(
                         "a child context that uses the parent dependencies." +
-                                " for tests in this context both the parent and this context dependencies" +
-                                " are constructed",
+                            " for tests in this context both the parent and this context dependencies" +
+                            " are constructed",
                         { parentDependency -> parentDependency + "AddedString" }
                     ) {
                         test2("another test that takes a string dependency") { string ->
@@ -34,8 +34,8 @@ class ComplexGivenTest {
                     }
                     context(
                         "a child context that does not use the parent dependency." +
-                                " for tests in this context the parent context dependencies" +
-                                " are not constructed",
+                            " for tests in this context the parent context dependencies" +
+                            " are not constructed",
                         given = { -> "TotallyNewString" }
                     ) {
                         this@given2.test2("another test that takes a string dependency") { string ->

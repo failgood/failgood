@@ -162,7 +162,6 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             }
         }
 
-
         override suspend fun <ContextDependency> context(
             contextName: String,
             tags: Set<String>,
@@ -234,7 +233,7 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
             if (!mutable) {
                 throw ImmutableContextException(
                     "Trying to create a test in the wrong context. " +
-                            "Make sure functions that create tests have ContextDSL as receiver"
+                        "Make sure functions that create tests have ContextDSL as receiver"
                 )
             }
         }
@@ -278,11 +277,11 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
         return SourceInfo(
             runtimeException.stackTrace.first {
                 !(
-                        it.fileName?.let { fileName ->
-                            fileName.endsWith("ContextExecutor.kt") ||
-                                    fileName.endsWith("ContextDSL.kt")
-                        } ?: true
-                        )
+                    it.fileName?.let { fileName ->
+                        fileName.endsWith("ContextExecutor.kt") ||
+                            fileName.endsWith("ContextDSL.kt")
+                    } ?: true
+                    )
             }!!
         )
     }

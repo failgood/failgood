@@ -54,18 +54,22 @@ class GivenTest {
         describe("error handling") {
             it("treats errors in the given block as test failures") {
                 val context = RootContext("root") {
-                    describe("context with a given that throws", given = {throw RuntimeException("given error")}) {
+                    describe("context with a given that throws", given = { throw RuntimeException("given error") }) {
                         it("will make the first tests fail") {}
                         it("will make the second tests fail") {}
                     }
                 }
                 val result = Suite(context).run(silent = true).allTests
-                assert(result.size == 2 && result.all {
-                    it.isFailed && (it.result as Failed).failure.message == "given error"})
-                assert(result.map { it.test.testName } ==
-                        listOf("will make the first tests fail", "will make the second tests fail"))
+                assert(
+                    result.size == 2 && result.all {
+                        it.isFailed && (it.result as Failed).failure.message == "given error"
+                    }
+                )
+                assert(
+                    result.map { it.test.testName } ==
+                        listOf("will make the first tests fail", "will make the second tests fail")
+                )
             }
         }
     }
 }
-

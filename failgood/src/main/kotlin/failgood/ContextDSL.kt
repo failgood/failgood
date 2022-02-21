@@ -22,18 +22,6 @@ interface ResourcesDSL {
 
 @FailGoodDSL
 interface ContextDSL<GivenType> : ResourcesDSL {
-    suspend fun <ContextDependency> context(
-        contextName: String,
-        tags: Set<String> = setOf(),
-        given: (suspend () -> ContextDependency),
-        contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
-    )
-    suspend fun <ContextDependency> describe(
-        contextName: String,
-        tags: Set<String> = setOf(),
-        given: (suspend () -> ContextDependency),
-        contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
-    )
     /**
      * define a test context that describes a subject.
      */
@@ -53,6 +41,27 @@ interface ContextDSL<GivenType> : ResourcesDSL {
      * define a test. [it] is probably better suited.
      */
     suspend fun test(name: String, tags: Set<String> = setOf(), function: GivenTestLambda<GivenType>)
+
+    /**
+     * define a context with a given block. the given block will be called for every test and passed as argument
+     */
+    suspend fun <ContextDependency> context(
+        contextName: String,
+        tags: Set<String> = setOf(),
+        given: (suspend () -> ContextDependency),
+        contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
+    )
+
+    /**
+     * define a context that describes a subject with a given block.
+     * the given block will be called for every test and passed as argument
+     */
+    suspend fun <ContextDependency> describe(
+        contextName: String,
+        tags: Set<String> = setOf(),
+        given: (suspend () -> ContextDependency),
+        contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
+    )
 
     /**
      * define a pending test.

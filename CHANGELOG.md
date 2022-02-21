@@ -3,7 +3,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 0.6.0 - "Stones Throw" - Unreleased
+## 0.6.0 - "Stones Throw" - 2022-02-21
 
 ### Changed
 

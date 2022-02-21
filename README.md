@@ -197,3 +197,16 @@ tasks.register("autotest", JavaExec::class) {
 run it with `./gradlew -t autotest`anytime a test file is recompiled it will run. This works pretty well, but it's not
 perfect, because not every change to a tested class triggers a recompile of the test class. Fixing this by reading
 dependencies from the test classes' constant pool is on the roadmap.
+
+### Troubleshooting
+
+There should be no need for a troubleshooting section in the docs. If something does
+not work as expected file an issue at https://github.com/failgood/failgood/issues or
+ask for help in the #failgood channel in the kotlin-lang slack.
+
+#### Migrating from older versions
+
+Until failgood reaches a version 1.0 there may be api changes that are not backwards compatible. Those should always be trivial to resolve.
+
+##### Migrating to V0.6
+If you get the error message:`One type argument expected for interface ContextDSL<GivenType>` just change from `ContextDSL` to `ContextDSL<*>`

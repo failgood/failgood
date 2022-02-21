@@ -22,6 +22,7 @@ tasks {
     }
     withType<KotlinCompile> {
         kotlinOptions {
+            allWarningsAsErrors = true
             jvmTarget = "1.8"
             freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn", "-progressive")
             languageVersion = "1.6"

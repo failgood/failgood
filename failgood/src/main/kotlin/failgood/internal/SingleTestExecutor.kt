@@ -74,7 +74,7 @@ internal class SingleTestExecutor(
             given: suspend () -> ContextDependency,
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
-            return context(contextName, tags, given, contextLambda)
+            context(contextName, tags, given, contextLambda)
         }
 
         override suspend fun context(name: String, tags: Set<String>, function: ContextLambda) {

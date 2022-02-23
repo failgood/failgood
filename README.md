@@ -72,20 +72,20 @@ class MyBeautifulTest {
 
 ### Given
 
-subontexts can define a given block, that will be evaluated for every test and passed to the test.
+Sub-contexts can define a given block, that will be passed to and evaluated for every test.
 
 ```kotlin
-                context(
-                    "context with dependency lambda",
-                    given = { "StringDependency" }
-                ) {
-                    test("test that takes a string dependency") { givenString ->
-                        expectThat(givenString).isEqualTo("StringDependency")
-                    }
-                }
+context(
+    "context with dependency lambda",
+    given = { "StringDependency" }
+) {
+    test("test that takes a string dependency") { givenString ->
+        expectThat(givenString).isEqualTo("StringDependency")
+    }
+}
 ```
 
-Given support is an alternative way to declare your dependencies or do things that you want to do before each test. Its not something you have to use, its perfectly fine to declare all dependencies directly in the context.
+Given support is an alternative way to declare your dependencies or to do things before each test. It's not something you have to use, it's perfectly fine to declare all dependencies directly in the context.
 In some cases using given may help with parallel execution and make your test suite faster. If you like it try it out and if you don't like it just ignore it and don't worry about it.
 
 ### Parametrized tests

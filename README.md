@@ -42,7 +42,7 @@ class MyTest {
 }
 
 ```
-In Failgood you just start your dependencies where you declare them, and define a callback to close them, so the failgood
+In Failgood you just start your dependencies where you declare them, and define a callback to close them, so the Failgood
 equivalent of the above code is just:
 
 ```kotlin
@@ -72,7 +72,8 @@ class MyBeautifulTest {
 
 ### Given
 
-Sub-contexts can define a given block, that will be passed to and evaluated for every test.
+Sub-contexts can define a `given` block, whose result will be freshly evaluated and passed to each test. This is not different from dependencies that are just declared in the context, those are also freshly evaluated
+for each test. The only real difference is that the given block is evaluated as part of the test, which can result in better parallelization of test runs.
 
 ```kotlin
 context(
@@ -86,7 +87,7 @@ context(
 ```
 
 Given support is an alternative way to declare your dependencies or to do things before each test. It's not something you have to use, it's perfectly fine to declare all dependencies directly in the context.
-In some cases using given may help with parallel execution and make your test suite faster. If you like it try it out and if you don't like it just ignore it and don't worry about it.
+If you like it try it out and if you don't like it just ignore it and don't worry about it.
 
 ### Parametrized tests
 
@@ -106,7 +107,7 @@ In the case of the above example you may even want to add more test inputs and o
 
 ### Gradle build
 
-Just add a failgood dependency and configure gradle to use the Junit platform. Your build file could look like this:
+Just add a Failgood dependency and configure gradle to use the Junit platform. Your build file could look like this:
 
 ```kotlin
 repositories {
@@ -134,7 +135,7 @@ For best results, select "run tests in IDEA" in your gradle settings, although r
 #### Re-running a failed test
 
 Idea supports re-running tests from the test runner, but that does not work in most of the cases. So until jetbrains
-fixes this, failgood prints a uniqueid next to each test failure.
+fixes this, Failgood prints a uniqueid next to each test failure.
 For example this could be printed: `timestamp = 2022-02-17T18:21:16.367446, uniqueId to rerun just this test = [engine:failgood]/[class:The+Suite(failgood.SuiteTest)]/[class:error+handling]/[method:treats+errors+in+getContexts+as+failed+context]
 `
 then take the part from `[engine:failgood]` till the end of the line and create a junit run config from it:
@@ -155,14 +156,14 @@ the `FailGoodBootstrap.kt` class.
 
 ## Test coverage
 
-Failgood works well with the [kover](https://github.com/Kotlin/kotlinx-kover) plugin, and if you want real mutation coverage, there is also a pitest plugin. (See failgoods own build for an example pitest config)
+Failgood works well with the [kover](https://github.com/Kotlin/kotlinx-kover) plugin, and if you want real mutation coverage, there is also a pitest plugin. (See Failgoods own build for an example pitest config)
 
 ## Even faster tests - best practices
 
-* avoid heavyweight dependencies. the failgood test suite runs in < 1000ms. That's a lot of time for a computer, and a
+* avoid heavyweight dependencies. the Failgood test suite runs in < 1000ms. That's a lot of time for a computer, and a
   great target for your test suite. Slow tests are a code smell. An unexpected example for a heavyweight dependency is
   mockk, it takes about 2 seconds at first invocation. To avoid that you can use the simple mocking library that comes
-  with failgood. (see [MockTest.kt](failgood/src/test/kotlin/failgood/mock/MockTest.kt))
+  with Failgood. (see [MockTest.kt](failgood/src/test/kotlin/failgood/mock/MockTest.kt))
 
 
 ## Avoiding global state
@@ -174,7 +175,7 @@ Failgood runs your tests in parallel, so you need to avoid global state.
 
 ## Autotest
 
-This is an experimental feature from the early days of failgood, but it still works.
+This is an experimental feature from the early days of Failgood, but it still works.
 Stay tuned for improved autotest support in the future or use the current version it like described below, and tell me what you think about it.
 
 Add a main method that just runs autotest:
@@ -206,7 +207,7 @@ ask for help in the #failgood channel in the kotlin-lang slack.
 
 #### Migrating from older versions
 
-Until failgood reaches a version 1.0 there may be api changes that are not backwards compatible. Those should always be trivial to resolve.
+Until Failgood reaches a version 1.0 there may be api changes that are not backwards compatible. Those should always be trivial to resolve.
 
 ##### Migrating to V0.6
 If you get the error message:`One type argument expected for interface ContextDSL<GivenType>` just change from `ContextDSL` to `ContextDSL<*>`

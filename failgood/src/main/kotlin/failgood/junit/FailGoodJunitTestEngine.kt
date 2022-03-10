@@ -1,10 +1,8 @@
 package failgood.junit
 
 import failgood.*
-import failgood.internal.ContextInfo
 import failgood.internal.FailedContext
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
-import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_LAZY
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_TEST_CLASS_SUFFIX
 import failgood.junit.JunitExecutionListener.TestExecutionEvent
 import kotlinx.coroutines.*
@@ -23,7 +21,6 @@ class FailGoodJunitTestEngine : TestEngine {
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun discover(discoveryRequest: EngineDiscoveryRequest, uniqueId: UniqueId): TestDescriptor {
-        val lazy = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_LAZY).orElse(false)
         val startedAt = upt()
 
         debug = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_DEBUG).orElse(false)
@@ -38,17 +35,9 @@ class FailGoodJunitTestEngine : TestEngine {
         val suite = Suite(providers)
         val testResult = runBlocking(Dispatchers.Default) {
             val testResult = suite.findTests(
-                GlobalScope,
-                !lazy,
-                listener = executionListener,
-                executionFilter = contextsAndFilters.filter
+                GlobalScope, false, listener = executionListener, executionFilter = contextsAndFilters.filter
             ).awaitAll()
             val testsCollectedAt = upt()
-            @Suppress("DeferredResultUnused")
-            if (lazy)
-                GlobalScope.async(Dispatchers.Default) {
-                    testResult.filterIsInstance<ContextInfo>().map { it.tests.values.awaitAll() }
-                }
             println("start: $startedAt tests collected at $testsCollectedAt, discover finished at ${upt()}")
             testResult
         }
@@ -62,8 +51,7 @@ class FailGoodJunitTestEngine : TestEngine {
     override fun execute(request: ExecutionRequest) {
         try {
             val root = request.rootTestDescriptor
-            if (root !is FailGoodEngineDescriptor)
-                return
+            if (root !is FailGoodEngineDescriptor) return
             if (debug) {
                 println("nodes received: ${root.allDescendants()}")
             }
@@ -93,8 +81,7 @@ class FailGoodJunitTestEngine : TestEngine {
                         fun startParentContexts(testDescriptor: TestDescription) {
                             val context = testDescriptor.container
                             (context.parents + context).forEach {
-                                if (startedContexts.add(it))
-                                    junitListener.executionStarted(mapper.getMapping(it))
+                                if (startedContexts.add(it)) junitListener.executionStarted(mapper.getMapping(it))
                             }
                         }
 
@@ -104,8 +91,7 @@ class FailGoodJunitTestEngine : TestEngine {
                         if (mapping == null) {
                             val parents = description.container.parents
                             // its a failing root context, so ignore it
-                            if (parents.isEmpty())
-                                continue
+                            if (parents.isEmpty()) continue
                             // as a sanity check we try to find the mapping for the parent context, and if that works everything is fine
                             mapper.getMappingOrNull(parents.last())
                                 // and if we don't find that maybe the root context of the context is failed
@@ -126,14 +112,12 @@ class FailGoodJunitTestEngine : TestEngine {
                                     is Failed -> {
                                         withContext(Dispatchers.IO) {
                                             junitListener.executionFinished(
-                                                mapping,
-                                                TestExecutionResult.failed(testPlusResult.result.failure)
+                                                mapping, TestExecutionResult.failed(testPlusResult.result.failure)
                                             )
                                             junitListener.reportingEntryPublished(
                                                 mapping,
                                                 ReportEntry.from(
-                                                    "uniqueId to rerun just this test",
-                                                    mapping.uniqueId.toString()
+                                                    "uniqueId to rerun just this test", mapping.uniqueId.toString()
                                                 )
                                             )
                                         }
@@ -141,8 +125,7 @@ class FailGoodJunitTestEngine : TestEngine {
 
                                     is Success -> withContext(Dispatchers.IO) {
                                         junitListener.executionFinished(
-                                            mapping,
-                                            TestExecutionResult.successful()
+                                            mapping, TestExecutionResult.successful()
                                         )
                                     }
 
@@ -156,8 +139,7 @@ class FailGoodJunitTestEngine : TestEngine {
                             }
                             is TestExecutionEvent.TestEvent -> withContext(Dispatchers.IO) {
                                 junitListener.reportingEntryPublished(
-                                    mapping,
-                                    ReportEntry.from(event.type, event.payload)
+                                    mapping, ReportEntry.from(event.type, event.payload)
                                 )
                             }
                         }
@@ -180,12 +162,10 @@ class FailGoodJunitTestEngine : TestEngine {
             junitListener.executionFinished(root, TestExecutionResult.successful())
 // for debugging println(junitListener.events.joinToString("\n"))
 
-            if (System.getenv("PRINT_SLOWEST") != null)
-                results.printSlowestTests()
+            if (System.getenv("PRINT_SLOWEST") != null) results.printSlowestTests()
         } catch (e: Exception) {
             println(
-                "exception occurred inside failgood.\n" +
-                    "if you run the latest version please submit a bug at " +
+                "exception occurred inside failgood.\n" + "if you run the latest version please submit a bug at " +
                     "https://github.com/failgood/failgood/issues " +
                     "or tell someone in the #failgood channel in the kotlin-lang slack"
             )

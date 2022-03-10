@@ -31,7 +31,7 @@ jobs:
         continue-on-error: true
         env:
           CI: true
-        run: ./gradlew check build
+        run: ./gradlew -i check build
       - uses: codecov/codecov-action@v2
         with:
           #        token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos

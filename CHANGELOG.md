@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 
 ## 0.6.1 - Unreleased
 
+### Added
+
+- Integrate kover plugin, publish code coverage to codecov
+
 ### Fixed
 
 - Correctly handle tags on tests created with `it`

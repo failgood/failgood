@@ -239,11 +239,11 @@ internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
         }
 
         override suspend fun describe(name: String, tags: Set<String>, function: ContextLambda) {
-            context(name, tags, function = function)
+            context(name, tags, function)
         }
 
         override suspend fun it(behaviorDescription: String, tags: Set<String>, function: GivenTestLambda<GivenType>) {
-            test(behaviorDescription, function = function)
+            test(behaviorDescription, tags, function)
         }
 
         override suspend fun pending(behaviorDescription: String, function: TestLambda) {

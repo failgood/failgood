@@ -329,6 +329,9 @@ class ContextExecutorTest {
                     test("test with the tag", tags = setOf("single")) {
                         events.add("test in root context with tag")
                     }
+                    it("other test with the tag", tags = setOf("single")) {
+                        events.add("other test with the tag")
+                    }
                     test("test that should also not be executed") {
                         events.add("test in root context without tag")
                     }
@@ -336,7 +339,8 @@ class ContextExecutorTest {
                 val contextResult = execute(context, tag = "single")
                 expectSuccess(contextResult)
                 expectThat(events).containsExactlyInAnyOrder(
-                    "test in root context with tag"
+                    "test in root context with tag",
+                    "other test with the tag"
                 )
             }
             pending("can filter tests in a subcontext") {

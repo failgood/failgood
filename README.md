@@ -1,5 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/dev.failgood/failgood/badge.svg)](https://maven-badges.herokuapp.com/maven-central/dev.failgood/failgood)
 [![Github CI](https://github.com/failgood/failgood/workflows/CI/badge.svg)](https://github.com/failgood/failgood/actions)
+[![codecov](https://codecov.io/gh/failgood/failgood/branch/main/graph/badge.svg?token=Y8I6J84BHZ)](https://codecov.io/gh/failgood/failgood)
 
 # FailGood
 

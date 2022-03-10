@@ -31,7 +31,15 @@ jobs:
         continue-on-error: true
         env:
           CI: true
-        run: ./gradlew check build -x test # on ci only run the tests without junit because it hangs.
+        run: ./gradlew check build
+      - uses: codecov/codecov-action@v2
+        with:
+          #        token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+          files: failgood/build/reports/kover/report.xml
+          #        flags: unittests # optional
+          #        name: codecov-umbrella # optional
+          fail_ci_if_error: true # optional (default = false)
+          verbose: true # optional (default = false)
       - name: Test Report ${{matrix.java}}
         uses: ScaCap/action-surefire-report@v1.0.13
         with:

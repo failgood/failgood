@@ -9,6 +9,7 @@ plugins {
     id("failgood.common")
     id("failgood.publishing")
     id("com.bnorm.power.kotlin-power-assert").version("0.11.0")
+    id("org.jetbrains.kotlinx.kover") version "0.5.0"
 }
 // to release:
 // ./gradlew publishToSonatype closeSonatypeStagingRepository (or ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository)

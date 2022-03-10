@@ -17,6 +17,8 @@ tasks {
     test {
         useJUnitPlatform()
         outputs.upToDateWhen { false }
+        // make sure the test suite works on cpu core constrained CI
+        systemProperty("kotlinx.coroutines.scheduler.core.pool.size", "8")
     }
 
     withType<JavaCompile> {

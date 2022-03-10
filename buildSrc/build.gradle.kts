@@ -12,5 +12,6 @@ dependencies {
     implementation(kotlin("script-runtime"))
     implementation(kotlin("gradle-plugin", "1.6.10"))
     implementation("org.jlleitschuh.gradle:ktlint-gradle:10.2.0")
+    implementation("com.adarshr:gradle-test-logger-plugin:3.1.0")
 }
 

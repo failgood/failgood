@@ -9,7 +9,6 @@ plugins {
     id("failgood.common")
     id("failgood.publishing")
     id("com.bnorm.power.kotlin-power-assert").version("0.11.0")
-    id("org.jetbrains.kotlinx.kover") version "0.5.0"
 }
 // to release:
 // ./gradlew publishToSonatype closeSonatypeStagingRepository (or ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository)
@@ -30,6 +29,8 @@ dependencies {
     testImplementation("org.pitest:pitest:$pitestVersion")
     testImplementation("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
     testImplementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
+    testImplementation("io.projectreactor.tools:blockhound:1.0.6.RELEASE")
+
     testImplementation(kotlin("test"))
 }
 

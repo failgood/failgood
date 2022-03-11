@@ -35,7 +35,7 @@ class ContextFinderTest {
             }
         }
         describe("test filtering") {
-            it("supports a classpathRootSelector with a package filter") {
+            pending("supports a classpathRootSelector with a package filter") {
                 val path = ContextFinderTest::class.java.protectionDomain.codeSource.location.path
                 val request = LauncherDiscoveryRequestBuilder.request()
                     .selectors(DiscoverySelectors.selectClasspathRoots(setOf(Paths.get(path))))

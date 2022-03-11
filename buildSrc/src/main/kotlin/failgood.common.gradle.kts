@@ -7,6 +7,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint")
     kotlin("jvm")
     id("com.adarshr.test-logger")
+    id("org.jetbrains.kotlinx.kover")
 }
 
 dependencies {

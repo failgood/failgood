@@ -163,7 +163,7 @@ class FailGoodJunitTestEngine : TestEngine {
 // for debugging println(junitListener.events.joinToString("\n"))
 
             if (System.getenv("PRINT_SLOWEST") != null) results.printSlowestTests()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             println(
                 "exception occurred inside failgood.\n" + "if you run the latest version please submit a bug at " +
                     "https://github.com/failgood/failgood/issues " +

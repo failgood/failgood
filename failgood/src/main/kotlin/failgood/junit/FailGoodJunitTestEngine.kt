@@ -35,7 +35,7 @@ class FailGoodJunitTestEngine : TestEngine {
         val suite = Suite(providers)
         val testResult = runBlocking(Dispatchers.Default) {
             val testResult = suite.findTests(
-                GlobalScope, false, listener = executionListener, executionFilter = contextsAndFilters.filter
+                GlobalScope, true, listener = executionListener, executionFilter = contextsAndFilters.filter
             ).awaitAll()
             val testsCollectedAt = upt()
             println("start: $startedAt tests collected at $testsCollectedAt, discover finished at ${upt()}")

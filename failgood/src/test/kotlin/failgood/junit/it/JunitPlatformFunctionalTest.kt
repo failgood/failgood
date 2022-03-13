@@ -105,9 +105,11 @@ class JunitPlatformFunctionalTest {
             executeSingleTest(TestFixtureTest::class, listener)
             expectThat(listener.rootResult.await()).get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
             val testName = TestFixtureTest.testName
-            val descriptor: TestIdentifier = assertNotNull(listener.results.entries.singleOrNull {
-                it.key.displayName == testName
-            }?.key)
+            val descriptor: TestIdentifier = assertNotNull(
+                listener.results.keys.singleOrNull {
+                    it.displayName == testName
+                }
+            )
             val uniqueId = descriptor.uniqueId
             // now use the uniqueid that we just returned to run the same test again
             val newListener = TEListener()
@@ -125,7 +127,6 @@ class JunitPlatformFunctionalTest {
         LauncherFactory.create()
             .execute(launcherDiscoveryRequest(listOf(selectClass(singleTest.qualifiedName))), listener)
     }
-
 }
 
 class TEListener : TestExecutionListener {

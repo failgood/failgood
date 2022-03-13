@@ -32,13 +32,13 @@ class CreateResponseTest {
             )
             it("creates friendly uniqueid for a root context") {
                 expectThat(rootContextDescriptor.children).single().get { uniqueId.toString() }
-                    .isEqualTo("[engine:failgood]/[class:root.context.name(package.ClassName)]")
+                    .isEqualTo("[engine:failgood]/[class:root context name(package.ClassName)]")
             }
             it("creates friendly uniqueid for a sub context") {
                 expectThat(rootContextDescriptor.children).single().get { children }.single()
                     .get { uniqueId.toString() }
                     .isEqualTo(
-                        "[engine:failgood]/[class:root.context.name(package.ClassName)]/[class:sub.context.name]"
+                        "[engine:failgood]/[class:root context name(package.ClassName)]/[class:sub context name]"
                     )
             }
         }
@@ -57,7 +57,7 @@ class CreateResponseTest {
                     // gradle needs all root contexts to have a class source
                     get { source.get() }.isA<ClassSource>()
                     get { uniqueId.toString() }
-                        .isEqualTo("[engine:failgood]/[class:root.context.name(package.ClassName)]")
+                        .isEqualTo("[engine:failgood]/[class:root context name(package.ClassName)]")
                 }
             }
         }
@@ -76,7 +76,7 @@ class CreateResponseTest {
             )
             expectThat(rootContextDescriptor.children).single().get { children }.filter { it.isTest }.single()
                 .get { uniqueId.toString() }
-                .isEqualTo("[engine:failgood]/[class:root.context.name(package.ClassName)]/[method:test]")
+                .isEqualTo("[engine:failgood]/[class:root context name(package.ClassName)]/[method:test]")
         }
     }
 }

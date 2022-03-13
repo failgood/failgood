@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- fix that some test names would not be found via uniqueid
 - Correctly handle tags on tests created with `it`
 
 ## 0.6.0 - "Stones Throw" - 2022-02-21

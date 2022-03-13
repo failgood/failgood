@@ -7,6 +7,7 @@ import failgood.junit.it.fixtures.*
 import kotlinx.coroutines.CompletableDeferred
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
+import org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestIdentifier
 import org.junit.platform.launcher.core.LauncherFactory
@@ -14,6 +15,7 @@ import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
 import strikt.assertions.hasSize
 import strikt.assertions.isEqualTo
+import kotlin.reflect.KClass
 import kotlin.test.assertNotNull
 
 @Test
@@ -22,16 +24,7 @@ class JunitPlatformFunctionalTest {
     val context = describe("The Junit Platform Engine") {
         val listener = TEListener()
         it("can execute test in a class") {
-            LauncherFactory.create().execute(
-                launcherDiscoveryRequest(
-                    listOf(
-                        selectClass(
-                            DuplicateTestNameTest::class.qualifiedName
-                        )
-                    )
-                ),
-                listener
-            )
+            executeSingleTest(DuplicateTestNameTest::class, listener)
             expectThat(listener.rootResult.await()).get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
         }
         describe("works with duplicate test names") {
@@ -107,7 +100,32 @@ class JunitPlatformFunctionalTest {
                 )
             assert(throwable.get().message?.contains("blocking") == true)
         }
+        it("returns uniqueIds that it understands") {
+            // run a test by className
+            executeSingleTest(TestFixtureTest::class, listener)
+            expectThat(listener.rootResult.await()).get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
+            val testName = TestFixtureTest.testName
+            val descriptor: TestIdentifier = assertNotNull(listener.results.entries.singleOrNull {
+                it.key.displayName == testName
+            }?.key)
+            val uniqueId = descriptor.uniqueId
+            // now use the uniqueid that we just returned to run the same test again
+            val newListener = TEListener()
+            LauncherFactory.create()
+                .execute(launcherDiscoveryRequest(listOf(selectUniqueId(uniqueId))), newListener)
+            expectThat(newListener.rootResult.await()).get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
+            val tests = newListener.results.keys.filter { it.isTest }.map {
+                it.displayName
+            }
+            assert(tests.singleOrNull() == testName)
+        }
     }
+
+    private fun executeSingleTest(singleTest: KClass<*>, listener: TEListener) {
+        LauncherFactory.create()
+            .execute(launcherDiscoveryRequest(listOf(selectClass(singleTest.qualifiedName))), listener)
+    }
+
 }
 
 class TEListener : TestExecutionListener {

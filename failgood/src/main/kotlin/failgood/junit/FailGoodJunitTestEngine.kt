@@ -2,6 +2,7 @@ package failgood.junit
 
 import failgood.*
 import failgood.internal.FailedContext
+import failgood.internal.SuiteExecutionContext
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_TEST_CLASS_SUFFIX
 import failgood.junit.JunitExecutionListener.TestExecutionEvent
@@ -33,15 +34,20 @@ class FailGoodJunitTestEngine : TestEngine {
         // if we did not find any tests just return an empty descriptor, maybe other engines have tests to run
             return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.displayName)
         val suite = Suite(providers)
-        val testResult = runBlocking(Dispatchers.Default) {
+        val suiteExecutionContext = SuiteExecutionContext()
+        val testResult = runBlocking(suiteExecutionContext.threadPool.asCoroutineDispatcher()) {
             val testResult = suite.findTests(
-                GlobalScope, true, listener = executionListener, executionFilter = contextsAndFilters.filter
+                GlobalScope, true, contextsAndFilters.filter, executionListener
             ).awaitAll()
             val testsCollectedAt = upt()
             println("start: $startedAt tests collected at $testsCollectedAt, discover finished at ${upt()}")
             testResult
         }
-        return createResponse(uniqueId, testResult, executionListener).also {
+        return createResponse(
+            uniqueId,
+            testResult,
+            FailGoodEngineDescriptor(uniqueId, testResult, executionListener, suiteExecutionContext)
+        ).also {
             if (debug) {
                 println("nodes returned: ${it.allDescendants()}")
             }
@@ -49,9 +55,10 @@ class FailGoodJunitTestEngine : TestEngine {
     }
 
     override fun execute(request: ExecutionRequest) {
+        val root = request.rootTestDescriptor
+        if (root !is FailGoodEngineDescriptor) return
+        val suiteExecutionContext = root.suiteExecutionContext
         try {
-            val root = request.rootTestDescriptor
-            if (root !is FailGoodEngineDescriptor) return
             if (debug) {
                 println("nodes received: ${root.allDescendants()}")
             }
@@ -67,7 +74,7 @@ class FailGoodJunitTestEngine : TestEngine {
                 junitListener.executionFinished(testDescriptor, TestExecutionResult.failed(it.failure))
             }
             val executionListener = root.executionListener
-            val results = runBlocking(Dispatchers.Default) {
+            val results = runBlocking(suiteExecutionContext.threadPool.asCoroutineDispatcher()) {
                 // report results while they come in. we use a channel because tests were already running before the execute
                 // method was called so when we get here there are probably tests already finished
                 val eventForwarder = launch {
@@ -163,6 +170,7 @@ class FailGoodJunitTestEngine : TestEngine {
 // for debugging println(junitListener.events.joinToString("\n"))
 
             if (System.getenv("PRINT_SLOWEST") != null) results.printSlowestTests()
+            suiteExecutionContext.close()
         } catch (e: Throwable) {
             println(
                 "exception occurred inside failgood.\n" + "if you run the latest version please submit a bug at " +

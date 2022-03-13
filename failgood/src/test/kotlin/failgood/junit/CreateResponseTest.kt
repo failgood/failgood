@@ -9,6 +9,7 @@ import failgood.TestPlusResult
 import failgood.describe
 import failgood.internal.ContextInfo
 import failgood.internal.FailedContext
+import failgood.internal.SuiteExecutionContext
 import kotlinx.coroutines.CompletableDeferred
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.UniqueId
@@ -24,11 +25,26 @@ class CreateResponseTest {
     val context = describe(::createResponse.name) {
         val sourceInfo = SourceInfo("package.ClassName", "file", 100)
         val rootContext = Context("root context name", null, sourceInfo)
+        val suiteExecutionContext = SuiteExecutionContext(1)
         describe("contexts") {
+            val failGoodEngineDescriptor = JunitExecutionListener()
             val rootContextDescriptor = createResponse(
                 UniqueId.forEngine("failgood"),
                 listOf(ContextInfo(listOf(rootContext, Context("sub context name", rootContext)), mapOf(), setOf())),
-                JunitExecutionListener()
+                FailGoodEngineDescriptor(
+                    UniqueId.forEngine("failgood"),
+                    listOf(
+                        ContextInfo(
+                            listOf(
+                                rootContext,
+                                Context("sub context name", rootContext)
+                            ),
+                            mapOf(), setOf()
+                        )
+                    ),
+                    failGoodEngineDescriptor,
+                    suiteExecutionContext
+                )
             )
             it("creates friendly uniqueid for a root context") {
                 expectThat(rootContextDescriptor.children).single().get { uniqueId.toString() }
@@ -43,10 +59,16 @@ class CreateResponseTest {
             }
         }
         describe("failed contexts") {
+            val failGoodEngineDescriptor = JunitExecutionListener()
             val rootContextDescriptor = createResponse(
                 UniqueId.forEngine("failgood"),
                 listOf(FailedContext(rootContext, RuntimeException())),
-                JunitExecutionListener()
+                FailGoodEngineDescriptor(
+                    UniqueId.forEngine("failgood"),
+                    listOf(FailedContext(rootContext, RuntimeException())),
+                    failGoodEngineDescriptor,
+                    suiteExecutionContext
+                )
             )
             it("creates a test node with friendly uniqueid for a failed root context") {
                 val children = rootContextDescriptor.children
@@ -63,6 +85,7 @@ class CreateResponseTest {
         }
         it("creates friendly uuids for tests") {
             val test = TestDescription(rootContext, "test", sourceInfo)
+            val failGoodEngineDescriptor = JunitExecutionListener()
             val rootContextDescriptor = createResponse(
                 UniqueId.forEngine("failgood"),
                 listOf(
@@ -72,7 +95,17 @@ class CreateResponseTest {
                         setOf()
                     )
                 ),
-                JunitExecutionListener()
+                FailGoodEngineDescriptor(
+                    UniqueId.forEngine("failgood"),
+                    listOf(
+                        ContextInfo(
+                            listOf(rootContext, Context("sub context name", rootContext)),
+                            mapOf(test to CompletableDeferred(TestPlusResult(test, Success(10)))),
+                            setOf()
+                        )
+                    ),
+                    failGoodEngineDescriptor, suiteExecutionContext
+                )
             )
             expectThat(rootContextDescriptor.children).single().get { children }.filter { it.isTest }.single()
                 .get { uniqueId.toString() }

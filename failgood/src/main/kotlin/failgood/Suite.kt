@@ -1,16 +1,13 @@
 package failgood
 
+import failgood.internal.*
 import failgood.internal.ContextExecutor
 import failgood.internal.ContextInfo
-import failgood.internal.ContextResult
 import failgood.internal.ContextTreeReporter
 import failgood.internal.ExecuteAllTestFilterProvider
-import failgood.internal.FailedContext
 import failgood.internal.TestFilterProvider
 import kotlinx.coroutines.*
 import java.lang.management.ManagementFactory
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 
 const val DEFAULT_TIMEOUT: Long = 40000
@@ -21,12 +18,9 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     }
 
     fun run(parallelism: Int = cpus(), silent: Boolean = false): SuiteResult {
-        val threadPool = if (parallelism > 1)
-            Executors.newWorkStealingPool(parallelism)
-        else
-            Executors.newSingleThreadExecutor()
+        val suiteExecutionContext = SuiteExecutionContext(parallelism)
         return try {
-            threadPool.asCoroutineDispatcher()
+            suiteExecutionContext.threadPool.asCoroutineDispatcher()
                 .use { dispatcher ->
                     runBlocking(dispatcher) {
                         val contextInfos = findTests(this)
@@ -37,8 +31,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                     }
                 }
         } finally {
-            threadPool.awaitTermination(100, TimeUnit.SECONDS)
-            threadPool.shutdown()
+            suiteExecutionContext.close()
         }
     }
 

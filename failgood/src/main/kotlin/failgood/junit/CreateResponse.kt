@@ -46,11 +46,10 @@ private fun createClassSource(sourceInfo: SourceInfo): TestSource? {
 internal fun createResponse(
     uniqueId: UniqueId,
     contextInfos: List<ContextResult>,
-    executionListener: JunitExecutionListener
+    failGoodEngineDescriptor: FailGoodEngineDescriptor
 ): FailGoodEngineDescriptor {
     val uniqueMaker = StringUniquer()
-    val engineDescriptor = FailGoodEngineDescriptor(uniqueId, contextInfos, executionListener)
-    val mapper = engineDescriptor.mapper
+    val mapper = failGoodEngineDescriptor.mapper
     contextInfos.forEach { contextInfo ->
         when (contextInfo) {
             is ContextInfo -> {
@@ -87,7 +86,7 @@ internal fun createResponse(
 
                 val rootContext = contextInfo.contexts.singleOrNull { it.parent == null }
                 if (rootContext != null)
-                    addChildren(engineDescriptor, rootContext, true, uniqueId)
+                    addChildren(failGoodEngineDescriptor, rootContext, true, uniqueId)
             }
             is FailedContext -> {
                 val context = contextInfo.context
@@ -97,13 +96,13 @@ internal fun createResponse(
                     uniqueId.appendContext(uniqueMaker.makeUnique(path)),
                     context.name, context.sourceInfo?.let { createClassSource(it) }
                 )
-                engineDescriptor.addChild(testDescriptor)
+                failGoodEngineDescriptor.addChild(testDescriptor)
                 mapper.addMapping(context, testDescriptor)
-                engineDescriptor.failedContexts.add(contextInfo)
+                failGoodEngineDescriptor.failedContexts.add(contextInfo)
             }
         }
     }
-    return engineDescriptor
+    return failGoodEngineDescriptor
 }
 
 private fun UniqueId.appendContext(path: String): UniqueId = append(CONTEXT_SEGMENT_TYPE, path)

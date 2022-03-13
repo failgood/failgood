@@ -27,8 +27,6 @@ class ContextFinder(private val testSuffix: String = "Test") {
         val packageNamePredicates =
             discoveryRequest.getFiltersByType(PackageNameFilter::class.java).map { it.toPredicate() }
         val allPredicates = classNamePredicates + packageNamePredicates
-        // when there is only a single class selector we run the test even when it does not end in *Test
-        val singleSelector = allSelectors.size == 1
         val contexts = allSelectors.flatMapTo(LinkedList()) { selector ->
             when (selector) {
                 is ClasspathRootSelector -> {
@@ -36,13 +34,16 @@ class ContextFinder(private val testSuffix: String = "Test") {
                     FailGood.findClassesInPath(
                         Paths.get(uri),
                         Thread.currentThread().contextClassLoader,
-                        matchLambda = { className -> allPredicates.all { it.test(className) } }
+                        matchLambda = { className -> allPredicates.all { it.test(className) } },
+                        classIncludeRegex = Regex(".*$testSuffix.class\$")
+
                     ).map {
                         ObjectContextProvider(it)
                     }
                 }
                 is ClassSelector -> {
-                    if (singleSelector || selector.className.endsWith(testSuffix))
+                    // when there is only a single class selector we run the test even when it does not end in *Test
+                    if (allSelectors.size == 1 || selector.className.endsWith(testSuffix))
                         listOf(ObjectContextProvider(selector.javaClass.kotlin))
                     else
                         listOf()

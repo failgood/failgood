@@ -3,6 +3,7 @@ package failgood.junit
 import failgood.Test
 import failgood.describe
 import failgood.internal.StringListTestFilter
+import failgood.junit.it.fixtures.packagewith1test.TestFixture
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.discovery.DiscoverySelectors
 import org.junit.platform.engine.discovery.PackageNameFilter
@@ -19,7 +20,7 @@ import java.nio.file.Paths
 class ContextFinderTest {
     private val rootName = "the ContextFinder"
     val context = describe(rootName) {
-        val contextFinder = ContextFinder()
+        val contextFinder = ContextFinder(testSuffix = "Fixture")
         val testName = "finds a single test with a uniqueId selector"
         it(testName) {
             val className = ContextFinderTest::class.qualifiedName!!
@@ -35,15 +36,15 @@ class ContextFinderTest {
             }
         }
         describe("test filtering") {
-            pending("supports a classpathRootSelector with a package filter") {
+            it("supports a classpathRootSelector with a package filter") {
                 val path = ContextFinderTest::class.java.protectionDomain.codeSource.location.path
                 val request = LauncherDiscoveryRequestBuilder.request()
                     .selectors(DiscoverySelectors.selectClasspathRoots(setOf(Paths.get(path))))
-                    .filters(PackageNameFilter.includePackageNames("failgood.junit"))
+                    .filters(PackageNameFilter.includePackageNames("failgood.junit.it.fixtures.packagewith1test"))
                     .build()
                 val contextNames =
                     contextFinder.findContexts(request).contexts.flatMap { it.getContexts() }.map { it.name }
-                expectThat(contextNames).containsExactlyInAnyOrder(rootName, ::createResponse.name)
+                expectThat(contextNames).containsExactlyInAnyOrder(TestFixture.CONTEXT_NAME)
             }
         }
     }

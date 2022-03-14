@@ -16,6 +16,7 @@ dependencies {
 
 tasks {
     test {
+        environment("TIMEOUT", "1000")
         useJUnitPlatform()
         outputs.upToDateWhen { false }
     }

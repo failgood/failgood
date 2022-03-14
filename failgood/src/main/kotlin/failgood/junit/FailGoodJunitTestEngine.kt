@@ -124,7 +124,7 @@ class FailGoodJunitTestEngine : TestEngine {
                                             junitListener.reportingEntryPublished(
                                                 mapping,
                                                 ReportEntry.from(
-                                                    "uniqueId to rerun just this test", mapping.uniqueId.toString()
+                                                    "uniqueId to rerun just this test", mapping.uniqueId.safeToString()
                                                 )
                                             )
                                         }
@@ -192,3 +192,4 @@ class FailGoodTestDescriptor(
 ) : AbstractTestDescriptor(id, name, testSource) {
     override fun getType(): TestDescriptor.Type = type
 }
+private fun UniqueId.safeToString() = toString().replace(" ", "+")

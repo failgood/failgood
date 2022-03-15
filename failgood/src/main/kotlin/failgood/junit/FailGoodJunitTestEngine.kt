@@ -35,7 +35,7 @@ class FailGoodJunitTestEngine : TestEngine {
             return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.displayName)
         val suite = Suite(providers)
         val suiteExecutionContext = SuiteExecutionContext()
-        val testResult = runBlocking(suiteExecutionContext.threadPool.asCoroutineDispatcher()) {
+        val testResult = runBlocking(suiteExecutionContext.coroutineDispatcher) {
             val testResult = suite.findTests(
                 GlobalScope, true, contextsAndFilters.filter, executionListener
             ).awaitAll()
@@ -74,7 +74,7 @@ class FailGoodJunitTestEngine : TestEngine {
                 junitListener.executionFinished(testDescriptor, TestExecutionResult.failed(it.failure))
             }
             val executionListener = root.executionListener
-            val results = runBlocking(suiteExecutionContext.threadPool.asCoroutineDispatcher()) {
+            val results = runBlocking(suiteExecutionContext.coroutineDispatcher) {
                 // report results while they come in. we use a channel because tests were already running before the execute
                 // method was called so when we get here there are probably tests already finished
                 val eventForwarder = launch {

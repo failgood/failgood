@@ -20,7 +20,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     fun run(parallelism: Int = cpus(), silent: Boolean = false): SuiteResult {
         val suiteExecutionContext = SuiteExecutionContext(parallelism)
         return try {
-            suiteExecutionContext.threadPool.asCoroutineDispatcher()
+            suiteExecutionContext.coroutineDispatcher
                 .use { dispatcher ->
                     runBlocking(dispatcher) {
                         val contextInfos = findTests(this)

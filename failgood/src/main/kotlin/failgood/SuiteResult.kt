@@ -14,7 +14,7 @@ data class SuiteResult(
     val contexts: List<Context>,
     val failedContexts: List<FailedContext>
 ) {
-    val allOk = failedTests.isEmpty()
+    val allOk = failedTests.isEmpty() && failedContexts.isEmpty()
 
     @Suppress("UNREACHABLE_CODE")
     fun check(throwException: Boolean = false, writeReport: Boolean = false) {

@@ -18,6 +18,11 @@ interface ResourcesDSL {
      * use this instead of beforeEach/afterEach
      */
     fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T
+
+    /**
+     * Register a callback that will run after each test. use [autoClose] instead if you can.
+     */
+    fun afterEach(function: suspend () -> Unit)
 }
 
 @FailGoodDSL

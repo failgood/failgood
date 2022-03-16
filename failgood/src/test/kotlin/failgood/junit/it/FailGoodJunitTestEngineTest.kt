@@ -2,6 +2,7 @@ package failgood.junit.it
 
 import failgood.Test
 import failgood.describe
+import failgood.junit.FailGoodEngineDescriptor
 import failgood.junit.FailGoodJunitTestEngine
 import failgood.junit.FailGoodJunitTestEngineConstants
 import failgood.junit.it.fixtures.PendingTestFixture
@@ -24,16 +25,21 @@ import java.util.concurrent.ConcurrentLinkedQueue
 class FailGoodJunitTestEngineTest {
     val context = describe(FailGoodJunitTestEngine::class) {
         val engine = FailGoodJunitTestEngine()
-        describe("can discover tests") {
-            val testDescriptor = engine.discover(
-                launcherDiscoveryRequest(listOf(DiscoverySelectors.selectClass(TestFixture::class.qualifiedName))),
-                UniqueId.forEngine(engine.id)
-            )
-            it("returns a root descriptor") {
+        describe("can discover tests", given = {
+            autoClose(
+                // if we only call discover on the engine without calling execute afterwards,
+                // we have to close the execution context manually
+                engine.discover(
+                    launcherDiscoveryRequest(listOf(DiscoverySelectors.selectClass(TestFixture::class.qualifiedName))),
+                    UniqueId.forEngine(engine.id)
+                )
+            ) { (it as FailGoodEngineDescriptor).suiteExecutionContext.close() }
+        }) {
+            it("returns a root descriptor") { testDescriptor ->
                 expectThat(testDescriptor.isRoot)
                 expectThat(testDescriptor.displayName).isEqualTo("FailGood")
             }
-            it("returns all root contexts") {
+            it("returns all root contexts") { testDescriptor ->
                 expectThat(testDescriptor.children).single().and {
                     get { isContainer }.isTrue()
                     get { displayName }.isEqualTo(TestFixture.ROOT_CONTEXT_NAME)

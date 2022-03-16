@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Support afterEach callbacks that run after each test.
 - Integrate kover plugin, publish code coverage to codecov
 
 ### Fixed

@@ -62,8 +62,7 @@ class FailGoodJunitTestEngine : TestEngine {
         if (root !is FailGoodEngineDescriptor) return
         val watchdog = System.getenv("FAILGOOD_WATCHDOG_MILLIS")?.let {
             Timer("watchdog", true).schedule(it.toLong()) {
-                val remainingThreads = Thread.getAllStackTraces().filterKeys { it: Thread -> true }
-                remainingThreads.forEach { (thread, stackTraceElements) ->
+                Thread.getAllStackTraces().forEach { (thread, stackTraceElements) ->
                     println("\n* Thread:${thread.name}: ${stackTraceElements.joinToString<StackTraceElement?>("\n")}")
                 }
                 exitProcess(-1)

@@ -1,7 +1,6 @@
 package failgood.junit
 
 import failgood.*
-import failgood.FailGood.printThreads
 import failgood.internal.FailedContext
 import failgood.internal.SuiteExecutionContext
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
@@ -20,12 +19,15 @@ import kotlin.system.exitProcess
 const val CONTEXT_SEGMENT_TYPE = "class"
 const val TEST_SEGMENT_TYPE = "method"
 
+private val watchdog = System.getenv("FAILGOOD_WATCHDOG_MILLIS")?.toLong()
+
 class FailGoodJunitTestEngine : TestEngine {
     private var debug: Boolean = false
     override fun getId(): String = FailGoodJunitTestEngineConstants.id
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun discover(discoveryRequest: EngineDiscoveryRequest, uniqueId: UniqueId): TestDescriptor {
+        val watchdog = watchdog?.let { Watchdog(it) }
         val startedAt = upt()
 
         debug = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_DEBUG).orElse(false)
@@ -47,6 +49,7 @@ class FailGoodJunitTestEngine : TestEngine {
             println("start: $startedAt tests collected at $testsCollectedAt, discover finished at ${upt()}")
             testResult
         }
+        watchdog?.close()
         return createResponse(
             uniqueId,
             testResult,
@@ -61,12 +64,7 @@ class FailGoodJunitTestEngine : TestEngine {
     override fun execute(request: ExecutionRequest) {
         val root = request.rootTestDescriptor
         if (root !is FailGoodEngineDescriptor) return
-        val watchdog = System.getenv("FAILGOOD_WATCHDOG_MILLIS")?.let {
-            Timer("watchdog", true).schedule(it.toLong()) {
-                printThreads { true }
-                exitProcess(-1)
-            }
-        }
+        val watchdog = watchdog?.let { Watchdog(it) }
         val suiteExecutionContext = root.suiteExecutionContext
         try {
             if (debug) {
@@ -190,7 +188,7 @@ class FailGoodJunitTestEngine : TestEngine {
             e.printStackTrace()
             throw e
         } finally {
-            watchdog?.cancel()
+            watchdog?.close()
         }
 
         println("finished after ${uptime()}")
@@ -205,4 +203,19 @@ class FailGoodTestDescriptor(
 ) : AbstractTestDescriptor(id, name, testSource) {
     override fun getType(): TestDescriptor.Type = type
 }
+
 private fun UniqueId.safeToString() = toString().replace(" ", "+")
+private class Watchdog(timeoutMillis: Long) : AutoCloseable {
+    val timer = Timer("watchdog", true)
+    val timerTask = timer.schedule(timeoutMillis) {
+        Thread.getAllStackTraces().forEach { (thread, stackTraceElements) ->
+            println("\n* Thread:${thread.name}: ${stackTraceElements.joinToString<StackTraceElement?>("\n")}")
+        }
+        exitProcess(-1)
+    }
+
+    override fun close() {
+        timerTask.cancel()
+        timer.cancel()
+    }
+}

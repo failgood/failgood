@@ -30,7 +30,9 @@ class TestLifecycleTest {
         CONTEXT_1_EXECUTED,
         CONTEXT_2_EXECUTED,
         TEST_3_EXECUTED,
-        TEST_4_EXECUTED
+        TEST_4_EXECUTED,
+        AFTER_EACH_1_EXECUTED,
+        AFTER_EACH_2_EXECUTED
     }
 
     val context = describe("the test lifecycle") {

@@ -19,5 +19,13 @@ class ResourcesCloserTest {
             subject.close()
             expectThat(getCalls(autoCloseable)).containsExactly(call(AutoCloseable::close))
         }
+        it("calles afterEach") {
+            var called = false
+            subject.afterEach {
+                called = true
+            }
+            subject.close()
+            assert(called)
+        }
     }
 }

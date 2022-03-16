@@ -16,3 +16,5 @@ fun launcherDiscoveryRequest(
         .selectors(selectors)
         .build()
 }
+
+val CI = System.getenv("CI") != null

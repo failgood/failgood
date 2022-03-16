@@ -21,7 +21,7 @@ import kotlin.test.assertNotNull
 @Test
 class JunitPlatformFunctionalTest {
     @Suppress("unused")
-    val context = describe("The Junit Platform Engine") {
+    val context = describe("The Junit Platform Engine", disabled = CI) {
         val listener = TEListener()
         it("can execute test in a class") {
             executeSingleTest(DuplicateTestNameTest::class, listener)

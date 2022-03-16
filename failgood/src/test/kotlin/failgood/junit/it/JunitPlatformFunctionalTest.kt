@@ -18,10 +18,11 @@ import strikt.assertions.isEqualTo
 import kotlin.reflect.KClass
 import kotlin.test.assertNotNull
 
+val CI = System.getenv("CI") != null
 @Test
 class JunitPlatformFunctionalTest {
     @Suppress("unused")
-    val context = describe("The Junit Platform Engine") {
+    val context = describe("The Junit Platform Engine", disabled = CI) {
         val listener = TEListener()
         it("can execute test in a class") {
             executeSingleTest(DuplicateTestNameTest::class, listener)

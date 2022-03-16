@@ -9,7 +9,7 @@ private val envParallelism: Int? = System.getenv("FAILGOOD_PARALLELISM")?.toInt(
 
 class SuiteExecutionContext(parallelismOverride: Int? = null) : AutoCloseable {
     // constructor parameter overrides system env variable overrides number of cpus autodetect
-    private val parallelism = parallelismOverride ?: envParallelism ?: cpus()
+    private val parallelism = parallelismOverride ?: envParallelism ?: cpus().coerceAtLeast(8)
     private val threadPool: ExecutorService = if (parallelism > 1)
         Executors.newWorkStealingPool(parallelism)
     else

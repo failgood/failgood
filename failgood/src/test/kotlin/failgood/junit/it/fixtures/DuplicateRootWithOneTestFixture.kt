@@ -5,7 +5,7 @@ import failgood.describe
 
 @Test
 // returns a cyclic graph
-class DuplicateRootWithOneTest {
+class DuplicateRootWithOneTestFixture {
     val context = listOf(
         describe("name") {
             it("test") {}

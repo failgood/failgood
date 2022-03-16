@@ -49,7 +49,7 @@ suspend fun main() {
         }
     }
     testFinished.await()
-    println("bootstrapped after: ${uptime()}ms")
+    println("bootstrapped after: ${uptime()}")
 
     FailGood.runAllTests(true)
 

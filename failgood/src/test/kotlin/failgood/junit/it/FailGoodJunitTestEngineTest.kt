@@ -4,14 +4,14 @@ import failgood.Test
 import failgood.describe
 import failgood.junit.FailGoodJunitTestEngine
 import failgood.junit.FailGoodJunitTestEngineConstants
-import failgood.junit.it.fixtures.PendingTestFixtureTest
-import failgood.junit.it.fixtures.TestFixtureTest
-import failgood.junit.it.fixtures.TestWithNestedContextsTest
-import failgood.junit.it.fixtures.TestWithNestedContextsTest.Companion.CHILD_CONTEXT_1_NAME
-import failgood.junit.it.fixtures.TestWithNestedContextsTest.Companion.CHILD_CONTEXT_2_NAME
-import failgood.junit.it.fixtures.TestWithNestedContextsTest.Companion.ROOT_CONTEXT_NAME
-import failgood.junit.it.fixtures.TestWithNestedContextsTest.Companion.TEST2_NAME
-import failgood.junit.it.fixtures.TestWithNestedContextsTest.Companion.TEST_NAME
+import failgood.junit.it.fixtures.PendingTestFixture
+import failgood.junit.it.fixtures.TestFixture
+import failgood.junit.it.fixtures.TestWithNestedContextsFixture
+import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.CHILD_CONTEXT_1_NAME
+import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.CHILD_CONTEXT_2_NAME
+import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.ROOT_CONTEXT_NAME
+import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.TEST2_NAME
+import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.TEST_NAME
 import org.junit.platform.engine.*
 import org.junit.platform.engine.discovery.DiscoverySelectors
 import strikt.api.expectThat
@@ -26,7 +26,7 @@ class FailGoodJunitTestEngineTest {
         val engine = FailGoodJunitTestEngine()
         describe("can discover tests") {
             val testDescriptor = engine.discover(
-                launcherDiscoveryRequest(listOf(DiscoverySelectors.selectClass(TestFixtureTest::class.qualifiedName))),
+                launcherDiscoveryRequest(listOf(DiscoverySelectors.selectClass(TestFixture::class.qualifiedName))),
                 UniqueId.forEngine(engine.id)
             )
             it("returns a root descriptor") {
@@ -36,7 +36,7 @@ class FailGoodJunitTestEngineTest {
             it("returns all root contexts") {
                 expectThat(testDescriptor.children).single().and {
                     get { isContainer }.isTrue()
-                    get { displayName }.isEqualTo(TestFixtureTest.ROOT_CONTEXT_NAME)
+                    get { displayName }.isEqualTo(TestFixture.ROOT_CONTEXT_NAME)
                 }
             }
         }
@@ -44,7 +44,7 @@ class FailGoodJunitTestEngineTest {
             it("starts and stops contexts in the correct order") {
                 val testDescriptor = engine.discover(
                     launcherDiscoveryRequest(
-                        listOf(DiscoverySelectors.selectClass(TestWithNestedContextsTest::class.qualifiedName))
+                        listOf(DiscoverySelectors.selectClass(TestWithNestedContextsFixture::class.qualifiedName))
                     ),
                     UniqueId.forEngine(engine.id)
                 )
@@ -78,7 +78,7 @@ class FailGoodJunitTestEngineTest {
             it("sends one skip event and no start event for skipped tests") {
                 val testDescriptor = engine.discover(
                     launcherDiscoveryRequest(
-                        listOf(DiscoverySelectors.selectClass(PendingTestFixtureTest::class.qualifiedName))
+                        listOf(DiscoverySelectors.selectClass(PendingTestFixture::class.qualifiedName))
                     ),
                     UniqueId.forEngine(engine.id)
                 )

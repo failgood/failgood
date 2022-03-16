@@ -57,13 +57,13 @@ class JunitPlatformFunctionalTest {
         }
         it("works for a failing context or root context") {
             val selectors = listOf(
-                DuplicateRootWithOneTest::class,
+                DuplicateRootWithOneTestFixture::class,
                 DuplicateTestNameTest::class,
                 FailingContext::class,
                 FailingRootContext::class,
-                PendingTestFixtureTest::class,
-                TestFixtureTest::class,
-                TestWithNestedContextsTest::class
+                PendingTestFixture::class,
+                TestFixture::class,
+                TestWithNestedContextsFixture::class
             ).map { selectClass(it.qualifiedName) }
             LauncherFactory.create().execute(
                 launcherDiscoveryRequest(selectors, mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")), listener
@@ -102,9 +102,9 @@ class JunitPlatformFunctionalTest {
         }
         it("returns uniqueIds that it understands") {
             // run a test by className
-            executeSingleTest(TestFixtureTest::class, listener)
+            executeSingleTest(TestFixture::class, listener)
             expectThat(listener.rootResult.await()).get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
-            val testName = TestFixtureTest.testName
+            val testName = TestFixture.testName
             val descriptor: TestIdentifier = assertNotNull(
                 listener.results.keys.singleOrNull {
                     it.displayName == testName

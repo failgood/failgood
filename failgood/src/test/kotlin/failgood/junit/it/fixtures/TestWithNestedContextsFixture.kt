@@ -4,7 +4,7 @@ import failgood.Test
 import failgood.describe
 
 @Test
-class TestWithNestedContextsTest {
+class TestWithNestedContextsFixture {
     companion object {
         const val CHILD_CONTEXT_2_NAME = "child context level 2"
         const val ROOT_CONTEXT_NAME = "fixture-root-context"

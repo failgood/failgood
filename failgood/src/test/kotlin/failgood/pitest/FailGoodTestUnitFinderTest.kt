@@ -2,6 +2,7 @@ package failgood.pitest
 
 import failgood.Test
 import failgood.describe
+import failgood.junit.it.CI
 import org.pitest.testapi.Description
 import org.pitest.testapi.ResultCollector
 import org.pitest.testapi.TestUnitFinder
@@ -30,7 +31,7 @@ object Tests {
 @Test
 class FailGoodTestUnitFinderTest {
     val context =
-        describe(FailGoodTestUnitFinder::class) {
+        describe(FailGoodTestUnitFinder::class, disabled = CI) {
             test("creates a test unit for each test") {
                 val finder: TestUnitFinder = FailGoodTestUnitFinder
                 val testUnits = finder.findTestUnits(Tests::class.java)

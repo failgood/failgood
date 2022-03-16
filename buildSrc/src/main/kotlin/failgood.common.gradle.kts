@@ -16,7 +16,6 @@ dependencies {
 
 tasks {
     test {
-        environment("TIMEOUT", "1000")
         useJUnitPlatform()
         outputs.upToDateWhen { false }
     }
@@ -27,7 +26,9 @@ tasks {
     }
     withType<KotlinCompile> {
         kotlinOptions {
-            allWarningsAsErrors = true
+            if (System.getenv("CI") != null) {
+                allWarningsAsErrors = true
+            }
             jvmTarget = "1.8"
             freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn", "-progressive")
             languageVersion = "1.6"

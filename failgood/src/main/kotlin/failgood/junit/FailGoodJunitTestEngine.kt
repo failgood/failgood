@@ -1,7 +1,6 @@
 package failgood.junit
 
 import failgood.*
-import failgood.FailGood.printThreads
 import failgood.internal.FailedContext
 import failgood.internal.SuiteExecutionContext
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
@@ -63,10 +62,14 @@ class FailGoodJunitTestEngine : TestEngine {
         if (root !is FailGoodEngineDescriptor) return
         val watchdog = System.getenv("FAILGOOD_WATCHDOG_MILLIS")?.let {
             Timer("watchdog", true).schedule(it.toLong()) {
-                printThreads { true }
+                val remainingThreads = Thread.getAllStackTraces().filterKeys { it: Thread -> true }
+                remainingThreads.forEach { (thread, stackTraceElements) ->
+                    println("\n* Thread:${thread.name}: ${stackTraceElements.joinToString<StackTraceElement?>("\n")}")
+                }
                 exitProcess(-1)
             }
         }
+
         val suiteExecutionContext = root.suiteExecutionContext
         try {
             if (debug) {
@@ -205,4 +208,5 @@ class FailGoodTestDescriptor(
 ) : AbstractTestDescriptor(id, name, testSource) {
     override fun getType(): TestDescriptor.Type = type
 }
+
 private fun UniqueId.safeToString() = toString().replace(" ", "+")

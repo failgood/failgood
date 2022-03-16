@@ -175,15 +175,15 @@ object FailGood {
     @Suppress("RedundantSuspendModifier")
     suspend fun runAllTests(writeReport: Boolean = false, paralellism: Int = cpus()) {
         Suite(findTestClasses()).run(parallelism = paralellism).check(writeReport = writeReport)
-        printThreads()
+        printThreads { !it.isDaemon && it.name != "main" }
     }
 
-    private fun printThreads() {
-        val remainingThreads = Thread.getAllStackTraces().filterKeys { !it.isDaemon && it.name != "main" }
+    fun printThreads(filter: (Thread) -> Boolean) {
+        val remainingThreads = Thread.getAllStackTraces().filterKeys(filter)
         if (remainingThreads.isNotEmpty()) {
-            println("Warning: The test suite left some non daemon threads running:")
-            remainingThreads
-                .forEach { (t, s) -> println("\n* Thread:${t.name}: ${s.joinToString("\n")}") }
+            remainingThreads.forEach { (thread, stackTraceElements) ->
+                println("\n* Thread:${thread.name}: ${stackTraceElements.joinToString("\n")}")
+            }
             exitProcess(0)
         }
     }

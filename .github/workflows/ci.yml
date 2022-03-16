@@ -31,6 +31,7 @@ jobs:
 #        continue-on-error: true
         env:
           CI: true
+          FAILGOOD_WATCHDOG_MILLIS: 100000
         run: ./gradlew check build
       - uses: codecov/codecov-action@v2
         with:

@@ -1,6 +1,7 @@
 package failgood.junit
 
 import failgood.*
+import failgood.FailGood.printThreads
 import failgood.internal.FailedContext
 import failgood.internal.SuiteExecutionContext
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
@@ -12,6 +13,9 @@ import org.junit.platform.engine.*
 import org.junit.platform.engine.reporting.ReportEntry
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
+import java.util.*
+import kotlin.concurrent.schedule
+import kotlin.system.exitProcess
 
 const val CONTEXT_SEGMENT_TYPE = "class"
 const val TEST_SEGMENT_TYPE = "method"
@@ -57,6 +61,12 @@ class FailGoodJunitTestEngine : TestEngine {
     override fun execute(request: ExecutionRequest) {
         val root = request.rootTestDescriptor
         if (root !is FailGoodEngineDescriptor) return
+        val watchdog = System.getenv("FAILGOOD_WATCHDOG_MILLIS")?.let {
+            Timer("watchdog", true).schedule(it.toLong()) {
+                printThreads { true }
+                exitProcess(-1)
+            }
+        }
         val suiteExecutionContext = root.suiteExecutionContext
         try {
             if (debug) {
@@ -179,7 +189,10 @@ class FailGoodJunitTestEngine : TestEngine {
             )
             e.printStackTrace()
             throw e
+        } finally {
+            watchdog?.cancel()
         }
+
         println("finished after ${uptime()}")
     }
 }

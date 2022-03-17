@@ -25,7 +25,6 @@ class FailGoodJunitTestEngine : TestEngine {
     private var debug: Boolean = false
     override fun getId(): String = FailGoodJunitTestEngineConstants.id
 
-    @OptIn(DelicateCoroutinesApi::class)
     override fun discover(discoveryRequest: EngineDiscoveryRequest, uniqueId: UniqueId): TestDescriptor {
         val watchdog = watchdog?.let { Watchdog(it) }
         val startedAt = upt()
@@ -43,7 +42,7 @@ class FailGoodJunitTestEngine : TestEngine {
         val suiteExecutionContext = SuiteExecutionContext()
         val testResult = runBlocking(suiteExecutionContext.coroutineDispatcher) {
             val testResult = suite.findTests(
-                GlobalScope, true, contextsAndFilters.filter, executionListener
+                suiteExecutionContext.scope, true, contextsAndFilters.filter, executionListener
             ).awaitAll()
             val testsCollectedAt = upt()
             println("start: $startedAt tests collected at $testsCollectedAt, discover finished at ${upt()}")

@@ -1,7 +1,9 @@
 package failgood.internal
 
 import failgood.cpus
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.cancel
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -16,7 +18,9 @@ class SuiteExecutionContext(parallelismOverride: Int? = null) : AutoCloseable {
         Executors.newSingleThreadExecutor()
 
     val coroutineDispatcher = threadPool.asCoroutineDispatcher()
+    val scope = CoroutineScope(coroutineDispatcher)
     override fun close() {
+        scope.cancel()
         coroutineDispatcher.close()
         threadPool.awaitTermination(10, TimeUnit.SECONDS)
         threadPool.shutdown()

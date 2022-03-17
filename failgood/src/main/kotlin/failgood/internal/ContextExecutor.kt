@@ -3,9 +3,9 @@ package failgood.internal
 import failgood.*
 import kotlinx.coroutines.*
 
-internal class ContextExecutor @OptIn(DelicateCoroutinesApi::class) constructor(
+internal class ContextExecutor constructor(
     private val rootContext: RootContext,
-    val scope: CoroutineScope = GlobalScope,
+    val scope: CoroutineScope,
     lazy: Boolean = false,
     val listener: ExecutionListener = NullExecutionListener,
     val testFilter: TestFilter = ExecuteAllTests,

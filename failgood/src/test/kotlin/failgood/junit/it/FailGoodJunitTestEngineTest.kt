@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 @Test
 class FailGoodJunitTestEngineTest {
-    val context = describe(FailGoodJunitTestEngine::class, disabled = CI) {
+    val context = describe(FailGoodJunitTestEngine::class) {
         val engine = FailGoodJunitTestEngine()
         describe("can discover tests", given = {
             autoClose(

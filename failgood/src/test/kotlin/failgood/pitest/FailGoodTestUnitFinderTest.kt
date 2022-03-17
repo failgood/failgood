@@ -2,7 +2,6 @@ package failgood.pitest
 
 import failgood.Test
 import failgood.describe
-import failgood.junit.it.CI
 import org.pitest.testapi.Description
 import org.pitest.testapi.ResultCollector
 import org.pitest.testapi.TestUnitFinder
@@ -23,49 +22,45 @@ object Tests {
             throw failure
         }
         pending("pending test")
-        test("successful test") {
-        }
+        test("successful test") {}
     }
 }
 
 @Test
 class FailGoodTestUnitFinderTest {
-    val context =
-        describe(FailGoodTestUnitFinder::class, disabled = CI) {
-            test("creates a test unit for each test") {
-                val finder: TestUnitFinder = FailGoodTestUnitFinder
-                val testUnits = finder.findTestUnits(Tests::class.java)
-                expectThat(testUnits).hasSize(3)
-                val collector = TestResultCollector()
-                testUnits.forEach {
-                    it.execute(collector)
-                }
-                val failedEvent = Event(
-                    Description("tests with different results > failing test", Tests::class.java),
-                    Type.END,
-                    throwableToString(failure)
-                )
-                expectThat(collector.events).filter { it.throwable != null }.single().isEqualTo(failedEvent)
-                expectThat(collector.events).containsExactlyInAnyOrder(
-                    listOf(
-                        Event(testUnits[0].description, Type.START, null),
-                        Event(testUnits[1].description, Type.START, null),
-                        Event(testUnits[2].description, Type.START, null),
-                        failedEvent,
-                        Event(
-                            Description("tests with different results > pending test", Tests::class.java),
-                            Type.SKIPPED,
-                            null
-                        ),
-                        Event(
-                            Description("tests with different results > successful test", Tests::class.java),
-                            Type.END,
-                            null
-                        )
+    val context = describe(FailGoodTestUnitFinder::class) {
+        test("creates a test unit for each test") {
+            val finder: TestUnitFinder = FailGoodTestUnitFinder
+            val testUnits = finder.findTestUnits(Tests::class.java)
+            expectThat(testUnits).hasSize(3)
+            val collector = TestResultCollector()
+            testUnits.forEach {
+                it.execute(collector)
+            }
+            val failedEvent = Event(
+                Description("tests with different results > failing test", Tests::class.java),
+                Type.END,
+                throwableToString(failure)
+            )
+            expectThat(collector.events).filter { it.throwable != null }.single().isEqualTo(failedEvent)
+            expectThat(collector.events).containsExactlyInAnyOrder(
+                listOf(
+                    Event(testUnits[0].description, Type.START, null),
+                    Event(testUnits[1].description, Type.START, null),
+                    Event(testUnits[2].description, Type.START, null),
+                    failedEvent,
+                    Event(
+                        Description("tests with different results > pending test", Tests::class.java),
+                        Type.SKIPPED,
+                        null
+                    ),
+                    Event(
+                        Description("tests with different results > successful test", Tests::class.java), Type.END, null
                     )
                 )
-            }
+            )
         }
+    }
 
     private enum class Type {
         END, START, SKIPPED

@@ -29,9 +29,9 @@ tasks {
         kotlinOptions {
             allWarningsAsErrors = true
             jvmTarget = "1.8"
-            freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn", "-progressive")
-            languageVersion = "1.6"
-            apiVersion = "1.6"
+            freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
+            languageVersion = "1.5"
+            apiVersion = "1.5"
         }
     }
 }

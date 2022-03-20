@@ -21,7 +21,6 @@ dependencies {
     api("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
     compileOnly("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
 
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion"))
     implementation(kotlin("stdlib-jdk8"))
     compileOnly("org.pitest:pitest:$pitestVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")

@@ -13,6 +13,5 @@ dependencies {
     implementation(kotlin("gradle-plugin", "1.6.10"))
     implementation("org.jlleitschuh.gradle:ktlint-gradle:10.2.0")
     implementation("com.adarshr:gradle-test-logger-plugin:3.1.0")
-    implementation("org.jetbrains.kotlinx.kover:org.jetbrains.kotlinx.kover.gradle.plugin:0.5.0")
 }
 

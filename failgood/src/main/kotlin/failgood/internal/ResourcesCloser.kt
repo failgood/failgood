@@ -41,5 +41,5 @@ internal class ResourcesCloser(private val scope: CoroutineScope) : ResourcesDSL
     }
 
     private val closeables = ConcurrentLinkedQueue<SuspendAutoCloseable<*>>()
-    private val afterEachCallbacks = ConcurrentLinkedQueue<suspend ()->Unit>()
+    private val afterEachCallbacks = ConcurrentLinkedQueue<suspend () -> Unit>()
 }

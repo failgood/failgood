@@ -11,7 +11,7 @@ plugins {
 }
 
 dependencies {
-    ktlint("com.pinterest:ktlint:0.42.1")
+    ktlint("com.pinterest:ktlint:0.45.1")
 }
 
 tasks {

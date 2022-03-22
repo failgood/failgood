@@ -1,7 +1,7 @@
 package failgood.internal
 
 import failgood.Context
-import failgood.Failed
+import failgood.Failure
 import failgood.Pending
 import failgood.Success
 import failgood.TestContainer
@@ -43,7 +43,7 @@ internal class ContextTreeReporter {
                             val timeMicro = testResult.result.timeMicro
                             listOf("$indentString  $SUCCESS ${testResult.test.testName} (${time(timeMicro)}ms)")
                         }
-                        is Failed -> listOf(
+                        is Failure -> listOf(
                             "$indentString  $FAILED ${testResult.test.testName} ${RED}FAILED$RESET",
                             "$indentString    ${
                             testResult.result.failure.message?.replace(

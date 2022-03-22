@@ -1,6 +1,6 @@
 package failgood.functional
 
-import failgood.Failed
+import failgood.Failure
 import failgood.Suite
 import failgood.SuiteResult
 import failgood.Test
@@ -124,7 +124,7 @@ class TestResourcesLifecycleTest {
                 fun assertFailedGracefully(result: SuiteResult) {
                     expectThat(result) {
                         get { allOk }.isFalse()
-                        get { allTests }.hasSize(2).all { get { this.result }.isA<Failed>() }.map { it.test.testName }
+                        get { allTests }.hasSize(2).all { get { this.result }.isA<Failure>() }.map { it.test.testName }
                             .containsExactlyInAnyOrder(
                                 "first test", "second test"
                             )

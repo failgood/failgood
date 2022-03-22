@@ -1,7 +1,7 @@
 package failgood.internal
 
 import failgood.Context
-import failgood.Failed
+import failgood.Failure
 import failgood.RootContext
 import failgood.Success
 import failgood.Test
@@ -81,7 +81,7 @@ class SingleTestExecutorTest {
                         ContextPath(Context("root context", null), "test"),
                         testDSL, resourceCloser
                     ).execute()
-                    expectThat(result).isA<Failed>().get { failure }.isEqualTo(runtimeException)
+                    expectThat(result).isA<Failure>().get { failure }.isEqualTo(runtimeException)
                 }
                 it("reports exceptions in the autoclose lambda as test failures") {
                     val runtimeException = RuntimeException()
@@ -94,7 +94,7 @@ class SingleTestExecutorTest {
                         ContextPath(Context("root context", null), "test"),
                         testDSL, resourceCloser
                     ).execute()
-                    expectThat(result).isA<Failed>().get { failure }.isEqualTo(runtimeException)
+                    expectThat(result).isA<Failure>().get { failure }.isEqualTo(runtimeException)
                 }
             }
         }

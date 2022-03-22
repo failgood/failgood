@@ -6,13 +6,13 @@ import failgood.internal.ExceptionPrettyPrinter
 
 data class TestPlusResult(val test: TestDescription, val result: TestResult) {
     val isPending = result is Pending
-    val isFailed = result is Failed
+    val isFailure = result is Failure
     val isSuccess = result is Success
 
     fun prettyPrint(): String {
         val testDescription = test.toString()
         return when (result) {
-            is Failed -> {
+            is Failure -> {
                 val exceptionInfo = ExceptionPrettyPrinter(result.failure, test.sourceInfo).prettyPrint()
 
                 "$testDescription:$RED failed$RESET with $exceptionInfo.\ntest: ${test.sourceInfo}"
@@ -27,10 +27,10 @@ sealed class TestResult
 
 data class Success(val timeMicro: Long) : TestResult()
 internal object Pending : TestResult()
-class Failed(val failure: Throwable) :
+class Failure(val failure: Throwable) :
     TestResult() {
     override fun equals(other: Any?): Boolean {
-        return (other is Failed) && failure.stackTraceToString() == other.failure.stackTraceToString()
+        return (other is Failure) && failure.stackTraceToString() == other.failure.stackTraceToString()
     }
 
     override fun hashCode(): Int = failure.stackTraceToString().hashCode()

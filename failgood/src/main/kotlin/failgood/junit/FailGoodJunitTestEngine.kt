@@ -123,7 +123,7 @@ class FailGoodJunitTestEngine : TestEngine {
                             is TestExecutionEvent.Stopped -> {
                                 val testPlusResult = event.testResult
                                 when (testPlusResult.result) {
-                                    is Failed -> {
+                                    is Failure -> {
                                         withContext(Dispatchers.IO) {
                                             junitListener.executionFinished(
                                                 mapping, TestExecutionResult.failed(testPlusResult.result.failure)

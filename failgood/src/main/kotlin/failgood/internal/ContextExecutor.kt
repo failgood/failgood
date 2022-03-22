@@ -122,7 +122,7 @@ internal class ContextExecutor constructor(
                             TestPlusResult(testDescription, result)
                         }
                     } catch (e: TimeoutCancellationException) {
-                        TestPlusResult(testDescription, Failed(e))
+                        TestPlusResult(testDescription, Failure(e))
                     }
                     testPlusResult.also {
                         listener.testFinished(it)
@@ -146,18 +146,18 @@ internal class ContextExecutor constructor(
                             resourcesCloser.closeAutoClosables()
                         } catch (_: RuntimeException) {
                         }
-                        val failed = Failed(e)
-                        resourcesCloser.closeAfterEach(testContext, failed)
-                        return@withTimeout failed
+                        val failure = Failure(e)
+                        resourcesCloser.closeAfterEach(testContext, failure)
+                        return@withTimeout failure
                     }
                     // test was successful
                     if (isolation) {
                         try {
                             resourcesCloser.closeAutoClosables()
                         } catch (e: Exception) {
-                            val failed = Failed(e)
-                            resourcesCloser.closeAfterEach(testContext, failed)
-                            return@withTimeout failed
+                            val failure = Failure(e)
+                            resourcesCloser.closeAfterEach(testContext, failure)
+                            return@withTimeout failure
                         }
                     }
                     val success = Success((System.nanoTime() - startTime) / 1000)
@@ -165,7 +165,7 @@ internal class ContextExecutor constructor(
                     success
                 }
             } catch (e: TimeoutCancellationException) {
-                Failed(e)
+                Failure(e)
             }
         }
 
@@ -207,7 +207,7 @@ internal class ContextExecutor constructor(
                 val testDescriptor = TestDescription(parentContext, contextName, sourceInfo)
 
                 processedTests.add(contextPath) // don't visit this context again
-                val testPlusResult = TestPlusResult(testDescriptor, Failed(exceptionInContext))
+                val testPlusResult = TestPlusResult(testDescriptor, Failure(exceptionInContext))
                 deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
                 listener.testFinished(testPlusResult)
                 ranATest = true

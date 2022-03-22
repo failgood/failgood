@@ -1,7 +1,7 @@
 package failgood.functional
 
 import failgood.ContextDSL
-import failgood.Failed
+import failgood.Failure
 import failgood.Success
 import failgood.Suite
 import failgood.Test
@@ -71,7 +71,7 @@ class TestLifecycleTest {
                 )
                 assert(afterEachParameters["test 1"] is Success)
                 assert(afterEachParameters["test 2"] is Success)
-                assert(afterEachParameters["test 3"] is Failed)
+                assert(afterEachParameters["test 3"] is Failure)
                 assert(afterEachParameters["test4: tests can be defined after contexts"] is Success)
             }
         }

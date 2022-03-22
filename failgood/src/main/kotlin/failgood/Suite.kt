@@ -131,7 +131,7 @@ internal suspend fun awaitTestResults(resolvedContexts: List<ContextResult>): Su
     }
     return SuiteResult(
         results,
-        results.filter { it.isFailed },
+        results.filter { it.isFailure },
         successfulContexts.flatMap { it.contexts },
         failedContexts
 

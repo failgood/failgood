@@ -1,7 +1,7 @@
 package failgood.internal
 
 import failgood.*
-import failgood.Failed
+import failgood.Failure
 import failgood.Success
 
 /**
@@ -26,7 +26,7 @@ internal class SingleTestExecutor(
         } catch (e: TestResultAvailable) {
             e.testResult
         } catch (e: Throwable) {
-            Failed(e)
+            Failure(e)
         }
     }
 
@@ -107,10 +107,10 @@ internal class SingleTestExecutor(
             try {
                 testDSL.function(given())
             } catch (e: Throwable) {
-                val failed = Failed(e)
+                val failure = Failure(e)
                 resourcesCloser.closeAutoClosables()
-                resourcesCloser.closeAfterEach(testDSL, failed)
-                return failed
+                resourcesCloser.closeAfterEach(testDSL, failure)
+                return failure
             }
             resourcesCloser.closeAutoClosables()
             val success = Success((System.nanoTime() - startTime) / 1000)

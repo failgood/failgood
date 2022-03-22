@@ -1,6 +1,6 @@
 package failgood.internal
 
-import failgood.Failed
+import failgood.Failure
 import failgood.RootContext
 import failgood.Success
 import failgood.Test
@@ -67,7 +67,7 @@ class ContextExecutorTest {
                 }
                 describe("reports failed tests") {
                     val failure =
-                        contextInfo.tests.values.awaitAll().map { it.result }.filterIsInstance<Failed>().single()
+                        contextInfo.tests.values.awaitAll().map { it.result }.filterIsInstance<Failure>().single()
                     it("reports exception for failed tests") {
                         expectThat(assertionError).isNotNull()
                         val assertionError = assertionError!!
@@ -210,7 +210,7 @@ class ContextExecutorTest {
             val results = expectThat(execute(ctx)).isA<ContextInfo>().subject
 
             it("reports a failing context as a failing test") {
-                expectThat(results.tests.values.awaitAll().filter { it.isFailed }).single().and {
+                expectThat(results.tests.values.awaitAll().filter { it.isFailure }).single().and {
                     get { test }.and {
                         get { testName }.isEqualTo("context 1")
                         get { container.name }.isEqualTo("root context")

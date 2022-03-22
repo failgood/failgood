@@ -1,6 +1,6 @@
 package failgood.internal
 
-import failgood.Failed
+import failgood.Failure
 import failgood.Pending
 import failgood.Success
 import failgood.TestPlusResult
@@ -28,7 +28,7 @@ internal class Junit4Reporter(private val testResults: List<TestPlusResult>) {
             val line = when (it.result) {
                 is Success ->
                     listOf("""<testcase classname="${it.test.container.stringPath()}" name="${it.test.testName}"/>""")
-                is Failed -> {
+                is Failure -> {
                     listOf(
                         """<testcase classname="${it.test.container.stringPath()}" name="${it.test.testName}">""",
                         """<failure message="${it.result.failure.message?.xmlEscape()}">""",

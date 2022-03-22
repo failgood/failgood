@@ -43,7 +43,7 @@ suspend fun main() {
             hasSize(2)
             all {
                 get(TestPlusResult::test).get(TestDescription::testName).isEqualTo("failing test")
-                get { result }.isA<Failed>().get { failure }.isA<AssertionError>()
+                get { result }.isA<Failure>().get { failure }.isA<AssertionError>()
             }
             get(SuiteResult::allTests).hasSize(3)
         }

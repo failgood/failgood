@@ -62,7 +62,7 @@ class GivenTest {
                 val result = Suite(context).run(silent = true).allTests
                 assert(
                     result.size == 2 && result.all {
-                        it.isFailed && (it.result as Failed).failure.message == "given error"
+                        it.isFailure && (it.result as Failure).failure.message == "given error"
                     }
                 )
                 assert(

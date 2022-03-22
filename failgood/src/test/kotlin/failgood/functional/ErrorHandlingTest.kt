@@ -1,6 +1,6 @@
 package failgood.functional
 
-import failgood.Failed
+import failgood.Failure
 import failgood.Suite
 import failgood.Test
 import failgood.describe
@@ -21,7 +21,7 @@ class ErrorHandlingTest {
                     }.run(silent = true).failedTests
                 ).single().and {
                     get { test.testName }.startsWith("test2")
-                    get { result }.isA<Failed>().get { failure.message }.isNotNull()
+                    get { result }.isA<Failure>().get { failure.message }.isNotNull()
                         .contains("please make sure your test names contain no random parts")
                 }
             }

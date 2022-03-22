@@ -25,9 +25,9 @@ data class TestPlusResult(val test: TestDescription, val result: TestResult) {
 
 sealed class TestResult
 
-internal data class Success(val timeMicro: Long) : TestResult()
+data class Success(val timeMicro: Long) : TestResult()
 internal object Pending : TestResult()
-internal class Failed(val failure: Throwable) :
+class Failed(val failure: Throwable) :
     TestResult() {
     override fun equals(other: Any?): Boolean {
         return (other is Failed) && failure.stackTraceToString() == other.failure.stackTraceToString()

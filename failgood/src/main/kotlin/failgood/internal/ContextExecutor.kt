@@ -49,7 +49,7 @@ internal class ContextExecutor constructor(
                     visitor.function()
                     investigatedContexts.add(rootContext)
                     if (!rootContext.isolation) {
-                        afterSuiteCallbacks.add { resourcesCloser.close() }
+                        afterSuiteCallbacks.add { resourcesCloser.closeAutoClosables() }
                         break
                     }
                     if (!visitor.contextsLeft) break
@@ -138,24 +138,31 @@ internal class ContextExecutor constructor(
         ): TestResult {
             return try {
                 withTimeout(timeoutMillis) {
+                    val testContext = TestContext(resourcesCloser, listener, testDescription)
                     try {
-                        val testContext = TestContext(resourcesCloser, listener, testDescription)
                         testContext.function(given.invoke())
                     } catch (e: Throwable) {
                         if (isolation) try {
-                            resourcesCloser.close()
+                            resourcesCloser.closeAutoClosables()
                         } catch (_: RuntimeException) {
                         }
-                        return@withTimeout Failed(e)
+                        val failed = Failed(e)
+                        resourcesCloser.closeAfterEach(testContext, failed)
+                        return@withTimeout failed
                     }
+                    // test was successful
                     if (isolation) {
                         try {
-                            resourcesCloser.close()
+                            resourcesCloser.closeAutoClosables()
                         } catch (e: Exception) {
-                            return@withTimeout Failed(e)
+                            val failed = Failed(e)
+                            resourcesCloser.closeAfterEach(testContext, failed)
+                            return@withTimeout failed
                         }
                     }
-                    Success((System.nanoTime() - startTime) / 1000)
+                    val success = Success((System.nanoTime() - startTime) / 1000)
+                    resourcesCloser.closeAfterEach(testContext, success)
+                    success
                 }
             } catch (e: TimeoutCancellationException) {
                 Failed(e)

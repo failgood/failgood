@@ -1,7 +1,9 @@
 package failgood.internal
 
 import failgood.ResourcesDSL
+import failgood.TestDSL
 import failgood.TestDependency
+import failgood.TestResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -13,11 +15,11 @@ internal class ResourcesCloser(private val scope: CoroutineScope) : ResourcesDSL
         return wrapped
     }
 
-    override fun afterEach(function: suspend () -> Unit) {
+    override fun afterEach(function: suspend TestDSL.(TestResult) -> Unit) {
         addAfterEach(function)
     }
 
-    private fun addAfterEach(function: suspend () -> Unit) {
+    private fun addAfterEach(function: suspend TestDSL.(TestResult) -> Unit) {
         afterEachCallbacks.add(function)
     }
 
@@ -33,13 +35,15 @@ internal class ResourcesCloser(private val scope: CoroutineScope) : ResourcesDSL
         closeables.add(autoCloseable)
     }
 
-    suspend fun close() {
+    suspend fun closeAutoClosables() {
         closeables.reversed().forEach { it.close() }
+    }
+    suspend fun closeAfterEach(testDSL: TestDSL, testResult: TestResult) {
         afterEachCallbacks.reversed().forEach {
-            it.invoke()
+            it.invoke(testDSL, testResult)
         }
     }
 
     private val closeables = ConcurrentLinkedQueue<SuspendAutoCloseable<*>>()
-    private val afterEachCallbacks = ConcurrentLinkedQueue<suspend () -> Unit>()
+    private val afterEachCallbacks = ConcurrentLinkedQueue<suspend TestDSL.(TestResult) -> Unit>()
 }

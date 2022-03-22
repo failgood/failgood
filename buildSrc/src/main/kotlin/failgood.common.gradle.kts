@@ -26,7 +26,8 @@ tasks {
     }
     withType<KotlinCompile> {
         kotlinOptions {
-            allWarningsAsErrors = true
+            if (System.getenv("CI") != null)
+                allWarningsAsErrors = true
             jvmTarget = "1.8"
             freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
             languageVersion = "1.5"

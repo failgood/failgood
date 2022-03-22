@@ -22,7 +22,7 @@ interface ResourcesDSL {
     /**
      * Register a callback that will run after each test. use [autoClose] instead if you can.
      */
-    fun afterEach(function: suspend () -> Unit)
+    fun afterEach(function: suspend TestDSL.(TestResult) -> Unit)
 }
 
 @FailGoodDSL

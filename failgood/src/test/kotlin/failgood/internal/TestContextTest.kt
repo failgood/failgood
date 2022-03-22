@@ -17,12 +17,18 @@ import strikt.assertions.single
 @Test
 class TestContextTest {
     val context = describe(TestDSL::class) {
+        val testDescription = TestDescription(Context("root"), "testname", SourceInfo("a", "b", 1))
+        val listener = mock<ExecutionListener>()
+        val testContext = TestContext(mock(), listener, testDescription)
         it("publishes a test event for stdout printing") {
-            val testDescription = TestDescription(Context("root"), "testname", SourceInfo("a", "b", 1))
-            val listener = mock<ExecutionListener>()
-            TestContext(mock(), listener, testDescription).println("printing to stdout")
+            testContext.println("printing to stdout")
             expectThat(getCalls(listener)).single()
                 .isEqualTo(call(ExecutionListener::testEvent, testDescription, "stdout", "printing to stdout"))
+        }
+        val testName = "tells the name of the test"
+        it(testName) {
+            assert(testContext.testInfo.name == "testname")
+            assert(testInfo.name == testName)
         }
     }
 }

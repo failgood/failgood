@@ -38,7 +38,7 @@ class TestResourcesLifecycleTest {
                         resource1 = autoClose(closeable1) { it.close(); events.add("first close callback") }
                         resource2 = autoClose(closeable2) { it.close(); events.add("second close callback") }
                         test("first failing test") {
-                            events.add("first failing test")
+                            events.add(this.testInfo.name)
                             throw AssertionError("test failed")
                         }
                         test("second failing test") {

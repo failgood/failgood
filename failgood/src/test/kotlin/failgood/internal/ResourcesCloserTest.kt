@@ -28,10 +28,10 @@ class ResourcesCloserTest {
             val testDSL = mock<TestDSL>()
             it("calls afterEach") {
                 var called: Pair<TestDSL, TestResult>? = null
-                subject.afterEach {success ->
+                subject.afterEach { success ->
                     called = Pair(this, success)
                 }
-                subject.closeAfterEach(testDSL, Success(10) )
+                subject.closeAfterEach(testDSL, Success(10))
                 assert(called == Pair(testDSL, Success(10)))
             }
         }

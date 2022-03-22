@@ -1,6 +1,8 @@
 package failgood.functional
 
 import failgood.ContextDSL
+import failgood.Failed
+import failgood.Success
 import failgood.Suite
 import failgood.Test
 import failgood.TestResult
@@ -38,8 +40,8 @@ class TestLifecycleTest {
             totalEvents.add(testEvents)
             testEvents.add(ROOT_CONTEXT_EXECUTED)
             autoClose("dependency", closeFunction = { testEvents.add(DEPENDENCY_CLOSED) })
-            afterEach { error: TestResult ->
-                afterEachParameters[testInfo.name] = error
+            afterEach { result: TestResult ->
+                afterEachParameters[testInfo.name] = result
                 testEvents.add(AFTER_EACH_EXECUTED)
             }
             test("test 1") { testEvents.add(TEST_1_EXECUTED) }
@@ -50,7 +52,7 @@ class TestLifecycleTest {
                     testEvents.add(CONTEXT_2_EXECUTED)
                     test("test 3") {
                         testEvents.add(TEST_3_EXECUTED)
-//                        throw RuntimeException()
+                        throw RuntimeException()
                     }
                 }
             }
@@ -58,16 +60,29 @@ class TestLifecycleTest {
                 testEvents.add(TEST_4_EXECUTED)
             }
         }
+
+        suspend fun ContextDSL<Unit>.testAfterEach() {
+            it("passes testInfo and success to afterEach") {
+                expectThat(afterEachParameters.keys().toList()).containsExactlyInAnyOrder(
+                    "test 1",
+                    "test 2",
+                    "test 3",
+                    "test4: tests can be defined after contexts"
+                )
+                assert(afterEachParameters["test 1"] is Success)
+                assert(afterEachParameters["test 2"] is Success)
+                assert(afterEachParameters["test 3"] is Failed)
+                assert(afterEachParameters["test4: tests can be defined after contexts"] is Success)
+            }
+        }
         describe("in the default isolation mode (full isolation)") {
+            val result = Suite {
+                contextFixture()
+            }.run(silent = true)
+            assert(!result.allOk) { "there should be one failing test" }
             it("test dependencies are recreated for each test") {
                 // tests run in parallel, so the total order of events is not defined.
                 // we track events in a list of lists and record the events that lead to each test
-
-                val result = Suite {
-                    contextFixture()
-                }.run(silent = true)
-                assert(result.allOk)
-
                 expectThat(totalEvents)
                     .containsExactlyInAnyOrder(
                         listOf(ROOT_CONTEXT_EXECUTED, TEST_1_EXECUTED, DEPENDENCY_CLOSED, AFTER_EACH_EXECUTED),
@@ -83,20 +98,17 @@ class TestLifecycleTest {
                         listOf(ROOT_CONTEXT_EXECUTED, TEST_4_EXECUTED, DEPENDENCY_CLOSED, AFTER_EACH_EXECUTED)
                     )
             }
-            it("passes testInfo and success to afterEach") {
-
-            }
+            testAfterEach()
         }
         describe("a root context with isolation set to false") {
+            Suite(
+                describe("root context without isolation", isolation = false) {
+                    contextFixture()
+                }
+            ).run(silent = true)
             it("runs tests without recreating the dependencies") {
                 // here we just know that the root context start is the first event and the resource closed the last
                 // other events can occur in any order
-
-                Suite(
-                    describe("root context without isolation", isolation = false) {
-                        contextFixture()
-                    }
-                ).run(silent = true)
 
                 // we don't know the order of the tests because they run in parallel
                 // we do know that the root context runs first and the dependency must be closed after all tests are finished
@@ -128,9 +140,7 @@ class TestLifecycleTest {
                     )
                 }
             }
-            pending("calls afterEach for each test with testInfo and success") {
-
-            }
+            testAfterEach()
         }
     }
 }

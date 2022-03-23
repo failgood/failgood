@@ -5,9 +5,9 @@ import failgood.Failure
 import failgood.Success
 import failgood.Suite
 import failgood.Test
+import failgood.TestDSL
 import failgood.TestResult
 import failgood.describe
-import failgood.functional.TestLifecycleTest.Event.*
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.containsExactlyInAnyOrder
@@ -20,59 +20,52 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 @Test
 class TestLifecycleTest {
-    private enum class Event {
-        ROOT_CONTEXT_EXECUTED,
-        DEPENDENCY_CLOSED,
-        TEST_1_EXECUTED,
-        TEST_2_EXECUTED,
-        CONTEXT_1_EXECUTED,
-        CONTEXT_2_EXECUTED,
-        TEST_3_EXECUTED,
-        TEST_4_EXECUTED,
-        AFTER_EACH_EXECUTED
-    }
+    val ROOT_CONTEXT_EXECUTED = "root context executed"
+    val DEPENDENCY_CLOSED = "dependency closed"
+    val CONTEXT_1_EXECUTED = "context 1 executed"
+    val CONTEXT_2_EXECUTED = "context 2 executed"
 
     val context = describe("the test lifecycle") {
         val afterEachParameters = ConcurrentHashMap<String, TestResult>()
-        val totalEvents = CopyOnWriteArrayList<List<Event>>()
+        val totalEvents = CopyOnWriteArrayList<List<String>>()
         suspend fun ContextDSL<Unit>.contextFixture() {
-            val testEvents = CopyOnWriteArrayList<Event>()
+            val testEvents = CopyOnWriteArrayList<String>()
             totalEvents.add(testEvents)
             testEvents.add(ROOT_CONTEXT_EXECUTED)
-            autoClose("dependency", closeFunction = { testEvents.add(DEPENDENCY_CLOSED) })
+            autoClose("dependency", closeFunction = {
+                testEvents.add(DEPENDENCY_CLOSED)
+            })
             afterEach { result: TestResult ->
-                afterEachParameters[testInfo.name] = result
-                testEvents.add(AFTER_EACH_EXECUTED)
+                val testName = testInfo.name
+                afterEachParameters[testName] = result
+                testEvents.add("after each executed for $testName")
             }
-            test("test 1") { testEvents.add(TEST_1_EXECUTED) }
-            test("test 2") { testEvents.add(TEST_2_EXECUTED) }
+            val logTest: suspend TestDSL.(Unit) -> Unit = { testEvents.add("${testInfo.name} executed") }
+            test("test 1", function = logTest)
+            test("test 2", function = logTest)
             context("context 1") {
                 testEvents.add(CONTEXT_1_EXECUTED)
                 context("context 2") {
                     testEvents.add(CONTEXT_2_EXECUTED)
                     test("test 3") {
-                        testEvents.add(TEST_3_EXECUTED)
+                        testEvents.add("${testInfo.name} executed")
                         throw RuntimeException()
                     }
                 }
             }
-            test("test4: tests can be defined after contexts") {
-                testEvents.add(TEST_4_EXECUTED)
-            }
+            // tests can be defined after contexts
+            test("test 4", function = logTest)
         }
 
         suspend fun ContextDSL<Unit>.testAfterEach() {
             it("passes testInfo and success to afterEach") {
                 expectThat(afterEachParameters.keys().toList()).containsExactlyInAnyOrder(
-                    "test 1",
-                    "test 2",
-                    "test 3",
-                    "test4: tests can be defined after contexts"
+                    "test 1", "test 2", "test 3", "test 4"
                 )
                 assert(afterEachParameters["test 1"] is Success)
                 assert(afterEachParameters["test 2"] is Success)
                 assert(afterEachParameters["test 3"] is Failure)
-                assert(afterEachParameters["test4: tests can be defined after contexts"] is Success)
+                assert(afterEachParameters["test 4"] is Success)
             }
         }
         describe("in the default isolation mode (full isolation)") {
@@ -83,29 +76,33 @@ class TestLifecycleTest {
             it("test dependencies are recreated for each test") {
                 // tests run in parallel, so the total order of events is not defined.
                 // we track events in a list of lists and record the events that lead to each test
-                expectThat(totalEvents)
-                    .containsExactlyInAnyOrder(
-                        listOf(ROOT_CONTEXT_EXECUTED, TEST_1_EXECUTED, AFTER_EACH_EXECUTED, DEPENDENCY_CLOSED),
-                        listOf(ROOT_CONTEXT_EXECUTED, TEST_2_EXECUTED, AFTER_EACH_EXECUTED, DEPENDENCY_CLOSED),
+                expectThat(totalEvents).containsExactlyInAnyOrder(
                         listOf(
+                            ROOT_CONTEXT_EXECUTED,
+                            "test 1 executed",
+                            "after each executed for test 1",
+                            DEPENDENCY_CLOSED
+                        ), listOf(
+                            ROOT_CONTEXT_EXECUTED,
+                            "test 2 executed",
+                            "after each executed for test 2",
+                            DEPENDENCY_CLOSED
+                        ), listOf(
                             ROOT_CONTEXT_EXECUTED,
                             CONTEXT_1_EXECUTED,
                             CONTEXT_2_EXECUTED,
-                            TEST_3_EXECUTED,
-                            AFTER_EACH_EXECUTED,
+                            "test 3 executed",
+                            "after each executed for test 3",
                             DEPENDENCY_CLOSED
-                        ),
-                        listOf(ROOT_CONTEXT_EXECUTED, TEST_4_EXECUTED, AFTER_EACH_EXECUTED, DEPENDENCY_CLOSED)
+                        ), listOf(ROOT_CONTEXT_EXECUTED, "test 4 executed", "after each executed for test 4", DEPENDENCY_CLOSED)
                     )
             }
             testAfterEach()
         }
         describe("a root context with isolation set to false") {
-            Suite(
-                describe("root context without isolation", isolation = false) {
-                    contextFixture()
-                }
-            ).run(silent = true)
+            Suite(describe("root context without isolation", isolation = false) {
+                contextFixture()
+            }).run(silent = true)
             it("runs tests without recreating the dependencies") {
                 // here we just know that the root context start is the first event and the resource closed the last
                 // other events can occur in any order
@@ -116,27 +113,27 @@ class TestLifecycleTest {
                     containsExactlyInAnyOrder(
                         listOf(
                             ROOT_CONTEXT_EXECUTED,
-                            TEST_1_EXECUTED,
-                            TEST_2_EXECUTED,
+                            "test 1 executed",
+                            "test 2 executed",
+                            "test 3 executed",
+                            "test 4 executed",
                             CONTEXT_1_EXECUTED,
                             CONTEXT_2_EXECUTED,
-                            TEST_3_EXECUTED,
-                            TEST_4_EXECUTED,
                             DEPENDENCY_CLOSED,
-                            AFTER_EACH_EXECUTED, // after each is executed once per test even when isolation == false
-                            AFTER_EACH_EXECUTED,
-                            AFTER_EACH_EXECUTED,
-                            AFTER_EACH_EXECUTED
+                            "after each executed for test 1",
+                            "after each executed for test 2",
+                            "after each executed for test 3",
+                            "after each executed for test 4"
                         )
                     )
                     first().isEqualTo(ROOT_CONTEXT_EXECUTED)
                     last().isEqualTo(DEPENDENCY_CLOSED)
                     // assert that tests run after the contexts that they are in.
-                    get { intersect(setOf(CONTEXT_1_EXECUTED, CONTEXT_2_EXECUTED, TEST_3_EXECUTED)) }.containsExactly(
-                        listOf(CONTEXT_1_EXECUTED, CONTEXT_2_EXECUTED, TEST_3_EXECUTED)
+                    get { intersect(setOf(CONTEXT_1_EXECUTED, CONTEXT_2_EXECUTED, "test 3 executed")) }.containsExactly(
+                        listOf(CONTEXT_1_EXECUTED, CONTEXT_2_EXECUTED, "test 3 executed")
                     )
-                    get { intersect(setOf(CONTEXT_1_EXECUTED, CONTEXT_2_EXECUTED, TEST_4_EXECUTED)) }.containsExactly(
-                        listOf(CONTEXT_1_EXECUTED, CONTEXT_2_EXECUTED, TEST_4_EXECUTED)
+                    get { intersect(setOf(CONTEXT_1_EXECUTED, CONTEXT_2_EXECUTED, "test 4 executed")) }.containsExactly(
+                        listOf(CONTEXT_1_EXECUTED, CONTEXT_2_EXECUTED, "test 4 executed")
                     )
                 }
             }

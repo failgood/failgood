@@ -8,6 +8,7 @@ import failgood.Test
 import failgood.TestDSL
 import failgood.TestResult
 import failgood.describe
+import strikt.api.Assertion
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.containsExactlyInAnyOrder
@@ -128,16 +129,21 @@ class TestLifecycleTest {
                     )
                     first().isEqualTo(ROOT_CONTEXT_EXECUTED)
                     last().isEqualTo(DEPENDENCY_CLOSED)
-                    // assert that tests run after the contexts that they are in.
-                    get { intersect(setOf(CONTEXT_1_EXECUTED, CONTEXT_2_EXECUTED, "test 3 executed")) }.containsExactly(
-                        listOf(CONTEXT_1_EXECUTED, CONTEXT_2_EXECUTED, "test 3 executed")
-                    )
-                    get { intersect(setOf(CONTEXT_1_EXECUTED, CONTEXT_2_EXECUTED, "test 4 executed")) }.containsExactly(
-                        listOf(CONTEXT_1_EXECUTED, CONTEXT_2_EXECUTED, "test 4 executed")
-                    )
+                    containsInOrder(listOf("test 1 executed", "after each executed for test 1", DEPENDENCY_CLOSED))
+                    containsInOrder(listOf("test 2 executed", "after each executed for test 2", DEPENDENCY_CLOSED))
+                    // assert that tests run after the contexts that they are in, and that close callbacks have the correct order
+                    containsInOrder(listOf(CONTEXT_1_EXECUTED, CONTEXT_2_EXECUTED, "test 3 executed", "after each executed for test 3", DEPENDENCY_CLOSED))
+                    containsInOrder(listOf(CONTEXT_1_EXECUTED, CONTEXT_2_EXECUTED, "test 4 executed", "after each executed for test 4", DEPENDENCY_CLOSED))
                 }
             }
             testAfterEach()
         }
+    }
+
+    /**
+     * assert that a list contains these elements in their order
+     */
+    private fun Assertion.Builder<List<String>>.containsInOrder(elements: List<String>) {
+        get { intersect(elements.toSet()) }.containsExactly(elements)
     }
 }

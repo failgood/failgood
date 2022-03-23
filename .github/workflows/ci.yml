@@ -32,6 +32,10 @@ jobs:
           CI: true
           FAILGOOD_WATCHDOG_MILLIS: 100000
         run: ./gradlew check build
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build-reports-${{ matrix.java }}
+          path: failgood/build/reports
       - uses: codecov/codecov-action@v2
         with:
           #        token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos

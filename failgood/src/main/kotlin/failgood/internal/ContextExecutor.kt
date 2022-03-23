@@ -142,26 +142,24 @@ internal class ContextExecutor constructor(
                     try {
                         testContext.function(given.invoke())
                     } catch (e: Throwable) {
+                        val failure = Failure(e)
+                        resourcesCloser.closeAfterEach(testContext, failure)
                         if (isolation) try {
                             resourcesCloser.closeAutoClosables()
                         } catch (_: RuntimeException) {
                         }
-                        val failure = Failure(e)
-                        resourcesCloser.closeAfterEach(testContext, failure)
                         return@withTimeout failure
                     }
                     // test was successful
+                    val success = Success((System.nanoTime() - startTime) / 1000)
+                    resourcesCloser.closeAfterEach(testContext, success)
                     if (isolation) {
                         try {
                             resourcesCloser.closeAutoClosables()
                         } catch (e: Exception) {
-                            val failure = Failure(e)
-                            resourcesCloser.closeAfterEach(testContext, failure)
-                            return@withTimeout failure
+                            return@withTimeout Failure(e)
                         }
                     }
-                    val success = Success((System.nanoTime() - startTime) / 1000)
-                    resourcesCloser.closeAfterEach(testContext, success)
                     success
                 }
             } catch (e: TimeoutCancellationException) {

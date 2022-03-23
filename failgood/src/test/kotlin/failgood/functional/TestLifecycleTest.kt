@@ -85,17 +85,17 @@ class TestLifecycleTest {
                 // we track events in a list of lists and record the events that lead to each test
                 expectThat(totalEvents)
                     .containsExactlyInAnyOrder(
-                        listOf(ROOT_CONTEXT_EXECUTED, TEST_1_EXECUTED, DEPENDENCY_CLOSED, AFTER_EACH_EXECUTED),
-                        listOf(ROOT_CONTEXT_EXECUTED, TEST_2_EXECUTED, DEPENDENCY_CLOSED, AFTER_EACH_EXECUTED),
+                        listOf(ROOT_CONTEXT_EXECUTED, TEST_1_EXECUTED, AFTER_EACH_EXECUTED, DEPENDENCY_CLOSED),
+                        listOf(ROOT_CONTEXT_EXECUTED, TEST_2_EXECUTED, AFTER_EACH_EXECUTED, DEPENDENCY_CLOSED),
                         listOf(
                             ROOT_CONTEXT_EXECUTED,
                             CONTEXT_1_EXECUTED,
                             CONTEXT_2_EXECUTED,
                             TEST_3_EXECUTED,
-                            DEPENDENCY_CLOSED,
-                            AFTER_EACH_EXECUTED
+                            AFTER_EACH_EXECUTED,
+                            DEPENDENCY_CLOSED
                         ),
-                        listOf(ROOT_CONTEXT_EXECUTED, TEST_4_EXECUTED, DEPENDENCY_CLOSED, AFTER_EACH_EXECUTED)
+                        listOf(ROOT_CONTEXT_EXECUTED, TEST_4_EXECUTED, AFTER_EACH_EXECUTED, DEPENDENCY_CLOSED)
                     )
             }
             testAfterEach()

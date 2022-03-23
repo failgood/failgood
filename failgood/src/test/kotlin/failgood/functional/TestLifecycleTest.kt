@@ -78,32 +78,33 @@ class TestLifecycleTest {
                 // tests run in parallel, so the total order of events is not defined.
                 // we track events in a list of lists and record the events that lead to each test
                 expectThat(totalEvents).containsExactlyInAnyOrder(
-                        listOf(
-                            ROOT_CONTEXT_EXECUTED,
-                            "test 1 executed",
-                            "after each executed for test 1",
-                            DEPENDENCY_CLOSED
-                        ), listOf(
-                            ROOT_CONTEXT_EXECUTED,
-                            "test 2 executed",
-                            "after each executed for test 2",
-                            DEPENDENCY_CLOSED
-                        ), listOf(
-                            ROOT_CONTEXT_EXECUTED,
-                            CONTEXT_1_EXECUTED,
-                            CONTEXT_2_EXECUTED,
-                            "test 3 executed",
-                            "after each executed for test 3",
-                            DEPENDENCY_CLOSED
-                        ), listOf(ROOT_CONTEXT_EXECUTED, "test 4 executed", "after each executed for test 4", DEPENDENCY_CLOSED)
+                    listOf(
+                        ROOT_CONTEXT_EXECUTED, "test 1 executed", "after each executed for test 1", DEPENDENCY_CLOSED
+                    ),
+                    listOf(
+                        ROOT_CONTEXT_EXECUTED, "test 2 executed", "after each executed for test 2", DEPENDENCY_CLOSED
+                    ),
+                    listOf(
+                        ROOT_CONTEXT_EXECUTED,
+                        CONTEXT_1_EXECUTED,
+                        CONTEXT_2_EXECUTED,
+                        "test 3 executed",
+                        "after each executed for test 3",
+                        DEPENDENCY_CLOSED
+                    ),
+                    listOf(
+                        ROOT_CONTEXT_EXECUTED, "test 4 executed", "after each executed for test 4", DEPENDENCY_CLOSED
                     )
+                )
             }
             testAfterEach()
         }
         describe("a root context with isolation set to false") {
-            Suite(describe("root context without isolation", isolation = false) {
-                contextFixture()
-            }).run(silent = true)
+            Suite(
+                describe("root context without isolation", isolation = false) {
+                    contextFixture()
+                }
+            ).run(silent = true)
             it("runs tests without recreating the dependencies") {
                 // here we just know that the root context start is the first event and the resource closed the last
                 // other events can occur in any order
@@ -132,8 +133,24 @@ class TestLifecycleTest {
                     containsInOrder(listOf("test 1 executed", "after each executed for test 1", DEPENDENCY_CLOSED))
                     containsInOrder(listOf("test 2 executed", "after each executed for test 2", DEPENDENCY_CLOSED))
                     // assert that tests run after the contexts that they are in, and that close callbacks have the correct order
-                    containsInOrder(listOf(CONTEXT_1_EXECUTED, CONTEXT_2_EXECUTED, "test 3 executed", "after each executed for test 3", DEPENDENCY_CLOSED))
-                    containsInOrder(listOf(CONTEXT_1_EXECUTED, CONTEXT_2_EXECUTED, "test 4 executed", "after each executed for test 4", DEPENDENCY_CLOSED))
+                    containsInOrder(
+                        listOf(
+                            CONTEXT_1_EXECUTED,
+                            CONTEXT_2_EXECUTED,
+                            "test 3 executed",
+                            "after each executed for test 3",
+                            DEPENDENCY_CLOSED
+                        )
+                    )
+                    containsInOrder(
+                        listOf(
+                            CONTEXT_1_EXECUTED,
+                            CONTEXT_2_EXECUTED,
+                            "test 4 executed",
+                            "after each executed for test 4",
+                            DEPENDENCY_CLOSED
+                        )
+                    )
                 }
             }
             testAfterEach()

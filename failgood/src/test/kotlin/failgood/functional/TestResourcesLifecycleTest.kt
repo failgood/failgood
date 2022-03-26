@@ -130,7 +130,7 @@ class TestResourcesLifecycleTest {
                             )
                     }
                 }
-                it("errors in close callbacks count as failed tests") {
+                it("treats errors in close callbacks as failed tests") {
                     val result = Suite {
                         autoClose(null) { throw RuntimeException("error message") }
                         test("first test") {
@@ -140,7 +140,7 @@ class TestResourcesLifecycleTest {
                     }.run(silent = true)
                     assertFailedGracefully(result)
                 }
-                it("errors in close callbacks count as failed tests even when tests failed") {
+                it("reports the test failure even when the close callback fails too") {
                     val result = Suite {
                         autoClose(null) { throw RuntimeException("error message") }
                         test("first test") {

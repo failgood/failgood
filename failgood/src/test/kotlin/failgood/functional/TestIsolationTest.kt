@@ -20,13 +20,13 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 
 @Test
-class TestLifecycleTest {
+class TestIsolationTest {
     val ROOT_CONTEXT_EXECUTED = "root context executed"
     val DEPENDENCY_CLOSED = "dependency closed"
     val CONTEXT_1_EXECUTED = "context 1 executed"
     val CONTEXT_2_EXECUTED = "context 2 executed"
 
-    val context = describe("the test lifecycle") {
+    val context = describe("test isolation") {
         val afterEachParameters = ConcurrentHashMap<String, TestResult>()
         val totalEvents = CopyOnWriteArrayList<List<String>>()
         suspend fun ContextDSL<Unit>.contextFixture() {

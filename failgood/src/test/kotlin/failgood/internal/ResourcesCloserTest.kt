@@ -16,22 +16,22 @@ import strikt.assertions.containsExactly
 class ResourcesCloserTest {
     val context = describe(ResourcesCloser::class) {
         val subject = coroutineScope { ResourcesCloser(this) }
-        describe(ResourcesCloser::closeAutoClosables.name) {
+        describe(ResourcesCloser::closeAutoCloseables.name) {
             it("closes autoclosables") {
                 val autoCloseable = mock<AutoCloseable>()
                 subject.autoClose(autoCloseable)
-                subject.closeAutoClosables()
+                subject.closeAutoCloseables()
                 expectThat(getCalls(autoCloseable)).containsExactly(call(AutoCloseable::close))
             }
         }
-        describe(ResourcesCloser::closeAfterEach.name) {
+        describe(ResourcesCloser::callAfterEach.name) {
             val testDSL = mock<TestDSL>()
             it("calls afterEach") {
                 var called: Pair<TestDSL, TestResult>? = null
                 subject.afterEach { success ->
                     called = Pair(this, success)
                 }
-                subject.closeAfterEach(testDSL, Success(10))
+                subject.callAfterEach(testDSL, Success(10))
                 assert(called == Pair(testDSL, Success(10)))
             }
         }

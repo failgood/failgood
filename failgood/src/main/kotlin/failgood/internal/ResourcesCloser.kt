@@ -35,10 +35,10 @@ internal class ResourcesCloser(private val scope: CoroutineScope) : ResourcesDSL
         closeables.add(autoCloseable)
     }
 
-    suspend fun closeAutoClosables() {
+    suspend fun closeAutoCloseables() {
         closeables.reversed().forEach { it.close() }
     }
-    suspend fun closeAfterEach(testDSL: TestDSL, testResult: TestResult) {
+    suspend fun callAfterEach(testDSL: TestDSL, testResult: TestResult) {
         afterEachCallbacks.reversed().forEach {
             it.invoke(testDSL, testResult)
         }

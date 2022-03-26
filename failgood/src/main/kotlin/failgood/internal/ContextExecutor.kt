@@ -49,7 +49,7 @@ internal class ContextExecutor constructor(
                     visitor.function()
                     investigatedContexts.add(rootContext)
                     if (!rootContext.isolation) {
-                        afterSuiteCallbacks.add { resourcesCloser.closeAutoClosables() }
+                        afterSuiteCallbacks.add { resourcesCloser.closeAutoCloseables() }
                         break
                     }
                     if (!visitor.contextsLeft) break
@@ -143,19 +143,19 @@ internal class ContextExecutor constructor(
                         testContext.function(given.invoke())
                     } catch (e: Throwable) {
                         val failure = Failure(e)
-                        resourcesCloser.closeAfterEach(testContext, failure)
+                        resourcesCloser.callAfterEach(testContext, failure)
                         if (isolation) try {
-                            resourcesCloser.closeAutoClosables()
+                            resourcesCloser.closeAutoCloseables()
                         } catch (_: Throwable) {
                         }
                         return@withTimeout failure
                     }
                     // test was successful
                     val success = Success((System.nanoTime() - startTime) / 1000)
-                    resourcesCloser.closeAfterEach(testContext, success)
+                    resourcesCloser.callAfterEach(testContext, success)
                     if (isolation) {
                         try {
-                            resourcesCloser.closeAutoClosables()
+                            resourcesCloser.closeAutoCloseables()
                         } catch (e: Throwable) {
                             return@withTimeout Failure(e)
                         }

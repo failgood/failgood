@@ -146,7 +146,7 @@ internal class ContextExecutor constructor(
                         resourcesCloser.closeAfterEach(testContext, failure)
                         if (isolation) try {
                             resourcesCloser.closeAutoClosables()
-                        } catch (_: RuntimeException) {
+                        } catch (_: Throwable) {
                         }
                         return@withTimeout failure
                     }
@@ -156,7 +156,7 @@ internal class ContextExecutor constructor(
                     if (isolation) {
                         try {
                             resourcesCloser.closeAutoClosables()
-                        } catch (e: Exception) {
+                        } catch (e: Throwable) {
                             return@withTimeout Failure(e)
                         }
                     }

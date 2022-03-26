@@ -108,8 +108,12 @@ internal class SingleTestExecutor(
                 testDSL.function(given())
             } catch (e: Throwable) {
                 val failure = Failure(e)
-                resourcesCloser.closeAfterEach(testDSL, failure)
-                resourcesCloser.closeAutoClosables()
+                try {
+                    resourcesCloser.closeAfterEach(testDSL, failure)
+                    resourcesCloser.closeAutoClosables()
+                } catch (_: AssertionError) {
+                } catch (_: Exception) {
+                }
                 return failure
             }
             val success = Success((System.nanoTime() - startTime) / 1000)

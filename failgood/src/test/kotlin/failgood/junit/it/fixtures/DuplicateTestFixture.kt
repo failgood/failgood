@@ -5,34 +5,22 @@ import failgood.describe
 
 @Test
 class DuplicateTestFixture {
-    val context = describe("closing test resources") {
-        describe("autoclosable") {
-            it("is closed in reverse order of creation") {
-            }
-            it("closes autocloseables without callback") {
-            }
-            it("works inside a test") {
-            }
-            describe("error handling") {
-                describe("when the test fails and autoclose and aftereach work") {
-                    it("calls autoclose callbacks") {
+    val context = describe("1") {
+        describe("2") {
+            describe("3") {
+                describe("4") {
+                    it("5") {
                     }
-                    it("calls afterEach callbacks") {
+                    it("6") {
                     }
-                    it("reports the test failure") {
+                    it("7") {
                     }
                 }
 
-                it("reports the test failure even when the close callback fails too") {
+                it("duplicate") {
                 }
-                it("reports the test failure even when the close callback fails too") {
+                it("duplicate") {
                 }
-            }
-        }
-        describe("after suite callback") {
-            it("is called exactly once at the end of the suite, after all tests are finished") {
-            }
-            it("can throw exceptions that are ignored") {
             }
         }
     }

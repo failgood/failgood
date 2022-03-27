@@ -130,23 +130,25 @@ class TestResourcesLifecycleTest {
                             )
                     }
                 }
-                var afterEachCalled: Int = 0
-                var autoCloseCalled: Int = 0
-                fun suiteResult(testsFail:Boolean, afterEachFails: Boolean, autoCloseFails:Boolean) = Suite {
-                    autoClose(null) { autoCloseCalled++
+                var afterEachCalled = 0
+                var autoCloseCalled = 0
+                fun suiteResult(testsFail: Boolean, afterEachFails: Boolean, autoCloseFails: Boolean) = Suite {
+                    autoClose(null) {
+                        autoCloseCalled++
                         if (autoCloseFails)
-                            throw RuntimeException("autoclose error message") }
+                            throw RuntimeException("autoclose error message")
+                    }
                     afterEach {
                         afterEachCalled++
                         if (afterEachFails)
                             throw RuntimeException("aftereach error message")
                     }
                     test("first test") {
-                        if(testsFail)
+                        if (testsFail)
                             throw RuntimeException("test 1 error message")
                     }
                     test("second test") {
-                        if(testsFail)
+                        if (testsFail)
                             throw RuntimeException("test 2 error message")
                     }
                 }.run(silent = true)
@@ -163,7 +165,6 @@ class TestResourcesLifecycleTest {
                     it("reports the test failure") {
                         assertFailedGracefully(result)
                     }
-
                 }
 
                 it("reports the test failure even when the close callback fails too") {
@@ -183,19 +184,6 @@ class TestResourcesLifecycleTest {
                     assert(autocloseCalled)
                     assertFailedGracefully(result)
                 }
-                it("reports the test failure even when the close callback fails too") {
-                    val result = Suite {
-                        autoClose(null) { throw RuntimeException("error message") }
-                        test("first test") {
-                            throw RuntimeException()
-                        }
-                        test("second test") {
-                            throw RuntimeException()
-                        }
-                    }.run(silent = true)
-                    assertFailedGracefully(result)
-                }
-
             }
         }
         describe("after suite callback") {

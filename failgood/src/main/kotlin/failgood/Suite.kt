@@ -65,7 +65,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                 when (context) {
                     is CouldNotLoadContext ->
                         CompletableDeferred(
-                            FailedContext(Context(context.jClass.name ?: "unknown"), context.reason)
+                            FailedRootContext(Context(context.jClass.name ?: "unknown"), context.reason)
                         )
                     is RootContext -> {
                         val testFilter = executionFilter.forClass(context.sourceInfo.className)
@@ -118,7 +118,7 @@ private suspend fun awaitTestResult(
 
 internal suspend fun awaitTestResults(resolvedContexts: List<ContextResult>): SuiteResult {
     val successfulContexts = resolvedContexts.filterIsInstance<ContextInfo>()
-    val failedContexts: List<FailedContext> = resolvedContexts.filterIsInstance<FailedContext>()
+    val failedRootContexts: List<FailedRootContext> = resolvedContexts.filterIsInstance<FailedRootContext>()
     val results = successfulContexts.flatMap { it.tests.values }.awaitAll()
     successfulContexts.forEach {
         it.afterSuiteCallbacks.forEach { callback ->
@@ -133,7 +133,7 @@ internal suspend fun awaitTestResults(resolvedContexts: List<ContextResult>): Su
         results,
         results.filter { it.isFailure },
         successfulContexts.flatMap { it.contexts },
-        failedContexts
+        failedRootContexts
 
     )
 }
@@ -152,7 +152,7 @@ internal fun printResults(coroutineScope: CoroutineScope, contextInfos: List<Def
                             .joinToString("\n")
                     )
                 }
-                is FailedContext -> {
+                is FailedRootContext -> {
                     println("context ${context.context} failed: ${context.failure.stackTraceToString()}")
                 }
             }

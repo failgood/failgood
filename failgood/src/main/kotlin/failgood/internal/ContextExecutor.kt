@@ -56,7 +56,7 @@ internal class ContextExecutor constructor(
                 }
             }
         } catch (e: Throwable) {
-            return FailedContext(rootContext, e)
+            return FailedRootContext(rootContext, e)
         }
         // context order: first root context, then sub-contexts ordered by line number
         val contexts = listOf(rootContext) + foundContexts.sortedBy { it.sourceInfo!!.lineNumber }

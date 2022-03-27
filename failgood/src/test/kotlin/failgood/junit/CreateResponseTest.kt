@@ -8,7 +8,7 @@ import failgood.TestDescription
 import failgood.TestPlusResult
 import failgood.describe
 import failgood.internal.ContextInfo
-import failgood.internal.FailedContext
+import failgood.internal.FailedRootContext
 import failgood.internal.SuiteExecutionContext
 import kotlinx.coroutines.CompletableDeferred
 import org.junit.platform.engine.TestDescriptor
@@ -62,10 +62,10 @@ class CreateResponseTest {
             val failGoodEngineDescriptor = JunitExecutionListener()
             val rootContextDescriptor = createResponse(
                 UniqueId.forEngine("failgood"),
-                listOf(FailedContext(rootContext, RuntimeException())),
+                listOf(FailedRootContext(rootContext, RuntimeException())),
                 FailGoodEngineDescriptor(
                     UniqueId.forEngine("failgood"),
-                    listOf(FailedContext(rootContext, RuntimeException())),
+                    listOf(FailedRootContext(rootContext, RuntimeException())),
                     failGoodEngineDescriptor,
                     suiteExecutionContext
                 )

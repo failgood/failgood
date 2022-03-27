@@ -5,7 +5,7 @@ import failgood.SourceInfo
 import failgood.TestDescription
 import failgood.internal.ContextInfo
 import failgood.internal.ContextResult
-import failgood.internal.FailedContext
+import failgood.internal.FailedRootContext
 import failgood.util.StringUniquer
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestSource
@@ -88,7 +88,7 @@ internal fun createResponse(
                 if (rootContext != null)
                     addChildren(failGoodEngineDescriptor, rootContext, true, uniqueId)
             }
-            is FailedContext -> {
+            is FailedRootContext -> {
                 val context = contextInfo.context
                 val path = "${context.name}(${(context.sourceInfo?.className) ?: ""})"
                 val testDescriptor = FailGoodTestDescriptor(
@@ -98,7 +98,7 @@ internal fun createResponse(
                 )
                 failGoodEngineDescriptor.addChild(testDescriptor)
                 mapper.addMapping(context, testDescriptor)
-                failGoodEngineDescriptor.failedContexts.add(contextInfo)
+                failGoodEngineDescriptor.failedRootContexts.add(contextInfo)
             }
         }
     }

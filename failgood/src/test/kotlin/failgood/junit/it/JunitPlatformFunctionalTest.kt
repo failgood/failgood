@@ -27,8 +27,8 @@ class JunitPlatformFunctionalTest {
             executeSingleTest(DuplicateTestNameTest::class, listener)
             expectThat(listener.rootResult.await()).get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
         }
-        describe("works with duplicate test names") {
-            it("in root contexts") {
+        describe("duplicate test names") {
+            it("are correctly handled in root contexts") {
                 LauncherFactory.create().execute(
                     launcherDiscoveryRequest(
                         listOf(selectClass(DoubleTestNamesInRootContextTestFixture::class.qualifiedName)),
@@ -41,10 +41,23 @@ class JunitPlatformFunctionalTest {
                     rootResult.throwable.get().stackTraceToString()
                 }
             }
-            it("in sub contexts") {
+            it("are correctly handled in sub contexts") {
                 LauncherFactory.create().execute(
                     launcherDiscoveryRequest(
                         listOf(selectClass(DoubleTestNamesInSubContextTestFixture::class.qualifiedName)),
+                        mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")
+                    ),
+                    listener
+                )
+                val rootResult = listener.rootResult.await()
+                assert(rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {
+                    rootResult.throwable.get().stackTraceToString()
+                }
+            }
+            pending("works even in deeply nested contexts") {
+                LauncherFactory.create().execute(
+                    launcherDiscoveryRequest(
+                        listOf(selectClass(DeeplyNestedDuplicateTestFixture::class.qualifiedName)),
                         mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")
                     ),
                     listener

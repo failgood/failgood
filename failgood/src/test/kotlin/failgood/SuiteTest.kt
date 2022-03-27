@@ -1,6 +1,6 @@
 package failgood
 
-import failgood.internal.FailedContext
+import failgood.internal.FailedRootContext
 import failgood.mock.mock
 import failgood.mock.whenever
 import kotlinx.coroutines.*
@@ -58,7 +58,7 @@ class SuiteTest {
                             .singleOrNull()?.await()
                     )
                     assert(
-                        contextResult is FailedContext && (
+                        contextResult is FailedRootContext && (
                             contextResult.failure.message == "the error" &&
                                 contextResult.context.name == MyErrorTest::class.java.name
                             )

@@ -2,7 +2,7 @@ package failgood
 
 import failgood.internal.Colors
 import failgood.internal.ContextTreeReporter
-import failgood.internal.FailedContext
+import failgood.internal.FailedRootContext
 import failgood.internal.Junit4Reporter
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -12,9 +12,9 @@ data class SuiteResult(
     val allTests: List<TestPlusResult>,
     val failedTests: List<TestPlusResult>,
     val contexts: List<Context>,
-    val failedContexts: List<FailedContext>
+    val failedRootContexts: List<FailedRootContext>
 ) {
-    val allOk = failedTests.isEmpty() && failedContexts.isEmpty()
+    val allOk = failedTests.isEmpty() && failedRootContexts.isEmpty()
 
     @Suppress("UNREACHABLE_CODE")
     fun check(throwException: Boolean = false, writeReport: Boolean = false) {

@@ -230,7 +230,7 @@ class ContextExecutorTest {
                 throw RuntimeException("root context failed")
             }
             val result = execute(ctx)
-            expectThat(result).isA<FailedContext>()
+            expectThat(result).isA<FailedRootContext>()
         }
         describe("detects duplicated tests") {
             it("fails with duplicate tests in one context") {
@@ -240,7 +240,7 @@ class ContextExecutorTest {
                 }
                 val result = execute(ctx)
                 assert(
-                    result is FailedContext &&
+                    result is FailedRootContext &&
                         result.failure.message!!.contains("duplicate name \"dup test name\" in context \"root\"")
                 )
             }
@@ -263,7 +263,7 @@ class ContextExecutorTest {
                     context("dup ctx") {}
                 }
                 val result = execute(ctx)
-                expectThat(result).isA<FailedContext>().get { failure }.message.isNotNull()
+                expectThat(result).isA<FailedRootContext>().get { failure }.message.isNotNull()
                     .contains("duplicate name \"dup ctx\" in context \"root\"")
             }
             it("does not fail when the contexts with the same name are in different contexts") {
@@ -283,7 +283,7 @@ class ContextExecutorTest {
                     context("same name") {}
                 }
                 val result = execute(ctx)
-                expectThat(result).isA<FailedContext>().get { failure }.message.isNotNull()
+                expectThat(result).isA<FailedRootContext>().get { failure }.message.isNotNull()
                     .contains("duplicate name \"same name\" in context \"root\"")
             }
         }

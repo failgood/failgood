@@ -103,7 +103,9 @@ class FailGoodJunitTestEngine : TestEngine {
                         val mapping = mapper.getMappingOrNull(description)
                         // it's possible that we get a test event for a test that has no mapping because it is part of a failing context
                         if (mapping == null) {
-                            checkMissingMapping(description, mapper, failedRootContexts, event)
+                            // it's a failing root context, so ignore it
+                            if (description.container.parents.isNotEmpty())
+                                throw FailGoodException("did not find mapping for event $event.")
                             continue
                         }
                         when (event) {
@@ -185,26 +187,6 @@ class FailGoodJunitTestEngine : TestEngine {
 
         println("finished after ${uptime()}")
     }
-}
-
-/**
- * this method is called when we don't find a mapping for a test event, and it checks if there is a valid reason for it.
- * throws an exception if it does not find a valid reason, and we have to suspect a bug.
- */
-private fun checkMissingMapping(
-    description: TestDescription,
-    mapper: TestMapper,
-    failedRootContexts: MutableList<FailedRootContext>,
-    event: TestExecutionEvent
-) {
-    val parents = description.container.parents
-    // its a failing root context, so ignore it
-    if (parents.isEmpty()) return
-    // as a sanity check we try to find the mapping for the parent context, and if that works everything is fine
-    mapper.getMappingOrNull(parents.last())
-        // and if we don't find that maybe the root context of the context is failed
-        ?: if (!failedRootContexts.any { it.context == parents.first() })
-            throw FailGoodException("did not find mapping for event $event.")
 }
 
 class FailGoodTestDescriptor(

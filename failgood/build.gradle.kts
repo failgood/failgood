@@ -56,7 +56,6 @@ plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
         //        verbose.set(true)
         jvmArgs.set(listOf("-Xmx512m")) // necessary on CI
-        testPlugin.set("failgood")
         avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))
         targetClasses.set(setOf("failgood.*")) // by default "${project.group}.*"
         targetTests.set(setOf("failgood.*Test", "failgood.**.*Test"))

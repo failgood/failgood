@@ -3,7 +3,18 @@ package failgood.junit.it
 import failgood.Test
 import failgood.describe
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_TEST_CLASS_SUFFIX
-import failgood.junit.it.fixtures.*
+import failgood.junit.it.fixtures.BlockhoundTestFixture
+import failgood.junit.it.fixtures.DeeplyNestedDuplicateTestFixture
+import failgood.junit.it.fixtures.DoubleTestNamesInRootContextTestFixture
+import failgood.junit.it.fixtures.DoubleTestNamesInSubContextTestFixture
+import failgood.junit.it.fixtures.DuplicateRootWithOneTestFixture
+import failgood.junit.it.fixtures.DuplicateTestNameTest
+import failgood.junit.it.fixtures.FailingContext
+import failgood.junit.it.fixtures.FailingRootContext
+import failgood.junit.it.fixtures.PendingTestFixture
+import failgood.junit.it.fixtures.TestFixture
+import failgood.junit.it.fixtures.TestOrderFixture
+import failgood.junit.it.fixtures.TestWithNestedContextsFixture
 import kotlinx.coroutines.CompletableDeferred
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
@@ -113,7 +124,18 @@ class JunitPlatformFunctionalTest {
                 )
             assert(throwable.get().message?.contains("blocking") == true)
         }
-        it("returns uniqueIds that it understands") {
+        it("returns tests in the order that they are declared in the file") {
+            val testPlan = LauncherFactory.create()
+                .discover(launcherDiscoveryRequest(listOf(selectClass(TestOrderFixture::class.qualifiedName))))
+            val root: TestIdentifier = assertNotNull(testPlan.roots.singleOrNull())
+            val rootContext = assertNotNull(testPlan.getChildren(root).singleOrNull())
+            val (tests, subcontexts)  = testPlan.getChildren(rootContext).partition { it.isTest }
+            assert(tests.map { it.displayName } == listOf("test 1", "test 2", "test 3", "test 4"))
+            subcontexts.forEach {
+                assert(testPlan.getChildren(it).map { it.displayName } == listOf("test 1", "test 2", "test 3", "test 4"))
+            }
+        }
+        it("returns uniqueIds that it understands (uniqueid roundtrip test)") {
             // run a test by className
             executeSingleTest(TestFixture::class, listener)
             expectThat(listener.rootResult.await()).get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)

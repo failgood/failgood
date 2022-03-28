@@ -129,10 +129,13 @@ class JunitPlatformFunctionalTest {
                 .discover(launcherDiscoveryRequest(listOf(selectClass(TestOrderFixture::class.qualifiedName))))
             val root: TestIdentifier = assertNotNull(testPlan.roots.singleOrNull())
             val rootContext = assertNotNull(testPlan.getChildren(root).singleOrNull())
-            val (tests, subcontexts)  = testPlan.getChildren(rootContext).partition { it.isTest }
+            val (tests, subcontexts) = testPlan.getChildren(rootContext).partition { it.isTest }
             assert(tests.map { it.displayName } == listOf("test 1", "test 2", "test 3", "test 4"))
             subcontexts.forEach {
-                assert(testPlan.getChildren(it).map { it.displayName } == listOf("test 1", "test 2", "test 3", "test 4"))
+                assert(
+                    testPlan.getChildren(it)
+                        .map { it.displayName } == listOf("test 1", "test 2", "test 3", "test 4")
+                )
             }
         }
         it("returns uniqueIds that it understands (uniqueid roundtrip test)") {

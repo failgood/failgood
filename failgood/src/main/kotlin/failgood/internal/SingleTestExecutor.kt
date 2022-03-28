@@ -31,7 +31,7 @@ internal class SingleTestExecutor(
     }
 
     private open inner class Base<GivenType> : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
-        override suspend fun test(name: String, tags: Set<String>, function: GivenTestLambda<GivenType>) {}
+        override suspend fun test(name: String, tags: Set<String>, function: TestLambda<GivenType>) {}
         override suspend fun <ContextDependency> context(
             contextName: String,
             tags: Set<String>,
@@ -50,8 +50,8 @@ internal class SingleTestExecutor(
         }
 
         override suspend fun describe(name: String, tags: Set<String>, function: ContextLambda) {}
-        override suspend fun it(behaviorDescription: String, tags: Set<String>, function: GivenTestLambda<GivenType>) {}
-        override suspend fun pending(behaviorDescription: String, function: TestLambda) {}
+        override suspend fun it(behaviorDescription: String, tags: Set<String>, function: TestLambda<GivenType>) {}
+        override suspend fun pending(behaviorDescription: String, function: TestLambda<GivenType>) {}
         override fun afterSuite(function: suspend () -> Unit) {}
     }
 
@@ -93,17 +93,17 @@ internal class SingleTestExecutor(
         if (parentContexts.isEmpty()) TestFinder(given) else ContextFinder(parentContexts)
 
     private inner class TestFinder<GivenType>(val given: suspend () -> GivenType) : Base<GivenType>() {
-        override suspend fun it(behaviorDescription: String, tags: Set<String>, function: GivenTestLambda<GivenType>) {
+        override suspend fun it(behaviorDescription: String, tags: Set<String>, function: TestLambda<GivenType>) {
             test(behaviorDescription, function = function)
         }
 
-        override suspend fun test(name: String, tags: Set<String>, function: GivenTestLambda<GivenType>) {
+        override suspend fun test(name: String, tags: Set<String>, function: TestLambda<GivenType>) {
             if (test.name == name) {
                 throw TestResultAvailable(executeTest(function))
             }
         }
 
-        private suspend fun executeTest(function: GivenTestLambda<GivenType>): TestResult {
+        private suspend fun executeTest(function: TestLambda<GivenType>): TestResult {
             try {
                 testDSL.function(given())
             } catch (e: Throwable) {

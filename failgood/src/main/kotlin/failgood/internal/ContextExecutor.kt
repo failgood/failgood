@@ -80,7 +80,7 @@ internal class ContextExecutor constructor(
         var contextsLeft = false // are there sub contexts left to run?
         var mutable = true // we allow changes only to the current context to catch errors in the context structure
 
-        override suspend fun test(name: String, tags: Set<String>, function: GivenTestLambda<GivenType>) {
+        override suspend fun test(name: String, tags: Set<String>, function: TestLambda<GivenType>) {
             checkForDuplicateName(name)
             if (!executeAll && (filteringByTag && !tags.contains(onlyTag)))
                 return
@@ -134,7 +134,7 @@ internal class ContextExecutor constructor(
 
         private suspend fun executeTest(
             testDescription: TestDescription,
-            function: GivenTestLambda<GivenType>
+            function: TestLambda<GivenType>
         ): TestResult {
             return try {
                 withTimeout(timeoutMillis) {
@@ -248,11 +248,11 @@ internal class ContextExecutor constructor(
             context(name, tags, function)
         }
 
-        override suspend fun it(behaviorDescription: String, tags: Set<String>, function: GivenTestLambda<GivenType>) {
+        override suspend fun it(behaviorDescription: String, tags: Set<String>, function: TestLambda<GivenType>) {
             test(behaviorDescription, tags, function)
         }
 
-        override suspend fun pending(behaviorDescription: String, function: TestLambda) {
+        override suspend fun pending(behaviorDescription: String, function: TestLambda<GivenType>) {
             val testPath = ContextPath(parentContext, behaviorDescription)
 
             if (processedTests.add(testPath)) {

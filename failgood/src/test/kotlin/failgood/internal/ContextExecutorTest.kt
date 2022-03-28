@@ -195,7 +195,7 @@ class ContextExecutorTest {
             }
         }
 
-        describe("failing sub contexts") {
+        describe("when an exception happeins inside a subcontext") {
             var error: Throwable? = null
 
             val ctx = RootContext("root context") {
@@ -209,11 +209,11 @@ class ContextExecutorTest {
             }
             val results = expectThat(execute(ctx)).isA<ContextInfo>().subject
 
-            it("reports a failing context as a failing test") {
+            it("it is reported as a failing test inside that context") {
                 expectThat(results.tests.values.awaitAll().filter { it.isFailure }).single().and {
                     get { test }.and {
-                        get { testName }.isEqualTo("context 1")
-                        get { container.name }.isEqualTo("root context")
+                        get { testName }.isEqualTo("error in context")
+                        get { container.name }.isEqualTo("context 1")
                         get { sourceInfo }.and {
                             get { lineNumber }.isEqualTo(getLineNumber(error) - 1)
                             get { className }.contains("ContextExecutorTest")
@@ -221,8 +221,8 @@ class ContextExecutorTest {
                     }
                 }
             }
-            it("does not report a failing context as a context") {
-                expectThat(results.contexts).map { it.name }.doesNotContain("context 1")
+            it("reports the context as a context") {
+                expectThat(results.contexts).map { it.name }.contains("context 1")
             }
         }
         it("handles failing root contexts") {

@@ -54,7 +54,7 @@ class JunitPlatformFunctionalTest {
                     rootResult.throwable.get().stackTraceToString()
                 }
             }
-            pending("works even in deeply nested contexts") {
+            it("works even in deeply nested contexts") {
                 LauncherFactory.create().execute(
                     launcherDiscoveryRequest(
                         listOf(selectClass(DeeplyNestedDuplicateTestFixture::class.qualifiedName)),
@@ -89,7 +89,7 @@ class JunitPlatformFunctionalTest {
             expectThat(
                 listener.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
                     .map { it.key.displayName }
-            ).containsExactlyInAnyOrder("Failing Root Context", "failing context")
+            ).containsExactlyInAnyOrder("Failing Root Context", "error in context")
         }
         pending("works with Blockhound installed") {
             LauncherFactory.create().execute(

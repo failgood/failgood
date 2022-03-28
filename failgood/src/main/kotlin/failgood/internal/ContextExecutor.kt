@@ -198,15 +198,16 @@ internal class ContextExecutor constructor(
                 this.mutable = true
                 investigatedContexts.add(context)
             } catch (exceptionInContext: ImmutableContextException) {
-                // this is fatal,and we treat the whole root context as failed, so we just rethrow
+                // this is fatal, and we treat the whole root context as failed, so we just rethrow
                 throw exceptionInContext
             } catch (exceptionInContext: Throwable) {
                 this.mutable = true
-                val testDescriptor = TestDescription(parentContext, contextName, sourceInfo)
+                val testDescriptor = TestDescription(context, "error in context", sourceInfo)
 
                 processedTests.add(contextPath) // don't visit this context again
                 val testPlusResult = TestPlusResult(testDescriptor, Failure(exceptionInContext))
                 deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
+                foundContexts.add(context)
                 listener.testFinished(testPlusResult)
                 ranATest = true
                 return

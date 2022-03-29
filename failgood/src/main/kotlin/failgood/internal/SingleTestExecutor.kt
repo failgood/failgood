@@ -1,8 +1,15 @@
 package failgood.internal
 
-import failgood.*
+import failgood.ContextDSL
+import failgood.ContextLambda
+import failgood.FailGoodException
 import failgood.Failure
+import failgood.ResourcesDSL
+import failgood.RootContext
 import failgood.Success
+import failgood.TestDSL
+import failgood.TestLambda
+import failgood.TestResult
 
 /**
  * Executes a single test with all its parent contexts
@@ -110,14 +117,25 @@ internal class SingleTestExecutor(
                 val failure = Failure(e)
                 try {
                     resourcesCloser.callAfterEach(testDSL, failure)
+                } catch (_: AssertionError) {
+                } catch (_: Exception) {
+                }
+                try {
                     resourcesCloser.closeAutoCloseables()
                 } catch (_: AssertionError) {
                 } catch (_: Exception) {
                 }
                 return failure
             }
-            val success = Success((System.nanoTime() - startTime) / 1000)
-            resourcesCloser.callAfterEach(testDSL, success)
+            val success = try {
+                val success = Success((System.nanoTime() - startTime) / 1000)
+                resourcesCloser.callAfterEach(testDSL, success)
+                success
+            } catch (e: AssertionError) {
+                Failure(e)
+            } catch (e: Exception) {
+                Failure(e)
+            }
             resourcesCloser.closeAutoCloseables()
             return success
         }

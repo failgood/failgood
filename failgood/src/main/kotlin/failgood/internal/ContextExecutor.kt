@@ -152,7 +152,18 @@ internal class ContextExecutor constructor(
                     }
                     // test was successful
                     val success = Success((System.nanoTime() - startTime) / 1000)
-                    resourcesCloser.callAfterEach(testContext, success)
+                    try {
+                        resourcesCloser.callAfterEach(testContext, success)
+                    } catch (e: Throwable) {
+                        if (isolation) {
+                            try {
+                                resourcesCloser.closeAutoCloseables()
+                            } catch (e: Throwable) {
+                                return@withTimeout Failure(e)
+                            }
+                        }
+                        return@withTimeout Failure(e)
+                    }
                     if (isolation) {
                         try {
                             resourcesCloser.closeAutoCloseables()

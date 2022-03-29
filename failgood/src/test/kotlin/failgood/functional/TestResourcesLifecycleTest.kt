@@ -161,7 +161,30 @@ class TestResourcesLifecycleTest {
                     it("calls afterEach callbacks") {
                         assert(afterEachCalled == 2)
                     }
-                    assert(afterEachCalled == 2)
+                    it("reports the test failure") {
+                        assertFailedGracefully(result)
+                    }
+                }
+                describe("when the test suceeds, autoclose fails and aftereach works") {
+                    val result = suiteResult(testsFail = false, afterEachFails = true, autoCloseFails = false)
+                    it("calls autoclose callbacks") {
+                        assert(autoCloseCalled == 2)
+                    }
+                    it("calls afterEach callbacks") {
+                        assert(afterEachCalled == 2)
+                    }
+                    it("reports the test failure") {
+                        assertFailedGracefully(result)
+                    }
+                }
+                describe("when the test and autoclose succeeds and aftereach fails") {
+                    val result = suiteResult(testsFail = false, afterEachFails = false, autoCloseFails = true)
+                    it("calls autoclose callbacks") {
+                        assert(autoCloseCalled == 2)
+                    }
+                    it("calls afterEach callbacks") {
+                        assert(afterEachCalled == 2)
+                    }
                     it("reports the test failure") {
                         assertFailedGracefully(result)
                     }

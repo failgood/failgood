@@ -39,9 +39,16 @@ internal class ResourcesCloser(private val scope: CoroutineScope) : ResourcesDSL
         closeables.reversed().forEach { it.close() }
     }
     suspend fun callAfterEach(testDSL: TestDSL, testResult: TestResult) {
-        afterEachCallbacks.reversed().forEach {
-            it.invoke(testDSL, testResult)
+        var error: Throwable? = null
+        afterEachCallbacks.forEach {
+            try {
+                it.invoke(testDSL, testResult)
+            } catch (e: Throwable) {
+                if (error == null)
+                    error = e
+            }
         }
+        error?.let { throw it }
     }
 
     private val closeables = ConcurrentLinkedQueue<SuspendAutoCloseable<*>>()

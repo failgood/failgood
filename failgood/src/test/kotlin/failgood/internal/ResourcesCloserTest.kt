@@ -11,6 +11,7 @@ import failgood.mock.mock
 import kotlinx.coroutines.coroutineScope
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
+import kotlin.test.assertNotNull
 
 @Test
 class ResourcesCloserTest {
@@ -34,8 +35,31 @@ class ResourcesCloserTest {
                 subject.callAfterEach(testDSL, Success(10))
                 assert(called == Pair(testDSL, Success(10)))
             }
-            pending("calls all after each methods even if one fails")
-            pending("throws when one after each method failed")
+            describe("error handling") {
+                val events = mutableListOf<String>()
+                subject.afterEach {
+                    events.add("afterEach1")
+                    throw AssertionError("blah")
+                }
+                subject.afterEach {
+                    events.add("afterEach2")
+                    throw AssertionError("blah2")
+                }
+                it("calls all after each methods even if one fails") {
+                    try {
+                        subject.callAfterEach(testDSL, Success(10))
+                    } catch (_: AssertionError) {
+                    }
+                    assert(events.containsAll(listOf("afterEach1", "afterEach2")))
+                }
+                it("throws the first exception  when multiple afterEach callbacks fail") {
+                    val error = kotlin.runCatching {
+                        subject.callAfterEach(testDSL, Success(10))
+                    }
+                    val exception = assertNotNull(error.exceptionOrNull())
+                    assert(exception is AssertionError && exception.message == "blah")
+                }
+            }
         }
     }
 }

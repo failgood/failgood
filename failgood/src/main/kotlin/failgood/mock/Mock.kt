@@ -140,6 +140,7 @@ private class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
     class MockReplyRecorderImpl<Type>(val mockHandler: MockHandler, val recordingHandler: RecordingHandler) :
         MockReplyRecorder<Type> {
         @Suppress("OverridingDeprecatedMember")
+        @Deprecated(message = "use then")
         override fun thenReturn(parameter: Type) {
             val call = recordingHandler.call!!
             if (parameter != null)

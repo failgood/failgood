@@ -21,10 +21,12 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 @Test
 class TestIsolationTest {
-    val ROOT_CONTEXT_EXECUTED = "root context executed"
-    val DEPENDENCY_CLOSED = "dependency closed"
-    val CONTEXT_1_EXECUTED = "context 1 executed"
-    val CONTEXT_2_EXECUTED = "context 2 executed"
+    companion object {
+        const val ROOT_CONTEXT_EXECUTED = "root context executed"
+        const val DEPENDENCY_CLOSED = "dependency closed"
+        const val CONTEXT_1_EXECUTED = "context 1 executed"
+        const val CONTEXT_2_EXECUTED = "context 2 executed"
+    }
 
     val context = describe("test isolation") {
         val afterEachParameters = ConcurrentHashMap<String, TestResult>()

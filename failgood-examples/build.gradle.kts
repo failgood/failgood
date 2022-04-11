@@ -1,18 +1,21 @@
+@file:Suppress("GradlePackageUpdate")
 import failgood.versions.coroutinesVersion
 import failgood.versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+/**
+ * A kotlin project that uses failgood as test runner and pitest for mutation coverage.
+ */
 plugins {
     kotlin("jvm")
     id("info.solidsoft.pitest")
-    id("failgood.common")
 }
 
 dependencies {
-    testImplementation(project(":failgood"))
-    testImplementation("io.strikt:strikt-core:$striktVersion")
+    testImplementation("dev.failgood:failgood:0.6.1")
 
+    // everything else is optional, and only here because some tests show interactions with these libs
+    testImplementation("io.strikt:strikt-core:$striktVersion")
     testImplementation("io.mockk:mockk:1.12.3")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     implementation("io.github.microutils:kotlin-logging-jvm:2.1.21")
@@ -21,20 +24,9 @@ dependencies {
 
 tasks {
     withType<Test> { useJUnitPlatform() }
-    withType<KotlinCompile> { kotlinOptions.jvmTarget = "1.8" }
 }
 
-val testMain =
-    task("testMain", JavaExec::class) {
-        mainClass.set("failgood.examples.AllTestsKt")
-        classpath = sourceSets["test"].runtimeClasspath
-    }
-task("autotest", JavaExec::class) {
-    mainClass.set("failgood.examples.AutoTestMainKt")
-    classpath = sourceSets["test"].runtimeClasspath
-}
 
-tasks.check { dependsOn(testMain) }
 
 plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
@@ -51,3 +43,13 @@ plugins.withId("info.solidsoft.pitest") {
         outputFormats.set(setOf("XML", "HTML"))
     }
 }
+val testMain =
+    task("testMain", JavaExec::class) {
+        mainClass.set("failgood.examples.AllTestsKt")
+        classpath = sourceSets["test"].runtimeClasspath
+    }
+task("autotest", JavaExec::class) {
+    mainClass.set("failgood.examples.AutoTestMainKt")
+    classpath = sourceSets["test"].runtimeClasspath
+}
+tasks.check { dependsOn(testMain) }

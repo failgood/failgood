@@ -7,7 +7,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 val start = System.currentTimeMillis()
-// playground to check that coroutines work in the way i expect
+// playground to check that coroutines work as expected
 fun println(s: String) {
     kotlin.io.println("" + (System.currentTimeMillis() - start) + " " + s)
 }

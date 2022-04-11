@@ -18,8 +18,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     }
 
     fun run(parallelism: Int = cpus(), silent: Boolean = false): SuiteResult {
-        val suiteExecutionContext = SuiteExecutionContext(parallelism)
-        return try {
+        return SuiteExecutionContext(parallelism).use { suiteExecutionContext ->
             suiteExecutionContext.coroutineDispatcher
                 .use { dispatcher ->
                     runBlocking(dispatcher) {
@@ -30,8 +29,6 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                         awaitTestResult(contextInfos)
                     }
                 }
-        } finally {
-            suiteExecutionContext.close()
         }
     }
 
@@ -104,7 +101,7 @@ internal fun uptime(totalTests: Int? = null): String {
     val uptime = upt()
     val cpuTime = operatingSystemMXBean.processCpuTime / 1000000
     val percentage = cpuTime * 100 / uptime
-    return "total:${uptime}ms cpu:${cpuTime}ms, load:$percentage%." + if (totalTests != null) {
+    return "${uptime}ms. load:$percentage%." + if (totalTests != null) {
         " " + pluralize(totalTests * 1000 / uptime.toInt(), "test") + "/sec"
     } else
         ""

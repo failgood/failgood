@@ -2,16 +2,13 @@ package failgood.examples
 
 import failgood.Test
 import failgood.describe
-import strikt.api.expectThat
-import strikt.assertions.isEqualTo
-import strikt.assertions.isLessThan
 
 @Test
 class FailGoodTest {
     val context = describe("The test runner") {
-        it("supports describe/it syntax") { expectThat(true).isEqualTo(true) }
+        it("supports describe/it syntax") { assert(true) }
         describe("nested contexts") {
-            it("can contain tests too") { expectThat(true).isEqualTo(true) }
+            it("can contain tests too") { assert(true) }
 
             describe("disabled/pending tests") {
                 pending("pending can be used to mark pending tests") {}
@@ -20,7 +17,7 @@ class FailGoodTest {
             context("context/test syntax is also supported") {
                 test(
                     "I prefer describe/it but if there is no subject to describe I use " +
-                        "context/test"
+                            "context/test"
                 ) {}
             }
 
@@ -29,8 +26,8 @@ class FailGoodTest {
                     context("dynamic context #$contextNr") {
                         (1 until 5).forEach { testNr ->
                             test("test #$testNr") {
-                                expectThat(testNr).isLessThan(10)
-                                expectThat(contextNr).isLessThan(10)
+                                assert(testNr < 10)
+                                assert(contextNr < 10)
                             }
                         }
                     }

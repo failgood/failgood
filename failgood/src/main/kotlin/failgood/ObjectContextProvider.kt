@@ -16,7 +16,7 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
     override fun getContexts(): List<RootContext> {
         // the RootContext constructor tries to determine its file and line number.
         // if the root context is created by a utility method outside the test class the file and line info
-        // points to the utility function instead of the test, and thats not what we want, so we check if the
+        // points to the utility function instead of the test, and that's not what we want, so we check if the
         // contexts we just loaded think that they are from the file we just loaded, and if they don't we
         // overwrite that information with a pointer to the first line of the class we just loaded.
 

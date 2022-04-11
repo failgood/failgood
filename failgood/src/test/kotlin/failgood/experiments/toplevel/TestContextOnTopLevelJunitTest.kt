@@ -5,7 +5,7 @@ import failgood.RootContext
 import failgood.Test
 
 /*
-this already works, but its not yet possible to run via the icon on the method. it is possible to run via the class
+this already works, but it's not yet possible to run via the icon on the method. it is possible to run via the class
  */
 class TestContextOnTopLevelJunitTest {
     @Test

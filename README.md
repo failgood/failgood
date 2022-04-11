@@ -4,145 +4,44 @@
 
 # FailGood
 
-Failgood is a test runner for Kotlin focusing on simplicity, usability and speed. Now including a simple mock library.
-Still zero dependencies.
-
-## Goals / Features
-
-Every design decision is only influenced by what's best for a short test feedback loop, and to make simple things simple
-and complex things possible. No feature exists "because that's how JUnit works". Everything is driven by the needs of
-people who write tests daily and iterate fast.
-
-* Spec syntax implemented to work just [as expected](https://en.wikipedia.org/wiki/Principle_of_least_astonishment).
-* Speed and parallel execution. FailGood's own test suite runs in < 1 second.
-* Run your tests so fast that you can run all the tests on every change.
-* Autotest to run only changed tests.
-* Pitest plugin (see the build file).
-
-## How to write tests with Failgood
-
-### setUp / beforeEach
-
-If you are used to junit you probably wonder where to place init code that you want to run before each test.
-Failgood has no setUp or beforeEach, because it is not a good fit for kotlin's immutable `val`s.
-
-Tests in other test runners sometimes look like this:
-```kotlin
-class MyTest {
-    lateinit var myWebserver: Server
-
-    @BeforeEach
-    fun setUp() {
-        myWebserver = Server()
-    }
-
-    @AfterEach
-    fun tearDown() {
-        myWebserver.close()
-    }
-}
-
-```
-In Failgood you just start your dependencies where you declare them, and define a callback to close them, so the Failgood
-equivalent of the above code is just:
+Failgood is a test runner for Kotlin focusing on simplicity, usability and speed.
+[more...](docs/the%20philosophy%20of%20failgood.md)
 
 ```kotlin
-val context = describe(MyServer::class) {
-    val myWebserver = autoClose(Server()) {it.close()}
-}
-
-```
-
-Test dependencies will be recreated for every test. It just works as expected. Failgood executes the context block again for each test to have separate instances of all test dependencies.
-
-If you want a dependency to not be recreated for every test, just declare it outside the root context block, and if you have to close it, do it in an afterSuite callback.
-
-```kotlin
-class MyBeautifulTest {
-    val myHeavyWeightTestDependency = KafkaDockerMegaMonolith()
-    val context = describe("The web server") {
-        afterSuite {
-            myHeavyWeightTestDependency.close()
+class MyFirstFailgoodTest {
+    val context = describe("my perfect test suite") {
+        it("runs super fast") {
+            assert(true)
         }
-        it("is fast") {
-            // ...
+        describe("tests can be organized in subcontexts") {
+            it("just works") {}
         }
     }
 }
 ```
+[Failgood in 5 minutes](docs/failgood%20in%205%20minutes.md)
+## Why failgood is the best test-runner for most people
 
-### Given
-
-Sub-contexts can define a `given` block, whose result will be freshly evaluated and passed to each test. This is not different from dependencies that are just declared in the context, those are also freshly evaluated
-for each test. The only real difference is that the given block is evaluated as part of the test, which can result in better parallelization of test runs.
-
-```kotlin
-context(
-    "context with dependency lambda",
-    given = { "StringDependency" }
-) {
-    test("test that takes a string dependency") { givenString ->
-        expectThat(givenString).isEqualTo("StringDependency")
-    }
-}
+### Super Fast
+While other test-runners are still busy scanning your classpath for tests, failgood is already running them in parallel, and if your test suite is lightweight and well written maybe its already finished.
+This is failgood running its own test suite on a Macbook Air:
 ```
-
-Given support is an alternative way to declare your dependencies or to do things before each test. It's not something you have to use, it's perfectly fine to declare all dependencies directly in the context.
-If you like it try it out and if you don't like it just ignore it and don't worry about it.
-
-### Parametrized tests
-
-Failgood needs no special support for parametrized tests. You can just use `forEach` to create multiple versions of a test
-
-```kotlin
-val context = describe("String#reverse") {
-    listOf(Pair("otto", "otto"), Pair("racecar", "racecar")).forEach { (input, output) ->
-        it("reverses $input to $output") {
-            assertEquals(output, input.reversed())
-        }
-    }
-}
-
+147 tests. 145 ok, 2 pending. time: 403ms. load:312%. 364 tests/sec
 ```
-In the case of the above example you may even want to add more test inputs and outputs for better coverage.
+147 Tests in 0.4 seconds. Your test suite could be so fast too.
 
-### Gradle build
+### Boring
+Failgood is boring at runtime. Every test runs with fresh dependencies, just like in junit 4. [more...](docs/how%20to%20write%20tests%20with%20failgood.md)
 
-Just add a Failgood dependency and configure gradle to use the Junit platform. Your build file could look like this:
+Everything is just kotlin.
+Want to reuse a group of tests? extract a function for them.
 
-```kotlin
-repositories {
-    mavenCentral()
-}
+Want to run a test conditionally? put an `if` around it
 
-dependencies {
-    testImplementation("dev.failgood:failgood:0.5.3")
-}
-tasks.test {
-    useJUnitPlatform {
-        includeEngines("failgood") // this is optional, gradle finds the engine automatically.
-    }
-}
-```
+To create parameterized tests use `forEach` [more...](docs/parametrized%20tests.md)
 
-### Running the test in your favorite IDE
+Failgood works well with [IntelliJ IDEA](docs/idea%20support.md), [Gradle](docs/gradle.md), your favorite [assertion library](docs/assertion%20libraries.md) and [code coverage tools](docs/coverage.md).
 
-This will only work if your favorite IDE is IntelliJ IDEA (or android studio).
-Failgood comes with a JUnit Platform Engine that should make it easy to run Failgood tests with IDEAs integrated test
-runner. You can run all tests in a package, or run Single test classes (if they are annotated with failgood.Test)
-
-For best results, select "run tests in IDEA" in your gradle settings, although running in gradle works pretty well too.
-
-#### Re-running a failed test
-
-Idea supports re-running tests from the test runner, but that does not work in most of the cases. So until jetbrains
-fixes this, Failgood prints a uniqueid next to each test failure.
-For example this could be printed: `timestamp = 2022-02-17T18:21:16.367446, uniqueId to rerun just this test = [engine:failgood]/[class:The+Suite(failgood.SuiteTest)]/[class:error+handling]/[method:treats+errors+in+getContexts+as+failed+context]
-`
-then take the part from `[engine:failgood]` till the end of the line and create a junit run config from it:
-![rung-config.png](docs/run-config.png)
-
-you can also run a whole context via uniqueid, for example `[engine:failgood]/[class:The+Suite(failgood.SuiteTest)]/[class:error+handling]`
 
 ### Example test suites
 
@@ -150,65 +49,5 @@ To see it in action check out the [failgood-example project](./failgood-examples
 [the "the.orm" test suite](https://github.com/christophsturm/the.orm)
 or [the restaurant test suite](https://github.com/christophsturm/restaurant/tree/main/core/src/test/kotlin/restaurant)
 
-## Running the Failgood test suite
-
-to run FailGood's test suite just run `./gradlew check` or if you want to run it via idea just run
-the `FailGoodBootstrap.kt` class.
-
-## Test coverage
-
-Failgood works well with the [kover](https://github.com/Kotlin/kotlinx-kover) plugin, and if you want real mutation coverage, there is also a pitest plugin. (See Failgoods own build for an example pitest config)
-
-## Even faster tests - best practices
-
-* avoid heavyweight dependencies. the Failgood test suite runs in < 1000ms. That's a lot of time for a computer, and a
-  great target for your test suite. Slow tests are a code smell. An unexpected example for a heavyweight dependency is
-  mockk, it takes about 2 seconds at first invocation. To avoid that you can use the simple mocking library that comes
-  with Failgood. (see [MockTest.kt](failgood/src/test/kotlin/failgood/mock/MockTest.kt))
 
 
-## Avoiding global state
-
-Failgood runs your tests in parallel, so you need to avoid global state.
-* if you need a web server run it on a random port.
-* if you need a database create a db with a random name for each test. (see the.orm)
-  or run the test in a transaction that is rolled back at the end
-
-## Autotest
-
-This is an experimental feature from the early days of Failgood, but it still works.
-Stay tuned for improved autotest support in the future or use the current version it like described below, and tell me what you think about it.
-
-Add a main method that just runs autotest:
-
-```kotlin
-fun main() {
-    autoTest()
-}
-```
-
-create a gradle exec task for it:
-
-```kotlin
-tasks.register("autotest", JavaExec::class) {
-    mainClass.set("failgood.AutoTestMainKt")
-    classpath = sourceSets["test"].runtimeClasspath
-}
-```
-
-run it with `./gradlew -t autotest`anytime a test file is recompiled it will run. This works pretty well, but it's not
-perfect, because not every change to a tested class triggers a recompile of the test class. Fixing this by reading
-dependencies from the test classes' constant pool is on the roadmap.
-
-### Troubleshooting
-
-There should be no need for a troubleshooting section in the docs. If something does
-not work as expected file an issue at https://github.com/failgood/failgood/issues or
-ask for help in the #failgood channel in the kotlin-lang slack.
-
-#### Migrating from older versions
-
-Until Failgood reaches a version 1.0 there may be api changes that are not backwards compatible. Those should always be trivial to resolve.
-
-##### Migrating to V0.6
-If you get the error message:`One type argument expected for interface ContextDSL<GivenType>` just change from `ContextDSL` to `ContextDSL<*>`

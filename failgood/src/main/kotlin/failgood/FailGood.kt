@@ -177,7 +177,7 @@ object FailGood {
         printThreads { !it.isDaemon && it.name != "main" }
     }
 
-    fun printThreads(filter: (Thread) -> Boolean) {
+    private fun printThreads(filter: (Thread) -> Boolean) {
         val remainingThreads = Thread.getAllStackTraces().filterKeys(filter)
         if (remainingThreads.isNotEmpty()) {
             remainingThreads.forEach { (thread, stackTraceElements) ->

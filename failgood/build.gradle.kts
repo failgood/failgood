@@ -1,3 +1,5 @@
+@file:Suppress("GradlePackageUpdate")
+
 import failgood.versions.*
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 

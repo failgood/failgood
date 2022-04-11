@@ -19,8 +19,7 @@ class ContractsTest {
         }
     }
 
-    // TODO: is it ok to be not backward compatible here?
-    private suspend fun ContextDSL<*>.behavesAsMutableCollection(fixture: MutableList<String>) {
+    private suspend fun ContextDSL<Unit>.behavesAsMutableCollection(fixture: MutableList<String>) {
         context("behaves as MutableCollection") {
 
             test("is empty when created") {

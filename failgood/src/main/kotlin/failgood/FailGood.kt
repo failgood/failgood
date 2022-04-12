@@ -51,11 +51,22 @@ fun describe(
 ):
     RootContext = RootContext(subjectDescription, disabled, order, isolation, function = function)
 
-inline fun <reified T> describe(disabled: Boolean = false, order: Int = 0, noinline function: ContextLambda):
-    RootContext = describe(T::class, disabled, order, function)
+inline fun <reified T> describe(
+    disabled: Boolean = false,
+    order: Int = 0,
+    isolation: Boolean = true,
+    noinline function: ContextLambda
+):
+    RootContext = describe(T::class, disabled, order, isolation, function)
 
-fun describe(subjectType: KClass<*>, disabled: Boolean = false, order: Int = 0, function: ContextLambda):
-    RootContext = RootContext("The ${subjectType.simpleName}", disabled, order, function = function)
+fun describe(
+    subjectType: KClass<*>,
+    disabled: Boolean = false,
+    order: Int = 0,
+    isolation: Boolean = true,
+    function: ContextLambda
+):
+    RootContext = RootContext("The ${subjectType.simpleName}", disabled, order, isolation, function = function)
 
 data class TestDescription(
     val container: TestContainer,

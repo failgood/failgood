@@ -43,6 +43,9 @@ plugins.withId("info.solidsoft.pitest") {
         outputFormats.set(setOf("XML", "HTML"))
     }
 }
+
+// this is an example how to run the test via a main method.
+// most projects will probably just use the junit platform engine via gradle
 val testMain =
     task("testMain", JavaExec::class) {
         mainClass.set("failgood.examples.AllTestsKt")

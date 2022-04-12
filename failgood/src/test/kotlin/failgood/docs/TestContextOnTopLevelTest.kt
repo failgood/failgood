@@ -1,7 +1,8 @@
 @file:JvmName("TestContextOnTopLevelTest")
-
+@file:Test
 package failgood.docs
 
+import failgood.Test
 import failgood.describe
 
 val context =

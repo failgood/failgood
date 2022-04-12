@@ -148,10 +148,11 @@ object FailGood {
                         (newerThan == null || attrs!!.lastModifiedTime() > newerThan)
                     ) {
                         val className = path.substringBefore(".class").replace(File.separatorChar, '.')
-                        if (matchLambda(className))
-                            results.add(
-                                classloader.loadClass(className).kotlin
-                            )
+                        if (matchLambda(className)) {
+                            val clazz = classloader.loadClass(className)
+                            if (clazz.isAnnotationPresent(Test::class.java))
+                                results.add(clazz.kotlin)
+                        }
                     }
                     return FileVisitResult.CONTINUE
                 }

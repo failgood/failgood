@@ -3,7 +3,7 @@ package failgood
 import org.junit.platform.commons.annotation.Testable
 
 /**
- * This annotation tells the junit platform that a class or object is a failgood test.
+ * Indicate that something contains failgood tests. Works on object, class, function or files.
  */
 @Testable
 @Retention(AnnotationRetention.RUNTIME)

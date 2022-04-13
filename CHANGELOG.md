@@ -3,6 +3,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.7.0 - Unreleased
+
+### Changed
+
+- Don't rely on class name patterns and instead run every class with a failgood.Test annotation
+
 ## 0.6.1 - "Blue Note" - 2022-04-06
 
 ### Added

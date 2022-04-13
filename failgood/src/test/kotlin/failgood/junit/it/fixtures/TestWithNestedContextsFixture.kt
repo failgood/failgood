@@ -1,9 +1,9 @@
 package failgood.junit.it.fixtures
 
-import failgood.Test
 import failgood.describe
+import failgood.internal.TestFixture
 
-@Test
+@TestFixture
 class TestWithNestedContextsFixture {
     companion object {
         const val CHILD_CONTEXT_2_NAME = "child context level 2"

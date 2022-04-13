@@ -1,8 +1,14 @@
 package failgood
 
 import failgood.internal.ContextPath
+import failgood.internal.TestFixture
 import java.io.File
-import java.nio.file.*
+import java.nio.file.FileVisitResult
+import java.nio.file.Files
+import java.nio.file.NoSuchFileException
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileTime
 import kotlin.reflect.KClass
@@ -122,7 +128,7 @@ object FailGood {
      *        and it will be used to find the classloader and source root
      */
     fun findTestClasses(
-        classIncludeRegex: Regex = Regex(".*Test.class\$"),
+        classIncludeRegex: Regex = Regex(".*.class\$"),
         newerThan: FileTime? = null,
         randomTestClass: KClass<*> = findCaller()
     ): MutableList<KClass<*>> {
@@ -134,8 +140,9 @@ object FailGood {
     internal fun findClassesInPath(
         root: Path,
         classloader: ClassLoader,
-        classIncludeRegex: Regex = Regex(".*Test.class\$"),
+        classIncludeRegex: Regex = Regex(".*.class\$"),
         newerThan: FileTime? = null,
+        runTestFixtures: Boolean = false,
         matchLambda: (String) -> Boolean = { true }
     ): MutableList<KClass<*>> {
         val results = mutableListOf<KClass<*>>()
@@ -148,10 +155,13 @@ object FailGood {
                         (newerThan == null || attrs!!.lastModifiedTime() > newerThan)
                     ) {
                         val className = path.substringBefore(".class").replace(File.separatorChar, '.')
-                        if (matchLambda(className))
-                            results.add(
-                                classloader.loadClass(className).kotlin
+                        if (matchLambda(className)) {
+                            val clazz = classloader.loadClass(className)
+                            if (clazz.isAnnotationPresent(Test::class.java) ||
+                                (runTestFixtures && clazz.isAnnotationPresent(TestFixture::class.java))
                             )
+                                results.add(clazz.kotlin)
+                        }
                     }
                     return FileVisitResult.CONTINUE
                 }

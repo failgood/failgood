@@ -1,10 +1,10 @@
 package failgood.junit.it.fixtures
 
-import failgood.Test
 import failgood.describe
+import failgood.internal.TestFixture
 
-@Test
-// returns a cyclic graph
+@TestFixture
+// this used to return a cyclic graph
 class DuplicateRootWithOneTestFixture {
     val context = listOf(
         describe("name") {

@@ -1,10 +1,10 @@
 package failgood.junit.it.fixtures
 
-import failgood.Test
 import failgood.describe
+import failgood.internal.TestFixture
 import kotlinx.coroutines.delay
 
-@Test
+@TestFixture
 class DelayFixture {
     val context = describe("a context with slow tests") {
         test("that takes 2 seconds") {

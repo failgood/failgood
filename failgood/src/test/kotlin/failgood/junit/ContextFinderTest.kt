@@ -20,7 +20,7 @@ import java.nio.file.Paths
 class ContextFinderTest {
     private val rootName = "the ContextFinder"
     val context = describe(rootName) {
-        val contextFinder = ContextFinder(testSuffix = "Fixture")
+        val contextFinder = ContextFinder(runTestFixtures = true)
         val testName = "finds a single test with a uniqueId selector"
         it(testName) {
             val className = ContextFinderTest::class.qualifiedName!!
@@ -40,6 +40,7 @@ class ContextFinderTest {
                 val path = ContextFinderTest::class.java.protectionDomain.codeSource.location.path
                 val request = LauncherDiscoveryRequestBuilder.request()
                     .selectors(DiscoverySelectors.selectClasspathRoots(setOf(Paths.get(path))))
+                    .configurationParameters(mapOf(FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES to "true"))
                     .filters(PackageNameFilter.includePackageNames("failgood.junit.it.fixtures.packagewith1test"))
                     .build()
                 val contextNames =

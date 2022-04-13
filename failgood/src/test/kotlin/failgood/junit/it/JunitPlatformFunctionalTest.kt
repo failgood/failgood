@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package failgood.junit.it
 
 import failgood.Test
@@ -16,6 +18,7 @@ import failgood.junit.it.fixtures.TestFixture
 import failgood.junit.it.fixtures.TestOrderFixture
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.withTimeout
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId
@@ -28,6 +31,8 @@ import strikt.assertions.hasSize
 import strikt.assertions.isEqualTo
 import kotlin.reflect.KClass
 import kotlin.test.assertNotNull
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.ExperimentalTime
 
 @Test
 class JunitPlatformFunctionalTest {
@@ -79,7 +84,7 @@ class JunitPlatformFunctionalTest {
                 }
             }
         }
-        pending("works for a failing context or root context") {
+        it("works for a failing context or root context") {
             val selectors = listOf(
                 DuplicateRootWithOneTestFixture::class,
                 DuplicateTestNameTest::class,
@@ -92,7 +97,8 @@ class JunitPlatformFunctionalTest {
             LauncherFactory.create().execute(
                 launcherDiscoveryRequest(selectors, mapOf(RUN_TEST_FIXTURES to "true")), listener
             )
-            val result = listener.rootResult.await()
+
+            val result = withTimeout(5.seconds) { listener.rootResult.await() }
             expectThat(result) {
                 get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
             }
@@ -173,6 +179,7 @@ class TEListener : TestExecutionListener {
     override fun executionFinished(testIdentifier: TestIdentifier, testExecutionResult: TestExecutionResult) {
         results[testIdentifier] = testExecutionResult
         val parentId = testIdentifier.parentId
+        println("finished:+$testIdentifier")
         if (!parentId.isPresent) rootResult.complete(testExecutionResult)
     }
 }

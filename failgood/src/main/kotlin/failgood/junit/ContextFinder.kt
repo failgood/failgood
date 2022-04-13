@@ -4,6 +4,7 @@ import failgood.ContextProvider
 import failgood.FailGood
 import failgood.FailGoodException
 import failgood.ObjectContextProvider
+import failgood.Test
 import failgood.internal.ClassTestFilterProvider
 import failgood.internal.TestFilterProvider
 import org.junit.platform.engine.DiscoveryFilter
@@ -18,7 +19,7 @@ import java.nio.file.Paths
 import java.util.LinkedList
 
 internal data class ContextsAndFilters(val contexts: List<ContextProvider>, val filter: TestFilterProvider)
-class ContextFinder(private val testSuffix: String = "Test") {
+class ContextFinder(private val runTestFixtures: Boolean = false) {
     internal fun findContexts(discoveryRequest: EngineDiscoveryRequest): ContextsAndFilters {
         val filterConfig = mutableMapOf<String, List<String>>()
         val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)
@@ -34,16 +35,15 @@ class ContextFinder(private val testSuffix: String = "Test") {
                     FailGood.findClassesInPath(
                         Paths.get(uri),
                         Thread.currentThread().contextClassLoader,
-                        matchLambda = { className -> allPredicates.all { it.test(className) } },
-                        classIncludeRegex = Regex(".*$testSuffix.class\$")
+                        runTestFixtures = runTestFixtures
 
-                    ).map {
+                    ) { className -> allPredicates.all { it.test(className) } }.map {
                         ObjectContextProvider(it)
                     }
                 }
                 is ClassSelector -> {
-                    // when there is only a single class selector we run the test even when it does not end in *Test
-                    if (allSelectors.size == 1 || selector.className.endsWith(testSuffix))
+                    // when there is only a single class selector we run the test even when it does not have a test annotation
+                    if (allSelectors.size == 1 || selector.javaClass.isAnnotationPresent(Test::class.java))
                         listOf(ObjectContextProvider(selector.javaClass.kotlin))
                     else
                         listOf()

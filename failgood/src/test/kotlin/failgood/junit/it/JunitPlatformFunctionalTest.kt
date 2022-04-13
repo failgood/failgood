@@ -2,7 +2,7 @@ package failgood.junit.it
 
 import failgood.Test
 import failgood.describe
-import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_TEST_CLASS_SUFFIX
+import failgood.junit.FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES
 import failgood.junit.it.fixtures.BlockhoundTestFixture
 import failgood.junit.it.fixtures.DeeplyNestedDuplicateTestFixture
 import failgood.junit.it.fixtures.DoubleTestNamesInRootContextTestFixture
@@ -43,7 +43,7 @@ class JunitPlatformFunctionalTest {
                 LauncherFactory.create().execute(
                     launcherDiscoveryRequest(
                         listOf(selectClass(DoubleTestNamesInRootContextTestFixture::class.qualifiedName)),
-                        mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")
+                        mapOf(RUN_TEST_FIXTURES to "true")
                     ),
                     listener
                 )
@@ -56,7 +56,7 @@ class JunitPlatformFunctionalTest {
                 LauncherFactory.create().execute(
                     launcherDiscoveryRequest(
                         listOf(selectClass(DoubleTestNamesInSubContextTestFixture::class.qualifiedName)),
-                        mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")
+                        mapOf(RUN_TEST_FIXTURES to "true")
                     ),
                     listener
                 )
@@ -69,7 +69,7 @@ class JunitPlatformFunctionalTest {
                 LauncherFactory.create().execute(
                     launcherDiscoveryRequest(
                         listOf(selectClass(DeeplyNestedDuplicateTestFixture::class.qualifiedName)),
-                        mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")
+                        mapOf(RUN_TEST_FIXTURES to "true")
                     ),
                     listener
                 )
@@ -79,7 +79,7 @@ class JunitPlatformFunctionalTest {
                 }
             }
         }
-        it("works for a failing context or root context") {
+        pending("works for a failing context or root context") {
             val selectors = listOf(
                 DuplicateRootWithOneTestFixture::class,
                 DuplicateTestNameTest::class,
@@ -90,7 +90,7 @@ class JunitPlatformFunctionalTest {
                 TestWithNestedContextsFixture::class
             ).map { selectClass(it.qualifiedName) }
             LauncherFactory.create().execute(
-                launcherDiscoveryRequest(selectors, mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")), listener
+                launcherDiscoveryRequest(selectors, mapOf(RUN_TEST_FIXTURES to "true")), listener
             )
             val result = listener.rootResult.await()
             expectThat(result) {
@@ -106,7 +106,7 @@ class JunitPlatformFunctionalTest {
             LauncherFactory.create().execute(
                 launcherDiscoveryRequest(
                     listOf(selectClass(BlockhoundTestFixture::class.qualifiedName)),
-                    mapOf(CONFIG_KEY_TEST_CLASS_SUFFIX to "")
+                    mapOf(RUN_TEST_FIXTURES to "true")
                 ),
                 listener
             )

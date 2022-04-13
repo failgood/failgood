@@ -4,7 +4,7 @@ import failgood.*
 import failgood.internal.FailedRootContext
 import failgood.internal.SuiteExecutionContext
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
-import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_TEST_CLASS_SUFFIX
+import failgood.junit.FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES
 import failgood.junit.JunitExecutionListener.TestExecutionEvent
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
@@ -32,8 +32,8 @@ class FailGoodJunitTestEngine : TestEngine {
         debug = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_DEBUG).orElse(false)
 
         val executionListener = JunitExecutionListener()
-        val testSuffix = discoveryRequest.configurationParameters.get(CONFIG_KEY_TEST_CLASS_SUFFIX).orElse("Test")
-        val contextsAndFilters = ContextFinder(testSuffix).findContexts(discoveryRequest)
+        val runTestFixtures = discoveryRequest.configurationParameters.getBoolean(RUN_TEST_FIXTURES).orElse(false)
+        val contextsAndFilters = ContextFinder(runTestFixtures).findContexts(discoveryRequest)
         val providers: List<ContextProvider> = contextsAndFilters.contexts
         if (providers.isEmpty())
         // if we did not find any tests just return an empty descriptor, maybe other engines have tests to run

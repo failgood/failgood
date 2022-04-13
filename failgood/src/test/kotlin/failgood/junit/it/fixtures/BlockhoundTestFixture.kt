@@ -1,11 +1,11 @@
 package failgood.junit.it.fixtures
 
-import failgood.Test
 import failgood.describe
+import failgood.internal.TestFixture
 import reactor.blockhound.BlockHound
 import reactor.blockhound.integration.BlockHoundIntegration
 
-@Test
+@TestFixture
 class BlockhoundTestFixture {
     init {
         BlockHound.install(StriktIntegration())

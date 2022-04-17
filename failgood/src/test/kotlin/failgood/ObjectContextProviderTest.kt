@@ -60,15 +60,17 @@ class ObjectContextProviderTest {
             }
         }
         describe("Error handling") {
-            it("wraps exceptions that happen at class instantiation") {
-                expectThat(
-                    kotlin.runCatching {
-                        ObjectContextProvider(ClassThatThrowsAtCreationTime::class).getContexts()
+            listOf(ClassThatThrowsAtCreationTime::class, ClassThatThrowsAtContextGetter::class).forEach { kClass1 ->
+                it("wraps exceptions that happen at class instantiation: ${kClass1.simpleName}") {
+                    expectThat(
+                        kotlin.runCatching {
+                            ObjectContextProvider(kClass1).getContexts()
+                        }
+                    ).isFailure().isA<ErrorLoadingContextsFromClass>().and {
+                        message.isEqualTo("Could not load contexts from class")
+                        get { cause }.message.isEqualTo("boo i failed")
+                        get { jClass }.isEqualTo(kClass1.java)
                     }
-                ).isFailure().isA<ErrorLoadingContextsFromClass>().and {
-                    message.isEqualTo("Could not load contexts from class")
-                    get { cause }.message.isEqualTo("boo i failed")
-                    get { jClass }.isEqualTo(ClassThatThrowsAtCreationTime::class.java)
                 }
             }
             it("gives a helpful error when a class could not be instantiated") {
@@ -81,6 +83,7 @@ class ObjectContextProviderTest {
                 val message = assertNotNull(exception.message)
                 assert(message.contains(kClass.simpleName!!)) { exception.stackTraceToString() }
             }
+            // this is maybe no longer needed because test containers have an annotation now
             it("ignores private classes") {
                 val jClass = javaClass.classLoader.loadClass("failgood.problematic.PrivateClass")
                 assert(ObjectContextProvider(jClass).getContexts() == listOf<RootContext>())
@@ -96,6 +99,10 @@ class ObjectContextProviderTest {
             throw RuntimeException("boo i failed")
         }
     }
+    class ClassThatThrowsAtContextGetter {
+        val context: RootContext = throw RuntimeException("boo i failed")
+    }
+
 }
 
 private class TestClassThatUsesUtilityMethodToCreateTestContexts {

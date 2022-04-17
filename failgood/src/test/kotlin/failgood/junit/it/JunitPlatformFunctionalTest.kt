@@ -179,7 +179,6 @@ class TEListener : TestExecutionListener {
     override fun executionFinished(testIdentifier: TestIdentifier, testExecutionResult: TestExecutionResult) {
         results[testIdentifier] = testExecutionResult
         val parentId = testIdentifier.parentId
-        println("finished:+$testIdentifier")
         if (!parentId.isPresent) rootResult.complete(testExecutionResult)
     }
 }

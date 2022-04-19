@@ -1,1 +1,2 @@
-CI=true ./gradlew ktlintFormat check
+./gradlew ktlintFormat
+CI=true ./gradlew check

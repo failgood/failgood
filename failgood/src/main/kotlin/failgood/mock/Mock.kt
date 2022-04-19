@@ -11,19 +11,21 @@ import kotlin.reflect.KClass
 /**
  * create a mock for class Mock
  *
- * per default all method calls will return null. To define other results use [whenever]
+ * per default all method calls will return null. To define other results use [the]
  */
 inline fun <reified Mock : Any> mock() = mock(Mock::class)
 
 /**
  * create a mock for class Mock and define its behavior
- *
  */
 suspend inline fun <reified Mock : Any> mock(noinline lambda: suspend MockConfigureDSL<Mock>.() -> Unit): Mock {
     val mock = mock(Mock::class)
     return the(mock, lambda)
 }
 
+/**
+ * define results for method invocations on a mock
+ */
 suspend fun <Mock : Any> the(
     mock: Mock,
     lambda: suspend MockConfigureDSL<Mock>.() -> Unit
@@ -31,30 +33,6 @@ suspend fun <Mock : Any> the(
     val dsl = MockConfigureDSLImpl(mock)
     dsl.lambda()
     return mock
-}
-
-interface MockConfigureDSL<Mock> {
-    suspend fun <Result> whenever(lambda: suspend Mock.() -> Result): MockReplyRecorder<Result>
-}
-private class MockConfigureDSLImpl<Mock : Any>(val mock: Mock) : MockConfigureDSL<Mock> {
-    override suspend fun <Result> whenever(lambda: suspend Mock.() -> Result):
-        MockReplyRecorder<Result> = getHandler(mock).whenever(lambda)
-}
-
-fun <Mock : Any> mock(kClass: KClass<Mock>): Mock {
-    @Suppress("UNCHECKED_CAST")
-    return try {
-        Proxy.newProxyInstance(
-            Thread.currentThread().contextClassLoader,
-            arrayOf(kClass.java),
-            MockHandler(kClass)
-        )
-    } catch (e: IllegalArgumentException) {
-        throw FailGoodException(
-            "error creating mock for ${kClass.qualifiedName}." +
-                " This simple mocking lib can only mock interfaces."
-        )
-    } as Mock
 }
 
 /**
@@ -67,7 +45,7 @@ fun <Mock : Any> mock(kClass: KClass<Mock>): Mock {
  * parameters that you pass to method calls are ignored, any invocation of methodCall will return "resultString" or throw
  *
  */
-suspend fun <Mock : Any, Result> whenever(mock: Mock, lambda: suspend Mock.() -> Result):
+suspend fun <Mock : Any, Result> mock(mock: Mock, lambda: suspend Mock.() -> Result):
     MockReplyRecorder<Result> = getHandler(mock).whenever(lambda)
 
 /**
@@ -100,11 +78,34 @@ fun getCalls(mock: Any) = getHandler(mock).calls.map { FunctionCall(it.method.na
 data class FunctionCall(val function: String, val arguments: List<Any?>)
 
 class MockException internal constructor(msg: String) : AssertionError(msg)
+interface MockConfigureDSL<Mock> {
+    suspend fun <Result> method(lambda: suspend Mock.() -> Result): MockReplyRecorder<Result>
+}
+private class MockConfigureDSLImpl<Mock : Any>(val mock: Mock) : MockConfigureDSL<Mock> {
+    override suspend fun <Result> method(lambda: suspend Mock.() -> Result):
+        MockReplyRecorder<Result> = getHandler(mock).whenever(lambda)
+}
+
+fun <Mock : Any> mock(kClass: KClass<Mock>): Mock {
+    @Suppress("UNCHECKED_CAST")
+    return try {
+        Proxy.newProxyInstance(
+            Thread.currentThread().contextClassLoader,
+            arrayOf(kClass.java),
+            MockHandler(kClass)
+        )
+    } catch (e: IllegalArgumentException) {
+        throw FailGoodException(
+            "error creating mock for ${kClass.qualifiedName}." +
+                " This simple mocking lib can only mock interfaces."
+        )
+    } as Mock
+}
 
 interface MockReplyRecorder<Type> {
-    @Deprecated(message = "use then")
-    fun thenReturn(parameter: Type)
-    fun then(result: () -> Type)
+    fun returns(parameter: Type)
+    fun will(result: () -> Type)
+    fun throws(throwable: Throwable)
 }
 
 internal data class MethodWithArguments(val method: Method, val arguments: List<Any?>) {
@@ -166,17 +167,19 @@ internal class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
 
     class MockReplyRecorderImpl<Type>(val mockHandler: MockHandler, val recordingHandler: RecordingHandler) :
         MockReplyRecorder<Type> {
-        @Suppress("OverridingDeprecatedMember")
-        @Deprecated(message = "use then")
-        override fun thenReturn(parameter: Type) {
+        override fun returns(parameter: Type) {
             val call = recordingHandler.call!!
             if (parameter != null)
                 mockHandler.defineResult(call.method) { parameter }
         }
 
-        override fun then(result: () -> Type) {
+        override fun will(result: () -> Type) {
             val call = recordingHandler.call!!
             mockHandler.defineResult(call.method, result)
+        }
+
+        override fun throws(throwable: Throwable) {
+            will { throw throwable }
         }
     }
 

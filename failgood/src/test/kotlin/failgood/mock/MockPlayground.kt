@@ -9,9 +9,10 @@ class MockPlayground {
         it("looks like this") {
             val userManager: IImpl = mock()
             the(userManager) {
-                whenever { stringReturningFunction() }.then { "resultString" }
-                whenever { functionWithParameters(anyInt(), anyString()) }.then { "resultString1" }
-                whenever { functionWithDataClassParameters(any()) }.then { "resultString2" }
+                method { stringReturningFunction() }.returns("resultString")
+                method { functionWithParameters(anyInt(), anyString()) }.returns("resultString1")
+                method { functionWithDataClassParameters(any()) }.returns("resultString2")
+                method { functionThatReturnsNullableString() }.will { throw RuntimeException() }
             }
             assert(userManager.stringReturningFunction() == "resultString")
             assert(userManager.functionWithParameters(1, "blah") == "resultString1")

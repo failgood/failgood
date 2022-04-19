@@ -2,7 +2,6 @@ package failgood
 
 import failgood.internal.FailedRootContext
 import failgood.mock.mock
-import failgood.mock.whenever
 import kotlinx.coroutines.*
 import strikt.api.expectThat
 import strikt.api.expectThrows
@@ -45,7 +44,7 @@ class SuiteTest {
 
                     val scope = CoroutineScope(Dispatchers.Unconfined)
                     val objectContextProvider = mock<ContextProvider>()
-                    whenever(objectContextProvider) { getContexts() }.then {
+                    mock(objectContextProvider) { getContexts() }.will {
                         throw ErrorLoadingContextsFromClass(
                             "the error",
                             MyErrorTest::class.java,

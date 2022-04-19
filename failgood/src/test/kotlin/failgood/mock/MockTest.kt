@@ -45,35 +45,36 @@ class MockTest {
                 }
             }
             it("records results for suspend functions") {
-                whenever(mock) { suspendFunction(0, "ignored") }.then { "suspendResultString" }
+                mock(mock) { suspendFunction(0, "ignored") }.will { "suspendResultString" }
                 expectThat(mock.suspendFunction(10, "string")).isEqualTo("suspendResultString")
             }
         }
         describe("defining results") {
-            describe("with whenever") {
+            describe("with the") {
                 it("defines results via calling the mock") {
-                    whenever(mock) {
-                        stringReturningFunction()
-                    }.then { "resultString" }
+                    the(mock) {
+                        method { stringReturningFunction() }.will { "resultString" }
+                    }
+
                     expectThat(mock.stringReturningFunction()).isEqualTo("resultString")
                 }
                 it("mocks can throw") {
-                    whenever(mock) { stringReturningFunction() }.then { throw RuntimeException("message") }
+                    the(mock) { method { stringReturningFunction() }.will { throw RuntimeException("message") } }
                     expectThat(
                         kotlin.runCatching { mock.stringReturningFunction() }
                             .exceptionOrNull()
                     ).isA<RuntimeException>().message.isEqualTo("message")
                 }
                 it("defines results via calling the mock even works for nullable functions") {
-                    whenever(mock) { functionThatReturnsNullableString() }.then { "resultString" }
+                    the(mock) { method { functionThatReturnsNullableString() }.will { "resultString" } }
                     expectThat(mock.functionThatReturnsNullableString()).isEqualTo("resultString")
                 }
             }
             describe("when the mock is created") {
                 it("works") {
                     val otherMock = mock<IImpl> {
-                        whenever { stringReturningFunction() }.then { "resultString" }
-                        whenever { functionThatReturnsNullableString() }.then { "otherResultString" }
+                        method { stringReturningFunction() }.will { "resultString" }
+                        method { functionThatReturnsNullableString() }.will { "otherResultString" }
                     }
                     expectThat(otherMock.stringReturningFunction()).isEqualTo("resultString")
                     expectThat(otherMock.functionThatReturnsNullableString()).isEqualTo("otherResultString")

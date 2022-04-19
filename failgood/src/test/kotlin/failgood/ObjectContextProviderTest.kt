@@ -102,7 +102,6 @@ class ObjectContextProviderTest {
     class ClassThatThrowsAtContextGetter {
         val context: RootContext = throw RuntimeException("boo i failed")
     }
-
 }
 
 private class TestClassThatUsesUtilityMethodToCreateTestContexts {

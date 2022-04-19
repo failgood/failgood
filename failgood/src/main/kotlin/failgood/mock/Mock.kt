@@ -15,6 +15,13 @@ import kotlin.reflect.KClass
  */
 inline fun <reified Mock : Any> mock() = mock(Mock::class)
 
+/**
+ * create a mock for class Mock and define its behavior
+ *
+ */
+suspend inline fun <reified Mock : Any, Result> mock(noinline lambda: suspend Mock.() -> Result) : Mock =
+    mock(Mock::class).apply { whenever(this, lambda) }
+
 fun <Mock : Any> mock(kClass: KClass<Mock>): Mock {
     @Suppress("UNCHECKED_CAST")
     return try {
@@ -26,7 +33,7 @@ fun <Mock : Any> mock(kClass: KClass<Mock>): Mock {
     } catch (e: IllegalArgumentException) {
         throw FailGoodException(
             "error creating mock for ${kClass.qualifiedName}." +
-                " This simple mocking lib can only mock interfaces."
+                    " This simple mocking lib can only mock interfaces."
         )
     } as Mock
 }
@@ -42,7 +49,7 @@ fun <Mock : Any> mock(kClass: KClass<Mock>): Mock {
  *
  */
 suspend fun <Mock : Any, Result> whenever(mock: Mock, lambda: suspend Mock.() -> Result):
-    MockReplyRecorder<Result> = getHandler(mock).whenever(lambda)
+        MockReplyRecorder<Result> = getHandler(mock).whenever(lambda)
 
 /**
  * Verify mock invocations
@@ -81,20 +88,20 @@ interface MockReplyRecorder<Type> {
     fun then(result: () -> Type)
 }
 
-private data class MethodWithArguments(val method: Method, val arguments: List<Any?>) {
+internal data class MethodWithArguments(val method: Method, val arguments: List<Any?>) {
     override fun toString(): String {
         return "${method.name}(" + arguments.joinToString() + ")"
     }
 }
 
-private fun getHandler(mock: Any): MockHandler {
+internal fun getHandler(mock: Any): MockHandler {
     return Proxy.getInvocationHandler(mock) as? MockHandler
         ?: throw FailGoodException("error finding invocation handler. is ${mock::class} really a mock?")
 }
 
-private class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
+internal class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
     val results = mutableMapOf<Method, () -> Any?>()
-    val calls = CopyOnWriteArrayList<MethodWithArguments>()
+    internal val calls = CopyOnWriteArrayList<MethodWithArguments>()
     override fun invoke(proxy: Any, method: Method, arguments: Array<out Any>?): Any? {
         val nonCoroutinesArgs = cleanArguments(arguments)
         calls.add(MethodWithArguments(method, nonCoroutinesArgs))

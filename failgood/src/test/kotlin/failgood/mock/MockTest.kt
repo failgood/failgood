@@ -12,18 +12,6 @@ import strikt.assertions.message
 
 @Test
 class MockTest {
-    interface IImpl {
-        fun overloadedFunction()
-        fun overloadedFunction(s: String)
-        fun overloadedFunction(i: Int)
-
-        fun function()
-        fun function2()
-        fun functionWithParameters(number: Int, name: String)
-        suspend fun suspendFunction(number: Int, name: String): String
-        fun stringReturningFunction(): String
-        fun functionThatReturnsNullableString(): String?
-    }
 
     val context = describe("the mocking framework") {
         val mock = mock<IImpl>()
@@ -61,20 +49,29 @@ class MockTest {
                 expectThat(mock.suspendFunction(10, "string")).isEqualTo("suspendResultString")
             }
         }
-        it("defines results via calling the mock") {
-            whenever(mock) { stringReturningFunction() }.then { "resultString" }
-            expectThat(mock.stringReturningFunction()).isEqualTo("resultString")
-        }
-        it("mocks can throw") {
-            whenever(mock) { stringReturningFunction() }.then { throw RuntimeException("message") }
-            expectThat(
-                kotlin.runCatching { mock.stringReturningFunction() }
-                    .exceptionOrNull()
-            ).isA<RuntimeException>().message.isEqualTo("message")
-        }
-        it("defines results via calling the mock even works for nullable functions") {
-            whenever(mock) { functionThatReturnsNullableString() }.then { "resultString" }
-            expectThat(mock.functionThatReturnsNullableString()).isEqualTo("resultString")
+        describe("defining results") {
+            describe("with whenever") {
+                it("defines results via calling the mock") {
+                    whenever(mock) { stringReturningFunction() }.then { "resultString" }
+                    expectThat(mock.stringReturningFunction()).isEqualTo("resultString")
+                }
+                it("mocks can throw") {
+                    whenever(mock) { stringReturningFunction() }.then { throw RuntimeException("message") }
+                    expectThat(
+                        kotlin.runCatching { mock.stringReturningFunction() }
+                            .exceptionOrNull()
+                    ).isA<RuntimeException>().message.isEqualTo("message")
+                }
+                it("defines results via calling the mock even works for nullable functions") {
+                    whenever(mock) { functionThatReturnsNullableString() }.then { "resultString" }
+                    expectThat(mock.functionThatReturnsNullableString()).isEqualTo("resultString")
+                }
+            }
+            describe("when the mock is created") {
+                pending("works") {
+//                    val mock : IImpl = mock { stringReturningFunction() }.then { "resultString" }
+                }
+            }
         }
         it("can return function calls for normal asserting") {
             mock.function()

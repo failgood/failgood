@@ -19,8 +19,21 @@ inline fun <reified Mock : Any> mock() = mock(Mock::class)
  * create a mock for class Mock and define its behavior
  *
  */
-suspend inline fun <reified Mock : Any, Result> mock(noinline lambda: suspend Mock.() -> Result) : Mock =
-    mock(Mock::class).apply { whenever(this, lambda) }
+suspend inline fun <reified Mock : Any> mock(noinline lambda: suspend MockConfigureDSL<Mock>.() -> Unit): Mock {
+    val mock = mock(Mock::class)
+    val dsl = MockConfigureDSLImpl(mock)
+    dsl.lambda()
+
+    return mock
+}
+
+interface MockConfigureDSL<Mock> {
+    suspend fun <Result> whenever(lambda: suspend Mock.() -> Result): MockReplyRecorder<Result>
+}
+class MockConfigureDSLImpl<Mock : Any>(val mock: Mock) : MockConfigureDSL<Mock> {
+    override suspend fun <Result> whenever(lambda: suspend Mock.() -> Result):
+        MockReplyRecorder<Result> = getHandler(mock).whenever(lambda)
+}
 
 fun <Mock : Any> mock(kClass: KClass<Mock>): Mock {
     @Suppress("UNCHECKED_CAST")
@@ -33,7 +46,7 @@ fun <Mock : Any> mock(kClass: KClass<Mock>): Mock {
     } catch (e: IllegalArgumentException) {
         throw FailGoodException(
             "error creating mock for ${kClass.qualifiedName}." +
-                    " This simple mocking lib can only mock interfaces."
+                " This simple mocking lib can only mock interfaces."
         )
     } as Mock
 }
@@ -45,11 +58,11 @@ fun <Mock : Any> mock(kClass: KClass<Mock>): Mock {
  * or
  * `whenever(mock) { methodCall(ignoredParameter) }.then { throw BlahException() }`
  *
- * parameters that you pass to method calls are ignored, any invocation of methodCall will return "blah"
+ * parameters that you pass to method calls are ignored, any invocation of methodCall will return "resultString" or throw
  *
  */
 suspend fun <Mock : Any, Result> whenever(mock: Mock, lambda: suspend Mock.() -> Result):
-        MockReplyRecorder<Result> = getHandler(mock).whenever(lambda)
+    MockReplyRecorder<Result> = getHandler(mock).whenever(lambda)
 
 /**
  * Verify mock invocations
@@ -112,6 +125,7 @@ internal class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
             else if (method.name == "toString" && nonCoroutinesArgs.isEmpty())
                 return "mock<${kClass.simpleName}>"
         }
+        // if there is a result lambda defined, call that, otherwise return null
         return result?.invoke()
     }
 

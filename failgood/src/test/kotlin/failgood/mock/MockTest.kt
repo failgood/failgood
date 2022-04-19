@@ -52,7 +52,9 @@ class MockTest {
         describe("defining results") {
             describe("with whenever") {
                 it("defines results via calling the mock") {
-                    whenever(mock) { stringReturningFunction() }.then { "resultString" }
+                    whenever(mock) {
+                        stringReturningFunction()
+                    }.then { "resultString" }
                     expectThat(mock.stringReturningFunction()).isEqualTo("resultString")
                 }
                 it("mocks can throw") {
@@ -68,8 +70,13 @@ class MockTest {
                 }
             }
             describe("when the mock is created") {
-                pending("works") {
-//                    val mock : IImpl = mock { stringReturningFunction() }.then { "resultString" }
+                it("works") {
+                    val otherMock = mock<IImpl> {
+                        whenever { stringReturningFunction() }.then { "resultString" }
+                        whenever { functionThatReturnsNullableString() }.then { "otherResultString" }
+                    }
+                    expectThat(otherMock.stringReturningFunction()).isEqualTo("resultString")
+                    expectThat(otherMock.functionThatReturnsNullableString()).isEqualTo("otherResultString")
                 }
             }
         }

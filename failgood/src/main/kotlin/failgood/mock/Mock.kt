@@ -21,16 +21,22 @@ inline fun <reified Mock : Any> mock() = mock(Mock::class)
  */
 suspend inline fun <reified Mock : Any> mock(noinline lambda: suspend MockConfigureDSL<Mock>.() -> Unit): Mock {
     val mock = mock(Mock::class)
+    return the(mock, lambda)
+}
+
+suspend fun <Mock : Any> the(
+    mock: Mock,
+    lambda: suspend MockConfigureDSL<Mock>.() -> Unit
+): Mock {
     val dsl = MockConfigureDSLImpl(mock)
     dsl.lambda()
-
     return mock
 }
 
 interface MockConfigureDSL<Mock> {
     suspend fun <Result> whenever(lambda: suspend Mock.() -> Result): MockReplyRecorder<Result>
 }
-class MockConfigureDSLImpl<Mock : Any>(val mock: Mock) : MockConfigureDSL<Mock> {
+private class MockConfigureDSLImpl<Mock : Any>(val mock: Mock) : MockConfigureDSL<Mock> {
     override suspend fun <Result> whenever(lambda: suspend Mock.() -> Result):
         MockReplyRecorder<Result> = getHandler(mock).whenever(lambda)
 }

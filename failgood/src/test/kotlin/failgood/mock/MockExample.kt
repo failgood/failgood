@@ -8,15 +8,21 @@ class MockExample {
     val context = describe("new mock syntax") {
         it("looks like this") {
             val userManager: IImpl = mock()
-            the(userManager) {}
+            the(userManager) {
+                whenever { stringReturningFunction() }.then { "resultString" }
+                whenever { functionWithParameters(anyInt(), anyString()) }.then { "resultString1" }
+                whenever { functionWithDataClassParameters(any()) }.then { "resultString2" }
+            }
+            assert(userManager.stringReturningFunction() == "resultString")
+            assert(userManager.functionWithParameters(1, "blah") == "resultString1")
+            assert(userManager.functionWithDataClassParameters(User("blah")) == "resultString2")
         }
-        it("and this") {
-            @Suppress("UNUSED_VARIABLE") val userManager: IImpl = mock() {}
-        }
-
     }
-
 }
 
-suspend fun <Mock : Any, Result> the(mock: Mock, lambda: suspend Mock.() -> Result):
-        MockReplyRecorder<Result> = getHandler(mock).whenever(lambda)
+@Suppress("UNCHECKED_CAST", "unused")
+private fun <T> MockConfigureDSL<*>.any(): T = null as T
+@Suppress("unused")
+private fun MockConfigureDSL<*>.anyString(): String = ""
+@Suppress("unused")
+private fun MockConfigureDSL<*>.anyInt(): Int = 42

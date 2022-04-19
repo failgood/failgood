@@ -4,7 +4,7 @@ import failgood.Test
 import failgood.describe
 
 @Test
-class MockExample {
+class MockPlayground {
     val context = describe("new mock syntax") {
         it("looks like this") {
             val userManager: IImpl = mock()

@@ -40,7 +40,7 @@ internal class SingleTestExecutor(
     private open inner class Base<GivenType> : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
         override suspend fun test(name: String, tags: Set<String>, function: TestLambda<GivenType>) {}
         override suspend fun <ContextDependency> context(
-            contextName: String,
+            name: String,
             tags: Set<String>,
             given: (suspend () -> ContextDependency),
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
@@ -49,7 +49,7 @@ internal class SingleTestExecutor(
 
         override suspend fun context(name: String, tags: Set<String>, function: ContextLambda) {}
         override suspend fun <ContextDependency> describe(
-            contextName: String,
+            name: String,
             tags: Set<String>,
             given: suspend () -> ContextDependency,
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
@@ -57,31 +57,31 @@ internal class SingleTestExecutor(
         }
 
         override suspend fun describe(name: String, tags: Set<String>, function: ContextLambda) {}
-        override suspend fun it(behaviorDescription: String, tags: Set<String>, function: TestLambda<GivenType>) {}
-        override suspend fun pending(behaviorDescription: String, function: TestLambda<GivenType>) {}
+        override suspend fun it(name: String, tags: Set<String>, function: TestLambda<GivenType>) {}
+        override suspend fun ignore(name: String, function: TestLambda<GivenType>) {}
         override fun afterSuite(function: suspend () -> Unit) {}
     }
 
     private inner class ContextFinder<GivenType>(private val contexts: List<String>) : ContextDSL<GivenType>,
         Base<GivenType>() {
         override suspend fun <ContextDependency> context(
-            contextName: String,
+            name: String,
             tags: Set<String>,
             given: suspend () -> ContextDependency,
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
-            if (contexts.first() != contextName) return
+            if (contexts.first() != name) return
 
             contextDSL(given, contexts.drop(1)).contextLambda()
         }
 
         override suspend fun <ContextDependency> describe(
-            contextName: String,
+            name: String,
             tags: Set<String>,
             given: suspend () -> ContextDependency,
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
-            context(contextName, tags, given, contextLambda)
+            context(name, tags, given, contextLambda)
         }
 
         override suspend fun context(name: String, tags: Set<String>, function: ContextLambda) {
@@ -100,8 +100,8 @@ internal class SingleTestExecutor(
         if (parentContexts.isEmpty()) TestFinder(given) else ContextFinder(parentContexts)
 
     private inner class TestFinder<GivenType>(val given: suspend () -> GivenType) : Base<GivenType>() {
-        override suspend fun it(behaviorDescription: String, tags: Set<String>, function: TestLambda<GivenType>) {
-            test(behaviorDescription, function = function)
+        override suspend fun it(name: String, tags: Set<String>, function: TestLambda<GivenType>) {
+            test(name, function = function)
         }
 
         override suspend fun test(name: String, tags: Set<String>, function: TestLambda<GivenType>) {

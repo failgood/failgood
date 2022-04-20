@@ -108,7 +108,7 @@ class JunitPlatformFunctionalTest {
                     .map { it.key.displayName }
             ).containsExactlyInAnyOrder("Failing Root Context", "error in context")
         }
-        pending("works with Blockhound installed") {
+        ignore("works with Blockhound installed") {
             LauncherFactory.create().execute(
                 launcherDiscoveryRequest(
                     listOf(selectClass(BlockhoundTestFixture::class.qualifiedName)),

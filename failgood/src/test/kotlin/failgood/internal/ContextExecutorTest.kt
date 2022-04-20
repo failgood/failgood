@@ -343,7 +343,7 @@ class ContextExecutorTest {
                     "other test with the tag"
                 )
             }
-            pending("can filter tests in a subcontext") {
+            ignore("can filter tests in a subcontext") {
                 val context = RootContext {
                     describe("context without the tag") {
                         events.add("context without tag")
@@ -373,7 +373,7 @@ class ContextExecutorTest {
             it("a context with only one pending test") {
                 val context = RootContext {
                     describe("context") {
-                        pending("pending") {}
+                        ignore("pending") {}
                     }
                     test("test") {}
                 }

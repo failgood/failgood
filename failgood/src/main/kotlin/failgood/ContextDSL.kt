@@ -35,7 +35,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     /**
      * define a test that describes one aspect of a subject.
      */
-    suspend fun it(behaviorDescription: String, tags: Set<String> = setOf(), function: TestLambda<GivenType>)
+    suspend fun it(name: String, tags: Set<String> = setOf(), function: TestLambda<GivenType>)
 
     /**
      * define a test context. if possible prefer [describe] with a description of behavior.
@@ -51,7 +51,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
      * define a context with a given block. the given block will be called for every test and passed as argument
      */
     suspend fun <ContextDependency> context(
-        contextName: String,
+        name: String,
         tags: Set<String> = setOf(),
         given: (suspend () -> ContextDependency),
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
@@ -62,16 +62,16 @@ interface ContextDSL<GivenType> : ResourcesDSL {
      * the given block will be called for every test and passed as argument
      */
     suspend fun <ContextDependency> describe(
-        contextName: String,
+        name: String,
         tags: Set<String> = setOf(),
         given: (suspend () -> ContextDependency),
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
     )
 
     /**
-     * define a pending test.
+     * define an ignored test.
      */
-    suspend fun pending(behaviorDescription: String, function: TestLambda<GivenType> = {})
+    suspend fun ignore(name: String, function: TestLambda<GivenType> = {})
 
     /**
      * Register a callback to be called after all tests have completed

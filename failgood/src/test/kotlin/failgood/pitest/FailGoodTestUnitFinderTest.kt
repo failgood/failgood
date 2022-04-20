@@ -21,7 +21,7 @@ object Tests {
         test("failing test") {
             throw failure
         }
-        pending("pending test")
+        ignore("pending test")
         test("successful test") {}
     }
 }

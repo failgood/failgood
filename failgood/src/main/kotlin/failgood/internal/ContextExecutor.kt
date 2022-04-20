@@ -179,12 +179,12 @@ internal class ContextExecutor constructor(
         }
 
         override suspend fun <ContextDependency> context(
-            contextName: String,
+            name: String,
             tags: Set<String>,
             given: (suspend () -> ContextDependency),
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
-            checkForDuplicateName(contextName)
+            checkForDuplicateName(name)
             if (!executeAll && (filteringByTag && !tags.contains(onlyTag)))
                 return
             // if we already ran a test in this context we don't need to visit the child context now
@@ -193,13 +193,13 @@ internal class ContextExecutor constructor(
                 // but we need to run the root context again to visit this child context
                 return
             }
-            val contextPath = ContextPath(parentContext, contextName)
+            val contextPath = ContextPath(parentContext, name)
             if (!testFilter.shouldRun(contextPath))
                 return
 
             if (processedTests.contains(contextPath)) return
             val sourceInfo = sourceInfo()
-            val context = Context(contextName, parentContext, sourceInfo, isolation = isolation)
+            val context = Context(name, parentContext, sourceInfo, isolation = isolation)
             val visitor = ContextVisitor(context, resourcesCloser, filteringByTag, given)
             this.mutable = false
             try {
@@ -238,11 +238,11 @@ internal class ContextExecutor constructor(
         }
 
         override suspend fun <ContextDependency> describe(
-            contextName: String,
+            name: String,
             tags: Set<String>,
             given: suspend () -> ContextDependency,
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
-        ) = context(contextName, tags, given, contextLambda)
+        ) = context(name, tags, given, contextLambda)
 
         private fun checkForDuplicateName(name: String) {
             if (!namesInThisContext.add(name))
@@ -259,16 +259,16 @@ internal class ContextExecutor constructor(
             context(name, tags, function)
         }
 
-        override suspend fun it(behaviorDescription: String, tags: Set<String>, function: TestLambda<GivenType>) {
-            test(behaviorDescription, tags, function)
+        override suspend fun it(name: String, tags: Set<String>, function: TestLambda<GivenType>) {
+            test(name, tags, function)
         }
 
-        override suspend fun pending(behaviorDescription: String, function: TestLambda<GivenType>) {
-            val testPath = ContextPath(parentContext, behaviorDescription)
+        override suspend fun ignore(name: String, function: TestLambda<GivenType>) {
+            val testPath = ContextPath(parentContext, name)
 
             if (processedTests.add(testPath)) {
                 val testDescriptor =
-                    TestDescription(parentContext, behaviorDescription, sourceInfo())
+                    TestDescription(parentContext, name, sourceInfo())
                 val result = Pending
 
                 @Suppress("DeferredResultUnused")

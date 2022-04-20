@@ -60,6 +60,17 @@ class ObjectContextProviderTest {
             }
         }
         describe("Error handling") {
+            it("throws when a class contains no contexts") {
+                expectThat(
+                    kotlin.runCatching {
+                        ObjectContextProvider(ContainsNoTests::class.java).getContexts()
+                    }
+                ).isFailure().isA<ErrorLoadingContextsFromClass>().and {
+                    message.isEqualTo("no contexts found in class")
+                    get { cause }.isNull()
+                    get { jClass }.isEqualTo(ContainsNoTests::class.java)
+                }
+            }
             listOf(ClassThatThrowsAtCreationTime::class, ClassThatThrowsAtContextGetter::class).forEach { kClass1 ->
                 it("wraps exceptions that happen at class instantiation: ${kClass1.simpleName}") {
                     expectThat(
@@ -68,7 +79,7 @@ class ObjectContextProviderTest {
                         }
                     ).isFailure().isA<ErrorLoadingContextsFromClass>().and {
                         message.isEqualTo("Could not load contexts from class")
-                        get { cause }.message.isEqualTo("boo i failed")
+                        get { cause }.isNotNull().message.isEqualTo("boo i failed")
                         get { jClass }.isEqualTo(kClass1.java)
                     }
                 }
@@ -117,3 +128,5 @@ private class OrdinaryTestClass {
     @Suppress("unused")
     val context = listOf(describe("Anything") {}, describe("Another thing") {})
 }
+
+class ContainsNoTests

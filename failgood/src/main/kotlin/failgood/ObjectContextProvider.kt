@@ -62,7 +62,7 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
             try {
                 listOf(jClass.getDeclaredMethod("getContext"))
             } catch (e: Exception) {
-                listOf()
+                throw ErrorLoadingContextsFromClass("no contexts found in class", jClass)
             }
         }
         return contextGetters.flatMap {

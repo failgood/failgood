@@ -8,5 +8,5 @@ internal class EmptySuiteException : FailGoodException("suite can not be empty")
 internal class ErrorLoadingContextsFromClass(
     message: String,
     val jClass: Class<out Any>,
-    override val cause: Throwable
+    override val cause: Throwable? = null
 ) : FailGoodException(message, cause)

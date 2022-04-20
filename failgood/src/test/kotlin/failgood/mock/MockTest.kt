@@ -9,6 +9,7 @@ import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import strikt.assertions.isNotEqualTo
 import strikt.assertions.message
+import kotlin.test.assertNotNull
 
 @Test
 class MockTest {
@@ -70,15 +71,13 @@ class MockTest {
                     expectThat(mock.functionThatReturnsNullableString()).isEqualTo("resultString")
                 }
             }
-            describe("when the mock is created") {
-                it("works") {
-                    val otherMock = mock<IImpl> {
-                        method { stringReturningFunction() }.will { "resultString" }
-                        method { functionThatReturnsNullableString() }.will { "otherResultString" }
-                    }
-                    expectThat(otherMock.stringReturningFunction()).isEqualTo("resultString")
-                    expectThat(otherMock.functionThatReturnsNullableString()).isEqualTo("otherResultString")
+            it("can be done when the mock is created") {
+                val otherMock = mock<IImpl> {
+                    method { stringReturningFunction() }.will { "resultString" }
+                    method { functionThatReturnsNullableString() }.will { "otherResultString" }
                 }
+                expectThat(otherMock.stringReturningFunction()).isEqualTo("resultString")
+                expectThat(otherMock.functionThatReturnsNullableString()).isEqualTo("otherResultString")
             }
         }
         it("can return function calls for normal asserting") {
@@ -119,6 +118,16 @@ class MockTest {
         }
         it("returns something useful as response to toString") {
             expectThat(mock.toString()).isEqualTo("mock<IImpl>")
+        }
+        describe("error handling") {
+            it("detects when the parameter to the is not a mock") {
+                val exception = assertNotNull(
+                    kotlin.runCatching {
+                        the("not a mock") {}
+                    }.exceptionOrNull()
+                )
+                assert(exception is MockException) { exception.stackTraceToString() }
+            }
         }
     }
 

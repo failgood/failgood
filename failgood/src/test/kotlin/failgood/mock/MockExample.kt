@@ -4,7 +4,7 @@ import failgood.Test
 import failgood.describe
 
 @Test
-class MockPlayground {
+class MockExample {
     val context = describe("new mock syntax") {
         it("looks like this") {
             val userManager: IImpl = mock()
@@ -20,10 +20,3 @@ class MockPlayground {
         }
     }
 }
-
-@Suppress("UNCHECKED_CAST", "unused")
-private fun <T> MockConfigureDSL<*>.any(): T = null as T
-@Suppress("unused")
-private fun MockConfigureDSL<*>.anyString(): String = ""
-@Suppress("unused")
-private fun MockConfigureDSL<*>.anyInt(): Int = 42

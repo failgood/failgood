@@ -80,8 +80,24 @@ data class FunctionCall(val function: String, val arguments: List<Any?>)
 class MockException internal constructor(msg: String) : AssertionError(msg)
 interface MockConfigureDSL<Mock> {
     suspend fun <Result> method(lambda: suspend Mock.() -> Result): MockReplyRecorder<Result>
+
+    // these are just placeholders for mock setup.
+    // currently you could use any string instead of anyString, because parameter values are not checked.
+    // but use these to indicate to the reader that the values are not checked.
+    @Suppress("UNCHECKED_CAST")
+    fun <T> any(): T = null as T
+    fun anyString(): String = ""
+    fun anyByte(): Byte = 0
+    fun anyShort(): Short = 0
+    fun anyInt(): Int = 42
+    fun anyLong(): Long = 0
+    fun anyFloat(): Float = 0f
+    fun anyDouble(): Double = 0.0
+    fun anyBoolean(): Boolean = false
+    fun anyChar(): Char = 'A'
 }
 private class MockConfigureDSLImpl<Mock : Any>(val mock: Mock) : MockConfigureDSL<Mock> {
+    init { getHandler(mock) } // fail fast if the mock is not a mock
     override suspend fun <Result> method(lambda: suspend Mock.() -> Result):
         MockReplyRecorder<Result> = getHandler(mock).whenever(lambda)
 }
@@ -105,7 +121,6 @@ fun <Mock : Any> mock(kClass: KClass<Mock>): Mock {
 interface MockReplyRecorder<Type> {
     fun returns(parameter: Type)
     fun will(result: () -> Type)
-    fun throws(throwable: Throwable)
 }
 
 internal data class MethodWithArguments(val method: Method, val arguments: List<Any?>) {
@@ -115,8 +130,12 @@ internal data class MethodWithArguments(val method: Method, val arguments: List<
 }
 
 internal fun getHandler(mock: Any): MockHandler {
-    return Proxy.getInvocationHandler(mock) as? MockHandler
-        ?: throw FailGoodException("error finding invocation handler. is ${mock::class} really a mock?")
+    return try {
+        Proxy.getInvocationHandler(mock)
+    } catch (e: Exception) {
+        null
+    } as? MockHandler
+        ?: throw MockException("error finding invocation handler. is ${mock::class} really a mock?")
 }
 
 internal class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
@@ -176,10 +195,6 @@ internal class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
         override fun will(result: () -> Type) {
             val call = recordingHandler.call!!
             mockHandler.defineResult(call.method, result)
-        }
-
-        override fun throws(throwable: Throwable) {
-            will { throw throwable }
         }
     }
 

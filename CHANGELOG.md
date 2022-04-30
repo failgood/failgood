@@ -3,7 +3,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 0.7.0 - 2022-04-29
+## 0.7.0 - "Universal" - 2022-04-29
 
 ### Changed
 

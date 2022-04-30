@@ -9,7 +9,7 @@ repositories {
 }
 
 dependencies {
-    testImplementation("dev.failgood:failgood:0.6.1")
+    testImplementation("dev.failgood:failgood:0.7.ß")
 }
 tasks.test {
     useJUnitPlatform()

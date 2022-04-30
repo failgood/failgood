@@ -5,12 +5,13 @@ Failgood comes with a JUnit Platform Engine that should make it easy to run Fail
 runner. You can run all tests in a package, or run Single test classes (if they are annotated with failgood.Test)
 
 For best results, select "run tests in IDEA" in your gradle settings.
-![idea gradle settings](images/idea%20gradle%20settings.png)
+![idea gradle settings.png](images/idea%20gradle%20settings.png)
 
 ### Running single tests
 
 The latest idea versions (2022.1.1 preview and up) works very well with failgood. If you want to run just a single test
 or a single subcontext, for easier debugging you can do so from the test results tree.
+
 ![rerun single test.png](images/rerun%20single%20test%20in%20idea.png)
 
 ### Re-running a failed test

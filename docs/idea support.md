@@ -11,7 +11,7 @@ For best results, select "run tests in IDEA" in your gradle settings.
 
 The latest idea versions (2022.1.1 preview and up) works very well with failgood. If you want to run just a single test
 or a single subcontext, for easier debugging you can do so from the test results tree.
-![rerun single test.png](images/rerun single tests in idea.png)
+![rerun single test.png](images/rerun%20single%20test%20in%20idea.png)
 
 ### Re-running a failed test
 

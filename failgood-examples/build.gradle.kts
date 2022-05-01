@@ -12,7 +12,7 @@ plugins {
 }
 
 dependencies {
-    testImplementation("dev.failgood:failgood:0.6.1")
+    testImplementation("dev.failgood:failgood:0.7.0")
 
     // everything else is optional, and only here because some tests show interactions with these libs
     testImplementation("io.strikt:strikt-core:$striktVersion")

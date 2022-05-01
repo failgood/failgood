@@ -4,15 +4,16 @@ import failgood.Test
 import failgood.describe
 
 @Test
-class FailGoodTest {
+class FailGoodDSLExample {
     val context = describe("The test runner") {
         it("supports describe/it syntax") { assert(true) }
         describe("nested contexts") {
             it("can contain tests too") { assert(true) }
 
             describe("disabled/pending tests") {
-                pending("pending can be used to mark pending tests") {}
-                pending("for pending tests the test body is optional")
+                ignore("ignore can be used to disable  tests that are unfinished") {}
+                ignore("for ignore tests the test body is optional," +
+                        " you can use it as reminder of tests that you want to write")
             }
             context("context/test syntax is also supported") {
                 test(

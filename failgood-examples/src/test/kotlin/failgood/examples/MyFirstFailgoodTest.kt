@@ -1,6 +1,5 @@
 package failgood.examples
 
-
 import failgood.Test
 import failgood.describe
 

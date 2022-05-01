@@ -15,7 +15,7 @@ import kotlin.test.assertNotNull
 class MockTest {
 
     val context = describe("the mocking framework") {
-        val mock = mock<IImpl>()
+        val mock = mock<UserManager>()
         describe("records function calls") {
             mock.function()
             it("verifies function calls") {
@@ -72,7 +72,7 @@ class MockTest {
                 }
             }
             it("can be done when the mock is created") {
-                val otherMock = mock<IImpl> {
+                val otherMock = mock<UserManager> {
                     method { stringReturningFunction() }.will { "resultString" }
                     method { functionThatReturnsNullableString() }.will { "otherResultString" }
                 }
@@ -86,10 +86,10 @@ class MockTest {
             mock.overloadedFunction("string")
             mock.overloadedFunction(10)
             expectThat(getCalls(mock)).containsExactly(
-                call(IImpl::function),
-                call(IImpl::overloadedFunction),
-                call(IImpl::overloadedFunction, "string"),
-                call(IImpl::overloadedFunction, 10)
+                call(UserManager::function),
+                call(UserManager::overloadedFunction),
+                call(UserManager::overloadedFunction, "string"),
+                call(UserManager::overloadedFunction, 10)
             )
         }
         it("has call helpers for up to 5 parameters") {
@@ -117,7 +117,7 @@ class MockTest {
             }
         }
         it("returns something useful as response to toString") {
-            expectThat(mock.toString()).isEqualTo("mock<IImpl>")
+            expectThat(mock.toString()).isEqualTo("mock<UserManager>")
         }
         describe("error handling") {
             it("detects when the parameter to the is not a mock") {

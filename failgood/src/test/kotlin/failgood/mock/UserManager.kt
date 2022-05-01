@@ -2,7 +2,7 @@ package failgood.mock
 
 data class User(val name: String)
 
-interface IImpl {
+interface UserManager {
     fun overloadedFunction(): String
     fun overloadedFunction(s: String): String
     fun overloadedFunction(i: Int): String

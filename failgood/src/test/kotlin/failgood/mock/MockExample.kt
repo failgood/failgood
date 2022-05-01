@@ -33,14 +33,17 @@ class MockExample {
             verify(userManager) { functionThatReturnsNullableString() }
 
             // then next line will throw because the parameters are different
-            assertNotNull(kotlin.runCatching { verify(userManager) { functionWithParameters(2, "blah") } }
-                .exceptionOrNull()).let {
+            assertNotNull(
+                kotlin.runCatching { verify(userManager) { functionWithParameters(2, "blah") } }
+                    .exceptionOrNull()
+            ).let {
                 assert(
                     it is MockException && it.message ==
-                            "expected call functionWithParameters(2, blah) never happened. calls: stringReturningFunction(), " +
-                            "functionWithParameters(1, blah), " +
-                            "functionWithDataClassParameters(User(name=blah)), " +
-                            "functionThatReturnsNullableString()"
+                        "expected call functionWithParameters(2, blah) never happened. calls: " +
+                        "stringReturningFunction(), " +
+                        "functionWithParameters(1, blah), " +
+                        "functionWithDataClassParameters(User(name=blah)), " +
+                        "functionThatReturnsNullableString()"
                 )
             }
             // or the different way that gives you more flexibility: get the calls and use your assertion lib on them

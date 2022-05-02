@@ -1,4 +1,3 @@
-@file:JvmName("TestContextOnTopLevelTest")
 @file:Test
 package failgood.docs
 

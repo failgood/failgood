@@ -195,7 +195,7 @@ class ContextExecutorTest {
             }
         }
 
-        describe("when an exception happeins inside a subcontext") {
+        describe("when an exception happens inside a subcontext") {
             var error: Throwable? = null
 
             val ctx = RootContext("root context") {

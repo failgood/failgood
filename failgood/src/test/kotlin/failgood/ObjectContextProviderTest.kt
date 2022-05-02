@@ -32,7 +32,7 @@ class ObjectContextProviderTest {
         }
         it("provides a top level context from a kotlin class") {
             val classLoader = ObjectContextProviderTest::class.java.classLoader
-            val clazz = classLoader.loadClass("failgood.docs.TestContextOnTopLevelTest")
+            val clazz = classLoader.loadClass("failgood.docs.TestContextOnTopLevelTestKt")
             expectThat(ObjectContextProvider(clazz.kotlin).getContexts()).single().isA<RootContext>()
                 .and { get(RootContext::name).isEqualTo("test context declared on top level") }
         }

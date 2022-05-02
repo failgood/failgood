@@ -9,13 +9,13 @@ import strikt.assertions.isEqualTo
 @Suppress("unused")
 class ClassTestContextTest {
     // contexts can be declared in fields of type RootContext (what describe returns)
-    val context =
+    val tests =
         describe("test context defined in a kotlin class") {
             it("describes behavior") {
                 expectThat("test").isEqualTo("test")
             }
         }
-    val context2 =
+    val moreTests =
         describe("another test context defined in a kotlin class") {
             it("describes behavior") {
                 expectThat("test").isEqualTo("test")
@@ -23,18 +23,9 @@ class ClassTestContextTest {
         }
 
     // contexts can also be defined via a method returning a context
-    fun methodReturningContext() = describe("a test context returned by a function") {
+    fun tests() = describe("a test context returned by a function") {
         it("describes behavior") {
             expectThat("test").isEqualTo("test")
         }
     }
-    // these contexts are currently not found. only the field `context` is currently checked to be a list.
-    val contextList = listOf(
-        describe("first of multiple contexts defined in one object") {
-            it("describes behavior") { expectThat("test").isEqualTo("test") }
-        },
-        describe("second of multiple contexts defined in one object") {
-            it("describes behavior") { expectThat("test").isEqualTo("test") }
-        }
-    )
 }

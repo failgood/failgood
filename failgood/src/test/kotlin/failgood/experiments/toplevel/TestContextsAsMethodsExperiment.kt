@@ -7,7 +7,7 @@ import failgood.Test
 /*
 this already works, but it's not yet possible to run via the icon on the method. it is possible to run via the class
  */
-class TestContextOnTopLevelJunitTest {
+class TestContextsAsMethodsExperiment {
     @Test
     fun `top level contexts can be declared as function`() =
         describe {

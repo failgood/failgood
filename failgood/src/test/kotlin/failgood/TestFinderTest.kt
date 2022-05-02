@@ -1,7 +1,7 @@
 package failgood
 
-import failgood.docs.ClassTestContextTest
-import failgood.docs.ObjectMultipleContextsTest
+import failgood.docs.ClassTestContextExample
+import failgood.docs.ContextListTest
 import failgood.docs.ObjectTestContextTest
 import failgood.docs.TestContextExampleTest
 import strikt.api.expectThat
@@ -17,10 +17,10 @@ class TestFinderTest {
                     cl.loadClass("failgood.docs.TestContextOnTopLevelTestKt").kotlin
                 expectThat(FailGood.findTestClasses(classIncludeRegex = Regex(".*docs.*.class\$")))
                     .containsExactlyInAnyOrder(
-                        ClassTestContextTest::class,
+                        ClassTestContextExample::class,
                         ObjectTestContextTest::class,
                         topLevelClass,
-                        ObjectMultipleContextsTest::class,
+                        ContextListTest::class,
                         TestContextExampleTest::class
                     )
             }

@@ -1,7 +1,7 @@
 package failgood
 
-import failgood.docs.ClassTestContextTest
-import failgood.docs.ObjectMultipleContextsTest
+import failgood.docs.ClassTestContextExample
+import failgood.docs.ContextListTest
 import strikt.api.expectThat
 import strikt.assertions.*
 import kotlin.test.assertNotNull
@@ -10,7 +10,7 @@ import kotlin.test.assertNotNull
 class ObjectContextProviderTest {
     val context = describe(ObjectContextProvider::class) {
         it("provides a context from an class in a kotlin class (MyTest::class.java)") {
-            expectThat(ObjectContextProvider(ClassTestContextTest::class).getContexts()).map { it.name }
+            expectThat(ObjectContextProvider(ClassTestContextExample::class).getContexts()).map { it.name }
                 .containsExactlyInAnyOrder(
                     "test context defined in a kotlin class",
                     "another test context defined in a kotlin class",
@@ -26,7 +26,7 @@ class ObjectContextProviderTest {
                 .and { get(RootContext::name).isEqualTo("test finder") }
         }
         it("provides a list of contexts from an object in a kotlin class (MyTest::class)") {
-            expectThat(ObjectContextProvider(ObjectMultipleContextsTest::class).getContexts()).hasSize(2).all {
+            expectThat(ObjectContextProvider(ContextListTest::class).getContexts()).hasSize(2).all {
                 isA<RootContext>()
             }
         }

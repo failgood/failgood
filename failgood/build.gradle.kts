@@ -73,3 +73,9 @@ plugins.withId("info.solidsoft.pitest") {
 configure<com.bnorm.power.PowerAssertGradleExtension> {
     functions = listOf("kotlin.assert", "kotlin.test.assertTrue", "kotlin.test.assertNotNull")
 }
+
+tasks.register<Test>("testAll") {
+    outputs.upToDateWhen { false } // when we want to run this task we run it, its never up to date.
+    include("**/NonFailgoodTest.class")
+    useJUnitPlatform()
+}

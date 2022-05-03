@@ -1,20 +1,16 @@
 package failgood.junit.it
 
 import failgood.junit.FailGoodJunitTestEngine
+import failgood.junit.FailGoodJunitTestEngineConstants
 import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.launcher.EngineFilter
 import org.junit.platform.launcher.LauncherDiscoveryRequest
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 
-fun launcherDiscoveryRequest(
-    selectors: List<DiscoverySelector>,
-    config: Map<String, String> = mapOf()
-): LauncherDiscoveryRequest {
+fun launcherDiscoveryRequest(selectors: List<DiscoverySelector>): LauncherDiscoveryRequest {
     return LauncherDiscoveryRequestBuilder.request()
         .filters(EngineFilter.includeEngines(FailGoodJunitTestEngine().id))
-        .configurationParameters(config)
+        .configurationParameters(mapOf(FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES to "true"))
         .selectors(selectors)
         .build()
 }
-
-val CI = System.getenv("CI") != null

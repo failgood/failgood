@@ -4,19 +4,7 @@ package failgood.junit.it
 
 import failgood.Test
 import failgood.describe
-import failgood.junit.FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES
-import failgood.junit.it.fixtures.BlockhoundTestFixture
-import failgood.junit.it.fixtures.DeeplyNestedDuplicateTestFixture
-import failgood.junit.it.fixtures.DoubleTestNamesInRootContextTestFixture
-import failgood.junit.it.fixtures.DoubleTestNamesInSubContextTestFixture
-import failgood.junit.it.fixtures.DuplicateRootWithOneTestFixture
-import failgood.junit.it.fixtures.DuplicateTestNameTest
-import failgood.junit.it.fixtures.FailingContext
-import failgood.junit.it.fixtures.FailingRootContext
-import failgood.junit.it.fixtures.PendingTestFixture
-import failgood.junit.it.fixtures.TestFixture
-import failgood.junit.it.fixtures.TestOrderFixture
-import failgood.junit.it.fixtures.TestWithNestedContextsFixture
+import failgood.junit.it.fixtures.*
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeout
 import org.junit.platform.engine.TestExecutionResult
@@ -47,8 +35,7 @@ class JunitPlatformFunctionalTest {
             it("are correctly handled in root contexts") {
                 LauncherFactory.create().execute(
                     launcherDiscoveryRequest(
-                        listOf(selectClass(DoubleTestNamesInRootContextTestFixture::class.qualifiedName)),
-                        mapOf(RUN_TEST_FIXTURES to "true")
+                        listOf(selectClass(DoubleTestNamesInRootContextTestFixture::class.qualifiedName))
                     ),
                     listener
                 )
@@ -60,8 +47,7 @@ class JunitPlatformFunctionalTest {
             it("are correctly handled in sub contexts") {
                 LauncherFactory.create().execute(
                     launcherDiscoveryRequest(
-                        listOf(selectClass(DoubleTestNamesInSubContextTestFixture::class.qualifiedName)),
-                        mapOf(RUN_TEST_FIXTURES to "true")
+                        listOf(selectClass(DoubleTestNamesInSubContextTestFixture::class.qualifiedName))
                     ),
                     listener
                 )
@@ -73,8 +59,7 @@ class JunitPlatformFunctionalTest {
             it("works even in deeply nested contexts") {
                 LauncherFactory.create().execute(
                     launcherDiscoveryRequest(
-                        listOf(selectClass(DeeplyNestedDuplicateTestFixture::class.qualifiedName)),
-                        mapOf(RUN_TEST_FIXTURES to "true")
+                        listOf(selectClass(DeeplyNestedDuplicateTestFixture::class.qualifiedName))
                     ),
                     listener
                 )
@@ -95,7 +80,7 @@ class JunitPlatformFunctionalTest {
                 TestWithNestedContextsFixture::class
             ).map { selectClass(it.qualifiedName) }
             LauncherFactory.create().execute(
-                launcherDiscoveryRequest(selectors, mapOf(RUN_TEST_FIXTURES to "true")), listener
+                launcherDiscoveryRequest(selectors), listener
             )
 
             val result = withTimeout(5.seconds) { listener.rootResult.await() }
@@ -111,8 +96,7 @@ class JunitPlatformFunctionalTest {
         ignore("works with Blockhound installed") {
             LauncherFactory.create().execute(
                 launcherDiscoveryRequest(
-                    listOf(selectClass(BlockhoundTestFixture::class.qualifiedName)),
-                    mapOf(RUN_TEST_FIXTURES to "true")
+                    listOf(selectClass(BlockhoundTestFixture::class.qualifiedName))
                 ),
                 listener
             )
@@ -125,22 +109,27 @@ class JunitPlatformFunctionalTest {
             assert(entries.size > 1)
             val throwable =
                 assertNotNull(
-                    entries.singleOrNull { (key, _) -> key.displayName == "interop with blockhound" }
-                        ?.value?.throwable
+                    entries.singleOrNull { (key, _) ->
+                        key.displayName == "interop with blockhound"
+                    }?.value?.throwable
                 )
             assert(throwable.get().message?.contains("blocking") == true)
         }
         it("returns tests in the order that they are declared in the file") {
-            val testPlan = LauncherFactory.create()
-                .discover(launcherDiscoveryRequest(listOf(selectClass(TestOrderFixture::class.qualifiedName))))
+            val testPlan = LauncherFactory.create().discover(
+                launcherDiscoveryRequest(
+                    listOf(selectClass(TestOrderFixture::class.qualifiedName))
+                )
+            )
             val root: TestIdentifier = assertNotNull(testPlan.roots.singleOrNull())
             val rootContext = assertNotNull(testPlan.getChildren(root).singleOrNull())
             val (tests, subcontexts) = testPlan.getChildren(rootContext).partition { it.isTest }
             assert(tests.map { it.displayName } == listOf("test 1", "test 2", "test 3", "test 4"))
             subcontexts.forEach {
                 assert(
-                    testPlan.getChildren(it)
-                        .map { it.displayName } == listOf("test 1", "test 2", "test 3", "test 4")
+                    testPlan.getChildren(it).map { it.displayName } == listOf(
+                        "test 1", "test 2", "test 3", "test 4"
+                    )
                 )
             }
         }
@@ -157,8 +146,7 @@ class JunitPlatformFunctionalTest {
             val uniqueId = descriptor.uniqueId
             // now use the uniqueid that we just returned to run the same test again
             val newListener = TEListener()
-            LauncherFactory.create()
-                .execute(launcherDiscoveryRequest(listOf(selectUniqueId(uniqueId))), newListener)
+            LauncherFactory.create().execute(launcherDiscoveryRequest(listOf(selectUniqueId(uniqueId))), newListener)
             expectThat(newListener.rootResult.await()).get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
             val tests = newListener.results.keys.filter { it.isTest }.map {
                 it.displayName
@@ -168,8 +156,12 @@ class JunitPlatformFunctionalTest {
     }
 
     private fun executeSingleTest(singleTest: KClass<*>, listener: TEListener) {
-        LauncherFactory.create()
-            .execute(launcherDiscoveryRequest(listOf(selectClass(singleTest.qualifiedName))), listener)
+        LauncherFactory.create().execute(
+            launcherDiscoveryRequest(
+                listOf(selectClass(singleTest.qualifiedName))
+            ),
+            listener
+        )
     }
 }
 

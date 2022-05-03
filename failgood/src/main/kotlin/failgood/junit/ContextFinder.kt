@@ -43,11 +43,8 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
                     }
                 }
                 is ClassSelector -> {
-                    // when there is only a single class selector we run the test even when it does not have a test annotation
-                    if (allSelectors.size == 1 || (
-                        selector.javaClass.isAnnotationPresent(Test::class.java) ||
-                            (runTestFixtures && selector.javaClass.isAnnotationPresent(TestFixture::class.java))
-                        )
+                    if (selector.javaClass.isAnnotationPresent(Test::class.java) ||
+                        (runTestFixtures && selector.javaClass.isAnnotationPresent(TestFixture::class.java))
                     )
                         listOf(ObjectContextProvider(selector.javaClass.kotlin))
                     else

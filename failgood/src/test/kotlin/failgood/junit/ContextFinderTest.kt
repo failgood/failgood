@@ -4,6 +4,7 @@ import failgood.Test
 import failgood.describe
 import failgood.internal.StringListTestFilter
 import failgood.junit.it.fixtures.packagewith1test.TestFixture
+import failgood.problematic.NonFailgoodTest
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.discovery.DiscoverySelectors
 import org.junit.platform.engine.discovery.PackageNameFilter
@@ -34,6 +35,12 @@ class ContextFinderTest {
                 get { filter.forClass(className) }.isA<StringListTestFilter>().get { filterList }
                     .containsExactly(rootName, testName)
             }
+        }
+        it("does not run a class that has no failgood test annotation") {
+            val r = LauncherDiscoveryRequestBuilder.request()
+                .selectors(DiscoverySelectors.selectClass(NonFailgoodTest::class.java))
+                .build()
+            assert(contextFinder.findContexts(r).contexts.isEmpty())
         }
         describe("test filtering") {
             it("supports a classpathRootSelector with a package filter") {

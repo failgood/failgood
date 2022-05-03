@@ -74,8 +74,9 @@ configure<com.bnorm.power.PowerAssertGradleExtension> {
     functions = listOf("kotlin.assert", "kotlin.test.assertTrue", "kotlin.test.assertNotNull")
 }
 
-tasks.register<Test>("testAll") {
-    outputs.upToDateWhen { false } // when we want to run this task we run it, its never up to date.
+// reproduce https://github.com/failgood/failgood/issues/93
+tasks.register<Test>("runSingleNonFailgoodTest") {
+    outputs.upToDateWhen { false }
     include("**/NonFailgoodTest.class")
     useJUnitPlatform()
 }

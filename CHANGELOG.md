@@ -3,6 +3,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.7.1 - "Ariola" - 2022-05-03
+
+### Fixed
+
+- Failgood reports error when only a  single test is selected that is not a failgood test (#93)
+
+
 ## 0.7.0 - "Universal" - 2022-04-29
 
 ### Changed

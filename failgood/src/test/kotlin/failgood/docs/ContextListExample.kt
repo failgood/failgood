@@ -6,7 +6,7 @@ import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
 @Test
-class ContextListTest {
+class ContextListExample {
 /*
  contexts can be declared as a list. this can make sense in combination with context order to speed up your suite.
  for example in an orm test suite you could have a utility method that creates tests for different databases,

@@ -1,9 +1,6 @@
 package failgood
 
-import failgood.docs.ClassTestContextExample
-import failgood.docs.ContextListTest
-import failgood.docs.ObjectTestContextTest
-import failgood.docs.TestContextExampleTest
+import failgood.docs.*
 import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
 
@@ -14,14 +11,14 @@ class TestFinderTest {
             it("can find Test classes") {
                 val cl = TestFinderTest::class.java.classLoader
                 val topLevelClass =
-                    cl.loadClass("failgood.docs.TestContextOnTopLevelTestKt").kotlin
+                    cl.loadClass(testContextsOnTopLevelExampleClassName).kotlin
                 expectThat(FailGood.findTestClasses(classIncludeRegex = Regex(".*docs.*.class\$")))
                     .containsExactlyInAnyOrder(
                         ClassTestContextExample::class,
-                        ObjectTestContextTest::class,
+                        ObjectTestContextExample::class,
                         topLevelClass,
-                        ContextListTest::class,
-                        TestContextExampleTest::class
+                        ContextListExample::class,
+                        TestContextExample::class
                     )
             }
         }

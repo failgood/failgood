@@ -1,7 +1,8 @@
 package failgood
 
 import failgood.docs.ClassTestContextExample
-import failgood.docs.ContextListTest
+import failgood.docs.ContextListExample
+import failgood.docs.testContextsOnTopLevelExampleClassName
 import strikt.api.expectThat
 import strikt.assertions.*
 import kotlin.test.assertNotNull
@@ -26,13 +27,13 @@ class ObjectContextProviderTest {
                 .and { get(RootContext::name).isEqualTo("test finder") }
         }
         it("provides a list of contexts from an object in a kotlin class (MyTest::class)") {
-            expectThat(ObjectContextProvider(ContextListTest::class).getContexts()).hasSize(2).all {
+            expectThat(ObjectContextProvider(ContextListExample::class).getContexts()).hasSize(2).all {
                 isA<RootContext>()
             }
         }
         it("provides a top level context from a kotlin class") {
             val classLoader = ObjectContextProviderTest::class.java.classLoader
-            val clazz = classLoader.loadClass("failgood.docs.TestContextOnTopLevelTestKt")
+            val clazz = classLoader.loadClass(testContextsOnTopLevelExampleClassName)
             expectThat(ObjectContextProvider(clazz.kotlin).getContexts()).single().isA<RootContext>()
                 .and { get(RootContext::name).isEqualTo("test context declared on top level") }
         }

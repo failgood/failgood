@@ -16,11 +16,13 @@ class RetryForTests {
     @OptIn(ExperimentalTime::class)
     val tests = describe("retryFor") {
         it("rethrows exception when time is up") {
-            val exception = assertNotNull(kotlin.runCatching {
-                retryFor(1.milliseconds) {
-                    throw RuntimeException("error!")
-                }
-            }.exceptionOrNull())
+            val exception = assertNotNull(
+                kotlin.runCatching {
+                    retryFor(1.milliseconds) {
+                        throw RuntimeException("error!")
+                    }
+                }.exceptionOrNull()
+            )
             assert(exception.message == "error!")
         }
         it("returns result") {
@@ -36,7 +38,7 @@ class RetryForTests {
 }
 
 @OptIn(ExperimentalTime::class)
-private suspend fun <Result> retryFor(duration: Duration = 1.seconds, function: suspend () -> Result): Result{
+private suspend fun <Result> retryFor(duration: Duration = 1.seconds, function: suspend () -> Result): Result {
     val until = Instant.now().plus(duration.inWholeMilliseconds, ChronoUnit.MILLIS)
     while (true) {
         try {
@@ -47,5 +49,4 @@ private suspend fun <Result> retryFor(duration: Duration = 1.seconds, function: 
             delay(10)
         }
     }
-
 }

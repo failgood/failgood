@@ -4,7 +4,7 @@ plugins {
     id("com.github.ben-manes.versions") version "0.42.0"
     id("info.solidsoft.pitest") version "1.7.4" apply false
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
-    id("com.autonomousapps.dependency-analysis") version "1.1.0"
+    id("com.autonomousapps.dependency-analysis") version "1.2.0"
 }
 
 

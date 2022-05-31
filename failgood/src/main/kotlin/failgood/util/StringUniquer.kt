@@ -1,6 +1,6 @@
 package failgood.util
 
-class StringUniquer {
+internal class StringUniquer {
     private val used = mutableSetOf<String>()
     fun makeUnique(path: String): String {
         return if (used.add(path))

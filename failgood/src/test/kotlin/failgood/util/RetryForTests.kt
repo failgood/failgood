@@ -2,6 +2,7 @@ package failgood.util
 
 import failgood.Test
 import failgood.describe
+import kotlinx.coroutines.delay
 import kotlin.test.assertNotNull
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.ExperimentalTime
@@ -29,6 +30,10 @@ class RetryForTests {
             }
             assert(result == "result")
         }
+        it("can call suspend functions") {
+            retryFor {
+                delay(0)
+            }
+        }
     }
 }
-

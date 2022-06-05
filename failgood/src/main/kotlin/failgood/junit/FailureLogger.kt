@@ -27,4 +27,6 @@ internal class FailureLogger(initial: Map<String, String> = mapOf()) {
     fun add(key: String, value: String) {
         map[key] = value
     }
+
+    fun envString(): String = map.toString()
 }

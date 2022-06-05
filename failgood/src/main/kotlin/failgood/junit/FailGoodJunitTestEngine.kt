@@ -12,6 +12,7 @@ import org.junit.platform.engine.*
 import org.junit.platform.engine.reporting.ReportEntry
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
+import java.io.File
 import java.lang.RuntimeException
 import java.util.*
 import kotlin.concurrent.schedule
@@ -61,9 +62,6 @@ class FailGoodJunitTestEngine : TestEngine {
         ).also {
             val allDescendants = it.allDescendants()
             failureLogger.add("nodes returned", allDescendants)
-            if (debug) {
-                println("nodes returned: $allDescendants")
-            }
         }
     }
 
@@ -188,7 +186,8 @@ class FailGoodJunitTestEngine : TestEngine {
         } finally {
             watchdog?.close()
         }
-
+        if (debug)
+            File("failgood.debug.txt").writeText(failureLogger.envString())
         println("finished after ${uptime()}")
     }
 }

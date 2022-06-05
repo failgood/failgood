@@ -3,6 +3,7 @@ package failgood.junit
 import failgood.*
 import failgood.internal.FailedRootContext
 import failgood.internal.SuiteExecutionContext
+import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES
 import failgood.junit.JunitExecutionListener.TestExecutionEvent
 import kotlinx.coroutines.*
@@ -22,6 +23,7 @@ const val TEST_SEGMENT_TYPE = "method"
 private val watchdog = System.getenv("FAILGOOD_WATCHDOG_MILLIS")?.toLong()
 
 class FailGoodJunitTestEngine : TestEngine {
+    private var debug: Boolean = false
     override fun getId(): String = FailGoodJunitTestEngineConstants.id
     private val failureLogger = FailureLogger()
 
@@ -29,8 +31,9 @@ class FailGoodJunitTestEngine : TestEngine {
         val watchdog = watchdog?.let { Watchdog(it) }
         val startedAt = upt()
 
-        val discoveryRequestToString = discoveryRequestToString(discoveryRequest)
+        debug = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_DEBUG).orElse(false)
 
+        val discoveryRequestToString = discoveryRequestToString(discoveryRequest)
         failureLogger.add("discovery request", discoveryRequestToString)
 
         val executionListener = JunitExecutionListener()
@@ -58,6 +61,9 @@ class FailGoodJunitTestEngine : TestEngine {
         ).also {
             val allDescendants = it.allDescendants()
             failureLogger.add("nodes returned", allDescendants)
+            if (debug) {
+                println("nodes returned: $allDescendants")
+            }
         }
     }
 

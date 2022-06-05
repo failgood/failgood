@@ -3,11 +3,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Added
+
+- Collect all interesting events and add them to an exception in case of error. Or print it to a file when debug is set
+
 ## 0.7.1 - "Ariola" - 2022-05-03
 
 ### Fixed
 
-- Failgood reports error when only a  single test is selected that is not a failgood test (#93)
+- Failgood incorrectly reports error when only a single test is selected that is not a failgood test (#93)
 
 
 ## 0.7.0 - "Universal" - 2022-04-29

@@ -24,6 +24,7 @@ private val watchdog = System.getenv("FAILGOOD_WATCHDOG_MILLIS")?.toLong()
 class FailGoodJunitTestEngine : TestEngine {
     private var debug: Boolean = false
     override fun getId(): String = FailGoodJunitTestEngineConstants.id
+    private val failureLogger = FailureLogger()
 
     override fun discover(discoveryRequest: EngineDiscoveryRequest, uniqueId: UniqueId): TestDescriptor {
         val watchdog = watchdog?.let { Watchdog(it) }
@@ -35,7 +36,8 @@ class FailGoodJunitTestEngine : TestEngine {
         if (debug) {
             println("discovery request: "+ discoveryRequestToString)
         }
-        val failureLogger = FailureLogger(mapOf("discovery request:" to discoveryRequestToString))
+
+        failureLogger.add("discovery request", discoveryRequestToString)
 
         val executionListener = JunitExecutionListener()
         val runTestFixtures = discoveryRequest.configurationParameters.getBoolean(RUN_TEST_FIXTURES).orElse(false)
@@ -77,7 +79,7 @@ class FailGoodJunitTestEngine : TestEngine {
             if (debug) println("nodes received: ${root.allDescendants()}")
             val mapper = root.mapper
             val startedContexts = mutableSetOf<TestContainer>()
-            val junitListener = LoggingEngineExecutionListener(request.engineExecutionListener)
+            val junitListener = FailureLoggingEngineExecutionListener(LoggingEngineExecutionListener(request.engineExecutionListener), failureLogger)
             junitListener.executionStarted(root)
             // report failed contexts as failed immediately
             val failedRootContexts: MutableList<FailedRootContext> = root.failedRootContexts
@@ -182,6 +184,7 @@ class FailGoodJunitTestEngine : TestEngine {
             if (System.getenv("PRINT_SLOWEST") != null) results.printSlowestTests()
             suiteExecutionContext.close()
         } catch (e: Throwable) {
+            failureLogger.fail(e)
             println(
                 "exception occurred inside failgood.\n" + "if you run the latest version please submit a bug at " +
                     "https://github.com/failgood/failgood/issues " +

@@ -3,7 +3,6 @@ package failgood.junit
 import failgood.*
 import failgood.internal.FailedRootContext
 import failgood.internal.SuiteExecutionContext
-import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES
 import failgood.junit.JunitExecutionListener.TestExecutionEvent
 import kotlinx.coroutines.*
@@ -22,7 +21,6 @@ const val TEST_SEGMENT_TYPE = "method"
 private val watchdog = System.getenv("FAILGOOD_WATCHDOG_MILLIS")?.toLong()
 
 class FailGoodJunitTestEngine : TestEngine {
-    private var debug: Boolean = false
     override fun getId(): String = FailGoodJunitTestEngineConstants.id
     private val failureLogger = FailureLogger()
 
@@ -30,12 +28,7 @@ class FailGoodJunitTestEngine : TestEngine {
         val watchdog = watchdog?.let { Watchdog(it) }
         val startedAt = upt()
 
-        debug = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_DEBUG).orElse(false)
-
         val discoveryRequestToString = discoveryRequestToString(discoveryRequest)
-        if (debug) {
-            println("discovery request: " + discoveryRequestToString)
-        }
 
         failureLogger.add("discovery request", discoveryRequestToString)
 
@@ -64,9 +57,6 @@ class FailGoodJunitTestEngine : TestEngine {
         ).also {
             val allDescendants = it.allDescendants()
             failureLogger.add("nodes returned", allDescendants)
-            if (debug) {
-                println("nodes returned: $allDescendants")
-            }
         }
     }
 
@@ -76,7 +66,7 @@ class FailGoodJunitTestEngine : TestEngine {
         val watchdog = watchdog?.let { Watchdog(it) }
         val suiteExecutionContext = root.suiteExecutionContext
         try {
-            if (debug) println("nodes received: ${root.allDescendants()}")
+            failureLogger.add("nodes received:", root.allDescendants())
             val mapper = root.mapper
             val startedContexts = mutableSetOf<TestContainer>()
             val junitListener = FailureLoggingEngineExecutionListener(

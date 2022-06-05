@@ -77,7 +77,7 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
     }
 }
 
-private fun discoveryRequestToString(discoveryRequest: EngineDiscoveryRequest): String {
+internal fun discoveryRequestToString(discoveryRequest: EngineDiscoveryRequest): String {
     val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)
     val allFilters = discoveryRequest.getFiltersByType(DiscoveryFilter::class.java)
     return "selectors:${allSelectors.joinToString()}\nfilters:${allFilters.joinToString()}"

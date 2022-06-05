@@ -39,3 +39,4 @@ class LoggingEngineExecutionListener(private val delegate: EngineExecutionListen
 
     private fun name(testDescriptor: TestDescriptor?) = "${testDescriptor!!.displayName}(${testDescriptor.uniqueId})"
 }
+

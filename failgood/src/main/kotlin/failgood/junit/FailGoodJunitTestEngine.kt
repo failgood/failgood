@@ -31,6 +31,12 @@ class FailGoodJunitTestEngine : TestEngine {
 
         debug = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_DEBUG).orElse(false)
 
+        val discoveryRequestToString = discoveryRequestToString(discoveryRequest)
+        if (debug) {
+            println("discovery request: "+ discoveryRequestToString)
+        }
+        val failureLogger = FailureLogger(mapOf("discovery request:" to discoveryRequestToString))
+
         val executionListener = JunitExecutionListener()
         val runTestFixtures = discoveryRequest.configurationParameters.getBoolean(RUN_TEST_FIXTURES).orElse(false)
         val contextsAndFilters = ContextFinder(runTestFixtures).findContexts(discoveryRequest)
@@ -54,8 +60,10 @@ class FailGoodJunitTestEngine : TestEngine {
             testResult,
             FailGoodEngineDescriptor(uniqueId, testResult, executionListener, suiteExecutionContext)
         ).also {
+            val allDescendants = it.allDescendants()
+            failureLogger.add("nodes returned", allDescendants)
             if (debug) {
-                println("nodes returned: ${it.allDescendants()}")
+                println("nodes returned: $allDescendants")
             }
         }
     }
@@ -66,9 +74,7 @@ class FailGoodJunitTestEngine : TestEngine {
         val watchdog = watchdog?.let { Watchdog(it) }
         val suiteExecutionContext = root.suiteExecutionContext
         try {
-            if (debug) {
-                println("nodes received: ${root.allDescendants()}")
-            }
+            if (debug) println("nodes received: ${root.allDescendants()}")
             val mapper = root.mapper
             val startedContexts = mutableSetOf<TestContainer>()
             val junitListener = LoggingEngineExecutionListener(request.engineExecutionListener)
@@ -115,6 +121,7 @@ class FailGoodJunitTestEngine : TestEngine {
                                     junitListener.executionStarted(mapping)
                                 }
                             }
+
                             is TestExecutionEvent.Stopped -> {
                                 val testPlusResult = event.testResult
                                 when (testPlusResult.result) {
@@ -146,6 +153,7 @@ class FailGoodJunitTestEngine : TestEngine {
                                     }
                                 }
                             }
+
                             is TestExecutionEvent.TestEvent -> withContext(Dispatchers.IO) {
                                 junitListener.reportingEntryPublished(
                                     mapping, ReportEntry.from(event.type, event.payload)

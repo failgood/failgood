@@ -15,6 +15,6 @@ internal class FailGoodEngineDescriptor(
     val failedRootContexts = mutableListOf<FailedRootContext>()
     val mapper = TestMapper()
     fun allDescendants(): String {
-        return descendants.joinToString { "${it.uniqueId} ${it.type}" }
+        return descendants.joinToString(postfix = "(total:${descendants.size})") { "[UUID:${it.uniqueId} TYPE:${it.type}]" }
     }
 }

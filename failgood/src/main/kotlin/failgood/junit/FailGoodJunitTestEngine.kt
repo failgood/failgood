@@ -11,6 +11,7 @@ import org.junit.platform.engine.*
 import org.junit.platform.engine.reporting.ReportEntry
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
+import java.lang.RuntimeException
 import java.util.*
 import kotlin.concurrent.schedule
 import kotlin.system.exitProcess
@@ -66,7 +67,8 @@ class FailGoodJunitTestEngine : TestEngine {
         val watchdog = watchdog?.let { Watchdog(it) }
         val suiteExecutionContext = root.suiteExecutionContext
         try {
-            failureLogger.add("nodes received:", root.allDescendants())
+            failureLogger.add("nodes received", root.allDescendants())
+            failureLogger.add("execute-stacktrace", RuntimeException().stackTraceToString())
             val mapper = root.mapper
             val startedContexts = mutableSetOf<TestContainer>()
             val junitListener = FailureLoggingEngineExecutionListener(

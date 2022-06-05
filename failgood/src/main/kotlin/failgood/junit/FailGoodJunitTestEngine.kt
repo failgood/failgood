@@ -34,7 +34,7 @@ class FailGoodJunitTestEngine : TestEngine {
 
         val discoveryRequestToString = discoveryRequestToString(discoveryRequest)
         if (debug) {
-            println("discovery request: "+ discoveryRequestToString)
+            println("discovery request: " + discoveryRequestToString)
         }
 
         failureLogger.add("discovery request", discoveryRequestToString)
@@ -79,7 +79,9 @@ class FailGoodJunitTestEngine : TestEngine {
             if (debug) println("nodes received: ${root.allDescendants()}")
             val mapper = root.mapper
             val startedContexts = mutableSetOf<TestContainer>()
-            val junitListener = FailureLoggingEngineExecutionListener(LoggingEngineExecutionListener(request.engineExecutionListener), failureLogger)
+            val junitListener = FailureLoggingEngineExecutionListener(
+                LoggingEngineExecutionListener(request.engineExecutionListener), failureLogger
+            )
             junitListener.executionStarted(root)
             // report failed contexts as failed immediately
             val failedRootContexts: MutableList<FailedRootContext> = root.failedRootContexts
@@ -185,13 +187,6 @@ class FailGoodJunitTestEngine : TestEngine {
             suiteExecutionContext.close()
         } catch (e: Throwable) {
             failureLogger.fail(e)
-            println(
-                "exception occurred inside failgood.\n" + "if you run the latest version please submit a bug at " +
-                    "https://github.com/failgood/failgood/issues " +
-                    "or tell someone in the #failgood channel in the kotlin-lang slack"
-            )
-            e.printStackTrace()
-            throw e
         } finally {
             watchdog?.close()
         }

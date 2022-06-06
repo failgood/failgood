@@ -1,6 +1,9 @@
 @file:Suppress("GradlePackageUpdate")
 
 import info.solidsoft.gradle.pitest.PitestPluginExtension
+import com.adarshr.gradle.testlogger.TestLoggerExtension
+import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA_PARALLEL
+
 
 plugins {
     kotlin("multiplatform") version "1.6.21"
@@ -11,6 +14,8 @@ plugins {
     id("com.bnorm.power.kotlin-power-assert") version "0.11.0"
     id("org.jetbrains.kotlinx.kover") version "0.5.1"
 //    id("org.jetbrains.dokka") version "1.6.21"
+    id("com.adarshr.test-logger") version "3.2.0"
+
 }
 // to release:
 // ./gradlew publishToSonatype closeSonatypeStagingRepository (or ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository)
@@ -25,12 +30,15 @@ dependencies {
 kotlin {
     jvm {
         withJava()
+        testRuns["test"].executionTask.configure {
+            useJUnitPlatform {}
+        }
     }
     sourceSets {
         val commonMain by getting { kotlin.srcDir("common/src") }
         val commonTest by getting { kotlin.srcDir("common/test") }
         val jvmMain by getting {
-            kotlin.srcDir("jvm/main")
+            kotlin.srcDir("jvm/src")
             resources.srcDir("jvm/resources")
             dependencies {
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
@@ -103,4 +111,10 @@ tasks.register<Test>("runSingleNonFailgoodTest") {
     outputs.upToDateWhen { false }
     include("**/NonFailgoodTest.class")
     useJUnitPlatform()
+}
+
+configure<TestLoggerExtension> {
+    theme = MOCHA_PARALLEL
+    showSimpleNames = true
+    showFullStackTraces = true
 }

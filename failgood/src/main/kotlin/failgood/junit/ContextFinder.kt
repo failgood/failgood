@@ -16,6 +16,7 @@ import org.junit.platform.engine.discovery.ClassSelector
 import org.junit.platform.engine.discovery.ClasspathRootSelector
 import org.junit.platform.engine.discovery.PackageNameFilter
 import org.junit.platform.engine.discovery.UniqueIdSelector
+import org.junit.platform.launcher.LauncherDiscoveryRequest
 import java.nio.file.Paths
 import java.util.LinkedList
 
@@ -80,5 +81,10 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
 internal fun discoveryRequestToString(discoveryRequest: EngineDiscoveryRequest): String {
     val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)
     val allFilters = discoveryRequest.getFiltersByType(DiscoveryFilter::class.java)
-    return "selectors:${allSelectors.joinToString()}\nfilters:${allFilters.joinToString()}"
+    val allPostDiscoveryFilters = if (discoveryRequest is LauncherDiscoveryRequest)
+        discoveryRequest.postDiscoveryFilters.joinToString()
+    else "UNKNOWN (${discoveryRequest::class.java.name})"
+    return "selectors:${allSelectors.joinToString()}\n" +
+            "filters:${allFilters.joinToString()}\n" +
+            "postDiscoveryFilters:$allPostDiscoveryFilters"
 }

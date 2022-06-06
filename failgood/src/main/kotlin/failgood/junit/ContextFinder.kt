@@ -85,6 +85,6 @@ internal fun discoveryRequestToString(discoveryRequest: EngineDiscoveryRequest):
         discoveryRequest.postDiscoveryFilters.joinToString()
     else "UNKNOWN (${discoveryRequest::class.java.name})"
     return "selectors:${allSelectors.joinToString()}\n" +
-            "filters:${allFilters.joinToString()}\n" +
-            "postDiscoveryFilters:$allPostDiscoveryFilters"
+        "filters:${allFilters.joinToString()}\n" +
+        "postDiscoveryFilters:$allPostDiscoveryFilters"
 }

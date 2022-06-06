@@ -36,7 +36,14 @@ dependencies {
 
     testImplementation(kotlin("test"))
 }
-
+sourceSets.main {
+    java.srcDirs("jvm/src")
+    resources.srcDirs("jvm/resources")
+}
+sourceSets.test {
+    java.srcDirs("jvm/test")
+    resources.srcDirs("jvm/test-resources")
+}
 val testMain =
     task("testMain", JavaExec::class) {
         mainClass.set("failgood.FailGoodBootstrapKt")

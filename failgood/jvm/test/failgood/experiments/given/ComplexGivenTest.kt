@@ -1,4 +1,4 @@
-@file:Suppress("unused", "UNUSED_PARAMETER")
+@file:Suppress("unused", "UNUSED_PARAMETER", "UnusedReceiverParameter")
 
 package failgood.experiments.given
 

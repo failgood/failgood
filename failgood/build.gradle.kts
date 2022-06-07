@@ -33,6 +33,26 @@ kotlin {
         testRuns["test"].executionTask.configure {
             useJUnitPlatform {}
         }
+        compilations.getByName("test") {
+            val testMain =
+                task("testMain", JavaExec::class) {
+                    mainClass.set("failgood.FailGoodBootstrapKt")
+                    classpath(runtimeDependencyFiles, output)
+                }
+            val multiThreadedTest =
+                task("multiThreadedTest", JavaExec::class) {
+                    mainClass.set("failgood.MultiThreadingPerformanceTestXKt")
+                    classpath(runtimeDependencyFiles, output)
+                    systemProperties = mapOf("kotlinx.coroutines.scheduler.core.pool.size" to "1000")
+                }
+            task("autotest", JavaExec::class) {
+                mainClass.set("failgood.AutoTestMainKt")
+                classpath(runtimeDependencyFiles, output)
+            }
+
+            tasks.check { dependsOn(testMain, multiThreadedTest) }
+
+        }
     }
     sourceSets {
         val commonMain by getting { kotlin.srcDir("common/src") }

@@ -8,7 +8,7 @@ import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA_PARALLEL
 plugins {
     kotlin("multiplatform") version "1.6.21"
     `maven-publish`
-    id("info.solidsoft.pitest")
+    id("info.solidsoft.pitest") version "1.7.4"
     signing
 //    id("failgood.publishing")
     id("com.bnorm.power.kotlin-power-assert") version "0.11.0"
@@ -23,7 +23,7 @@ plugins {
 val coroutinesVersion = "1.6.1"
 val striktVersion = "0.34.1"
 val junitPlatformVersion = "1.8.2"
-val pitestVersion = "1.7.6"
+val pitestVersion = "1.9.0"
 
 dependencies {
 }
@@ -88,25 +88,6 @@ kotlin {
         }
     }
 }
-/*
-val testMain =
-    task("testMain", JavaExec::class) {
-        mainClass.set("failgood.FailGoodBootstrapKt")
-        classpath = sourceSets["jvmTest"].runtimeClasspath
-    }
-val multiThreadedTest =
-    task("multiThreadedTest", JavaExec::class) {
-        mainClass.set("failgood.MultiThreadingPerformanceTestXKt")
-        classpath = sourceSets["jvmTest"].runtimeClasspath
-        systemProperties = mapOf("kotlinx.coroutines.scheduler.core.pool.size" to "1000")
-    }
-task("autotest", JavaExec::class) {
-    mainClass.set("failgood.AutoTestMainKt")
-    classpath = sourceSets["jvmTest"].runtimeClasspath
-}
-
-tasks.check { dependsOn(testMain, multiThreadedTest) }
-*/
 plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
         //        verbose.set(true)
@@ -114,7 +95,7 @@ plugins.withId("info.solidsoft.pitest") {
         avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))
         targetClasses.set(setOf("failgood.*")) // by default "${project.group}.*"
         targetTests.set(setOf("failgood.*Test", "failgood.**.*Test"))
-        pitestVersion.set(pitestVersion)
+        pitestVersion.set("1.9.0")
         threads.set(
             System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()
         )

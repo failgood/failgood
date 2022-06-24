@@ -10,6 +10,7 @@ plugins {
 }
 
 dependencies {
+    // must stay at 0.45.x because gradle plugin does not work with 0.46
     ktlint("com.pinterest:ktlint:0.45.2")
 }
 

@@ -17,7 +17,7 @@ import org.junit.platform.engine.support.descriptor.MethodSource
 import java.io.File
 
 private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor {
-    val testSource = createFileSource(this.sourceInfo,this.testName)
+    val testSource = createFileSource(this.sourceInfo, this.testName)
     return FailGoodTestDescriptor(
         TestDescriptor.Type.TEST,
         uniqueId.appendTest(testName),
@@ -28,13 +28,14 @@ private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor
 private val FS = File.separator
 
 // roots for guessing source files. really not great
-private val sourceRoots: List<String> = listOf("src${FS}test${FS}kotlin", "src${FS}test${FS}java", "test", "jvm${FS}test")
+private val sourceRoots: List<String> =
+    listOf("src${FS}test${FS}kotlin", "src${FS}test${FS}java", "test", "jvm${FS}test")
 
 private fun createFileSource(sourceInfo: SourceInfo, testOrContextName: String): TestSource? {
     val className = sourceInfo.className
     val filePosition = FilePosition.from(sourceInfo.lineNumber)
     val classFilePath = "${className.substringBefore("$").replace(".", "/")}.kt"
-    val file = sourceRoots.asSequence().map { File("${it}/${classFilePath}") }.firstOrNull(File::exists)
+    val file = sourceRoots.asSequence().map { File("$it/$classFilePath") }.firstOrNull(File::exists)
     return if (file != null)
         FileSource.from(
             file,

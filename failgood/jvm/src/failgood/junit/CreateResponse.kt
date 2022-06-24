@@ -13,10 +13,11 @@ import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.support.descriptor.ClassSource
 import org.junit.platform.engine.support.descriptor.FilePosition
 import org.junit.platform.engine.support.descriptor.FileSource
+import org.junit.platform.engine.support.descriptor.MethodSource
 import java.io.File
 
 private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor {
-    val testSource = createFileSource(this.sourceInfo)
+    val testSource = createFileSource(this.sourceInfo,this.testName)
     return FailGoodTestDescriptor(
         TestDescriptor.Type.TEST,
         uniqueId.appendTest(testName),
@@ -24,17 +25,22 @@ private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor
         testSource
     )
 }
+private val FS = File.separator
 
-private fun createFileSource(sourceInfo: SourceInfo): TestSource? {
+// roots for guessing source files. really not great
+private val sourceRoots: List<String> = listOf("src${FS}test${FS}kotlin", "src${FS}test${FS}java", "test", "jvm${FS}test")
+
+private fun createFileSource(sourceInfo: SourceInfo, testOrContextName: String): TestSource? {
     val className = sourceInfo.className
     val filePosition = FilePosition.from(sourceInfo.lineNumber)
-    val file = File("src/test/kotlin/${className.substringBefore("$").replace(".", "/")}.kt")
-    return if (file.exists())
+    val classFilePath = "${className.substringBefore("$").replace(".", "/")}.kt"
+    val file = sourceRoots.asSequence().map { File("${it}/${classFilePath}") }.firstOrNull(File::exists)
+    return if (file != null)
         FileSource.from(
             file,
             filePosition
         )
-    else ClassSource.from(className, filePosition)
+    else MethodSource.from(className, testOrContextName.replace(" ", "+"))
 }
 
 private fun createClassSource(sourceInfo: SourceInfo): TestSource? {
@@ -68,7 +74,7 @@ internal fun createResponse(
                             if (isRootContext)
                                 createClassSource(it)
                             else
-                                createFileSource(it)
+                                createFileSource(it, context.name)
                         }
                     )
                     mapper.addMapping(context, contextNode)
@@ -88,6 +94,7 @@ internal fun createResponse(
                 if (rootContext != null)
                     addChildren(failGoodEngineDescriptor, rootContext, true, uniqueId)
             }
+
             is FailedRootContext -> {
                 val context = contextInfo.context
                 val path = "${context.name}(${(context.sourceInfo?.className) ?: ""})"

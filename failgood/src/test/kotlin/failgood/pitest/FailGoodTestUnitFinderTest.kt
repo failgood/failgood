@@ -2,6 +2,7 @@ package failgood.pitest
 
 import failgood.Test
 import failgood.describe
+import failgood.mock.mock
 import org.pitest.testapi.Description
 import org.pitest.testapi.ResultCollector
 import org.pitest.testapi.TestUnitFinder
@@ -31,7 +32,7 @@ class FailGoodTestUnitFinderTest {
     val context = describe(FailGoodTestUnitFinder::class) {
         test("creates a test unit for each test") {
             val finder: TestUnitFinder = FailGoodTestUnitFinder
-            val testUnits = finder.findTestUnits(Tests::class.java)
+            val testUnits = finder.findTestUnits(Tests::class.java, mock())
             expectThat(testUnits).hasSize(3)
             val collector = TestResultCollector()
             testUnits.forEach {

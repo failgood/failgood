@@ -14,15 +14,11 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
-import org.pitest.testapi.AbstractTestUnit
-import org.pitest.testapi.Description
-import org.pitest.testapi.ResultCollector
-import org.pitest.testapi.TestUnit
-import org.pitest.testapi.TestUnitFinder
+import org.pitest.testapi.*
 
 object FailGoodTestUnitFinder : TestUnitFinder {
     @OptIn(DelicateCoroutinesApi::class)
-    override fun findTestUnits(clazz: Class<*>): List<TestUnit> {
+    override fun findTestUnits(clazz: Class<*>, listener: TestUnitExecutionListener?): List<TestUnit> {
         val contextProvider =
             try {
                 ContextProvider { ObjectContextProvider(clazz).getContexts() }

@@ -10,11 +10,7 @@ import org.junit.platform.engine.discovery.DiscoverySelectors
 import org.junit.platform.engine.discovery.PackageNameFilter
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 import strikt.api.expectThat
-import strikt.assertions.containsExactly
 import strikt.assertions.containsExactlyInAnyOrder
-import strikt.assertions.isA
-import strikt.assertions.isEqualTo
-import strikt.assertions.single
 import java.nio.file.Paths
 
 @Test
@@ -29,12 +25,13 @@ class ContextFinderTest {
             val request = LauncherDiscoveryRequestBuilder.request()
                 .selectors(DiscoverySelectors.selectUniqueId(UniqueId.parse(s)))
                 .build()
-            expectThat(contextFinder.findContexts(request)) {
-                get { contexts }.single().get { getContexts() }.single().get { this.name }
-                    .isEqualTo(rootName)
-                get { filter.forClass(className) }.isA<StringListTestFilter>().get { filterList }
-                    .containsExactly(rootName, testName)
-            }
+            val result = contextFinder.findContexts(request)
+            assert(result.contexts.singleOrNull()?.getContexts()?.singleOrNull()?.name == rootName)
+            assert(
+                result.filter?.forClass(className)?.let {
+                    it is StringListTestFilter && it.filterList == listOf(rootName, testName)
+                } == true
+            )
         }
         it("does not run a class that has no failgood test annotation") {
             val r = LauncherDiscoveryRequestBuilder.request()

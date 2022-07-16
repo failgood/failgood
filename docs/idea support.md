@@ -16,7 +16,7 @@ or a single subcontext, for easier debugging you can do so from the test results
 
 ### Re-running a failed test
 
-If rerunning single tests does not work out of the box, you can just create a run config for a single test or context manually.
+If re-running single tests does not work out of the box, you can just create a run config for a single test or context manually.
 To make this easier,  Failgood prints a UniqueId next to each test failure.
 For example this could be printed: `timestamp = 2022-02-17T18:21:16.367446, uniqueId to rerun just this test = [engine:failgood]/[class:The+Suite(failgood.SuiteTest)]/[class:error+handling]/[method:treats+errors+in+getContexts+as+failed+context]
 `

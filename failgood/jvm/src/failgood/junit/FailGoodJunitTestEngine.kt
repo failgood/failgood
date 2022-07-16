@@ -1,8 +1,7 @@
 package failgood.junit
 
 import failgood.*
-import failgood.internal.FailedRootContext
-import failgood.internal.SuiteExecutionContext
+import failgood.internal.*
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES
 import failgood.junit.JunitExecutionListener.TestExecutionEvent
@@ -13,7 +12,6 @@ import org.junit.platform.engine.reporting.ReportEntry
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
 import java.io.File
-import java.lang.RuntimeException
 import java.util.*
 import kotlin.concurrent.schedule
 import kotlin.system.exitProcess
@@ -46,9 +44,14 @@ class FailGoodJunitTestEngine : TestEngine {
             return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.displayName)
         val suite = Suite(providers)
         val suiteExecutionContext = SuiteExecutionContext()
+        val filterProvider = contextsAndFilters.filter ?: System.getenv("FAILGOOD_FILTER")
+            ?.let { StaticTestFilterProvider(StringListTestFilter(parseFilterString(it))) }
         val testResult = runBlocking(suiteExecutionContext.coroutineDispatcher) {
             val testResult = suite.findTests(
-                suiteExecutionContext.scope, true, contextsAndFilters.filter, executionListener
+                suiteExecutionContext.scope,
+                true,
+                filterProvider ?: ExecuteAllTestFilterProvider,
+                executionListener
             ).awaitAll()
             val testsCollectedAt = upt()
             println("start: $startedAt tests collected at $testsCollectedAt, discover finished at ${upt()}")
@@ -215,4 +218,8 @@ private class Watchdog(timeoutMillis: Long) : AutoCloseable {
         timerTask.cancel()
         timer.cancel()
     }
+}
+
+internal fun parseFilterString(filterString: String): List<String> {
+    return filterString.split(Regex("[>✔]")).map { it.trim() }
 }

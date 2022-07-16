@@ -20,7 +20,7 @@ import org.junit.platform.launcher.LauncherDiscoveryRequest
 import java.nio.file.Paths
 import java.util.LinkedList
 
-internal data class ContextsAndFilters(val contexts: List<ContextProvider>, val filter: TestFilterProvider)
+internal data class ContextsAndFilters(val contexts: List<ContextProvider>, val filter: TestFilterProvider?)
 class ContextFinder(private val runTestFixtures: Boolean = false) {
     internal fun findContexts(discoveryRequest: EngineDiscoveryRequest): ContextsAndFilters {
         val filterConfig = mutableMapOf<String, List<String>>()
@@ -74,7 +74,7 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
                 }
             }
         }
-        return ContextsAndFilters(contexts, ClassTestFilterProvider(filterConfig))
+        return ContextsAndFilters(contexts, if (filterConfig.isEmpty()) null else ClassTestFilterProvider(filterConfig))
     }
 }
 

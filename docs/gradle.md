@@ -54,3 +54,33 @@ plugins.withId("info.solidsoft.pitest") {
 }
 
 ```
+
+### Running a subset of tests with gradle
+
+You can run a single subcontext by setting the FAILGOOD_FILTER enviroment variable:
+```
+failgood % FAILGOOD_FILTER="The ContextExecutor > with a valid root context > executing all the tests" ./gradlew test
+> Task :failgood:test
+
+  The ContextExecutor > with a valid root context > executing all the tests ✔ returns tests in the same order as they are declared in the file
+  The ContextExecutor > with a valid root context > executing all the tests ✔ returns contexts in the same order as they appear in the file
+  The ContextExecutor > with a valid root context > executing all the tests ✔ returns deferred test results
+  The ContextExecutor > with a valid root context > executing all the tests ✔ reports time of successful tests
+  The ContextExecutor > with a valid root context > executing all the tests > reports failed tests ✔ reports exception for failed tests
+
+  5 passing (1.3s)
+```
+
+just specify the test path like it is printed by the great gradle test logger plugin.
+
+This also works for single tests:
+
+```
+failgood % FAILGOOD_FILTER="The ContextExecutor > with a valid root context > executing all the tests > reports failed tests ✔ reports exception for failed tests" ./gradlew test
+
+> Task :failgood:test
+
+  The ContextExecutor > with a valid root context > executing all the tests > reports failed tests ✔ reports exception for failed tests
+
+  1 passing (1.1s)
+```

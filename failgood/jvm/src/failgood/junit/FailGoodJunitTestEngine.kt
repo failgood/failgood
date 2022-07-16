@@ -3,7 +3,6 @@ package failgood.junit
 import failgood.*
 import failgood.internal.*
 import failgood.internal.ExecuteAllTestFilterProvider
-import failgood.internal.TestFilterProvider
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES
 import failgood.junit.JunitExecutionListener.TestExecutionEvent
@@ -46,7 +45,7 @@ class FailGoodJunitTestEngine : TestEngine {
             return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.displayName)
         val suite = Suite(providers)
         val suiteExecutionContext = SuiteExecutionContext()
-        val filterProvider = contextsAndFilters.filter ?: System.getenv("FAILGOOD_FILTER")?.let { createFilterProvider(it) }
+        val filterProvider = contextsAndFilters.filter ?: System.getenv("FAILGOOD_FILTER")?.let { StaticTestFilterProvider(StringListTestFilter(parseFilterString(it))) }
         val testResult = runBlocking(suiteExecutionContext.coroutineDispatcher) {
             val testResult = suite.findTests(
                 suiteExecutionContext.scope,
@@ -69,9 +68,6 @@ class FailGoodJunitTestEngine : TestEngine {
         }
     }
 
-    private fun createFilterProvider(filterString: String): TestFilterProvider {
-        return StaticTestFilterProvider(StringListTestFilter(filterString.split(">").map { it.trim() }))
-    }
 
     override fun execute(request: ExecutionRequest) {
         val root = request.rootTestDescriptor
@@ -223,4 +219,7 @@ private class Watchdog(timeoutMillis: Long) : AutoCloseable {
         timerTask.cancel()
         timer.cancel()
     }
+}
+internal fun parseFilterString(filterString: String): List<String> {
+    return filterString.split(Regex("[>✔]")).map { it.trim() }
 }

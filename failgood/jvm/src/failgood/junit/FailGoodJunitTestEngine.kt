@@ -1,9 +1,9 @@
 package failgood.junit
 
 import failgood.*
+import failgood.internal.*
 import failgood.internal.ExecuteAllTestFilterProvider
-import failgood.internal.FailedRootContext
-import failgood.internal.SuiteExecutionContext
+import failgood.internal.TestFilterProvider
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES
 import failgood.junit.JunitExecutionListener.TestExecutionEvent
@@ -46,11 +46,12 @@ class FailGoodJunitTestEngine : TestEngine {
             return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.displayName)
         val suite = Suite(providers)
         val suiteExecutionContext = SuiteExecutionContext()
+        val filterProvider = contextsAndFilters.filter ?: System.getenv("FAILGOOD_FILTER")?.let { createFilterProvider(it) }
         val testResult = runBlocking(suiteExecutionContext.coroutineDispatcher) {
             val testResult = suite.findTests(
                 suiteExecutionContext.scope,
                 true,
-                contextsAndFilters.filter ?: ExecuteAllTestFilterProvider,
+                filterProvider ?: ExecuteAllTestFilterProvider,
                 executionListener
             ).awaitAll()
             val testsCollectedAt = upt()
@@ -66,6 +67,10 @@ class FailGoodJunitTestEngine : TestEngine {
             val allDescendants = it.allDescendants()
             failureLogger.add("nodes returned", allDescendants)
         }
+    }
+
+    private fun createFilterProvider(filterString: String): TestFilterProvider {
+        return StaticTestFilterProvider(StringListTestFilter(filterString.split(">").map { it.trim() }))
     }
 
     override fun execute(request: ExecutionRequest) {

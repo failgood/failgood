@@ -8,7 +8,7 @@ repositories {
 }
 
 dependencies {
-    testImplementation("dev.failgood:failgood:0.7.0")
+    testImplementation("dev.failgood:failgood:0.7.2")
 }
 tasks.test {
     useJUnitPlatform()
@@ -33,7 +33,7 @@ plugins {
 }
 
 dependencies {
-    testImplementation("dev.failgood:failgood:0.7.0")
+    testImplementation("dev.failgood:failgood:0.7.2")
 }
 tasks.test {
     useJUnitPlatform()

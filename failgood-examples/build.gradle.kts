@@ -12,7 +12,7 @@ plugins {
 }
 
 dependencies {
-    testImplementation("dev.failgood:failgood:0.7.2")
+    testImplementation(project(":failgood"))
 
     // everything else is optional, and only here because some tests show interactions with these libs
     testImplementation("io.strikt:strikt-core:$striktVersion")
@@ -36,7 +36,7 @@ plugins.withId("info.solidsoft.pitest") {
         avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))
         targetClasses.set(setOf("failgood.examples.*")) // by default "${project.group}.*"
         targetTests.set(setOf("failgood.examples.*Test", "failgood.examples.**.*Test"))
-        pitestVersion.set("1.6.7")
+        pitestVersion.set("1.9.2")
         threads.set(
             System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()
         )

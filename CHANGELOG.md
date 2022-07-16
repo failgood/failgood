@@ -3,12 +3,14 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 0.7.2 "Rough Trade" - 2022-07-22
 
 ### Added
 
-- Run single tests from gradle
-- Collect all interesting events and add them to an exception in case of error. Or print it to a file when debug is set
+- Run single tests from gradle (#96)
+- Collect Events that happen during test execution and add them to an exception in case of error.
+  Or print it to a file when debug is set.
+
 
 ## 0.7.1 - "Ariola" - 2022-05-03
 

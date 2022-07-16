@@ -5,7 +5,7 @@ import failgood.describe
 
 @Test
 class FailGoodDSLExample {
-    val context = describe("The test runner") {
+    val context = describe("The Failgood DSL") {
         it("supports describe/it syntax") { assert(true) }
         describe("nested contexts") {
             it("can contain tests too") { assert(true) }

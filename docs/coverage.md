@@ -28,12 +28,12 @@ plugins.withId("info.solidsoft.pitest") {
 
 ```
 
-### Kover
+### Kotlinx-Kover
 
-Failgood also works well with the [kover](https://github.com/Kotlin/kotlinx-kover) plugin.
-Just put it into your gradle plugins block and everything should just work.
+Failgood also works well with the [Kotlinx-Kover](https://github.com/Kotlin/kotlinx-kover) plugin.
+Just put it into your gradle plugins block and run test tasks as usual.
 ```kotlin
 plugins {
-    id("org.jetbrains.kotlinx.kover") version "0.5.0"
+    id("org.jetbrains.kotlinx.kover") version "0.5.1"
 }
 ```

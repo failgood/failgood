@@ -24,3 +24,10 @@ then take the part from `[engine:failgood]` until the end of the line and create
 ![run-config.png](images/run-config.png)
 
 you can also run a whole context via UniqueId, for example `[engine:failgood]/[class:The+Suite(failgood.SuiteTest)]/[class:error+handling]`
+
+### Running a subset of tests via gradle
+
+You can also use gradle to run a subset of tests or a single test. Just set the FAILGOOD_FILTER environment variable in your gradle run config:
+![gradle run config with FAILGOOD_FILTER](images/idea-run-single-test-gradle.png)
+
+See [gradle support](gradle.md)

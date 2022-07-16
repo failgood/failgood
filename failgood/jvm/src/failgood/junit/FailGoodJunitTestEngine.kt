@@ -1,6 +1,7 @@
 package failgood.junit
 
 import failgood.*
+import failgood.internal.ExecuteAllTestFilterProvider
 import failgood.internal.FailedRootContext
 import failgood.internal.SuiteExecutionContext
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
@@ -13,7 +14,6 @@ import org.junit.platform.engine.reporting.ReportEntry
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
 import java.io.File
-import java.lang.RuntimeException
 import java.util.*
 import kotlin.concurrent.schedule
 import kotlin.system.exitProcess
@@ -48,7 +48,10 @@ class FailGoodJunitTestEngine : TestEngine {
         val suiteExecutionContext = SuiteExecutionContext()
         val testResult = runBlocking(suiteExecutionContext.coroutineDispatcher) {
             val testResult = suite.findTests(
-                suiteExecutionContext.scope, true, contextsAndFilters.filter, executionListener
+                suiteExecutionContext.scope,
+                true,
+                contextsAndFilters.filter ?: ExecuteAllTestFilterProvider,
+                executionListener
             ).awaitAll()
             val testsCollectedAt = upt()
             println("start: $startedAt tests collected at $testsCollectedAt, discover finished at ${upt()}")

@@ -149,7 +149,6 @@ class MockTest {
                 }
             }
         }
-
     }
 
     interface InterfaceWithOverloadedMethods {

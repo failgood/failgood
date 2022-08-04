@@ -75,8 +75,8 @@ class TestIsolationTest {
             val result = Suite {
                 contextFixture()
             }.run(silent = true)
-            assert(!result.allOk) { "there should be one failing test" }
             it("test dependencies are recreated for each test") {
+                assert(!result.allOk) { "there should be one failing test" }
                 // tests run in parallel, so the total order of events is not defined.
                 // we track events in a list of lists and record the events that lead to each test
                 expectThat(totalEvents).containsExactlyInAnyOrder(

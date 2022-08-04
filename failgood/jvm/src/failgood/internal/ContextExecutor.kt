@@ -281,6 +281,10 @@ internal class ContextExecutor constructor(
             if (!contextInvestigated)
                 afterSuiteCallbacks.add(function)
         }
+
+        override suspend fun withoutIsolation(contextLambda: suspend ContextDSL<GivenType>.() -> Unit) {
+            contextLambda()
+        }
     }
 
     private class DuplicateNameInContextException(s: String) : FailGoodException(s)

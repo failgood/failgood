@@ -60,6 +60,9 @@ internal class SingleTestExecutor(
         override suspend fun it(name: String, tags: Set<String>, function: TestLambda<GivenType>) {}
         override suspend fun ignore(name: String, function: TestLambda<GivenType>) {}
         override fun afterSuite(function: suspend () -> Unit) {}
+        override suspend fun withoutIsolation(contextLambda: suspend ContextDSL<GivenType>.() -> Unit) {
+            contextLambda()
+        }
     }
 
     private inner class ContextFinder<GivenType>(private val contexts: List<String>) : ContextDSL<GivenType>,

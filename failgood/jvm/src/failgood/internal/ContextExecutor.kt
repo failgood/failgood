@@ -64,14 +64,15 @@ internal class ContextExecutor constructor(
     }
 
     private inner class ContextVisitor<GivenType>(
-        private val parentContext: Context,
+        private val context: Context,
         private val resourcesCloser: ResourcesCloser,
         // execute subcontexts and tests regardless of their tags, even when filtering
         private val executeAll: Boolean = false,
         val given: (suspend () -> GivenType)
     ) : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
-        val isolation = parentContext.isolation
-        private val contextInvestigated = investigatedContexts.contains(parentContext)
+        val isolation = context.isolation
+        var childIsolation = isolation
+        private val contextInvestigated = investigatedContexts.contains(context)
         private val namesInThisContext = mutableSetOf<String>() // test and context names to detect duplicates
 
         // we only run the first new test that we find here. the remaining tests of the context
@@ -84,14 +85,14 @@ internal class ContextExecutor constructor(
             checkForDuplicateName(name)
             if (!executeAll && (filteringByTag && !tags.contains(onlyTag)))
                 return
-            val testPath = ContextPath(parentContext, name)
+            val testPath = ContextPath(context, name)
             if (!testFilter.shouldRun(testPath))
                 return
             // we process each test only once
             if (!processedTests.add(testPath)) {
                 return
             }
-            val testDescription = TestDescription(parentContext, name, sourceInfo())
+            val testDescription = TestDescription(context, name, sourceInfo())
             if (!ranATest || !isolation) {
                 // if we don't need isolation we run all tests here.
                 // if we do:
@@ -193,13 +194,13 @@ internal class ContextExecutor constructor(
                 // but we need to run the root context again to visit this child context
                 return
             }
-            val contextPath = ContextPath(parentContext, name)
+            val contextPath = ContextPath(context, name)
             if (!testFilter.shouldRun(contextPath))
                 return
 
             if (processedTests.contains(contextPath)) return
             val sourceInfo = sourceInfo()
-            val context = Context(name, parentContext, sourceInfo, isolation = isolation)
+            val context = Context(name, context, sourceInfo, isolation = childIsolation)
             val visitor = ContextVisitor(context, resourcesCloser, filteringByTag, given)
             this.mutable = false
             try {
@@ -246,7 +247,7 @@ internal class ContextExecutor constructor(
 
         private fun checkForDuplicateName(name: String) {
             if (!namesInThisContext.add(name))
-                throw DuplicateNameInContextException("duplicate name \"$name\" in context \"${parentContext.name}\"")
+                throw DuplicateNameInContextException("duplicate name \"$name\" in context \"${context.name}\"")
             if (!mutable) {
                 throw ImmutableContextException(
                     "Trying to create a test in the wrong context. " +
@@ -264,11 +265,11 @@ internal class ContextExecutor constructor(
         }
 
         override suspend fun ignore(name: String, function: TestLambda<GivenType>) {
-            val testPath = ContextPath(parentContext, name)
+            val testPath = ContextPath(context, name)
 
             if (processedTests.add(testPath)) {
                 val testDescriptor =
-                    TestDescription(parentContext, name, sourceInfo())
+                    TestDescription(context, name, sourceInfo())
                 val result = Pending
 
                 val testPlusResult = TestPlusResult(testDescriptor, result)
@@ -283,7 +284,10 @@ internal class ContextExecutor constructor(
         }
 
         override suspend fun withoutIsolation(contextLambda: suspend ContextDSL<GivenType>.() -> Unit) {
+            val outerIsolation = childIsolation
+            childIsolation = false
             contextLambda()
+            childIsolation = outerIsolation
         }
     }
 

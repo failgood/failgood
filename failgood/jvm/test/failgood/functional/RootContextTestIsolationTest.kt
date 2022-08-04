@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 
 @Test
-class TestIsolationTest {
+class RootContextTestIsolationTest {
     companion object {
         const val ROOT_CONTEXT_EXECUTED = "root context executed"
         const val DEPENDENCY_CLOSED = "dependency closed"
@@ -28,7 +28,7 @@ class TestIsolationTest {
         const val CONTEXT_2_EXECUTED = "context 2 executed"
     }
 
-    val context = describe("test isolation") {
+    val context = describe("test isolation for root contexts") {
         val afterEachParameters = ConcurrentHashMap<String, TestResult>()
         val totalEvents = CopyOnWriteArrayList<List<String>>()
         suspend fun ContextDSL<Unit>.contextFixture() {

@@ -10,7 +10,7 @@ class ContextListExample {
 /*
  contexts can be declared as a list. this can make sense in combination with context order to speed up your suite.
  for example in an orm test suite you could have a utility method that creates tests for different databases,
- and have that method create the tests that use h2sql with order 0 and tests that need a postgresql container with order 1, while
+ and have that method create the tests that use H2 with order 0 and tests that need a postgresql container with order 1, while
  also starting the postgresql container in a separate thread in a static initializer.
  that way the tests that don't need the container will run first while the postgres container starts in the background
  and is ready for the other tests later.

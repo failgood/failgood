@@ -38,7 +38,7 @@ class MyFirstFailgoodTests {
 
 Failgood searches tests in classes,objects or files that have the `failgood.Test` annotation.
 This annotation also tell idea to display a run icon to run tests in the IDE.
-If the run icon next to the class is missing you can also run the test by right clicking the classname.
+If the run icon next to the class is missing you can also run the test by right-clicking the classname.
 
 ![run popup.png](images/run%20popup.png)
 

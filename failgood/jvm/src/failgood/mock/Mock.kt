@@ -175,7 +175,7 @@ internal class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
     }
 
     class VerifyingHandler(mockHandler: MockHandler) : InvocationHandler {
-        val calls = mockHandler.calls
+        private val calls = mockHandler.calls
         override fun invoke(proxy: Any?, method: Method, args: Array<out Any>?): Any? {
             val call = MethodWithArguments(method, cleanArguments(args))
             if (!calls.contains(call))
@@ -184,7 +184,10 @@ internal class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
         }
     }
 
-    class MockReplyRecorderImpl<Type>(val mockHandler: MockHandler, val recordingHandler: RecordingHandler) :
+    class MockReplyRecorderImpl<Type>(
+        private val mockHandler: MockHandler,
+        private val recordingHandler: RecordingHandler
+    ) :
         MockReplyRecorder<Type> {
         override fun returns(parameter: Type) {
             val call = recordingHandler.call!!

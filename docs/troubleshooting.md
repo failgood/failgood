@@ -7,7 +7,7 @@ ask for help in the #failgood channel in the kotlin-lang slack.
 #### Reporting a problem
 
 During test execution failgood collects all kinds of info that could be interesting to track down a bug.
-If an exception is thrown this information will be logged together with the exception, so you can just copy paste
+If an exception is thrown this information will be logged together with the exception, so you can just copy and paste
 the whole error message including all stack traces when you want to report an error.
 If there is a bug that does not trigger an exception, you can create a debug log file by setting `failgood.debug=true`
 in `junit-platform.properties` (put it into src/test/resources)

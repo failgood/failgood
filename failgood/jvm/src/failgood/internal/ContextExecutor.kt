@@ -271,7 +271,6 @@ internal class ContextExecutor constructor(
                     TestDescription(parentContext, name, sourceInfo())
                 val result = Pending
 
-                @Suppress("DeferredResultUnused")
                 val testPlusResult = TestPlusResult(testDescriptor, result)
                 deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
                 listener.testFinished(testPlusResult)

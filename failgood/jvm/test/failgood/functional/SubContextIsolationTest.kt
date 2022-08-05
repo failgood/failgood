@@ -24,7 +24,7 @@ object SubContextIsolationTest {
                         }
                     }
                 ).run(silent = true)
-                assert(globalEvents.single() == listOf("childContext", "test1", "test2"))
+                assert(globalEvents.single().sorted() == listOf("childContext", "test1", "test2").sorted())
             }
             it("does not affect other contests") {
                 Suite(
@@ -46,7 +46,7 @@ object SubContextIsolationTest {
                     }
                 ).run(silent = true)
                 assert(globalEvents.size == 3)
-                assert(globalEvents[0] == listOf("childContext", "test1", "test2"))
+                assert(globalEvents[0].sorted() == listOf("childContext", "test1", "test2").sorted())
                 assert(globalEvents[1] == listOf("child with isolation", "test3"))
                 assert(globalEvents[2] == listOf("child with isolation", "test4"))
             }

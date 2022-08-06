@@ -26,7 +26,7 @@ object SubContextIsolationTest {
                 ).run(silent = true)
                 assert(globalEvents.single().sorted() == listOf("childContext", "test1", "test2").sorted())
             }
-            it("does not affect other contests") {
+            it("does not affect other contexts") {
                 Suite(
                     describe("root", isolation = true, disabled = false) {
                         val events = CopyOnWriteArrayList<String>()

@@ -37,7 +37,7 @@ internal class ContextExecutor constructor(
         val rootContext = Context(rootContext.name, null, rootContext.sourceInfo, rootContext.isolation)
         try {
             withTimeout(timeoutMillis) {
-                while (true) {
+                do {
                     startTime = System.nanoTime()
                     val resourcesCloser = ResourcesCloser(scope)
                     val visitor = ContextVisitor(
@@ -52,8 +52,7 @@ internal class ContextExecutor constructor(
                         afterSuiteCallbacks.add { resourcesCloser.closeAutoCloseables() }
                         break
                     }
-                    if (!visitor.contextsLeft) break
-                }
+                } while (visitor.contextsLeft)
             }
         } catch (e: Throwable) {
             return FailedRootContext(rootContext, e)

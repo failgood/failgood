@@ -2,27 +2,32 @@ package failgood
 
 interface ResourcesDSL {
     /**
-     * asynchronously create a dependency. This is great for blocking dependencies, like a docker container.
-     * The creator lambda runs on the IO dispatcher to make a cpu thread free for a test
-     */
-    suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit = {}): TestDependency<T>
-
-    /**
-     * create a test dependency that should be closed after the test run.
+     * create a test dependency that should be closed after the test runs.
      * use this instead of beforeEach/afterEach
+     * In contexts with isolation this runs after the test.
+     * In contexts without isolation it runs after the context
      */
     fun <T : AutoCloseable> autoClose(wrapped: T): T
 
     /**
      * create a test dependency that should be closed after the test run.
      * use this instead of beforeEach/afterEach
+     * In contexts with isolation this runs after the test.
+     * In contexts without isolation it runs after the context
      */
     fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T
 
     /**
      * Register a callback that will run after each test. use [autoClose] instead if you can.
+     * This will be called after each tests even in contexts that have no isolation
      */
     fun afterEach(function: suspend TestDSL.(TestResult) -> Unit)
+
+    /**
+     * asynchronously create a dependency. This is great for blocking dependencies, like a docker container.
+     * The creator lambda runs on the IO dispatcher to make a cpu thread free for a test
+     */
+    suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit = {}): TestDependency<T>
 }
 
 @FailGoodDSL

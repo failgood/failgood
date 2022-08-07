@@ -15,6 +15,9 @@ internal class ContextExecutor constructor(
     val filteringByTag = onlyTag != null
     val coroutineStart: CoroutineStart = if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT
     private var startTime = System.nanoTime()
+    // did we find contexts without isolation in ths root context?
+    // in that case we have to call the resources closer after suite.
+    private var containsContextsWithoutIsolation = !rootContext.isolation
 
     private val foundContexts = mutableListOf<Context>()
     private val deferredTestResults = LinkedHashMap<TestDescription, Deferred<TestPlusResult>>()
@@ -48,9 +51,8 @@ internal class ContextExecutor constructor(
                     )
                     visitor.function()
                     investigatedContexts.add(rootContext)
-                    if (!rootContext.isolation) {
+                    if (containsContextsWithoutIsolation) {
                         afterSuiteCallbacks.add { resourcesCloser.closeAutoCloseables() }
-                        break
                     }
                 } while (visitor.contextsLeft)
             }
@@ -287,6 +289,7 @@ internal class ContextExecutor constructor(
             childIsolation = false
             contextLambda()
             childIsolation = outerIsolation
+            containsContextsWithoutIsolation = true
         }
     }
 

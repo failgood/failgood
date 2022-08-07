@@ -5,7 +5,7 @@ import failgood.assert.Letters.*
 import failgood.describe
 
 enum class Letters {
-    A,B,C
+    A, B, C
 }
 @Test
 object AssertHelpersTest {

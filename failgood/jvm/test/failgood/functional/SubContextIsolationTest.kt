@@ -3,6 +3,7 @@ package failgood.functional
 import failgood.Suite
 import failgood.Test
 import failgood.assert.containsExactlyInAnyOrder
+import failgood.assert.endsWith
 import failgood.describe
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -49,7 +50,7 @@ object SubContextIsolationTest {
 
                 val e = evt.globalEvents
                 assert(e.size == 3)
-                assert(e[0].containsExactlyInAnyOrder(listOf("childContext", "test1", "test2")))
+                assert(e[0].containsExactlyInAnyOrder("childContext", "test1", "test2"))
                 assert(e[1] == listOf("child with isolation", "test3"))
                 assert(e[2] == listOf("child with isolation", "test4"))
             }
@@ -82,19 +83,16 @@ object SubContextIsolationTest {
                 assert(noIsolationRun.first() == "childContext")
                 assert(
                     noIsolationRun.containsExactlyInAnyOrder(
-                        listOf(
-                            "childContext",
-                            "test1",
-                            "no-isolation-afterEach",
-                            "test2",
-                            "no-isolation-afterEach",
-                            "no-isolation-autoClose"
-                        )
+                        "childContext",
+                        "test1",
+                        "no-isolation-afterEach",
+                        "test2",
+                        "no-isolation-afterEach",
+                        "no-isolation-autoClose"
                     )
                 )
                 assert(
-                    noIsolationRun.takeLast(2).sorted() ==
-                        listOf("no-isolation-afterEach", "no-isolation-autoClose")
+                    noIsolationRun.endsWith("no-isolation-afterEach", "no-isolation-autoClose")
                 )
                 assert(e[1] == listOf("child with isolation", "test3"))
                 assert(e[2] == listOf("child with isolation", "test4"))

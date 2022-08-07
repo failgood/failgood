@@ -91,7 +91,7 @@ object SubContextIsolationTest {
                 )
                 assert(
                     noIsolationRun.takeLast(2).sorted() ==
-                            listOf("no-isolation-afterEach", "no-isolation-autoClose")
+                        listOf("no-isolation-afterEach", "no-isolation-autoClose")
                 )
                 assert(e[1] == listOf("child with isolation", "test3"))
                 assert(e[2] == listOf("child with isolation", "test4"))

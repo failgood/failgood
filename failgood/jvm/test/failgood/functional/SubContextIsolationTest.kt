@@ -2,6 +2,7 @@ package failgood.functional
 
 import failgood.Suite
 import failgood.Test
+import failgood.assert.containsExactlyInAnyOrder
 import failgood.describe
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -23,7 +24,7 @@ object SubContextIsolationTest {
                         }
                     }
                 ).run(silent = true)
-                assert(evt.globalEvents.single().sorted() == listOf("childContext", "test1", "test2").sorted())
+                assert(evt.globalEvents.single().containsExactlyInAnyOrder(listOf("childContext", "test1", "test2")))
             }
             it("does not affect other contexts") {
                 assert(
@@ -48,7 +49,7 @@ object SubContextIsolationTest {
 
                 val e = evt.globalEvents
                 assert(e.size == 3)
-                assert(e[0].sorted() == listOf("childContext", "test1", "test2").sorted())
+                assert(e[0].containsExactlyInAnyOrder(listOf("childContext", "test1", "test2")))
                 assert(e[1] == listOf("child with isolation", "test3"))
                 assert(e[2] == listOf("child with isolation", "test4"))
             }
@@ -80,14 +81,16 @@ object SubContextIsolationTest {
                 val noIsolationRun = e[0]
                 assert(noIsolationRun.first() == "childContext")
                 assert(
-                    noIsolationRun.sorted() == listOf(
-                        "childContext",
-                        "test1",
-                        "no-isolation-afterEach",
-                        "test2",
-                        "no-isolation-afterEach",
-                        "no-isolation-autoClose"
-                    ).sorted()
+                    noIsolationRun.containsExactlyInAnyOrder(
+                        listOf(
+                            "childContext",
+                            "test1",
+                            "no-isolation-afterEach",
+                            "test2",
+                            "no-isolation-afterEach",
+                            "no-isolation-autoClose"
+                        )
+                    )
                 )
                 assert(
                     noIsolationRun.takeLast(2).sorted() ==

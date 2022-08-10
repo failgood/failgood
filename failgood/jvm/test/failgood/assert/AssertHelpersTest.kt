@@ -10,13 +10,29 @@ enum class Letters {
 @Test
 object AssertHelpersTest {
     val tests = describe("AssertHelpers") {
+        val list = listOf(A, B, C)
         describe("containsExactlyInAnyOrder") {
-            it("returns true when the content is the same") {
-                assert(listOf(A, B, C).containsExactlyInAnyOrder(listOf(A, B, C)))
-                assert(listOf(A, B, C).containsExactlyInAnyOrder(listOf(A, C, B)))
+            it("works with list") {
+                assert(list.containsExactlyInAnyOrder(listOf(A, B, C)))
+                assert(list.containsExactlyInAnyOrder(listOf(A, C, B)))
+                assert(!list.containsExactlyInAnyOrder(listOf(A, B)))
             }
-            it("returns false when the content is different") {
-                assert(!listOf(A, B, C).containsExactlyInAnyOrder(listOf(A, B)))
+            it("works with vararg") {
+                assert(list.containsExactlyInAnyOrder(A, B, C))
+                assert(list.containsExactlyInAnyOrder(A, C, B))
+                assert(!list.containsExactlyInAnyOrder(A, B))
+            }
+        }
+        describe("endsWith") {
+            it("works with list") {
+                assert(list.endsWith(listOf(C)))
+                assert(list.endsWith(listOf(B, C)))
+                assert(!list.endsWith(listOf(C, B)))
+            }
+            it("works with vararg") {
+                assert(list.endsWith(C))
+                assert(list.endsWith(B, C))
+                assert(!list.endsWith(C, B))
             }
         }
     }

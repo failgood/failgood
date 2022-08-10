@@ -82,4 +82,9 @@ interface ContextDSL<GivenType> : ResourcesDSL {
      * Register a callback to be called after all tests have completed
      */
     fun afterSuite(function: suspend () -> Unit)
+
+    /**
+     * turn off isolation for all contexts in a block (syntax is a work in progress)
+     */
+    suspend fun withoutIsolation(contextLambda: suspend ContextDSL<GivenType>.() -> Unit)
 }

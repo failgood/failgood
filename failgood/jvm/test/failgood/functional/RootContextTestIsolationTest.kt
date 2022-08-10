@@ -103,7 +103,7 @@ class RootContextTestIsolationTest {
         }
         describe("a root context with isolation set to false") {
             Suite(
-                describe("root context without isolation", isolation = false) {
+                describe("root context without isolation", isolation = false, disabled = false) {
                     contextFixture()
                 }
             ).run(silent = true)

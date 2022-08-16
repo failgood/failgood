@@ -52,5 +52,18 @@ class ContextFinderTest {
                 expectThat(contextNames).containsExactlyInAnyOrder(TestFixture.CONTEXT_NAME)
             }
         }
+        describe("parsing unique id selectors") {
+            it("works when the root contexts contains brackets") {
+                val (filterStringList, className) = parseUniqueIdSelector(
+                    DiscoverySelectors.selectUniqueId(
+                        UniqueId.parse(
+                            "[engine:failgood]/[class:Root Context (with brackets)(className)]/[method:test name]"
+                        )
+                    )
+                )
+                assert(filterStringList == listOf("Root Context (with brackets)", "test name"))
+                assert(className == "className")
+            }
+        }
     }
 }

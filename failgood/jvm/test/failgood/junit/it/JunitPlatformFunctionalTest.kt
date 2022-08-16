@@ -24,6 +24,7 @@ import kotlin.time.ExperimentalTime
 
 @Test
 class JunitPlatformFunctionalTest {
+    @OptIn(ExperimentalTime::class)
     @Suppress("unused")
     val context = describe("The Junit Platform Engine") {
         val listener = TEListener()

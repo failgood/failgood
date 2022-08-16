@@ -3,6 +3,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.8.0 "Position Chrome" - Unreleased
+
+### Fixed
+
+- fix running tests by uniqueid where the root context contains ( or ) (#109)
+
 ## 0.7.2 "Rough Trade" - 2022-07-22
 
 ### Added

@@ -154,6 +154,20 @@ class JunitPlatformFunctionalTest {
             }
             assert(tests.singleOrNull() == testName)
         }
+        describe("error handling") {
+            it("correctly reports exceptions in afterEach as test failures") {
+                LauncherFactory.create().execute(
+                    launcherDiscoveryRequest(
+                        listOf(selectClass(TestFixtureWithFailingTestAndAfterEach::class.qualifiedName))
+                    ),
+                    listener
+                )
+                val rootResult = listener.rootResult.await()
+                assert(rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {
+                    rootResult.throwable.get().stackTraceToString()
+                }
+            }
+        }
     }
 
     private fun executeSingleTest(singleTest: KClass<*>, listener: TEListener) {

@@ -2,6 +2,7 @@ package failgood.internal
 
 import failgood.*
 import kotlinx.coroutines.*
+import java.lang.AssertionError
 
 internal class ContextExecutor constructor(
     private val rootContext: RootContext,
@@ -145,10 +146,15 @@ internal class ContextExecutor constructor(
                         testContext.function(given.invoke())
                     } catch (e: Throwable) {
                         val failure = Failure(e)
-                        resourcesCloser.callAfterEach(testContext, failure)
+                        try {
+                            resourcesCloser.callAfterEach(testContext, failure)
+                        } catch (_: Exception) {
+                        } catch (_: AssertionError) {
+                        }
                         if (isolation) try {
                             resourcesCloser.closeAutoCloseables()
-                        } catch (_: Throwable) {
+                        } catch (_: Exception) {
+                        } catch (_: AssertionError) {
                         }
                         return@withTimeout failure
                     }

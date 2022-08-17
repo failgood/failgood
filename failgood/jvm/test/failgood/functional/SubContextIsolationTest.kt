@@ -1,11 +1,13 @@
 package failgood.functional
 
+import failgood.Isolation.*
 import failgood.Suite
 import failgood.Test
 import failgood.assert.containsExactlyInAnyOrder
 import failgood.assert.endsWith
 import failgood.describe
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.test.assertNotNull
 
 @Test
 object SubContextIsolationTest {
@@ -16,28 +18,25 @@ object SubContextIsolationTest {
                 Suite(
                     failgood.describe("root") {
                         val events = evt.addEvent()
-                        withoutIsolation {
-                            describe("child") {
-                                events.add("childContext")
-                                it("test1") { events.add("test1") }
-                                it("test2") { events.add("test2") }
-                            }
+                        describe("child", isolation = OFF) {
+                            events.add("childContext")
+                            it("test1") { events.add("test1") }
+                            it("test2") { events.add("test2") }
                         }
                     }
                 ).run(silent = true)
-                assert(evt.globalEvents.single().containsExactlyInAnyOrder(listOf("childContext", "test1", "test2")))
+                val singleEvent = assertNotNull(evt.globalEvents.singleOrNull())
+                assert(singleEvent.containsExactlyInAnyOrder(listOf("childContext", "test1", "test2")))
             }
             it("does not affect other contexts") {
                 assert(
                     Suite(
                         failgood.describe("root") {
                             val events = evt.addEvent()
-                            withoutIsolation {
-                                describe("child") {
-                                    events.add("childContext")
-                                    it("test1") { events.add("test1") }
-                                    it("test2") { events.add("test2") }
-                                }
+                            describe("child", isolation = OFF) {
+                                events.add("childContext")
+                                it("test1") { events.add("test1") }
+                                it("test2") { events.add("test2") }
                             }
                             describe("child with isolation") {
                                 events.add("child with isolation")
@@ -59,14 +58,12 @@ object SubContextIsolationTest {
                     Suite(
                         failgood.describe("root") {
                             val events = evt.addEvent()
-                            withoutIsolation {
-                                describe("child") {
-                                    afterEach { events.add("no-isolation-afterEach") }
-                                    autoClose("yo") { events.add("no-isolation-autoClose") }
-                                    events.add("childContext")
-                                    it("test1") { events.add("test1") }
-                                    it("test2") { events.add("test2") }
-                                }
+                            describe("child", isolation = OFF) {
+                                afterEach { events.add("no-isolation-afterEach") }
+                                autoClose("yo") { events.add("no-isolation-autoClose") }
+                                events.add("childContext")
+                                it("test1") { events.add("test1") }
+                                it("test2") { events.add("test2") }
                             }
                             describe("child with isolation") {
                                 events.add("child with isolation")

@@ -94,7 +94,7 @@ class RootContextTestIsolationTest {
             }
             testAfterEach()
         }
-        describe("a root context with isolation set to false") {
+        describe("a root context with isolation set to OFF") {
             Suite(
                 describe("root context without isolation", isolation = Isolation.OFF, disabled = false) {
                     contextFixture()

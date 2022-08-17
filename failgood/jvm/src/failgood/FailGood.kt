@@ -43,6 +43,7 @@ typealias TestLambda<GivenType> = suspend TestDSL.(GivenType) -> Unit
 enum class Isolation {
     OFF
 }
+
 fun context(description: String, disabled: Boolean = false, order: Int = 0, function: ContextLambda): RootContext =
     RootContext(description, disabled, order, function = function)
 
@@ -58,25 +59,27 @@ fun describe(
 inline fun <reified T> describe(
     disabled: Boolean = false,
     order: Int = 0,
-    isolation: Boolean = true,
+    isolation: Isolation? = null,
     noinline function: ContextLambda
 ):
     RootContext = describe(T::class, disabled, order, isolation, function)
 
 suspend inline fun <reified Class> ContextDSL<*>.describe(
     tags: Set<String> = setOf(),
+    isolation: Isolation? = null,
     noinline contextLambda: ContextLambda
 ) =
-    this.describe(Class::class.simpleName!!, tags, contextLambda)
+    this.describe(Class::class.simpleName!!, tags, isolation, contextLambda)
 
 fun describe(
     subjectType: KClass<*>,
     disabled: Boolean = false,
     order: Int = 0,
-    isolation: Boolean = true,
+    isolation: Isolation? = null,
     function: ContextLambda
 ):
-    RootContext = RootContext("The ${subjectType.simpleName}", disabled, order, isolation, function = function)
+    RootContext =
+    RootContext("The ${subjectType.simpleName}", disabled, order, isolation != Isolation.OFF, function = function)
 
 data class TestDescription(
     val container: TestContainer,

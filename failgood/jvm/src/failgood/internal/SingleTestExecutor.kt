@@ -1,15 +1,6 @@
 package failgood.internal
 
-import failgood.ContextDSL
-import failgood.ContextLambda
-import failgood.FailGoodException
-import failgood.Failure
-import failgood.ResourcesDSL
-import failgood.RootContext
-import failgood.Success
-import failgood.TestDSL
-import failgood.TestLambda
-import failgood.TestResult
+import failgood.*
 
 /**
  * Executes a single test with all its parent contexts
@@ -42,27 +33,38 @@ internal class SingleTestExecutor(
         override suspend fun <ContextDependency> context(
             name: String,
             tags: Set<String>,
+            isolation: Isolation?,
             given: (suspend () -> ContextDependency),
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
         }
 
-        override suspend fun context(name: String, tags: Set<String>, function: ContextLambda) {}
+        override suspend fun context(
+            name: String,
+            tags: Set<String>,
+            isolation: Isolation?,
+            function: ContextLambda
+        ) {}
         override suspend fun <ContextDependency> describe(
             name: String,
             tags: Set<String>,
+            isolation: Isolation?,
             given: suspend () -> ContextDependency,
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
         }
 
-        override suspend fun describe(name: String, tags: Set<String>, function: ContextLambda) {}
+        override suspend fun describe(
+            name: String,
+            tags: Set<String>,
+            isolation: Isolation?,
+            function: ContextLambda
+        ) {
+        }
+
         override suspend fun it(name: String, tags: Set<String>, function: TestLambda<GivenType>) {}
         override suspend fun ignore(name: String, function: TestLambda<GivenType>) {}
         override fun afterSuite(function: suspend () -> Unit) {}
-        override suspend fun withoutIsolation(contextLambda: suspend ContextDSL<GivenType>.() -> Unit) {
-            contextLambda()
-        }
     }
 
     private inner class ContextFinder<GivenType>(private val contexts: List<String>) : ContextDSL<GivenType>,
@@ -70,6 +72,7 @@ internal class SingleTestExecutor(
         override suspend fun <ContextDependency> context(
             name: String,
             tags: Set<String>,
+            isolation: Isolation?,
             given: suspend () -> ContextDependency,
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
@@ -81,17 +84,28 @@ internal class SingleTestExecutor(
         override suspend fun <ContextDependency> describe(
             name: String,
             tags: Set<String>,
+            isolation: Isolation?,
             given: suspend () -> ContextDependency,
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
-            context(name, tags, given, contextLambda)
+            context(name, tags, isolation, given, contextLambda)
         }
 
-        override suspend fun context(name: String, tags: Set<String>, function: ContextLambda) {
-            context(name, tags, {}, function)
+        override suspend fun context(
+            name: String,
+            tags: Set<String>,
+            isolation: Isolation?,
+            function: ContextLambda
+        ) {
+            context(name, tags, isolation, {}, function)
         }
 
-        override suspend fun describe(name: String, tags: Set<String>, function: ContextLambda) {
+        override suspend fun describe(
+            name: String,
+            tags: Set<String>,
+            isolation: Isolation?,
+            function: ContextLambda
+        ) {
             context(name, function = function)
         }
     }

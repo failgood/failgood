@@ -35,7 +35,12 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     /**
      * define a test context that describes a subject.
      */
-    suspend fun describe(name: String, tags: Set<String> = setOf(), function: ContextLambda)
+    suspend fun describe(
+        name: String,
+        tags: Set<String> = setOf(),
+        isolation: Isolation? = null,
+        function: ContextLambda
+    )
 
     /**
      * define a test that describes one aspect of a subject.
@@ -45,7 +50,12 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     /**
      * define a test context. if possible prefer [describe] with a description of behavior.
      */
-    suspend fun context(name: String, tags: Set<String> = setOf(), function: ContextLambda)
+    suspend fun context(
+        name: String,
+        tags: Set<String> = setOf(),
+        isolation: Isolation? = null,
+        function: ContextLambda
+    )
 
     /**
      * define a test. [it] is probably better suited.
@@ -58,6 +68,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     suspend fun <ContextDependency> context(
         name: String,
         tags: Set<String> = setOf(),
+        isolation: Isolation? = null,
         given: (suspend () -> ContextDependency),
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
     )
@@ -69,6 +80,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     suspend fun <ContextDependency> describe(
         name: String,
         tags: Set<String> = setOf(),
+        isolation: Isolation? = null,
         given: (suspend () -> ContextDependency),
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
     )
@@ -82,9 +94,4 @@ interface ContextDSL<GivenType> : ResourcesDSL {
      * Register a callback to be called after all tests have completed
      */
     fun afterSuite(function: suspend () -> Unit)
-
-    /**
-     * turn off isolation for all contexts in a block (syntax is a work in progress)
-     */
-    suspend fun withoutIsolation(contextLambda: suspend ContextDSL<GivenType>.() -> Unit)
 }

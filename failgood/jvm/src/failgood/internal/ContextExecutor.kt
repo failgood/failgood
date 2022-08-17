@@ -2,7 +2,6 @@ package failgood.internal
 
 import failgood.*
 import kotlinx.coroutines.*
-import java.lang.AssertionError
 
 internal class ContextExecutor constructor(
     private val rootContext: RootContext,
@@ -16,6 +15,7 @@ internal class ContextExecutor constructor(
     val filteringByTag = onlyTag != null
     val coroutineStart: CoroutineStart = if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT
     private var startTime = System.nanoTime()
+
     // did we find contexts without isolation in ths root context?
     // in that case we have to call the resources closer after suite.
     private var containsContextsWithoutIsolation = !rootContext.isolation
@@ -73,7 +73,6 @@ internal class ContextExecutor constructor(
         val given: (suspend () -> GivenType)
     ) : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
         val isolation = context.isolation
-        var childIsolation = isolation
         private val contextInvestigated = investigatedContexts.contains(context)
         private val namesInThisContext = mutableSetOf<String>() // test and context names to detect duplicates
 
@@ -189,14 +188,17 @@ internal class ContextExecutor constructor(
         override suspend fun <ContextDependency> context(
             name: String,
             tags: Set<String>,
+            isolation: Isolation?,
             given: (suspend () -> ContextDependency),
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
             checkForDuplicateName(name)
             if (!executeAll && (filteringByTag && !tags.contains(onlyTag)))
                 return
+            if (isolation == Isolation.OFF)
+                containsContextsWithoutIsolation = true
             // if we already ran a test in this context we don't need to visit the child context now
-            if (isolation && ranATest) {
+            if (this.isolation && ranATest) {
                 contextsLeft = true
                 // but we need to run the root context again to visit this child context
                 return
@@ -207,7 +209,8 @@ internal class ContextExecutor constructor(
 
             if (processedTests.contains(contextPath)) return
             val sourceInfo = sourceInfo()
-            val context = Context(name, context, sourceInfo, isolation = childIsolation)
+            val subContextShouldHaveIsolation = isolation != Isolation.OFF && this.isolation
+            val context = Context(name, context, sourceInfo, subContextShouldHaveIsolation)
             val visitor = ContextVisitor(context, resourcesCloser, filteringByTag, given)
             this.mutable = false
             try {
@@ -241,16 +244,22 @@ internal class ContextExecutor constructor(
             if (visitor.ranATest) ranATest = true
         }
 
-        override suspend fun context(name: String, tags: Set<String>, function: ContextLambda) {
-            context(name, tags, {}, function)
+        override suspend fun context(
+            name: String,
+            tags: Set<String>,
+            isolation: Isolation?,
+            function: ContextLambda
+        ) {
+            context(name, tags, isolation, {}, function)
         }
 
         override suspend fun <ContextDependency> describe(
             name: String,
             tags: Set<String>,
+            isolation: Isolation?,
             given: suspend () -> ContextDependency,
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
-        ) = context(name, tags, given, contextLambda)
+        ) = context(name, tags, isolation, given, contextLambda)
 
         private fun checkForDuplicateName(name: String) {
             if (!namesInThisContext.add(name))
@@ -263,8 +272,13 @@ internal class ContextExecutor constructor(
             }
         }
 
-        override suspend fun describe(name: String, tags: Set<String>, function: ContextLambda) {
-            context(name, tags, function)
+        override suspend fun describe(
+            name: String,
+            tags: Set<String>,
+            isolation: Isolation?,
+            function: ContextLambda
+        ) {
+            context(name, tags, isolation, function)
         }
 
         override suspend fun it(name: String, tags: Set<String>, function: TestLambda<GivenType>) {
@@ -288,14 +302,6 @@ internal class ContextExecutor constructor(
         override fun afterSuite(function: suspend () -> Unit) {
             if (!contextInvestigated)
                 afterSuiteCallbacks.add(function)
-        }
-
-        override suspend fun withoutIsolation(contextLambda: suspend ContextDSL<GivenType>.() -> Unit) {
-            val outerIsolation = childIsolation
-            childIsolation = false
-            contextLambda()
-            childIsolation = outerIsolation
-            containsContextsWithoutIsolation = true
         }
     }
 

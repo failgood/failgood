@@ -106,9 +106,9 @@ class FailGoodJunitTestEngine : TestEngine {
                         val mapping = mapper.getMappingOrNull(description)
                         // it's possible that we get a test event for a test that has no mapping because it is part of a failing context
                         if (mapping == null) {
-                            // it's a failing root context, so ignore it
                             if (description.container.parents.isNotEmpty())
                                 throw FailGoodException("did not find mapping for event $event.")
+                            // it's a failing root context, so ignore it
                             return@consumeEach
                         }
                         when (event) {

@@ -82,13 +82,14 @@ class FailGoodJunitTestEngine : TestEngine {
                 LoggingEngineExecutionListener(request.engineExecutionListener), failureLogger
             )
             junitListener.executionStarted(root)
+
             // report failed contexts as failed immediately
-            val failedRootContexts: MutableList<FailedRootContext> = root.failedRootContexts
-            failedRootContexts.forEach {
+            root.failedRootContexts.forEach {
                 val testDescriptor = mapper.getMapping(it.context)
                 junitListener.executionStarted(testDescriptor)
                 junitListener.executionFinished(testDescriptor, TestExecutionResult.failed(it.failure))
             }
+
             val executionListener = root.executionListener
             val results = runBlocking(suiteExecutionContext.coroutineDispatcher) {
                 // report results while they come in. we use a channel because tests were already running before the execute

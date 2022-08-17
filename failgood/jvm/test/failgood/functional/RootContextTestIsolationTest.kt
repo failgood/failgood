@@ -1,13 +1,6 @@
 package failgood.functional
 
-import failgood.ContextDSL
-import failgood.Failure
-import failgood.Success
-import failgood.Suite
-import failgood.Test
-import failgood.TestDSL
-import failgood.TestResult
-import failgood.describe
+import failgood.*
 import strikt.api.Assertion
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
@@ -103,7 +96,7 @@ class RootContextTestIsolationTest {
         }
         describe("a root context with isolation set to false") {
             Suite(
-                describe("root context without isolation", isolation = false, disabled = false) {
+                describe("root context without isolation", isolation = Isolation.OFF, disabled = false) {
                     contextFixture()
                 }
             ).run(silent = true)

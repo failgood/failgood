@@ -40,6 +40,9 @@ typealias ContextLambda = suspend ContextDSL<Unit>.() -> Unit
 
 typealias TestLambda<GivenType> = suspend TestDSL.(GivenType) -> Unit
 
+enum class Isolation {
+    OFF
+}
 fun context(description: String, disabled: Boolean = false, order: Int = 0, function: ContextLambda): RootContext =
     RootContext(description, disabled, order, function = function)
 
@@ -47,10 +50,10 @@ fun describe(
     subjectDescription: String,
     disabled: Boolean = false,
     order: Int = 0,
-    isolation: Boolean = true,
+    isolation: Isolation? = null,
     function: ContextLambda
 ):
-    RootContext = RootContext(subjectDescription, disabled, order, isolation, function = function)
+    RootContext = RootContext(subjectDescription, disabled, order, isolation != Isolation.OFF, function = function)
 
 inline fun <reified T> describe(
     disabled: Boolean = false,

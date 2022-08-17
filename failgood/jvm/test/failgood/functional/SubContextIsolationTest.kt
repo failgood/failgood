@@ -14,7 +14,7 @@ object SubContextIsolationTest {
             val evt = NestedEvents()
             it("can turn isolation off for subcontexts") {
                 Suite(
-                    describe("root", isolation = true, disabled = false) {
+                    failgood.describe("root") {
                         val events = evt.addEvent()
                         withoutIsolation {
                             describe("child") {
@@ -30,7 +30,7 @@ object SubContextIsolationTest {
             it("does not affect other contexts") {
                 assert(
                     Suite(
-                        describe("root", isolation = true, disabled = false) {
+                        failgood.describe("root") {
                             val events = evt.addEvent()
                             withoutIsolation {
                                 describe("child") {
@@ -57,7 +57,7 @@ object SubContextIsolationTest {
             it("calls callbacks at the correct time") {
                 assert(
                     Suite(
-                        describe("root", isolation = true, disabled = false) {
+                        failgood.describe("root") {
                             val events = evt.addEvent()
                             withoutIsolation {
                                 describe("child") {

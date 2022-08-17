@@ -1,6 +1,5 @@
 package failgood.functional
 
-import failgood.Isolation.*
 import failgood.Suite
 import failgood.Test
 import failgood.assert.containsExactlyInAnyOrder
@@ -18,7 +17,7 @@ object SubContextIsolationTest {
                 Suite(
                     failgood.describe("root") {
                         val events = evt.addEvent()
-                        describe("child", isolation = OFF) {
+                        describe("child", isolation = false) {
                             events.add("childContext")
                             it("test1") { events.add("test1") }
                             it("test2") { events.add("test2") }
@@ -33,7 +32,7 @@ object SubContextIsolationTest {
                     Suite(
                         failgood.describe("root") {
                             val events = evt.addEvent()
-                            describe("child", isolation = OFF) {
+                            describe("child", isolation = false) {
                                 events.add("childContext")
                                 it("test1") { events.add("test1") }
                                 it("test2") { events.add("test2") }
@@ -58,7 +57,7 @@ object SubContextIsolationTest {
                     Suite(
                         failgood.describe("root") {
                             val events = evt.addEvent()
-                            describe("child", isolation = OFF) {
+                            describe("child", isolation = false) {
                                 afterEach { events.add("no-isolation-afterEach") }
                                 autoClose("yo") { events.add("no-isolation-autoClose") }
                                 events.add("childContext")

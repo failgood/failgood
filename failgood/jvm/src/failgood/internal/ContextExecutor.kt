@@ -188,14 +188,14 @@ internal class ContextExecutor constructor(
         override suspend fun <ContextDependency> context(
             name: String,
             tags: Set<String>,
-            isolation: Isolation?,
+            isolation: Boolean?,
             given: (suspend () -> ContextDependency),
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
             checkForDuplicateName(name)
             if (!executeAll && (filteringByTag && !tags.contains(onlyTag)))
                 return
-            if (isolation == Isolation.OFF)
+            if (isolation == false)
                 containsContextsWithoutIsolation = true
             // if we already ran a test in this context we don't need to visit the child context now
             if (this.isolation && ranATest) {
@@ -209,7 +209,7 @@ internal class ContextExecutor constructor(
 
             if (processedTests.contains(contextPath)) return
             val sourceInfo = sourceInfo()
-            val subContextShouldHaveIsolation = isolation != Isolation.OFF && this.isolation
+            val subContextShouldHaveIsolation = isolation != false && this.isolation
             val context = Context(name, context, sourceInfo, subContextShouldHaveIsolation)
             val visitor = ContextVisitor(context, resourcesCloser, filteringByTag, given)
             this.mutable = false
@@ -247,7 +247,7 @@ internal class ContextExecutor constructor(
         override suspend fun context(
             name: String,
             tags: Set<String>,
-            isolation: Isolation?,
+            isolation: Boolean?,
             function: ContextLambda
         ) {
             context(name, tags, isolation, {}, function)
@@ -256,7 +256,7 @@ internal class ContextExecutor constructor(
         override suspend fun <ContextDependency> describe(
             name: String,
             tags: Set<String>,
-            isolation: Isolation?,
+            isolation: Boolean?,
             given: suspend () -> ContextDependency,
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) = context(name, tags, isolation, given, contextLambda)
@@ -275,7 +275,7 @@ internal class ContextExecutor constructor(
         override suspend fun describe(
             name: String,
             tags: Set<String>,
-            isolation: Isolation?,
+            isolation: Boolean?,
             function: ContextLambda
         ) {
             context(name, tags, isolation, function)

@@ -38,7 +38,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     suspend fun describe(
         name: String,
         tags: Set<String> = setOf(),
-        isolation: Isolation? = null,
+        isolation: Boolean? = null,
         function: ContextLambda
     )
 
@@ -53,7 +53,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     suspend fun context(
         name: String,
         tags: Set<String> = setOf(),
-        isolation: Isolation? = null,
+        isolation: Boolean? = null,
         function: ContextLambda
     )
 
@@ -68,7 +68,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     suspend fun <ContextDependency> context(
         name: String,
         tags: Set<String> = setOf(),
-        isolation: Isolation? = null,
+        isolation: Boolean? = null,
         given: (suspend () -> ContextDependency),
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
     )
@@ -80,7 +80,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     suspend fun <ContextDependency> describe(
         name: String,
         tags: Set<String> = setOf(),
-        isolation: Isolation? = null,
+        isolation: Boolean? = null,
         given: (suspend () -> ContextDependency),
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
     )

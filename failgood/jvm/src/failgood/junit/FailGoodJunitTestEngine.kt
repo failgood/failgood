@@ -6,7 +6,7 @@ import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES
 import failgood.junit.JunitExecutionListener.TestExecutionEvent
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.channels.consumeEach
 import org.junit.platform.engine.*
 import org.junit.platform.engine.reporting.ReportEntry
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
@@ -94,13 +94,7 @@ class FailGoodJunitTestEngine : TestEngine {
                 // report results while they come in. we use a channel because tests were already running before the execute
                 // method was called so when we get here there are probably tests already finished
                 val eventForwarder = launch {
-                    while (true) {
-                        val event = try {
-                            executionListener.events.receive()
-                        } catch (e: ClosedReceiveChannelException) {
-                            break
-                        }
-
+                    executionListener.events.consumeEach { event ->
                         fun startParentContexts(testDescriptor: TestDescription) {
                             val context = testDescriptor.container
                             (context.parents + context).forEach {
@@ -115,7 +109,7 @@ class FailGoodJunitTestEngine : TestEngine {
                             // it's a failing root context, so ignore it
                             if (description.container.parents.isNotEmpty())
                                 throw FailGoodException("did not find mapping for event $event.")
-                            continue
+                            return@consumeEach
                         }
                         when (event) {
                             is TestExecutionEvent.Started -> {

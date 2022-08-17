@@ -3,12 +3,7 @@ package failgood
 import failgood.internal.ContextPath
 import failgood.internal.TestFixture
 import java.io.File
-import java.nio.file.FileVisitResult
-import java.nio.file.Files
-import java.nio.file.NoSuchFileException
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.nio.file.SimpleFileVisitor
+import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileTime
 import kotlin.reflect.KClass
@@ -64,6 +59,12 @@ inline fun <reified T> describe(
     noinline function: ContextLambda
 ):
     RootContext = describe(T::class, disabled, order, isolation, function)
+
+suspend inline fun <reified Class> ContextDSL<*>.describe(
+    tags: Set<String> = setOf(),
+    noinline contextLambda: ContextLambda
+) =
+    this.describe(Class::class.simpleName!!, tags, contextLambda)
 
 fun describe(
     subjectType: KClass<*>,

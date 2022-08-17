@@ -101,7 +101,7 @@ object SubContextIsolationTest {
     }
 }
 
-private class NestedEvents {
+class NestedEvents {
     val globalEvents = CopyOnWriteArrayList<CopyOnWriteArrayList<String>>()
     fun addEvent() = CopyOnWriteArrayList<String>().also { globalEvents.add(it) }
 }

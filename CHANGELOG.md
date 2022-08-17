@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 
 ## 0.8.0 "Position Chrome" - Unreleased
 
+### Added
+
+- allow to disable isolation for sub-contexts.
+
 ### Fixed
 
 - fix running tests by uniqueid where the root context contains ( or ) (#109)

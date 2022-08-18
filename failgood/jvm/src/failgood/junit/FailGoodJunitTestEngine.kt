@@ -6,7 +6,7 @@ import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES
 import failgood.junit.JunitExecutionListener.TestExecutionEvent
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.channels.consumeEach
 import org.junit.platform.engine.*
 import org.junit.platform.engine.reporting.ReportEntry
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
@@ -82,25 +82,20 @@ class FailGoodJunitTestEngine : TestEngine {
                 LoggingEngineExecutionListener(request.engineExecutionListener), failureLogger
             )
             junitListener.executionStarted(root)
+
             // report failed contexts as failed immediately
-            val failedRootContexts: MutableList<FailedRootContext> = root.failedRootContexts
-            failedRootContexts.forEach {
+            root.failedRootContexts.forEach {
                 val testDescriptor = mapper.getMapping(it.context)
                 junitListener.executionStarted(testDescriptor)
                 junitListener.executionFinished(testDescriptor, TestExecutionResult.failed(it.failure))
             }
+
             val executionListener = root.executionListener
             val results = runBlocking(suiteExecutionContext.coroutineDispatcher) {
                 // report results while they come in. we use a channel because tests were already running before the execute
                 // method was called so when we get here there are probably tests already finished
                 val eventForwarder = launch {
-                    while (true) {
-                        val event = try {
-                            executionListener.events.receive()
-                        } catch (e: ClosedReceiveChannelException) {
-                            break
-                        }
-
+                    executionListener.events.consumeEach { event ->
                         fun startParentContexts(testDescriptor: TestDescription) {
                             val context = testDescriptor.container
                             (context.parents + context).forEach {
@@ -112,10 +107,10 @@ class FailGoodJunitTestEngine : TestEngine {
                         val mapping = mapper.getMappingOrNull(description)
                         // it's possible that we get a test event for a test that has no mapping because it is part of a failing context
                         if (mapping == null) {
-                            // it's a failing root context, so ignore it
                             if (description.container.parents.isNotEmpty())
                                 throw FailGoodException("did not find mapping for event $event.")
-                            continue
+                            // it's a failing root context, so ignore it
+                            return@consumeEach
                         }
                         when (event) {
                             is TestExecutionEvent.Started -> {

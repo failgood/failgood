@@ -16,7 +16,7 @@ internal class ContextExecutor constructor(
     val coroutineStart: CoroutineStart = if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT
     private var startTime = System.nanoTime()
 
-    // did we find contexts without isolation in ths root context?
+    // did we find contexts without isolation in this root context?
     // in that case we have to call the resources closer after suite.
     private var containsContextsWithoutIsolation = !rootContext.isolation
 
@@ -197,6 +197,7 @@ internal class ContextExecutor constructor(
                 return
             if (isolation == false)
                 containsContextsWithoutIsolation = true
+
             // if we already ran a test in this context we don't need to visit the child context now
             if (this.isolation && ranATest) {
                 contextsLeft = true
@@ -211,6 +212,13 @@ internal class ContextExecutor constructor(
             val sourceInfo = sourceInfo()
             val subContextShouldHaveIsolation = isolation != false && this.isolation
             val context = Context(name, context, sourceInfo, subContextShouldHaveIsolation)
+            if (isolation == true && !this.isolation) {
+                recordContextAsFailed(
+                    context, sourceInfo, contextPath,
+                    FailGoodException("in a context without isolation it can not be turned on again")
+                )
+                return
+            }
             val visitor = ContextVisitor(context, resourcesCloser, filteringByTag, given)
             this.mutable = false
             try {
@@ -224,13 +232,7 @@ internal class ContextExecutor constructor(
                 throw exceptionInContext
             } catch (exceptionInContext: Throwable) {
                 this.mutable = true
-                val testDescriptor = TestDescription(context, "error in context", sourceInfo)
-
-                processedTests.add(contextPath) // don't visit this context again
-                val testPlusResult = TestPlusResult(testDescriptor, Failure(exceptionInContext))
-                deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
-                foundContexts.add(context)
-                listener.testFinished(testPlusResult)
+                recordContextAsFailed(context, sourceInfo, contextPath, exceptionInContext)
                 ranATest = true
                 return
             }
@@ -303,6 +305,21 @@ internal class ContextExecutor constructor(
             if (!contextInvestigated)
                 afterSuiteCallbacks.add(function)
         }
+    }
+
+    private suspend fun recordContextAsFailed(
+        context: Context,
+        sourceInfo: SourceInfo,
+        contextPath: ContextPath,
+        exceptionInContext: Throwable
+    ) {
+        val testDescriptor = TestDescription(context, "error in context", sourceInfo)
+
+        processedTests.add(contextPath) // don't visit this context again
+        val testPlusResult = TestPlusResult(testDescriptor, Failure(exceptionInContext))
+        deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
+        foundContexts.add(context)
+        listener.testFinished(testPlusResult)
     }
 
     private class DuplicateNameInContextException(s: String) : FailGoodException(s)

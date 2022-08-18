@@ -11,7 +11,7 @@ import kotlin.test.assertNotNull
 @Test
 object SubContextIsolationTest {
     val tests = describe("sub context isolation") {
-        describe("on a root context with default isolation (=ON)") {
+        describe("on a root context with default isolation (true)") {
             val evt = NestedEvents()
             it("can turn isolation off for subcontexts") {
                 Suite(
@@ -92,6 +92,26 @@ object SubContextIsolationTest {
                 )
                 assert(e[1] == listOf("child with isolation", "test3"))
                 assert(e[2] == listOf("child with isolation", "test4"))
+            }
+        }
+        describe("error handling") {
+            val e = NestedEvents()
+            it("does not allow to turn isolation on when it was already off") {
+                val result = Suite(
+                    failgood.describe("root context without isolation", isolation = false) {
+                        describe("sub context that tries to turn isolation on", isolation = true) {
+                            test("this test should never run") {
+                                e.addEvent()
+                            }
+                        }
+                    }
+                ).run(silent = true)
+                val failedContext = assertNotNull(result.failedTests.singleOrNull()?.test)
+                assert(
+                    failedContext.testName == "error in context" &&
+                        failedContext.container.name == "sub context that tries to turn isolation on"
+                )
+                assert(e.globalEvents.isEmpty())
             }
         }
     }

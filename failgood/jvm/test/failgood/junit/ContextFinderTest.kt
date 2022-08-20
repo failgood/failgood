@@ -41,7 +41,7 @@ class ContextFinderTest {
         }
         describe("test filtering") {
             it("supports a classpathRootSelector with a package filter") {
-                val path = ContextFinderTest::class.java.protectionDomain.codeSource.location.path
+                val path = ContextFinderTest::class.java.protectionDomain.codeSource.location.toURI()
                 val request = LauncherDiscoveryRequestBuilder.request()
                     .selectors(DiscoverySelectors.selectClasspathRoots(setOf(Paths.get(path))))
                     .configurationParameters(mapOf(FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES to "true"))

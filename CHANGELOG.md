@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
 - fix running tests by uniqueid where the root context contains ( or ) (#109)
 - handle exceptions in afterEach after a test failure (fixes #110)
 - context silently ignored when using describe<Class> for subcontexts. (#104)
+- Running tests using FailGood::runAllTests or using the auto-test feature fails on Windows (#114)
 
 
 ## 0.7.2 "Rough Trade" - 2022-07-22

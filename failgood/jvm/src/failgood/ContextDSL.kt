@@ -33,7 +33,21 @@ interface ResourcesDSL {
 @FailGoodDSL
 interface ContextDSL<GivenType> : ResourcesDSL {
     /**
+     * define a context that describes a subject with a given block.
+     * set [isolation] to false to turn off test isolation for this context
+     * the given block will be called for every test and passed as argument, even if the context has isolation off
+     */
+    suspend fun <ContextDependency> describe(
+        name: String,
+        tags: Set<String> = setOf(),
+        isolation: Boolean? = null,
+        given: (suspend () -> ContextDependency),
+        contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
+    )
+
+    /**
      * define a test context that describes a subject.
+     * this is a helper function for contexts without a given block
      */
     suspend fun describe(
         name: String,
@@ -41,6 +55,16 @@ interface ContextDSL<GivenType> : ResourcesDSL {
         isolation: Boolean? = null,
         function: ContextLambda
     )
+
+    /**
+     * define an ignored test.
+     */
+    suspend fun ignore(name: String, function: TestLambda<GivenType> = {})
+
+    /**
+     * Register a callback to be called after all tests have completed
+     */
+    fun afterSuite(function: suspend () -> Unit)
 
     /**
      * define a test that describes one aspect of a subject.
@@ -63,7 +87,8 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     suspend fun test(name: String, tags: Set<String> = setOf(), function: TestLambda<GivenType>)
 
     /**
-     * define a context with a given block. the given block will be called for every test and passed as argument
+     * define a context with a given block. the given block will be called for every test and passed as argument,
+     * even if isolation is turned off.
      */
     suspend fun <ContextDependency> context(
         name: String,
@@ -72,26 +97,4 @@ interface ContextDSL<GivenType> : ResourcesDSL {
         given: (suspend () -> ContextDependency),
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
     )
-
-    /**
-     * define a context that describes a subject with a given block.
-     * the given block will be called for every test and passed as argument
-     */
-    suspend fun <ContextDependency> describe(
-        name: String,
-        tags: Set<String> = setOf(),
-        isolation: Boolean? = null,
-        given: (suspend () -> ContextDependency),
-        contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
-    )
-
-    /**
-     * define an ignored test.
-     */
-    suspend fun ignore(name: String, function: TestLambda<GivenType> = {})
-
-    /**
-     * Register a callback to be called after all tests have completed
-     */
-    fun afterSuite(function: suspend () -> Unit)
 }

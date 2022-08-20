@@ -136,7 +136,7 @@ object FailGood {
         randomTestClass: KClass<*> = findCaller()
     ): MutableList<KClass<*>> {
         val classloader = randomTestClass.java.classLoader
-        val root = Paths.get(randomTestClass.java.protectionDomain.codeSource.location.path)
+        val root = Paths.get(randomTestClass.java.protectionDomain.codeSource.location.toURI())
         return findClassesInPath(root, classloader, classIncludeRegex, newerThan)
     }
 

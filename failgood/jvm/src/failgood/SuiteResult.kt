@@ -4,6 +4,7 @@ import failgood.internal.Colors
 import failgood.internal.ContextTreeReporter
 import failgood.internal.FailedRootContext
 import failgood.internal.Junit4Reporter
+import failgood.util.getenv
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.system.exitProcess
@@ -30,7 +31,7 @@ data class SuiteResult(
         }
         val totalTests = allTests.size
         if (allOk) {
-            if (System.getenv("PRINT_SLOWEST") != null)
+            if (getenv("PRINT_SLOWEST") != null)
                 printSlowestTests()
             val pendingTests = allTests.filter { it.isPending }
             if (pendingTests.isNotEmpty()) {

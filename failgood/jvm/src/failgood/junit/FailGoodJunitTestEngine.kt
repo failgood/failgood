@@ -5,6 +5,7 @@ import failgood.internal.*
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES
 import failgood.junit.JunitExecutionListener.TestExecutionEvent
+import failgood.util.getenv
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import org.junit.platform.engine.*
@@ -19,7 +20,7 @@ import kotlin.system.exitProcess
 const val CONTEXT_SEGMENT_TYPE = "class"
 const val TEST_SEGMENT_TYPE = "method"
 
-private val watchdog = System.getenv("FAILGOOD_WATCHDOG_MILLIS")?.toLong()
+private val watchdog = getenv("FAILGOOD_WATCHDOG_MILLIS")?.toLong()
 
 class FailGoodJunitTestEngine : TestEngine {
     private var debug: Boolean = false
@@ -44,7 +45,7 @@ class FailGoodJunitTestEngine : TestEngine {
             return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.displayName)
         val suite = Suite(providers)
         val suiteExecutionContext = SuiteExecutionContext()
-        val filterProvider = contextsAndFilters.filter ?: System.getenv("FAILGOOD_FILTER")
+        val filterProvider = contextsAndFilters.filter ?: getenv("FAILGOOD_FILTER")
             ?.let { StaticTestFilterProvider(StringListTestFilter(parseFilterString(it))) }
         val testResult = runBlocking(suiteExecutionContext.coroutineDispatcher) {
             val testResult = suite.findTests(
@@ -177,7 +178,7 @@ class FailGoodJunitTestEngine : TestEngine {
             junitListener.executionFinished(root, TestExecutionResult.successful())
 // for debugging println(junitListener.events.joinToString("\n"))
 
-            if (System.getenv("PRINT_SLOWEST") != null) results.printSlowestTests()
+            if (getenv("PRINT_SLOWEST") != null) results.printSlowestTests()
             suiteExecutionContext.close()
         } catch (e: Throwable) {
             failureLogger.fail(e)

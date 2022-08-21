@@ -6,6 +6,7 @@ import failgood.internal.ContextInfo
 import failgood.internal.ContextTreeReporter
 import failgood.internal.ExecuteAllTestFilterProvider
 import failgood.internal.TestFilterProvider
+import failgood.util.getenv
 import kotlinx.coroutines.*
 import java.lang.management.ManagementFactory
 import kotlin.reflect.KClass
@@ -33,7 +34,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     }
 
     // set timeout to the timeout in milliseconds, an empty string to turn it off
-    private val timeoutMillis: Long = System.getenv("TIMEOUT").let {
+    private val timeoutMillis: Long = getenv("TIMEOUT").let {
         when (it) {
             null -> DEFAULT_TIMEOUT
             "" -> null
@@ -47,7 +48,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         executionFilter: TestFilterProvider = ExecuteAllTestFilterProvider,
         listener: ExecutionListener = NullExecutionListener
     ): List<Deferred<ContextResult>> {
-        val tag = System.getenv("FAILGOOD_TAG")
+        val tag = getenv("FAILGOOD_TAG")
         return contextProviders
             .map {
                 coroutineScope.async {

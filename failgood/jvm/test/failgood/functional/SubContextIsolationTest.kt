@@ -5,6 +5,7 @@ import failgood.Test
 import failgood.assert.containsExactlyInAnyOrder
 import failgood.assert.endsWith
 import failgood.describe
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.test.assertNotNull
 
@@ -55,18 +56,26 @@ object SubContextIsolationTest {
                 }
                 it("calls the given for each test") {
                     var givenCalls = 0
+                    val givenValues = ConcurrentLinkedQueue<Int>()
                     Suite(
                         failgood.describe("root") {
                             val events = evt.addEvent()
                             describe("child", isolation = false, given = { givenCalls++ }) {
                                 events.add("childContext")
-                                it("test1") { given -> events.add("test1-$given") }
-                                it("test2") { given -> events.add("test2-$given") }
+                                it("test1") { given ->
+                                    events.add("test1")
+                                    givenValues.add(given)
+                                }
+                                it("test2") { given ->
+                                    events.add("test2")
+                                    givenValues.add(given)
+                                }
                             }
                         }
                     ).run(silent = true)
                     val singleEvent = assertNotNull(evt.globalEvents.singleOrNull())
-                    assert(singleEvent.containsExactlyInAnyOrder(listOf("childContext", "test1-0", "test2-1")))
+                    assert(singleEvent.containsExactlyInAnyOrder(listOf("childContext", "test1", "test2")))
+                    assert(givenValues.containsExactlyInAnyOrder(listOf(0, 1)))
                     assert(givenCalls == 2)
                 }
                 it("calls callbacks at the correct time") {

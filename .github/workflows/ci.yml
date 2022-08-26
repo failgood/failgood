@@ -32,7 +32,7 @@ jobs:
         env:
           CI: true
           FAILGOOD_WATCHDOG_MILLIS: 100000
-        run: ./gradlew check build
+        run: ./gradlew check build koverXmlReport
       - name: upload artifacts
         uses: actions/upload-artifact@v3
         if: always()
@@ -42,7 +42,7 @@ jobs:
       - uses: codecov/codecov-action@v3
         with:
           #        token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
-          files: failgood/build/reports/kover/report.xml
+          files: failgood/build/reports/kover/xml/report.xml
           #        flags: unittests # optional
           #        name: codecov-umbrella # optional
           fail_ci_if_error: true # optional (default = false)

@@ -62,7 +62,7 @@ inline fun <reified T> describe(
 
 suspend inline fun <reified Class> ContextDSL<*>.describe(
     tags: Set<String> = setOf(),
-    isolation: Boolean? = null,
+    isolation: Isolation = Isolation.KEEP,
     noinline contextLambda: ContextLambda
 ) =
     this.describe(Class::class.simpleName!!, tags, isolation, contextLambda)

@@ -50,7 +50,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     suspend fun <ContextDependency> describe(
         name: String,
         tags: Set<String> = setOf(),
-        isolation: Boolean? = null,
+        isolation: Isolation = Isolation.KEEP,
         given: (suspend () -> ContextDependency),
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
     )
@@ -62,7 +62,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     suspend fun describe(
         name: String,
         tags: Set<String> = setOf(),
-        isolation: Boolean? = null,
+        isolation: Isolation = Isolation.KEEP,
         function: ContextLambda
     )
 
@@ -88,7 +88,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     suspend fun <ContextDependency> context(
         name: String,
         tags: Set<String> = setOf(),
-        isolation: Boolean? = null,
+        isolation: Isolation = Isolation.KEEP,
         given: (suspend () -> ContextDependency),
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
     )
@@ -99,7 +99,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     suspend fun context(
         name: String,
         tags: Set<String> = setOf(),
-        isolation: Boolean? = null,
+        isolation: Isolation = Isolation.KEEP,
         function: ContextLambda
     )
 
@@ -107,4 +107,8 @@ interface ContextDSL<GivenType> : ResourcesDSL {
      * Define a test. Prefer [it]
      */
     suspend fun test(name: String, tags: Set<String> = setOf(), function: TestLambda<GivenType>)
+}
+
+enum class Isolation {
+    KEEP, OFF
 }

@@ -33,7 +33,7 @@ internal class SingleTestExecutor(
         override suspend fun <ContextDependency> context(
             name: String,
             tags: Set<String>,
-            isolation: Boolean?,
+            isolation: Isolation,
             given: (suspend () -> ContextDependency),
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
@@ -42,13 +42,13 @@ internal class SingleTestExecutor(
         override suspend fun context(
             name: String,
             tags: Set<String>,
-            isolation: Boolean?,
+            isolation: Isolation,
             function: ContextLambda
         ) {}
         override suspend fun <ContextDependency> describe(
             name: String,
             tags: Set<String>,
-            isolation: Boolean?,
+            isolation: Isolation,
             given: suspend () -> ContextDependency,
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
@@ -57,7 +57,7 @@ internal class SingleTestExecutor(
         override suspend fun describe(
             name: String,
             tags: Set<String>,
-            isolation: Boolean?,
+            isolation: Isolation,
             function: ContextLambda
         ) {
         }
@@ -72,7 +72,7 @@ internal class SingleTestExecutor(
         override suspend fun <ContextDependency> context(
             name: String,
             tags: Set<String>,
-            isolation: Boolean?,
+            isolation: Isolation,
             given: suspend () -> ContextDependency,
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
@@ -84,7 +84,7 @@ internal class SingleTestExecutor(
         override suspend fun <ContextDependency> describe(
             name: String,
             tags: Set<String>,
-            isolation: Boolean?,
+            isolation: Isolation,
             given: suspend () -> ContextDependency,
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
@@ -94,7 +94,7 @@ internal class SingleTestExecutor(
         override suspend fun context(
             name: String,
             tags: Set<String>,
-            isolation: Boolean?,
+            isolation: Isolation,
             function: ContextLambda
         ) {
             context(name, tags, isolation, {}, function)
@@ -103,7 +103,7 @@ internal class SingleTestExecutor(
         override suspend fun describe(
             name: String,
             tags: Set<String>,
-            isolation: Boolean?,
+            isolation: Isolation,
             function: ContextLambda
         ) {
             context(name, function = function)

@@ -3,7 +3,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 0.8.0 "Position Chrome" - Unreleased
+## 0.8.0 "Position Chrome" - 2022-08-29
 
 ### Added
 

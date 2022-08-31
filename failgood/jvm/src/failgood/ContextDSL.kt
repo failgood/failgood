@@ -112,4 +112,6 @@ interface ContextDSL<GivenType> : ResourcesDSL, It<GivenType> {
      */
     suspend fun test(name: String, tags: Set<String> = setOf(), function: TestLambda<GivenType>) =
         it(name, tags, function)
+
+    suspend fun describeSteps(name: String, function: suspend It<Unit>.() -> Unit) {}
 }

@@ -21,11 +21,16 @@ internal class ContextExecutor constructor(
     // in that case we have to call the resources closer after suite.
     var containsContextsWithoutIsolation = !rootContext.isolation
 
+    // here we build a list of all the subcontexts in this root context to later return it
     val foundContexts = mutableListOf<Context>()
+
     val deferredTestResults = LinkedHashMap<TestDescription, Deferred<TestPlusResult>>()
-    val processedTests = LinkedHashSet<ContextPath>()
     val afterSuiteCallbacks = mutableSetOf<suspend () -> Unit>()
+
+    // a context is investigated when we have executed it once. we still need to execute it again to get into its sub-contexts
     val investigatedContexts = mutableSetOf<Context>()
+    // tests or contexts that we don't have to execute again.
+    val finishedPaths = LinkedHashSet<ContextPath>()
 
     /**
      * Execute the rootContext.
@@ -75,7 +80,7 @@ internal class ContextExecutor constructor(
     ) {
         val testDescriptor = TestDescription(context, "error in context", sourceInfo)
 
-        processedTests.add(contextPath) // don't visit this context again
+        finishedPaths.add(contextPath) // don't visit this context again
         val testPlusResult = TestPlusResult(testDescriptor, Failure(exceptionInContext))
         deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
         foundContexts.add(context)

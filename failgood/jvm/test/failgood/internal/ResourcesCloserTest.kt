@@ -16,7 +16,7 @@ import kotlin.test.assertNotNull
 @Test
 class ResourcesCloserTest {
     val context = describe(ResourcesCloser::class) {
-        val subject = coroutineScope { ResourcesCloser(this) }
+        val subject = coroutineScope { OnlyResourcesCloser(this) }
         describe(ResourcesCloser::closeAutoCloseables.name) {
             it("closes autoclosables") {
                 val autoCloseable = mock<AutoCloseable>()

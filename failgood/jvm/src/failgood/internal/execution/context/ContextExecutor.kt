@@ -49,12 +49,13 @@ internal class ContextExecutor(
             withTimeout(timeoutMillis) {
                 do {
                     startTime = System.nanoTime()
-                    val resourcesCloser = ResourcesCloser(scope)
+                    val resourcesCloser = OnlyResourcesCloser(scope)
                     val visitor = ContextVisitor(
                         this@ContextExecutor,
                         rootContext,
                         resourcesCloser,
-                        given = {}
+                        given = {},
+                        onlyRunSubcontexts = investigatedContexts.contains(rootContext)
 
                     )
                     visitor.function()

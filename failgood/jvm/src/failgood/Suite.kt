@@ -122,6 +122,7 @@ internal suspend fun awaitTestResults(resolvedContexts: List<ContextResult>): Su
         it.afterSuiteCallbacks.forEach { callback ->
             try {
                 callback.invoke()
+                // here we don't catch throwable because we are already finished anyway.
             } catch (ignored: Exception) {
             } catch (ignored: AssertionError) {
             }

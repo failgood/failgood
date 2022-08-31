@@ -27,7 +27,8 @@ private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor
 }
 private val FS = File.separator
 
-// roots for guessing source files. really not great
+// roots for guessing source files. Its ok if this fails.
+// if we don't find the source file, navigating to source in idea does not work.
 private val sourceRoots: List<String> =
     listOf("src${FS}test${FS}kotlin", "src${FS}test${FS}java", "test", "jvm${FS}test")
 

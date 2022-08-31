@@ -147,13 +147,11 @@ internal class ContextExecutor constructor(
                         val failure = Failure(e)
                         try {
                             resourcesCloser.callAfterEach(testContext, failure)
-                        } catch (_: Exception) {
-                        } catch (_: AssertionError) {
+                        } catch (_: Throwable) {
                         }
                         if (isolation) try {
                             resourcesCloser.closeAutoCloseables()
-                        } catch (_: Exception) {
-                        } catch (_: AssertionError) {
+                        } catch (_: Throwable) {
                         }
                         return@withTimeout failure
                     }

@@ -56,7 +56,7 @@ class SingleTestExecutorTest {
             }
             it("also supports describe / it") {
                 val context =
-                    describe(ContextExecutor::class) {
+                    failgood.describe("root") {
                         describe("with a valid root context") {
                             it("returns number of tests") {}
                             it("returns contexts") {}

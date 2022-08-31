@@ -81,6 +81,8 @@ interface ContextDSL<GivenType> : ResourcesDSL {
      */
     suspend fun it(name: String, tags: Set<String> = setOf(), function: TestLambda<GivenType>)
 
+    // Support for context/test. This will maybe be removed before 1.0, unless somebody really loves it.
+    // another option would be to move it to a separate sub interface.
     /**
      * Define a context with a given block. The given block will be called for every test and passed as argument,
      * even if isolation is turned off.
@@ -91,7 +93,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
         isolation: Boolean? = null,
         given: (suspend () -> ContextDependency),
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
-    )
+    ) = describe(name, tags, isolation, given, contextLambda)
 
     /**
      * Define a test context. Prefer [describe] with a description of behavior.
@@ -101,10 +103,11 @@ interface ContextDSL<GivenType> : ResourcesDSL {
         tags: Set<String> = setOf(),
         isolation: Boolean? = null,
         function: ContextLambda
-    )
+    ) = describe(name, tags, isolation, function)
 
     /**
      * Define a test. Prefer [it]
      */
-    suspend fun test(name: String, tags: Set<String> = setOf(), function: TestLambda<GivenType>)
+    suspend fun test(name: String, tags: Set<String> = setOf(), function: TestLambda<GivenType>) =
+        it(name, tags, function)
 }

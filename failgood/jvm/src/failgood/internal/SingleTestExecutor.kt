@@ -29,22 +29,6 @@ internal class SingleTestExecutor(
     }
 
     private open inner class Base<GivenType> : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
-        override suspend fun test(name: String, tags: Set<String>, function: TestLambda<GivenType>) {}
-        override suspend fun <ContextDependency> context(
-            name: String,
-            tags: Set<String>,
-            isolation: Boolean?,
-            given: (suspend () -> ContextDependency),
-            contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
-        ) {
-        }
-
-        override suspend fun context(
-            name: String,
-            tags: Set<String>,
-            isolation: Boolean?,
-            function: ContextLambda
-        ) {}
         override suspend fun <ContextDependency> describe(
             name: String,
             tags: Set<String>,
@@ -69,7 +53,7 @@ internal class SingleTestExecutor(
 
     private inner class ContextFinder<GivenType>(private val contexts: List<String>) : ContextDSL<GivenType>,
         Base<GivenType>() {
-        override suspend fun <ContextDependency> context(
+        override suspend fun <ContextDependency> describe(
             name: String,
             tags: Set<String>,
             isolation: Boolean?,
@@ -81,32 +65,13 @@ internal class SingleTestExecutor(
             contextDSL(given, contexts.drop(1)).contextLambda()
         }
 
-        override suspend fun <ContextDependency> describe(
-            name: String,
-            tags: Set<String>,
-            isolation: Boolean?,
-            given: suspend () -> ContextDependency,
-            contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
-        ) {
-            context(name, tags, isolation, given, contextLambda)
-        }
-
-        override suspend fun context(
-            name: String,
-            tags: Set<String>,
-            isolation: Boolean?,
-            function: ContextLambda
-        ) {
-            context(name, tags, isolation, {}, function)
-        }
-
         override suspend fun describe(
             name: String,
             tags: Set<String>,
             isolation: Boolean?,
             function: ContextLambda
         ) {
-            context(name, function = function)
+            describe(name, tags, isolation, {}, function)
         }
     }
 
@@ -118,10 +83,6 @@ internal class SingleTestExecutor(
 
     private inner class TestFinder<GivenType>(val given: suspend () -> GivenType) : Base<GivenType>() {
         override suspend fun it(name: String, tags: Set<String>, function: TestLambda<GivenType>) {
-            test(name, function = function)
-        }
-
-        override suspend fun test(name: String, tags: Set<String>, function: TestLambda<GivenType>) {
             if (test.name == name) {
                 throw TestResultAvailable(executeTest(function))
             }

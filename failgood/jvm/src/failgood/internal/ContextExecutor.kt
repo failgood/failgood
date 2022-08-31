@@ -82,7 +82,7 @@ internal class ContextExecutor constructor(
         var contextsLeft = false // are there sub contexts left to run?
         var mutable = true // we allow changes only to the current context to catch errors in the context structure
 
-        override suspend fun test(name: String, tags: Set<String>, function: TestLambda<GivenType>) {
+        override suspend fun it(name: String, tags: Set<String>, function: TestLambda<GivenType>) {
             checkForDuplicateName(name)
             if (!executeAll && (filteringByTag && !tags.contains(onlyTag)))
                 return
@@ -183,7 +183,7 @@ internal class ContextExecutor constructor(
             }
         }
 
-        override suspend fun <ContextDependency> context(
+        override suspend fun <ContextDependency> describe(
             name: String,
             tags: Set<String>,
             isolation: Boolean?,
@@ -244,22 +244,14 @@ internal class ContextExecutor constructor(
             if (visitor.ranATest) ranATest = true
         }
 
-        override suspend fun context(
+        override suspend fun describe(
             name: String,
             tags: Set<String>,
             isolation: Boolean?,
             function: ContextLambda
         ) {
-            context(name, tags, isolation, {}, function)
+            describe(name, tags, isolation, {}, function)
         }
-
-        override suspend fun <ContextDependency> describe(
-            name: String,
-            tags: Set<String>,
-            isolation: Boolean?,
-            given: suspend () -> ContextDependency,
-            contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
-        ) = context(name, tags, isolation, given, contextLambda)
 
         private fun checkForDuplicateName(name: String) {
             if (!namesInThisContext.add(name))
@@ -270,19 +262,6 @@ internal class ContextExecutor constructor(
                         "Make sure functions that create tests have ContextDSL as receiver"
                 )
             }
-        }
-
-        override suspend fun describe(
-            name: String,
-            tags: Set<String>,
-            isolation: Boolean?,
-            function: ContextLambda
-        ) {
-            context(name, tags, isolation, function)
-        }
-
-        override suspend fun it(name: String, tags: Set<String>, function: TestLambda<GivenType>) {
-            test(name, tags, function)
         }
 
         override suspend fun ignore(name: String, function: TestLambda<GivenType>) {

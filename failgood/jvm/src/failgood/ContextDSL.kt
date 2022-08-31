@@ -35,13 +35,20 @@ interface ResourcesDSL {
     suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit = {}): TestDependency<T>
 }
 
+interface It<GivenType> {
+    /**
+     * Define a test that describes one aspect of a subject.
+     */
+    suspend fun it(name: String, tags: Set<String> = setOf(), function: TestLambda<GivenType>)
+}
+
 @FailGoodDSL
 /**
  * This is used to define test contexts and tests.
  * It is recommended to use [describe]/[it]-syntax, but if you really have to you can also use [context] to define a context
  * and [test] to define a test
  */
-interface ContextDSL<GivenType> : ResourcesDSL {
+interface ContextDSL<GivenType> : ResourcesDSL, It<GivenType> {
     /**
      * Define a context that describes a subject with a given block.
      * set [isolation] false to turn off test isolation for this context.
@@ -75,11 +82,6 @@ interface ContextDSL<GivenType> : ResourcesDSL {
      * Register a callback to be called after all tests have completed
      */
     fun afterSuite(function: suspend () -> Unit)
-
-    /**
-     * Define a test that describes one aspect of a subject.
-     */
-    suspend fun it(name: String, tags: Set<String> = setOf(), function: TestLambda<GivenType>)
 
     // Support for context/test. This will maybe be removed before 1.0, unless somebody really loves it.
     // another option would be to move it to a separate sub interface.

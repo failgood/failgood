@@ -14,7 +14,6 @@ internal interface ContextStateCollector {
     val listener: ExecutionListener
     val testFilter: TestFilter
     val timeoutMillis: Long
-    val runOnlyTag: String?
     val coroutineStart: CoroutineStart
     var startTime: Long
 

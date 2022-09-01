@@ -9,7 +9,14 @@ import failgood.mock.mock
 object ContextVisitorTest {
     val tests = describe<ContextVisitor<*>> {
         it("can be easily created") {
-            ContextVisitor(mock(), Context("root"), mock(), given = {}, onlyRunSubcontexts = false)
+            ContextVisitor(
+                mock(),
+                Context("root"),
+                {},
+                mock(),
+                onlyRunSubcontexts = false,
+                runOnlyTag = null
+            )
         }
     }
 }

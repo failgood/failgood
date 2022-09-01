@@ -1,15 +1,15 @@
 package failgood.internal.execution.context
 
+import failgood.ContextLambda
 import failgood.ExecutionListener
 import failgood.NullExecutionListener
-import failgood.RootContext
 import failgood.internal.ExecuteAllTests
 import failgood.internal.TestFilter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 
 internal data class StaticContextExecutionConfig(
-    val rootContext: RootContext,
+    val rootContextLambda: ContextLambda,
     val scope: CoroutineScope,
     val listener: ExecutionListener = NullExecutionListener,
     val testFilter: TestFilter = ExecuteAllTests,

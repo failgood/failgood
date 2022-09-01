@@ -1,7 +1,6 @@
 package failgood.internal.execution.context
 
 import failgood.Context
-import failgood.RootContext
 import failgood.Test
 import failgood.describe
 import failgood.mock.mock
@@ -13,7 +12,7 @@ object ContextVisitorTest {
         it("can be easily created") {
             coroutineScope {
                 ContextVisitor(
-                    StaticContextExecutionConfig(RootContext {}, this),
+                    StaticContextExecutionConfig({}, this),
                     mock(),
                     Context("root"),
                     {},

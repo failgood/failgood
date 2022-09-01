@@ -10,11 +10,12 @@ import kotlinx.coroutines.withTimeout
 internal class ContextVisitor<GivenType>(
     private val contextStateCollector: ContextStateCollector,
     private val context: Context,
-    private val resourcesCloser: ResourcesCloser,
+    private val given: suspend () -> GivenType,
     // execute sub-contexts and tests regardless of their tags, even when filtering
+    private val resourcesCloser: ResourcesCloser,
     private val executeAll: Boolean = false,
-    val given: suspend () -> GivenType,
-    val onlyRunSubcontexts: Boolean // no need to run tests, just go into sub contexts
+    private val onlyRunSubcontexts: Boolean,// no need to run tests, just go into sub contexts)
+    private val runOnlyTag: String?
 ) : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
     private val isolation = context.isolation
     private val namesInThisContext = mutableSetOf<String>() // test and context names to detect duplicates
@@ -29,7 +30,7 @@ internal class ContextVisitor<GivenType>(
         if (onlyRunSubcontexts)
             return
         checkForDuplicateName(name)
-        if (!executeAll && (contextStateCollector.runOnlyTag != null && !tags.contains(contextStateCollector.runOnlyTag)))
+        if (!executeAll && (runOnlyTag != null && !tags.contains(runOnlyTag)))
             return
         val testPath = ContextPath(context, name)
         if (!contextStateCollector.testFilter.shouldRun(testPath))
@@ -141,7 +142,7 @@ internal class ContextVisitor<GivenType>(
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
     ) {
         checkForDuplicateName(name)
-        if (!executeAll && (contextStateCollector.runOnlyTag != null && !tags.contains(contextStateCollector.runOnlyTag)))
+        if (!executeAll && (runOnlyTag != null && !tags.contains(runOnlyTag)))
             return
         if (isolation == false)
             contextStateCollector.containsContextsWithoutIsolation = true
@@ -171,10 +172,11 @@ internal class ContextVisitor<GivenType>(
             ContextVisitor(
                 contextStateCollector,
                 context,
-                resourcesCloser,
-                contextStateCollector.runOnlyTag != null,
                 given,
-                contextStateCollector.investigatedContexts.contains(context)
+                resourcesCloser,
+                runOnlyTag != null,
+                contextStateCollector.investigatedContexts.contains(context),
+                runOnlyTag
             )
         this.mutable = false
         try {

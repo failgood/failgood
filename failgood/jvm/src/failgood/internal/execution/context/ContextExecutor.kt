@@ -2,13 +2,6 @@ package failgood.internal.execution.context
 
 import failgood.*
 import failgood.internal.*
-import failgood.internal.ContextInfo
-import failgood.internal.ContextPath
-import failgood.internal.ExecuteAllTests
-import failgood.internal.ResourcesCloser
-import failgood.internal.SingleTestExecutor
-import failgood.internal.TestContext
-import failgood.internal.TestFilter
 import kotlinx.coroutines.*
 
 internal class ContextExecutor constructor(
@@ -52,7 +45,8 @@ internal class ContextExecutor constructor(
                 do {
                     startTime = System.nanoTime()
                     val resourcesCloser = ResourcesCloser(scope)
-                    val visitor = ContextVisitor(this@ContextExecutor,
+                    val visitor = ContextVisitor(
+                        this@ContextExecutor,
                         rootContext,
                         resourcesCloser,
                         given = {}
@@ -73,7 +67,7 @@ internal class ContextExecutor constructor(
         return ContextInfo(contexts, deferredTestResults, afterSuiteCallbacks)
     }
 
-    private inner class ContextVisitor<GivenType>(
+    private class ContextVisitor<GivenType>(
         private val contextExecutor: ContextExecutor,
         private val context: Context,
         private val resourcesCloser: ResourcesCloser,
@@ -82,7 +76,7 @@ internal class ContextExecutor constructor(
         val given: (suspend () -> GivenType)
     ) : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
         val isolation = context.isolation
-        private val contextInvestigated = investigatedContexts.contains(context)
+        private val contextInvestigated = contextExecutor.investigatedContexts.contains(context)
         private val namesInThisContext = mutableSetOf<String>() // test and context names to detect duplicates
 
         // we only run the first new test that we find here. the remaining tests of the context
@@ -93,13 +87,13 @@ internal class ContextExecutor constructor(
 
         override suspend fun it(name: String, tags: Set<String>, function: TestLambda<GivenType>) {
             checkForDuplicateName(name)
-            if (!executeAll && (filteringByTag && !tags.contains(onlyTag)))
+            if (!executeAll && (contextExecutor.filteringByTag && !tags.contains(contextExecutor.onlyTag)))
                 return
             val testPath = ContextPath(context, name)
-            if (!testFilter.shouldRun(testPath))
+            if (!contextExecutor.testFilter.shouldRun(testPath))
                 return
             // we process each test only once
-            if (!processedTests.add(testPath)) {
+            if (!contextExecutor.processedTests.add(testPath)) {
                 return
             }
             val testDescription = TestDescription(context, name, sourceInfo())
@@ -109,25 +103,26 @@ internal class ContextExecutor constructor(
                 // we did not yet run a test, so we are going to run this test ourselves
                 ranATest = true
 
-                deferredTestResults[testDescription] = scope.async(start = coroutineStart) {
+                contextExecutor.deferredTestResults[testDescription] =
+                    contextExecutor.scope.async(start = contextExecutor.coroutineStart) {
 
-                    listener.testStarted(testDescription)
-                    val testResult = executeTest(testDescription, function)
-                    val testPlusResult = TestPlusResult(testDescription, testResult)
-                    listener.testFinished(testPlusResult)
-                    testPlusResult
-                }
+                        contextExecutor.listener.testStarted(testDescription)
+                        val testResult = executeTest(testDescription, function)
+                        val testPlusResult = TestPlusResult(testDescription, testResult)
+                        contextExecutor.listener.testFinished(testPlusResult)
+                        testPlusResult
+                    }
             } else {
-                val resourcesCloser = ResourcesCloser(scope)
-                val deferred = scope.async(start = coroutineStart) {
-                    listener.testStarted(testDescription)
+                val resourcesCloser = ResourcesCloser(contextExecutor.scope)
+                val deferred = contextExecutor.scope.async(start = contextExecutor.coroutineStart) {
+                    contextExecutor.listener.testStarted(testDescription)
                     val testPlusResult = try {
-                        withTimeout(timeoutMillis) {
+                        withTimeout(contextExecutor.timeoutMillis) {
                             val result =
                                 SingleTestExecutor(
-                                    rootContext,
+                                    contextExecutor.rootContext,
                                     testPath,
-                                    TestContext(resourcesCloser, listener, testDescription),
+                                    TestContext(resourcesCloser, contextExecutor.listener, testDescription),
                                     resourcesCloser
                                 ).execute()
                             TestPlusResult(testDescription, result)
@@ -136,10 +131,10 @@ internal class ContextExecutor constructor(
                         TestPlusResult(testDescription, Failure(e))
                     }
                     testPlusResult.also {
-                        listener.testFinished(it)
+                        contextExecutor.listener.testFinished(it)
                     }
                 }
-                deferredTestResults[testDescription] = deferred
+                contextExecutor.deferredTestResults[testDescription] = deferred
             }
         }
 
@@ -148,8 +143,8 @@ internal class ContextExecutor constructor(
             function: TestLambda<GivenType>
         ): TestResult {
             return try {
-                withTimeout(timeoutMillis) {
-                    val testContext = TestContext(resourcesCloser, listener, testDescription)
+                withTimeout(contextExecutor.timeoutMillis) {
+                    val testContext = TestContext(resourcesCloser, contextExecutor.listener, testDescription)
                     try {
                         testContext.function(given.invoke())
                     } catch (e: Throwable) {
@@ -165,7 +160,7 @@ internal class ContextExecutor constructor(
                         return@withTimeout failure
                     }
                     // test was successful
-                    val success = Success((System.nanoTime() - startTime) / 1000)
+                    val success = Success((System.nanoTime() - contextExecutor.startTime) / 1000)
                     try {
                         resourcesCloser.callAfterEach(testContext, success)
                     } catch (e: Throwable) {
@@ -200,10 +195,10 @@ internal class ContextExecutor constructor(
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
             checkForDuplicateName(name)
-            if (!executeAll && (filteringByTag && !tags.contains(onlyTag)))
+            if (!executeAll && (contextExecutor.filteringByTag && !tags.contains(contextExecutor.onlyTag)))
                 return
             if (isolation == false)
-                containsContextsWithoutIsolation = true
+                contextExecutor.containsContextsWithoutIsolation = true
 
             // if we already ran a test in this context we don't need to visit the child context now
             if (this.isolation && ranATest) {
@@ -212,42 +207,43 @@ internal class ContextExecutor constructor(
                 return
             }
             val contextPath = ContextPath(context, name)
-            if (!testFilter.shouldRun(contextPath))
+            if (!contextExecutor.testFilter.shouldRun(contextPath))
                 return
 
-            if (processedTests.contains(contextPath)) return
+            if (contextExecutor.processedTests.contains(contextPath)) return
             val sourceInfo = sourceInfo()
             val subContextShouldHaveIsolation = isolation != false && this.isolation
             val context = Context(name, context, sourceInfo, subContextShouldHaveIsolation)
             if (isolation == true && !this.isolation) {
-                recordContextAsFailed(
+                contextExecutor.recordContextAsFailed(
                     context, sourceInfo, contextPath,
                     FailGoodException("in a context without isolation it can not be turned on again")
                 )
                 return
             }
-            val visitor = ContextVisitor(contextExecutor, context, resourcesCloser, filteringByTag, given)
+            val visitor =
+                ContextVisitor(contextExecutor, context, resourcesCloser, contextExecutor.filteringByTag, given)
             this.mutable = false
             try {
                 visitor.mutable = true
                 visitor.contextLambda()
                 visitor.mutable = false
                 this.mutable = true
-                investigatedContexts.add(context)
+                contextExecutor.investigatedContexts.add(context)
             } catch (exceptionInContext: ImmutableContextException) {
                 // this is fatal, and we treat the whole root context as failed, so we just rethrow
                 throw exceptionInContext
             } catch (exceptionInContext: Throwable) {
                 this.mutable = true
-                recordContextAsFailed(context, sourceInfo, contextPath, exceptionInContext)
+                contextExecutor.recordContextAsFailed(context, sourceInfo, contextPath, exceptionInContext)
                 ranATest = true
                 return
             }
             if (visitor.contextsLeft) {
                 contextsLeft = true
             } else {
-                foundContexts.add(context)
-                processedTests.add(contextPath)
+                contextExecutor.foundContexts.add(context)
+                contextExecutor.processedTests.add(contextPath)
             }
 
             if (visitor.ranATest) ranATest = true
@@ -276,20 +272,20 @@ internal class ContextExecutor constructor(
         override suspend fun ignore(name: String, function: TestLambda<GivenType>) {
             val testPath = ContextPath(context, name)
 
-            if (processedTests.add(testPath)) {
+            if (contextExecutor.processedTests.add(testPath)) {
                 val testDescriptor =
                     TestDescription(context, name, sourceInfo())
                 val result = Pending
 
                 val testPlusResult = TestPlusResult(testDescriptor, result)
-                deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
-                listener.testFinished(testPlusResult)
+                contextExecutor.deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
+                contextExecutor.listener.testFinished(testPlusResult)
             }
         }
 
         override fun afterSuite(function: suspend () -> Unit) {
             if (!contextInvestigated)
-                afterSuiteCallbacks.add(function)
+                contextExecutor.afterSuiteCallbacks.add(function)
         }
     }
 
@@ -310,20 +306,20 @@ internal class ContextExecutor constructor(
 
     private class DuplicateNameInContextException(s: String) : FailGoodException(s)
     class ImmutableContextException(s: String) : FailGoodException(s)
+}
 
-    private fun sourceInfo(): SourceInfo {
-        val runtimeException = RuntimeException()
-        // find the first stack trace element that is not in this class or ContextDSL
-        // (ContextDSL because of default parameters defined there)
-        return SourceInfo(
-            runtimeException.stackTrace.first {
-                !(
-                    it.fileName?.let { fileName ->
-                        fileName.endsWith("ContextExecutor.kt") ||
-                            fileName.endsWith("ContextDSL.kt")
-                    } ?: true
-                    )
-            }!!
-        )
-    }
+private fun sourceInfo(): SourceInfo {
+    val runtimeException = RuntimeException()
+    // find the first stack trace element that is not in this class or ContextDSL
+    // (ContextDSL because of default parameters defined there)
+    return SourceInfo(
+        runtimeException.stackTrace.first {
+            !(
+                it.fileName?.let { fileName ->
+                    fileName.endsWith("ContextExecutor.kt") ||
+                        fileName.endsWith("ContextDSL.kt")
+                } ?: true
+                )
+        }!!
+    )
 }

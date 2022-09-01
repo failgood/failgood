@@ -86,7 +86,6 @@ internal class ContextExecutor constructor(
         foundContexts.add(context)
         listener.testFinished(testPlusResult)
     }
-
 }
 
 fun sourceInfo(): SourceInfo {
@@ -98,7 +97,7 @@ fun sourceInfo(): SourceInfo {
             !(
                 it.fileName?.let { fileName ->
                     fileName.endsWith("ContextVisitor.kt") ||
-                    fileName.endsWith("ContextExecutor.kt") ||
+                        fileName.endsWith("ContextExecutor.kt") ||
                         fileName.endsWith("ContextDSL.kt")
                 } ?: true
                 )

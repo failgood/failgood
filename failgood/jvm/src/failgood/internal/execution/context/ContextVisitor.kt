@@ -15,7 +15,7 @@ internal class ContextVisitor<GivenType>(
     private val contextExecutor: ContextExecutor,
     private val context: Context,
     private val resourcesCloser: ResourcesCloser,
-    // execute subcontexts and tests regardless of their tags, even when filtering
+    // execute sub-contexts and tests regardless of their tags, even when filtering
     private val executeAll: Boolean = false,
     val given: (suspend () -> GivenType)
 ) : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
@@ -27,7 +27,7 @@ internal class ContextVisitor<GivenType>(
     // run with the TestExecutor.
     private var ranATest = false
     var contextsLeft = false // are there sub contexts left to run?
-    var mutable = true // we allow changes only to the current context to catch errors in the context structure
+    private var mutable = true // we allow changes only to the current context to catch errors in the context structure
 
     override suspend fun it(name: String, tags: Set<String>, function: TestLambda<GivenType>) {
         checkForDuplicateName(name)
@@ -208,7 +208,7 @@ internal class ContextVisitor<GivenType>(
         if (!mutable) {
             throw ImmutableContextException(
                 "Trying to create a test in the wrong context. " +
-                        "Make sure functions that create tests have ContextDSL as receiver"
+                    "Make sure functions that create tests have ContextDSL as receiver"
             )
         }
     }

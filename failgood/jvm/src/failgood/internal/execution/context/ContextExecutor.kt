@@ -1,6 +1,14 @@
-package failgood.internal
+package failgood.internal.execution.context
 
 import failgood.*
+import failgood.internal.*
+import failgood.internal.ContextInfo
+import failgood.internal.ContextPath
+import failgood.internal.ExecuteAllTests
+import failgood.internal.ResourcesCloser
+import failgood.internal.SingleTestExecutor
+import failgood.internal.TestContext
+import failgood.internal.TestFilter
 import kotlinx.coroutines.*
 
 internal class ContextExecutor constructor(

@@ -1,10 +1,11 @@
-package failgood.internal
+package failgood.internal.execution.context
 
 import failgood.Failure
 import failgood.RootContext
 import failgood.Success
 import failgood.Test
 import failgood.describe
+import failgood.internal.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitAll

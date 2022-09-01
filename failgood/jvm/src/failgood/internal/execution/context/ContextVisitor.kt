@@ -47,15 +47,7 @@ internal class ContextVisitor<GivenType>(
             // we did not yet run a test, so we are going to run this test ourselves
             ranATest = true
 
-            contextExecutor.deferredTestResults[testDescription] =
-                contextExecutor.scope.async(start = contextExecutor.coroutineStart) {
-
-                    contextExecutor.listener.testStarted(testDescription)
-                    val testResult = executeTest(testDescription, function)
-                    val testPlusResult = TestPlusResult(testDescription, testResult)
-                    contextExecutor.listener.testFinished(testPlusResult)
-                    testPlusResult
-                }
+            executeTest(testDescription, function, resourcesCloser, isolation)
         } else {
             val resourcesCloser = ResourcesCloser(contextExecutor.scope)
             val deferred = contextExecutor.scope.async(start = contextExecutor.coroutineStart) {
@@ -82,53 +74,63 @@ internal class ContextVisitor<GivenType>(
         }
     }
 
-    private suspend fun executeTest(
+    private fun executeTest(
         testDescription: TestDescription,
-        function: TestLambda<GivenType>
-    ): TestResult {
-        return try {
-            withTimeout(contextExecutor.timeoutMillis) {
-                val testContext = TestContext(resourcesCloser, contextExecutor.listener, testDescription)
-                try {
-                    testContext.function(given.invoke())
-                } catch (e: Throwable) {
-                    val failure = Failure(e)
-                    try {
-                        resourcesCloser.callAfterEach(testContext, failure)
-                    } catch (_: Throwable) {
-                    }
-                    if (isolation) try {
-                        resourcesCloser.closeAutoCloseables()
-                    } catch (_: Throwable) {
-                    }
-                    return@withTimeout failure
-                }
-                // test was successful
-                val success = Success((System.nanoTime() - contextExecutor.startTime) / 1000)
-                try {
-                    resourcesCloser.callAfterEach(testContext, success)
-                } catch (e: Throwable) {
-                    if (isolation) {
+        function: TestLambda<GivenType>,
+        resourcesCloser: ResourcesCloser,
+        isolation: Boolean
+    ) {
+        contextExecutor.deferredTestResults[testDescription] =
+            contextExecutor.scope.async(start = contextExecutor.coroutineStart) {
+
+                contextExecutor.listener.testStarted(testDescription)
+                val testResult = try {
+                    withTimeout(contextExecutor.timeoutMillis) {
+                        val testContext = TestContext(resourcesCloser, contextExecutor.listener, testDescription)
                         try {
-                            resourcesCloser.closeAutoCloseables()
+                            testContext.function(given.invoke())
                         } catch (e: Throwable) {
+                            val failure = Failure(e)
+                            try {
+                                resourcesCloser.callAfterEach(testContext, failure)
+                            } catch (_: Throwable) {
+                            }
+                            if (isolation) try {
+                                resourcesCloser.closeAutoCloseables()
+                            } catch (_: Throwable) {
+                            }
+                            return@withTimeout failure
+                        }
+                        // test was successful
+                        val success = Success((System.nanoTime() - contextExecutor.startTime) / 1000)
+                        try {
+                            resourcesCloser.callAfterEach(testContext, success)
+                        } catch (e: Throwable) {
+                            if (isolation) {
+                                try {
+                                    resourcesCloser.closeAutoCloseables()
+                                } catch (e: Throwable) {
+                                    return@withTimeout Failure(e)
+                                }
+                            }
                             return@withTimeout Failure(e)
                         }
+                        if (isolation) {
+                            try {
+                                resourcesCloser.closeAutoCloseables()
+                            } catch (e: Throwable) {
+                                return@withTimeout Failure(e)
+                            }
+                        }
+                        success
                     }
-                    return@withTimeout Failure(e)
+                } catch (e: TimeoutCancellationException) {
+                    Failure(e)
                 }
-                if (isolation) {
-                    try {
-                        resourcesCloser.closeAutoCloseables()
-                    } catch (e: Throwable) {
-                        return@withTimeout Failure(e)
-                    }
-                }
-                success
+                val testPlusResult = TestPlusResult(testDescription, testResult)
+                contextExecutor.listener.testFinished(testPlusResult)
+                testPlusResult
             }
-        } catch (e: TimeoutCancellationException) {
-            Failure(e)
-        }
     }
 
     override suspend fun <ContextDependency> describe(

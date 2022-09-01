@@ -16,12 +16,10 @@ object ContextVisitorTest {
                     StaticContextExecutionConfig(RootContext {}, this),
                     mock(),
                     Context("root"),
-                    runOnlyTag = null,
                     {},
                     mock(),
                     onlyRunSubcontexts = false
                 )
-
             }
         }
     }

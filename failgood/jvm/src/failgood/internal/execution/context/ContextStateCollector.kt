@@ -1,20 +1,13 @@
 package failgood.internal.execution.context
 
-import failgood.*
+import failgood.Context
+import failgood.SourceInfo
+import failgood.TestDescription
+import failgood.TestPlusResult
 import failgood.internal.ContextPath
-import failgood.internal.ContextResult
-import failgood.internal.TestFilter
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 
 internal interface ContextStateCollector {
-    val rootContext: RootContext
-    val scope: CoroutineScope
-    val listener: ExecutionListener
-    val testFilter: TestFilter
-    val timeoutMillis: Long
-    val coroutineStart: CoroutineStart
     var startTime: Long
 
     // did we find contexts without isolation in this root context?
@@ -32,16 +25,10 @@ internal interface ContextStateCollector {
     // tests or contexts that we don't have to execute again.
     val finishedPaths: LinkedHashSet<ContextPath>
 
-    /**
-     * Execute the rootContext.
-     *
-     * We keep executing the Context DSL until we know about all contexts and tests in this root context
-     * The first test in each context is directly executed (async via coroutines), and for all other tests in that
-     * context we create a SingleTestExecutor that executes the whole context path of that test together with the test.
-     *
-     */
-    suspend fun execute(): ContextResult
     suspend fun recordContextAsFailed(
-        context: Context, sourceInfo: SourceInfo, contextPath: ContextPath, exceptionInContext: Throwable
+        context: Context,
+        sourceInfo: SourceInfo,
+        contextPath: ContextPath,
+        exceptionInContext: Throwable
     )
 }

@@ -1,7 +1,7 @@
 package failgood
 
 import failgood.internal.*
-import failgood.internal.ContextExecutor
+import failgood.internal.execution.context.ContextExecutor
 import failgood.internal.ContextInfo
 import failgood.internal.ContextTreeReporter
 import failgood.internal.ExecuteAllTestFilterProvider

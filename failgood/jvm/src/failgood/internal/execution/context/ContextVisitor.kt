@@ -20,7 +20,7 @@ internal class ContextVisitor<GivenType>(
     private val namesInThisContext = mutableSetOf<String>() // test and context names to detect duplicates
 
     // we only run the first new test that we find here. the remaining tests of the context
-    // run with the TestExecutor.
+    // run with the SingleTestExecutor.
     private var ranATest = false
     var contextsLeft = false // are there sub contexts left to run?
     private var mutable = true // we allow changes only to the current context to catch errors in the context structure
@@ -29,7 +29,7 @@ internal class ContextVisitor<GivenType>(
         if (onlyRunSubcontexts)
             return
         checkForDuplicateName(name)
-        if (!executeAll && (contextStateCollector.filteringByTag && !tags.contains(contextStateCollector.onlyTag)))
+        if (!executeAll && (contextStateCollector.runOnlyTag != null && !tags.contains(contextStateCollector.runOnlyTag)))
             return
         val testPath = ContextPath(context, name)
         if (!contextStateCollector.testFilter.shouldRun(testPath))
@@ -45,7 +45,7 @@ internal class ContextVisitor<GivenType>(
             // we did not yet run a test, so we are going to run this test ourselves
             ranATest = true
 
-            executeTest(testDescription, function, resourcesCloser, isolation)
+            executeTest(testDescription, function, resourcesCloser, isolation, given)
         } else {
             val resourcesCloser = OnlyResourcesCloser(contextStateCollector.scope)
             val deferred = contextStateCollector.scope.async(start = contextStateCollector.coroutineStart) {
@@ -76,15 +76,17 @@ internal class ContextVisitor<GivenType>(
         testDescription: TestDescription,
         function: TestLambda<GivenType>,
         resourcesCloser: ResourcesCloser,
-        isolation: Boolean
+        isolation: Boolean,
+        given: suspend () -> GivenType
     ) {
         contextStateCollector.deferredTestResults[testDescription] =
             contextStateCollector.scope.async(start = contextStateCollector.coroutineStart) {
 
-                contextStateCollector.listener.testStarted(testDescription)
+                val listener = contextStateCollector.listener
+                listener.testStarted(testDescription)
                 val testResult = try {
                     withTimeout(contextStateCollector.timeoutMillis) {
-                        val testContext = TestContext(resourcesCloser, contextStateCollector.listener, testDescription)
+                        val testContext = TestContext(resourcesCloser, listener, testDescription)
                         try {
                             testContext.function(given.invoke())
                         } catch (e: Throwable) {
@@ -126,7 +128,7 @@ internal class ContextVisitor<GivenType>(
                     Failure(e)
                 }
                 val testPlusResult = TestPlusResult(testDescription, testResult)
-                contextStateCollector.listener.testFinished(testPlusResult)
+                listener.testFinished(testPlusResult)
                 testPlusResult
             }
     }
@@ -139,7 +141,7 @@ internal class ContextVisitor<GivenType>(
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
     ) {
         checkForDuplicateName(name)
-        if (!executeAll && (contextStateCollector.filteringByTag && !tags.contains(contextStateCollector.onlyTag)))
+        if (!executeAll && (contextStateCollector.runOnlyTag != null && !tags.contains(contextStateCollector.runOnlyTag)))
             return
         if (isolation == false)
             contextStateCollector.containsContextsWithoutIsolation = true
@@ -170,7 +172,7 @@ internal class ContextVisitor<GivenType>(
                 contextStateCollector,
                 context,
                 resourcesCloser,
-                contextStateCollector.filteringByTag,
+                contextStateCollector.runOnlyTag != null,
                 given,
                 contextStateCollector.investigatedContexts.contains(context)
             )
@@ -221,6 +223,8 @@ internal class ContextVisitor<GivenType>(
     }
 
     override suspend fun ignore(name: String, function: TestLambda<GivenType>) {
+        if (onlyRunSubcontexts)
+            return
         val testPath = ContextPath(context, name)
 
         if (contextStateCollector.finishedPaths.add(testPath)) {

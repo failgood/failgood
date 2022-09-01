@@ -14,8 +14,7 @@ internal interface ContextStateCollector {
     val listener: ExecutionListener
     val testFilter: TestFilter
     val timeoutMillis: Long
-    val onlyTag: String?
-    val filteringByTag: Boolean
+    val runOnlyTag: String?
     val coroutineStart: CoroutineStart
     var startTime: Long
 
@@ -23,7 +22,7 @@ internal interface ContextStateCollector {
     // in that case we have to call the resources closer after suite.
     var containsContextsWithoutIsolation: Boolean
 
-    // here we build a list of all the subcontexts in this root context to later return it
+    // here we build a list of all the sub-contexts in this root context to later return it
     val foundContexts: MutableList<Context>
     val deferredTestResults: LinkedHashMap<TestDescription, Deferred<TestPlusResult>>
     val afterSuiteCallbacks: MutableSet<suspend () -> Unit>

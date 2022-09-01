@@ -19,7 +19,7 @@ internal class ContextVisitor<GivenType>(
     private val executeAll: Boolean = false,
     val given: (suspend () -> GivenType)
 ) : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
-    val isolation = context.isolation
+    private val isolation = context.isolation
     private val contextInvestigated = contextExecutor.investigatedContexts.contains(context)
     private val namesInThisContext = mutableSetOf<String>() // test and context names to detect duplicates
 
@@ -37,7 +37,7 @@ internal class ContextVisitor<GivenType>(
         if (!contextExecutor.testFilter.shouldRun(testPath))
             return
         // we process each test only once
-        if (!contextExecutor.processedTests.add(testPath)) {
+        if (!contextExecutor.finishedPaths.add(testPath)) {
             return
         }
         val testDescription = TestDescription(context, name, sourceInfo())
@@ -154,7 +154,7 @@ internal class ContextVisitor<GivenType>(
         if (!contextExecutor.testFilter.shouldRun(contextPath))
             return
 
-        if (contextExecutor.processedTests.contains(contextPath)) return
+        if (contextExecutor.finishedPaths.contains(contextPath)) return
         val sourceInfo = sourceInfo()
         val subContextShouldHaveIsolation = isolation != false && this.isolation
         val context = Context(name, context, sourceInfo, subContextShouldHaveIsolation)
@@ -187,7 +187,7 @@ internal class ContextVisitor<GivenType>(
             contextsLeft = true
         } else {
             contextExecutor.foundContexts.add(context)
-            contextExecutor.processedTests.add(contextPath)
+            contextExecutor.finishedPaths.add(contextPath)
         }
 
         if (visitor.ranATest) ranATest = true
@@ -216,7 +216,7 @@ internal class ContextVisitor<GivenType>(
     override suspend fun ignore(name: String, function: TestLambda<GivenType>) {
         val testPath = ContextPath(context, name)
 
-        if (contextExecutor.processedTests.add(testPath)) {
+        if (contextExecutor.finishedPaths.add(testPath)) {
             val testDescriptor =
                 TestDescription(context, name, sourceInfo())
             val result = Pending

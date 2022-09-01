@@ -10,11 +10,11 @@ import kotlinx.coroutines.withTimeout
 internal class ContextVisitor<GivenType>(
     private val contextStateCollector: ContextStateCollector,
     private val context: Context,
-    private val resourcesCloser: ResourcesCloser,
+    private val given: suspend () -> GivenType,
     // execute sub-contexts and tests regardless of their tags, even when filtering
+    private val resourcesCloser: ResourcesCloser,
     private val executeAll: Boolean = false,
-    val given: suspend () -> GivenType,
-    val onlyRunSubcontexts: Boolean // no need to run tests, just go into sub contexts
+    private val onlyRunSubcontexts: Boolean // no need to run tests, just go into sub contexts)
 ) : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
     private val isolation = context.isolation
     private val namesInThisContext = mutableSetOf<String>() // test and context names to detect duplicates
@@ -171,9 +171,9 @@ internal class ContextVisitor<GivenType>(
             ContextVisitor(
                 contextStateCollector,
                 context,
+                given,
                 resourcesCloser,
                 contextStateCollector.runOnlyTag != null,
-                given,
                 contextStateCollector.investigatedContexts.contains(context)
             )
         this.mutable = false

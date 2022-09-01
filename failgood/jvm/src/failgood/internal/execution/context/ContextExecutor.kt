@@ -28,6 +28,7 @@ internal class ContextExecutor(
 
     // a context is investigated when we have executed it once. we still need to execute it again to get into its sub-contexts
     override val investigatedContexts = mutableSetOf<Context>()
+
     // tests or contexts that we don't have to execute again.
     override val finishedPaths = LinkedHashSet<ContextPath>()
 
@@ -52,10 +53,10 @@ internal class ContextExecutor(
                     val visitor = ContextVisitor(
                         this@ContextExecutor,
                         rootContext,
+                        {},
                         resourcesCloser,
-                        given = {},
-                        onlyRunSubcontexts = investigatedContexts.contains(rootContext)
-
+                        false,
+                        investigatedContexts.contains(rootContext)
                     )
                     visitor.function()
                     investigatedContexts.add(rootContext)
@@ -95,14 +96,15 @@ fun sourceInfo(): SourceInfo {
     return SourceInfo(
         runtimeException.stackTrace.first {
             !(
-                it.fileName?.let { fileName ->
-                    fileName.endsWith("ContextVisitor.kt") ||
-                        fileName.endsWith("ContextExecutor.kt") ||
-                        fileName.endsWith("ContextDSL.kt")
-                } ?: true
-                )
+                    it.fileName?.let { fileName ->
+                        fileName.endsWith("ContextVisitor.kt") ||
+                                fileName.endsWith("ContextExecutor.kt") ||
+                                fileName.endsWith("ContextDSL.kt")
+                    } ?: true
+                    )
         }!!
     )
 }
+
 internal class DuplicateNameInContextException(s: String) : FailGoodException(s)
 internal class ImmutableContextException(s: String) : FailGoodException(s)

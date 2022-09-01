@@ -59,11 +59,11 @@ class SingleTestExecutorTest {
             }
             it("also supports describe / it") {
                 val context: ContextLambda = {
-                        describe("with a valid root context") {
-                            it("returns number of tests") {}
-                            it("returns contexts") {}
-                        }
+                    describe("with a valid root context") {
+                        it("returns number of tests") {}
+                        it("returns contexts") {}
                     }
+                }
                 val test =
                     ContextPath(
                         Context("with a valid root context", Context("ContextExecutor", null)),

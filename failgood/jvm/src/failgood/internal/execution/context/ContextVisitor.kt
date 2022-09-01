@@ -61,7 +61,7 @@ internal class ContextVisitor<GivenType>(
                                 testPath,
                                 TestContext(resourcesCloser, staticConfig.listener, testDescription),
                                 resourcesCloser,
-                                staticConfig.rootContext.function
+                                staticConfig.rootContextLambda
                             ).execute()
                         TestPlusResult(testDescription, result)
                     }

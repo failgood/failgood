@@ -14,7 +14,7 @@ internal class ContextExecutor(
     runOnlyTag: String? = null
 ) : ContextStateCollector {
     private val staticExecutionConfig = StaticContextExecutionConfig(
-        rootContext,
+        rootContext.function,
         scope,
         listener,
         testFilter,

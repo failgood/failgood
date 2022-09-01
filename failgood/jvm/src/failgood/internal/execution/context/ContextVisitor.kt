@@ -8,10 +8,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.withTimeout
 
 internal class ContextVisitor<GivenType>(
-    private val staticContextExecutionConfig: StaticContextExecutionConfig,
+    private val staticConfig: StaticContextExecutionConfig,
     private val contextStateCollector: ContextStateCollector,
     private val context: Context,
-    private val runOnlyTag: String?,
     // execute sub-contexts and tests regardless of their tags, even when filtering
     private val given: suspend () -> GivenType,
     private val resourcesCloser: ResourcesCloser,
@@ -31,10 +30,10 @@ internal class ContextVisitor<GivenType>(
         if (onlyRunSubcontexts)
             return
         checkForDuplicateName(name)
-        if (!executeAll && (runOnlyTag != null && !tags.contains(runOnlyTag)))
+        if (!executeAll && (staticConfig.runOnlyTag != null && !tags.contains(staticConfig.runOnlyTag)))
             return
         val testPath = ContextPath(context, name)
-        if (!contextStateCollector.testFilter.shouldRun(testPath))
+        if (!staticConfig.testFilter.shouldRun(testPath))
             return
         // we process each test only once
         if (!contextStateCollector.finishedPaths.add(testPath)) {
@@ -49,16 +48,16 @@ internal class ContextVisitor<GivenType>(
 
             executeTest(testDescription, function, resourcesCloser, isolation, given)
         } else {
-            val resourcesCloser = OnlyResourcesCloser(contextStateCollector.scope)
-            val deferred = contextStateCollector.scope.async(start = contextStateCollector.coroutineStart) {
-                contextStateCollector.listener.testStarted(testDescription)
+            val resourcesCloser = OnlyResourcesCloser(staticConfig.scope)
+            val deferred = staticConfig.scope.async(start = staticConfig.coroutineStart) {
+                staticConfig.listener.testStarted(testDescription)
                 val testPlusResult = try {
-                    withTimeout(contextStateCollector.timeoutMillis) {
+                    withTimeout(staticConfig.timeoutMillis) {
                         val result =
                             SingleTestExecutor(
-                                contextStateCollector.rootContext,
+                                staticConfig.rootContext,
                                 testPath,
-                                TestContext(resourcesCloser, contextStateCollector.listener, testDescription),
+                                TestContext(resourcesCloser, staticConfig.listener, testDescription),
                                 resourcesCloser
                             ).execute()
                         TestPlusResult(testDescription, result)
@@ -67,7 +66,7 @@ internal class ContextVisitor<GivenType>(
                     TestPlusResult(testDescription, Failure(e))
                 }
                 testPlusResult.also {
-                    contextStateCollector.listener.testFinished(it)
+                    staticConfig.listener.testFinished(it)
                 }
             }
             contextStateCollector.deferredTestResults[testDescription] = deferred
@@ -82,12 +81,12 @@ internal class ContextVisitor<GivenType>(
         given: suspend () -> GivenType
     ) {
         contextStateCollector.deferredTestResults[testDescription] =
-            contextStateCollector.scope.async(start = contextStateCollector.coroutineStart) {
+            staticConfig.scope.async(start = staticConfig.coroutineStart) {
 
-                val listener = contextStateCollector.listener
+                val listener = staticConfig.listener
                 listener.testStarted(testDescription)
                 val testResult = try {
-                    withTimeout(contextStateCollector.timeoutMillis) {
+                    withTimeout(staticConfig.timeoutMillis) {
                         val testContext = TestContext(resourcesCloser, listener, testDescription)
                         try {
                             testContext.function(given.invoke())
@@ -143,7 +142,7 @@ internal class ContextVisitor<GivenType>(
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
     ) {
         checkForDuplicateName(name)
-        if (!executeAll && (runOnlyTag != null && !tags.contains(runOnlyTag)))
+        if (!executeAll && (staticConfig.runOnlyTag != null && !tags.contains(staticConfig.runOnlyTag)))
             return
         if (isolation == false)
             contextStateCollector.containsContextsWithoutIsolation = true
@@ -155,7 +154,7 @@ internal class ContextVisitor<GivenType>(
             return
         }
         val contextPath = ContextPath(context, name)
-        if (!contextStateCollector.testFilter.shouldRun(contextPath))
+        if (!staticConfig.testFilter.shouldRun(contextPath))
             return
 
         if (contextStateCollector.finishedPaths.contains(contextPath)) return
@@ -171,13 +170,12 @@ internal class ContextVisitor<GivenType>(
         }
         val visitor =
             ContextVisitor(
-                staticContextExecutionConfig,
+                staticConfig,
                 contextStateCollector,
                 context,
-                runOnlyTag,
                 given,
                 resourcesCloser,
-                runOnlyTag != null,
+                staticConfig.runOnlyTag != null,
                 contextStateCollector.investigatedContexts.contains(context)
             )
         this.mutable = false
@@ -238,7 +236,7 @@ internal class ContextVisitor<GivenType>(
 
             val testPlusResult = TestPlusResult(testDescriptor, result)
             contextStateCollector.deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
-            contextStateCollector.listener.testFinished(testPlusResult)
+            staticConfig.listener.testFinished(testPlusResult)
         }
     }
 

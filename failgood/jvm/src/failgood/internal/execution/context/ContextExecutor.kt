@@ -5,15 +5,15 @@ import failgood.internal.*
 import kotlinx.coroutines.*
 
 internal class ContextExecutor(
-    override val rootContext: RootContext,
-    override val scope: CoroutineScope,
+    private val rootContext: RootContext,
+    scope: CoroutineScope,
     lazy: Boolean = false,
-    override val listener: ExecutionListener = NullExecutionListener,
-    override val testFilter: TestFilter = ExecuteAllTests,
-    override val timeoutMillis: Long = 40000L,
-    private val runOnlyTag: String? = null
+    listener: ExecutionListener = NullExecutionListener,
+    testFilter: TestFilter = ExecuteAllTests,
+    timeoutMillis: Long = 40000L,
+    runOnlyTag: String? = null
 ) : ContextStateCollector {
-    val staticExecutionConfig = StaticContextExecutionConfig(
+    private val staticExecutionConfig = StaticContextExecutionConfig(
         rootContext,
         scope,
         listener,
@@ -22,14 +22,13 @@ internal class ContextExecutor(
         if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT,
         runOnlyTag
     )
-    override val coroutineStart: CoroutineStart = if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT
     override var startTime = System.nanoTime()
 
     // did we find contexts without isolation in this root context?
     // in that case we have to call the resources closer after suite.
     override var containsContextsWithoutIsolation = !rootContext.isolation
 
-    // here we build a list of all the subcontexts in this root context to later return it
+    // here we build a list of all the sub-contexts in this root context to later return it
     override val foundContexts = mutableListOf<Context>()
 
     override val deferredTestResults = LinkedHashMap<TestDescription, Deferred<TestPlusResult>>()
@@ -49,21 +48,20 @@ internal class ContextExecutor(
      * context we create a SingleTestExecutor that executes the whole context path of that test together with the test.
      *
      */
-    override suspend fun execute(): ContextResult {
-        if (!testFilter.shouldRun(rootContext))
+    suspend fun execute(): ContextResult {
+        if (!staticExecutionConfig.testFilter.shouldRun(rootContext))
             return ContextInfo(listOf(), mapOf(), setOf())
         val function = rootContext.function
         val rootContext = Context(rootContext.name, null, rootContext.sourceInfo, rootContext.isolation)
         try {
-            withTimeout(timeoutMillis) {
+            withTimeout(staticExecutionConfig.timeoutMillis) {
                 do {
                     startTime = System.nanoTime()
-                    val resourcesCloser = OnlyResourcesCloser(scope)
+                    val resourcesCloser = OnlyResourcesCloser(staticExecutionConfig.scope)
                     val visitor = ContextVisitor(
                         staticExecutionConfig,
                         this@ContextExecutor,
                         rootContext,
-                        runOnlyTag,
                         {},
                         resourcesCloser,
                         false,
@@ -96,7 +94,7 @@ internal class ContextExecutor(
         val testPlusResult = TestPlusResult(testDescriptor, Failure(exceptionInContext))
         deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
         foundContexts.add(context)
-        listener.testFinished(testPlusResult)
+        staticExecutionConfig.listener.testFinished(testPlusResult)
     }
 }
 
@@ -107,12 +105,12 @@ fun sourceInfo(): SourceInfo {
     return SourceInfo(
         runtimeException.stackTrace.first {
             !(
-                    it.fileName?.let { fileName ->
-                        fileName.endsWith("ContextVisitor.kt") ||
-                                fileName.endsWith("ContextExecutor.kt") ||
-                                fileName.endsWith("ContextDSL.kt")
-                    } ?: true
-                    )
+                it.fileName?.let { fileName ->
+                    fileName.endsWith("ContextVisitor.kt") ||
+                        fileName.endsWith("ContextExecutor.kt") ||
+                        fileName.endsWith("ContextDSL.kt")
+                } ?: true
+                )
         }!!
     )
 }

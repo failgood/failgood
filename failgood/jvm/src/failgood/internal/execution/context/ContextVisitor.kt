@@ -15,7 +15,8 @@ internal class ContextVisitor<GivenType>(
     private val given: suspend () -> GivenType,
     private val resourcesCloser: ResourcesCloser,
     private val executeAll: Boolean = false, // no need to run tests, just go into sub contexts)
-    private val onlyRunSubcontexts: Boolean
+    private val onlyRunSubcontexts: Boolean,
+    private val rootContextStartTime: Long
 ) : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
     private val isolation = context.isolation
     private val namesInThisContext = mutableSetOf<String>() // test and context names to detect duplicates
@@ -103,7 +104,7 @@ internal class ContextVisitor<GivenType>(
                             return@withTimeout failure
                         }
                         // test was successful
-                        val success = Success((System.nanoTime() - contextStateCollector.startTime) / 1000)
+                        val success = Success((System.nanoTime() - rootContextStartTime) / 1000)
                         try {
                             resourcesCloser.callAfterEach(testContext, success)
                         } catch (e: Throwable) {
@@ -176,7 +177,8 @@ internal class ContextVisitor<GivenType>(
                 given,
                 resourcesCloser,
                 staticConfig.runOnlyTag != null,
-                contextStateCollector.investigatedContexts.contains(context)
+                contextStateCollector.investigatedContexts.contains(context),
+                rootContextStartTime
             )
         this.mutable = false
         try {

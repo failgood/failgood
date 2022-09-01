@@ -8,8 +8,6 @@ import failgood.internal.ContextPath
 import kotlinx.coroutines.Deferred
 
 internal interface ContextStateCollector {
-    var startTime: Long
-
     // did we find contexts without isolation in this root context?
     // in that case we have to call the resources closer after suite.
     var containsContextsWithoutIsolation: Boolean

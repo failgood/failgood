@@ -4,33 +4,33 @@ import failgood.*
 import failgood.internal.*
 import kotlinx.coroutines.*
 
-internal class ContextExecutor constructor(
-    val rootContext: RootContext,
-    val scope: CoroutineScope,
+internal class ContextExecutor(
+    override val rootContext: RootContext,
+    override val scope: CoroutineScope,
     lazy: Boolean = false,
-    val listener: ExecutionListener = NullExecutionListener,
-    val testFilter: TestFilter = ExecuteAllTests,
-    val timeoutMillis: Long = 40000L,
-    val onlyTag: String? = null
-) {
-    val filteringByTag = onlyTag != null
-    val coroutineStart: CoroutineStart = if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT
-    var startTime = System.nanoTime()
+    override val listener: ExecutionListener = NullExecutionListener,
+    override val testFilter: TestFilter = ExecuteAllTests,
+    override val timeoutMillis: Long = 40000L,
+    override val onlyTag: String? = null
+) : ContextStateCollector {
+    override val filteringByTag = onlyTag != null
+    override val coroutineStart: CoroutineStart = if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT
+    override var startTime = System.nanoTime()
 
     // did we find contexts without isolation in this root context?
     // in that case we have to call the resources closer after suite.
-    var containsContextsWithoutIsolation = !rootContext.isolation
+    override var containsContextsWithoutIsolation = !rootContext.isolation
 
     // here we build a list of all the subcontexts in this root context to later return it
-    val foundContexts = mutableListOf<Context>()
+    override val foundContexts = mutableListOf<Context>()
 
-    val deferredTestResults = LinkedHashMap<TestDescription, Deferred<TestPlusResult>>()
-    val afterSuiteCallbacks = mutableSetOf<suspend () -> Unit>()
+    override val deferredTestResults = LinkedHashMap<TestDescription, Deferred<TestPlusResult>>()
+    override val afterSuiteCallbacks = mutableSetOf<suspend () -> Unit>()
 
     // a context is investigated when we have executed it once. we still need to execute it again to get into its sub-contexts
-    val investigatedContexts = mutableSetOf<Context>()
+    override val investigatedContexts = mutableSetOf<Context>()
     // tests or contexts that we don't have to execute again.
-    val finishedPaths = LinkedHashSet<ContextPath>()
+    override val finishedPaths = LinkedHashSet<ContextPath>()
 
     /**
      * Execute the rootContext.
@@ -40,7 +40,7 @@ internal class ContextExecutor constructor(
      * context we create a SingleTestExecutor that executes the whole context path of that test together with the test.
      *
      */
-    suspend fun execute(): ContextResult {
+    override suspend fun execute(): ContextResult {
         if (!testFilter.shouldRun(rootContext))
             return ContextInfo(listOf(), mapOf(), setOf())
         val function = rootContext.function
@@ -72,7 +72,7 @@ internal class ContextExecutor constructor(
         return ContextInfo(contexts, deferredTestResults, afterSuiteCallbacks)
     }
 
-    suspend fun recordContextAsFailed(
+    override suspend fun recordContextAsFailed(
         context: Context,
         sourceInfo: SourceInfo,
         contextPath: ContextPath,

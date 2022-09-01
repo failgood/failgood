@@ -11,9 +11,8 @@ internal class ContextExecutor(
     override val listener: ExecutionListener = NullExecutionListener,
     override val testFilter: TestFilter = ExecuteAllTests,
     override val timeoutMillis: Long = 40000L,
-    override val onlyTag: String? = null
+    override val runOnlyTag: String? = null
 ) : ContextStateCollector {
-    override val filteringByTag = onlyTag != null
     override val coroutineStart: CoroutineStart = if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT
     override var startTime = System.nanoTime()
 

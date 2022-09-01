@@ -393,7 +393,7 @@ class ContextExecutorTest {
 
     private suspend fun execute(context: RootContext, tag: String? = null): ContextResult {
         return coroutineScope {
-            ContextExecutor(context, this, onlyTag = tag).execute()
+            ContextExecutor(context, this, runOnlyTag = tag).execute()
         }
     }
 

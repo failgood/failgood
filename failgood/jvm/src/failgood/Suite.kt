@@ -76,7 +76,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                                     listener,
                                     testFilter,
                                     timeoutMillis,
-                                    onlyTag = tag
+                                    runOnlyTag = tag
                                 ).execute()
                             } else
                                 ContextInfo(emptyList(), mapOf(), setOf())

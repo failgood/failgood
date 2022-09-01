@@ -52,7 +52,7 @@ internal class ContextExecutor constructor(
                 do {
                     startTime = System.nanoTime()
                     val resourcesCloser = ResourcesCloser(scope)
-                    val visitor = ContextVisitor(
+                    val visitor = ContextVisitor(this@ContextExecutor,
                         rootContext,
                         resourcesCloser,
                         given = {}
@@ -74,6 +74,7 @@ internal class ContextExecutor constructor(
     }
 
     private inner class ContextVisitor<GivenType>(
+        private val contextExecutor: ContextExecutor,
         private val context: Context,
         private val resourcesCloser: ResourcesCloser,
         // execute subcontexts and tests regardless of their tags, even when filtering
@@ -225,7 +226,7 @@ internal class ContextExecutor constructor(
                 )
                 return
             }
-            val visitor = ContextVisitor(context, resourcesCloser, filteringByTag, given)
+            val visitor = ContextVisitor(contextExecutor, context, resourcesCloser, filteringByTag, given)
             this.mutable = false
             try {
                 visitor.mutable = true

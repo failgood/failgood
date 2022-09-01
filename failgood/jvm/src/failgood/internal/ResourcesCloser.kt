@@ -9,7 +9,23 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import java.util.concurrent.ConcurrentLinkedQueue
 
-internal class ResourcesCloser(private val scope: CoroutineScope) : ResourcesDSL {
+internal interface ResourcesCloser : ResourcesDSL {
+    override fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T
+
+    override fun afterEach(function: suspend TestDSL.(TestResult) -> Unit)
+    fun addAfterEach(function: suspend TestDSL.(TestResult) -> Unit)
+
+    override suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit): TestDependency<T>
+
+    override fun <T : AutoCloseable> autoClose(wrapped: T): T
+    fun <T> addClosable(autoCloseable: SuspendAutoCloseable<T>)
+
+    suspend fun closeAutoCloseables()
+
+    suspend fun callAfterEach(testDSL: TestDSL, testResult: TestResult)
+}
+
+internal class OnlyResourcesCloser(private val scope: CoroutineScope) : ResourcesCloser {
     override fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T {
         addClosable(SuspendAutoCloseable(wrapped, closeFunction))
         return wrapped
@@ -19,7 +35,7 @@ internal class ResourcesCloser(private val scope: CoroutineScope) : ResourcesDSL
         addAfterEach(function)
     }
 
-    private fun addAfterEach(function: suspend TestDSL.(TestResult) -> Unit) {
+    override fun addAfterEach(function: suspend TestDSL.(TestResult) -> Unit) {
         afterEachCallbacks.add(function)
     }
 
@@ -31,14 +47,14 @@ internal class ResourcesCloser(private val scope: CoroutineScope) : ResourcesDSL
 
     override fun <T : AutoCloseable> autoClose(wrapped: T): T = autoClose(wrapped) { it.close() }
 
-    private fun <T> addClosable(autoCloseable: SuspendAutoCloseable<T>) {
+    override fun <T> addClosable(autoCloseable: SuspendAutoCloseable<T>) {
         closeables.add(autoCloseable)
     }
 
-    suspend fun closeAutoCloseables() {
+    override suspend fun closeAutoCloseables() {
         closeables.reversed().forEach { it.close() }
     }
-    suspend fun callAfterEach(testDSL: TestDSL, testResult: TestResult) {
+    override suspend fun callAfterEach(testDSL: TestDSL, testResult: TestResult) {
         var error: Throwable? = null
         afterEachCallbacks.forEach {
             try {

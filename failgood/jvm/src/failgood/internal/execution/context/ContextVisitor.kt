@@ -1,11 +1,7 @@
 package failgood.internal.execution.context
 
 import failgood.*
-import failgood.Pending
-import failgood.internal.ContextPath
-import failgood.internal.ResourcesCloser
-import failgood.internal.SingleTestExecutor
-import failgood.internal.TestContext
+import failgood.internal.*
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
@@ -17,10 +13,10 @@ internal class ContextVisitor<GivenType>(
     private val resourcesCloser: ResourcesCloser,
     // execute sub-contexts and tests regardless of their tags, even when filtering
     private val executeAll: Boolean = false,
-    val given: (suspend () -> GivenType)
+    val given: suspend () -> GivenType,
+    val onlyRunSubcontexts: Boolean // no need to run tests, just go into sub contexts
 ) : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
     private val isolation = context.isolation
-    private val contextInvestigated = contextStateCollector.investigatedContexts.contains(context)
     private val namesInThisContext = mutableSetOf<String>() // test and context names to detect duplicates
 
     // we only run the first new test that we find here. the remaining tests of the context
@@ -30,6 +26,8 @@ internal class ContextVisitor<GivenType>(
     private var mutable = true // we allow changes only to the current context to catch errors in the context structure
 
     override suspend fun it(name: String, tags: Set<String>, function: TestLambda<GivenType>) {
+        if (onlyRunSubcontexts)
+            return
         checkForDuplicateName(name)
         if (!executeAll && (contextStateCollector.filteringByTag && !tags.contains(contextStateCollector.onlyTag)))
             return
@@ -49,7 +47,7 @@ internal class ContextVisitor<GivenType>(
 
             executeTest(testDescription, function, resourcesCloser, isolation)
         } else {
-            val resourcesCloser = ResourcesCloser(contextStateCollector.scope)
+            val resourcesCloser = OnlyResourcesCloser(contextStateCollector.scope)
             val deferred = contextStateCollector.scope.async(start = contextStateCollector.coroutineStart) {
                 contextStateCollector.listener.testStarted(testDescription)
                 val testPlusResult = try {
@@ -168,7 +166,14 @@ internal class ContextVisitor<GivenType>(
             return
         }
         val visitor =
-            ContextVisitor(contextStateCollector, context, resourcesCloser, contextStateCollector.filteringByTag, given)
+            ContextVisitor(
+                contextStateCollector,
+                context,
+                resourcesCloser,
+                contextStateCollector.filteringByTag,
+                given,
+                contextStateCollector.investigatedContexts.contains(context)
+            )
         this.mutable = false
         try {
             visitor.mutable = true
@@ -230,7 +235,7 @@ internal class ContextVisitor<GivenType>(
     }
 
     override fun afterSuite(function: suspend () -> Unit) {
-        if (!contextInvestigated)
+        if (!onlyRunSubcontexts)
             contextStateCollector.afterSuiteCallbacks.add(function)
     }
 }

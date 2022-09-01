@@ -22,8 +22,6 @@ internal class ContextExecutor(
         if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT,
         runOnlyTag
     )
-    override var startTime = System.nanoTime()
-
     // did we find contexts without isolation in this root context?
     // in that case we have to call the resources closer after suite.
     override var containsContextsWithoutIsolation = !rootContext.isolation
@@ -56,7 +54,7 @@ internal class ContextExecutor(
         try {
             withTimeout(staticExecutionConfig.timeoutMillis) {
                 do {
-                    startTime = System.nanoTime()
+                    val startTime = System.nanoTime()
                     val resourcesCloser = OnlyResourcesCloser(staticExecutionConfig.scope)
                     val visitor = ContextVisitor(
                         staticExecutionConfig,
@@ -65,7 +63,8 @@ internal class ContextExecutor(
                         {},
                         resourcesCloser,
                         false,
-                        investigatedContexts.contains(rootContext)
+                        investigatedContexts.contains(rootContext),
+                        startTime
                     )
                     visitor.function()
                     investigatedContexts.add(rootContext)

@@ -18,7 +18,8 @@ object ContextVisitorTest {
                     Context("root"),
                     {},
                     mock(),
-                    onlyRunSubcontexts = false
+                    onlyRunSubcontexts = false,
+                    rootContextStartTime = 0
                 )
             }
         }

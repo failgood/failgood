@@ -42,9 +42,6 @@ internal interface ContextStateCollector {
      */
     suspend fun execute(): ContextResult
     suspend fun recordContextAsFailed(
-        context: Context,
-        sourceInfo: SourceInfo,
-        contextPath: ContextPath,
-        exceptionInContext: Throwable
+        context: Context, sourceInfo: SourceInfo, contextPath: ContextPath, exceptionInContext: Throwable
     )
 }

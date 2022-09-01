@@ -13,6 +13,15 @@ internal class ContextExecutor(
     override val timeoutMillis: Long = 40000L,
     private val runOnlyTag: String? = null
 ) : ContextStateCollector {
+    val staticExecutionConfig = StaticContextExecutionConfig(
+        rootContext,
+        scope,
+        listener,
+        testFilter,
+        timeoutMillis,
+        if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT,
+        runOnlyTag
+    )
     override val coroutineStart: CoroutineStart = if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT
     override var startTime = System.nanoTime()
 
@@ -51,13 +60,14 @@ internal class ContextExecutor(
                     startTime = System.nanoTime()
                     val resourcesCloser = OnlyResourcesCloser(scope)
                     val visitor = ContextVisitor(
+                        staticExecutionConfig,
                         this@ContextExecutor,
                         rootContext,
+                        runOnlyTag,
                         {},
                         resourcesCloser,
                         false,
-                        investigatedContexts.contains(rootContext),
- runOnlyTag
+                        investigatedContexts.contains(rootContext)
                     )
                     visitor.function()
                     investigatedContexts.add(rootContext)

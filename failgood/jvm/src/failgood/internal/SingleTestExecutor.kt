@@ -7,16 +7,17 @@ import failgood.*
  * Async Called by ContextExecutor to execute all tests that it does not have to execute itself
  */
 internal class SingleTestExecutor(
-    private val context: RootContext,
     private val test: ContextPath,
     val testDSL: TestDSL,
-    val resourcesCloser: ResourcesCloser
+    val resourcesCloser: ResourcesCloser,
+    val rootContextLambda: ContextLambda
 ) {
     private val startTime = System.nanoTime()
+
     suspend fun execute(): TestResult {
         val dsl: ContextDSL<Unit> = contextDSL({}, test.container.path.drop(1))
         return try {
-            dsl.(context.function)()
+            dsl.(rootContextLambda)()
             throw FailGoodException(
                 "test not found: $test.\n" +
                     "please make sure your test names contain no random parts"

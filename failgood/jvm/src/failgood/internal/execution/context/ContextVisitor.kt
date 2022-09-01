@@ -58,10 +58,10 @@ internal class ContextVisitor<GivenType>(
                     withTimeout(staticConfig.timeoutMillis) {
                         val result =
                             SingleTestExecutor(
-                                staticConfig.rootContext,
                                 testPath,
                                 TestContext(resourcesCloser, staticConfig.listener, testDescription),
-                                resourcesCloser
+                                resourcesCloser,
+                                staticConfig.rootContext.function
                             ).execute()
                         TestPlusResult(testDescription, result)
                     }

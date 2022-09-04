@@ -116,5 +116,5 @@ internal class SingleTestExecutor(
         }
     }
 
-    private class TestResultAvailable(val testResult: TestResult) : RuntimeException()
+    private class TestResultAvailable(val testResult: TestResult) : DSLGotoException()
 }

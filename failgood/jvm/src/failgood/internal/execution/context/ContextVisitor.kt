@@ -147,15 +147,19 @@ internal class ContextVisitor<GivenType>(
         checkForDuplicateName(name)
         if (!executeAll && (staticConfig.runOnlyTag != null && !tags.contains(staticConfig.runOnlyTag)))
             return
+
+        if (this.isolation && ranATest) {
+            contextsLeft = true
+            // but we need to run the root context again to visit this child context
+            if (onlyRunSubcontexts)
+                throw ContextFinished()
+            return
+        }
+
         if (isolation == false)
             contextStateCollector.containsContextsWithoutIsolation = true
 
         // if we already ran a test in this context we don't need to visit the child context now
-        if (this.isolation && ranATest) {
-            contextsLeft = true
-            // but we need to run the root context again to visit this child context
-            return
-        }
         val contextPath = ContextPath(context, name)
         if (!staticConfig.testFilter.shouldRun(contextPath))
             return
@@ -189,14 +193,16 @@ internal class ContextVisitor<GivenType>(
             visitor.mutable = false
             this.mutable = true
             contextStateCollector.investigatedContexts.add(context)
+        } catch (_: ContextFinished) {
         } catch (exceptionInContext: ImmutableContextException) {
             // this is fatal, and we treat the whole root context as failed, so we just rethrow
             throw exceptionInContext
         } catch (exceptionInContext: Throwable) {
-            this.mutable = true
             contextStateCollector.recordContextAsFailed(context, sourceInfo, contextPath, exceptionInContext)
             ranATest = true
             return
+        } finally {
+            this.mutable = true
         }
         if (visitor.contextsLeft) {
             contextsLeft = true

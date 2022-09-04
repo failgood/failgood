@@ -2,7 +2,9 @@ package failgood.internal.execution.context
 
 import failgood.*
 import failgood.internal.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.withTimeout
 
 internal class ContextExecutor(
     private val rootContext: RootContext,
@@ -12,7 +14,7 @@ internal class ContextExecutor(
     testFilter: TestFilter = ExecuteAllTests,
     timeoutMillis: Long = 40000L,
     runOnlyTag: String? = null
-) : ContextStateCollector {
+) {
     private val staticExecutionConfig = StaticContextExecutionConfig(
         rootContext.function,
         scope,
@@ -22,22 +24,8 @@ internal class ContextExecutor(
         if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT,
         runOnlyTag
     )
-    // did we find contexts without isolation in this root context?
-    // in that case we have to call the resources closer after suite.
-    override var containsContextsWithoutIsolation = !rootContext.isolation
 
-    // here we build a list of all the sub-contexts in this root context to later return it
-    override val foundContexts = mutableListOf<Context>()
-
-    override val deferredTestResults = LinkedHashMap<TestDescription, Deferred<TestPlusResult>>()
-    override val afterSuiteCallbacks = mutableSetOf<suspend () -> Unit>()
-
-    // a context is investigated when we have executed it once. we still need to execute it again to get into its sub-contexts
-    override val investigatedContexts = mutableSetOf<Context>()
-
-    // tests or contexts that we don't have to execute again.
-    override val finishedPaths = LinkedHashSet<ContextPath>()
-
+    val stateCollector = ContextStateCollector(listener, !rootContext.isolation)
     /**
      * Execute the rootContext.
      *
@@ -58,21 +46,21 @@ internal class ContextExecutor(
                     val resourcesCloser = OnlyResourcesCloser(staticExecutionConfig.scope)
                     val visitor = ContextVisitor(
                         staticExecutionConfig,
-                        this@ContextExecutor,
+                        stateCollector,
                         rootContext,
                         {},
                         resourcesCloser,
                         false,
-                        investigatedContexts.contains(rootContext),
+                        stateCollector.investigatedContexts.contains(rootContext),
                         startTime
                     )
                     try {
                         visitor.function()
                     } catch (_: ContextFinished) {
                     }
-                    investigatedContexts.add(rootContext)
-                    if (containsContextsWithoutIsolation) {
-                        afterSuiteCallbacks.add { resourcesCloser.closeAutoCloseables() }
+                    stateCollector.investigatedContexts.add(rootContext)
+                    if (stateCollector.containsContextsWithoutIsolation) {
+                        stateCollector.afterSuiteCallbacks.add { resourcesCloser.closeAutoCloseables() }
                     }
                 } while (visitor.contextsLeft)
             }
@@ -80,23 +68,8 @@ internal class ContextExecutor(
             return FailedRootContext(rootContext, e)
         }
         // context order: first root context, then sub-contexts ordered by line number
-        val contexts = listOf(rootContext) + foundContexts.sortedBy { it.sourceInfo!!.lineNumber }
-        return ContextInfo(contexts, deferredTestResults, afterSuiteCallbacks)
-    }
-
-    override suspend fun recordContextAsFailed(
-        context: Context,
-        sourceInfo: SourceInfo,
-        contextPath: ContextPath,
-        exceptionInContext: Throwable
-    ) {
-        val testDescriptor = TestDescription(context, "error in context", sourceInfo)
-
-        finishedPaths.add(contextPath) // don't visit this context again
-        val testPlusResult = TestPlusResult(testDescriptor, Failure(exceptionInContext))
-        deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
-        foundContexts.add(context)
-        staticExecutionConfig.listener.testFinished(testPlusResult)
+        val contexts = listOf(rootContext) + stateCollector.foundContexts.sortedBy { it.sourceInfo!!.lineNumber }
+        return ContextInfo(contexts, stateCollector.deferredTestResults, stateCollector.afterSuiteCallbacks)
     }
 }
 

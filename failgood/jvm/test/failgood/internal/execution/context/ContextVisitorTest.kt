@@ -12,11 +12,11 @@ object ContextVisitorTest {
         it("can be easily created") {
             coroutineScope {
                 ContextVisitor(
-                    StaticContextExecutionConfig({}, this),
-                    mock(),
-                    Context("root"),
-                    {},
-                    mock(),
+                    staticConfig = StaticContextExecutionConfig({}, this),
+                    contextStateCollector = ContextStateCollector(mock(), false),
+                    context = Context("root"),
+                    given = {},
+                    resourcesCloser = mock(),
                     onlyRunSubcontexts = false,
                     rootContextStartTime = 0
                 )

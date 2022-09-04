@@ -66,7 +66,10 @@ internal class ContextExecutor(
                         investigatedContexts.contains(rootContext),
                         startTime
                     )
-                    visitor.function()
+                    try {
+                        visitor.function()
+                    } catch (_: ContextFinished) {
+                    }
                     investigatedContexts.add(rootContext)
                     if (containsContextsWithoutIsolation) {
                         afterSuiteCallbacks.add { resourcesCloser.closeAutoCloseables() }
@@ -96,6 +99,9 @@ internal class ContextExecutor(
         staticExecutionConfig.listener.testFinished(testPlusResult)
     }
 }
+
+// this is thrown when a context is finished an we can not do anything meaningful in this pass
+class ContextFinished : DSLGotoException()
 
 fun sourceInfo(): SourceInfo {
     val runtimeException = RuntimeException()

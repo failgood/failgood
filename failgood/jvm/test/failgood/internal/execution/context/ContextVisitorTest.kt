@@ -11,9 +11,10 @@ object ContextVisitorTest {
     val tests = describe<ContextVisitor<*>> {
         it("can be easily created") {
             coroutineScope {
+                val staticConfig = StaticContextExecutionConfig({}, this)
                 ContextVisitor(
-                    staticConfig = StaticContextExecutionConfig({}, this),
-                    contextStateCollector = ContextStateCollector(mock(), false),
+                    staticConfig = staticConfig,
+                    contextStateCollector = ContextStateCollector(staticConfig, false),
                     context = Context("root"),
                     given = {},
                     resourcesCloser = mock(),

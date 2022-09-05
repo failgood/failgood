@@ -2,11 +2,12 @@ package failgood.internal.execution.context
 
 import failgood.*
 import failgood.internal.ContextPath
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Deferred
+import failgood.internal.ResourcesCloser
+import failgood.internal.TestContext
+import kotlinx.coroutines.*
 
 internal class ContextStateCollector(
-    val listener: ExecutionListener,
+    val staticConfig: StaticContextExecutionConfig,
     // did we find contexts without isolation in this root context?
     // in that case we have to call the resources closer after suite.
     var containsContextsWithoutIsolation: Boolean
@@ -36,6 +37,67 @@ internal class ContextStateCollector(
         val testPlusResult = TestPlusResult(testDescriptor, Failure(exceptionInContext))
         deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
         foundContexts.add(context)
-        listener.testFinished(testPlusResult)
+        staticConfig.listener.testFinished(testPlusResult)
+    }
+    fun <GivenType> executeTest(
+        testDescription: TestDescription,
+        function: TestLambda<GivenType>,
+        resourcesCloser: ResourcesCloser,
+        isolation: Boolean,
+        given: suspend () -> GivenType,
+        rootContextStartTime: Long
+    ) {
+        deferredTestResults[testDescription] =
+            staticConfig.scope.async(start = staticConfig.coroutineStart) {
+
+                val listener = staticConfig.listener
+                listener.testStarted(testDescription)
+                val testResult = try {
+                    withTimeout(staticConfig.timeoutMillis) {
+                        val testContext = TestContext(resourcesCloser, listener, testDescription)
+                        try {
+                            testContext.function(given.invoke())
+                        } catch (e: Throwable) {
+                            val failure = Failure(e)
+                            try {
+                                resourcesCloser.callAfterEach(testContext, failure)
+                            } catch (_: Throwable) {
+                            }
+                            if (isolation) try {
+                                resourcesCloser.closeAutoCloseables()
+                            } catch (_: Throwable) {
+                            }
+                            return@withTimeout failure
+                        }
+                        // test was successful
+                        val success = Success((System.nanoTime() - rootContextStartTime) / 1000)
+                        try {
+                            resourcesCloser.callAfterEach(testContext, success)
+                        } catch (e: Throwable) {
+                            if (isolation) {
+                                try {
+                                    resourcesCloser.closeAutoCloseables()
+                                } catch (e: Throwable) {
+                                    return@withTimeout Failure(e)
+                                }
+                            }
+                            return@withTimeout Failure(e)
+                        }
+                        if (isolation) {
+                            try {
+                                resourcesCloser.closeAutoCloseables()
+                            } catch (e: Throwable) {
+                                return@withTimeout Failure(e)
+                            }
+                        }
+                        success
+                    }
+                } catch (e: TimeoutCancellationException) {
+                    Failure(e)
+                }
+                val testPlusResult = TestPlusResult(testDescription, testResult)
+                listener.testFinished(testPlusResult)
+                testPlusResult
+            }
     }
 }

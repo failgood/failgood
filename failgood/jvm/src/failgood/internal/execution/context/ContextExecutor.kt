@@ -25,7 +25,7 @@ internal class ContextExecutor(
         runOnlyTag
     )
 
-    private val stateCollector = ContextStateCollector(listener, !rootContext.isolation)
+    private val stateCollector = ContextStateCollector(staticExecutionConfig, !rootContext.isolation)
     /**
      * Execute the rootContext.
      *

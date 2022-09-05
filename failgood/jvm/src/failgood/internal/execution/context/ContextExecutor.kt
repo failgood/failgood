@@ -25,7 +25,7 @@ internal class ContextExecutor(
         runOnlyTag
     )
 
-    val stateCollector = ContextStateCollector(listener, !rootContext.isolation)
+    private val stateCollector = ContextStateCollector(listener, !rootContext.isolation)
     /**
      * Execute the rootContext.
      *
@@ -73,7 +73,7 @@ internal class ContextExecutor(
     }
 }
 
-// this is thrown when a context is finished an we can not do anything meaningful in this pass
+// this is thrown when a context is finished, and we can not do anything meaningful in this pass
 class ContextFinished : DSLGotoException()
 
 fun sourceInfo(): SourceInfo {

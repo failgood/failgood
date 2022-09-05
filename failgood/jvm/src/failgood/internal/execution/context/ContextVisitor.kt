@@ -31,7 +31,7 @@ internal class ContextVisitor<GivenType>(
         if (onlyRunSubcontexts)
             return
         checkForDuplicateName(name)
-        if (!executeAll && (staticConfig.runOnlyTag != null && !tags.contains(staticConfig.runOnlyTag)))
+        if (!shouldRun(tags))
             return
         val testPath = ContextPath(context, name)
         if (!staticConfig.testFilter.shouldRun(testPath))
@@ -68,7 +68,7 @@ internal class ContextVisitor<GivenType>(
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
     ) {
         checkForDuplicateName(name)
-        if (!executeAll && (staticConfig.runOnlyTag != null && !tags.contains(staticConfig.runOnlyTag)))
+        if (!shouldRun(tags))
             return
 
         // if we already ran a test in this context we don't need to visit the child context now
@@ -135,6 +135,9 @@ internal class ContextVisitor<GivenType>(
 
         if (visitor.ranATest) ranATest = true
     }
+
+    private fun shouldRun(tags: Set<String>) =
+        !(!executeAll && (staticConfig.runOnlyTag != null && !tags.contains(staticConfig.runOnlyTag)))
 
     override suspend fun describe(
         name: String,

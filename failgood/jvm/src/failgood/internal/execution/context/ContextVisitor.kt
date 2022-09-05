@@ -1,11 +1,9 @@
 package failgood.internal.execution.context
 
 import failgood.*
-import failgood.internal.*
+import failgood.internal.ContextPath
+import failgood.internal.ResourcesCloser
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.async
-import kotlinx.coroutines.withTimeout
 
 internal class ContextVisitor<GivenType>(
     private val staticConfig: StaticContextExecutionConfig,
@@ -58,28 +56,7 @@ internal class ContextVisitor<GivenType>(
                 rootContextStartTime
             )
         } else {
-            val resourcesCloser = OnlyResourcesCloser(staticConfig.scope)
-            val deferred = staticConfig.scope.async(start = staticConfig.coroutineStart) {
-                staticConfig.listener.testStarted(testDescription)
-                val testPlusResult = try {
-                    withTimeout(staticConfig.timeoutMillis) {
-                        val result =
-                            SingleTestExecutor(
-                                testPath,
-                                TestContext(resourcesCloser, staticConfig.listener, testDescription),
-                                resourcesCloser,
-                                staticConfig.rootContextLambda
-                            ).execute()
-                        TestPlusResult(testDescription, result)
-                    }
-                } catch (e: TimeoutCancellationException) {
-                    TestPlusResult(testDescription, Failure(e))
-                }
-                testPlusResult.also {
-                    staticConfig.listener.testFinished(it)
-                }
-            }
-            contextStateCollector.deferredTestResults[testDescription] = deferred
+            contextStateCollector.executeTestLater(testDescription, testPath)
         }
     }
 

@@ -71,6 +71,12 @@ internal class ContextVisitor<GivenType>(
         if (!shouldRun(tags))
             return
 
+
+
+        val contextPath = ContextPath(context, name)
+        if (!staticConfig.testFilter.shouldRun(contextPath))
+            return
+
         // if we already ran a test in this context we don't need to visit the child context now
         if (this.isolation && ranATest) {
             // but we need to run the root context again to visit this child context
@@ -80,14 +86,10 @@ internal class ContextVisitor<GivenType>(
             return
         }
 
-        if (isolation == false)
-            contextStateCollector.containsContextsWithoutIsolation = true
-
-        val contextPath = ContextPath(context, name)
-        if (!staticConfig.testFilter.shouldRun(contextPath))
-            return
 
         if (contextStateCollector.finishedPaths.contains(contextPath)) return
+        if (isolation == false)
+            contextStateCollector.containsContextsWithoutIsolation = true
         val sourceInfo = sourceInfo()
         val subContextShouldHaveIsolation = isolation != false && this.isolation
         val context = Context(name, context, sourceInfo, subContextShouldHaveIsolation)
@@ -137,7 +139,7 @@ internal class ContextVisitor<GivenType>(
     }
 
     private fun shouldRun(tags: Set<String>) =
-        !(!executeAll && (staticConfig.runOnlyTag != null && !tags.contains(staticConfig.runOnlyTag)))
+        executeAll || (staticConfig.runOnlyTag == null || tags.contains(staticConfig.runOnlyTag))
 
     override suspend fun describe(
         name: String,

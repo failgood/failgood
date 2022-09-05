@@ -14,7 +14,7 @@ internal class ContextVisitor<GivenType>(
     private val resourcesCloser: ResourcesCloser,
     private val executeAll: Boolean = false,
     // indicate that this context was already executed once, so we already know about all of its tests.
-    // tgere is no need to check tests, just go into sub contexts
+    // there is no need to check tests, just go into sub contexts
     private val onlyRunSubcontexts: Boolean,
     private val rootContextStartTime: Long
 ) : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {

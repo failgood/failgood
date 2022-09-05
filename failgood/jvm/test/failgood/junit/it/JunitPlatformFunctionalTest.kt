@@ -134,7 +134,7 @@ class JunitPlatformFunctionalTest {
                 )
             }
         }
-        it("returns uniqueIds that it understands (uniqueid roundtrip test)") {
+        it("returns uniqueIds that it understands (uniqueid round-trip test)") {
             // run a test by className
             executeSingleTest(TestFixture::class, listener)
             expectThat(listener.rootResult.await()).get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)

@@ -1,13 +1,11 @@
 package failgood.internal.execution.context
 
 import failgood.*
-import failgood.internal.ContextPath
-import failgood.internal.ResourcesCloser
-import failgood.internal.TestContext
+import failgood.internal.*
 import kotlinx.coroutines.*
 
 internal class ContextStateCollector(
-    val staticConfig: StaticContextExecutionConfig,
+    private val staticConfig: StaticContextExecutionConfig,
     // did we find contexts without isolation in this root context?
     // in that case we have to call the resources closer after suite.
     var containsContextsWithoutIsolation: Boolean
@@ -99,5 +97,29 @@ internal class ContextStateCollector(
                 listener.testFinished(testPlusResult)
                 testPlusResult
             }
+    }
+    fun executeTestLater(testDescription: TestDescription, testPath: ContextPath) {
+        val resourcesCloser = OnlyResourcesCloser(staticConfig.scope)
+        val deferred = staticConfig.scope.async(start = staticConfig.coroutineStart) {
+            staticConfig.listener.testStarted(testDescription)
+            val testPlusResult = try {
+                withTimeout(staticConfig.timeoutMillis) {
+                    val result =
+                        SingleTestExecutor(
+                            testPath,
+                            TestContext(resourcesCloser, staticConfig.listener, testDescription),
+                            resourcesCloser,
+                            staticConfig.rootContextLambda
+                        ).execute()
+                    TestPlusResult(testDescription, result)
+                }
+            } catch (e: TimeoutCancellationException) {
+                TestPlusResult(testDescription, Failure(e))
+            }
+            testPlusResult.also {
+                staticConfig.listener.testFinished(it)
+            }
+        }
+        deferredTestResults[testDescription] = deferred
     }
 }

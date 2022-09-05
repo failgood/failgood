@@ -148,9 +148,10 @@ internal class ContextVisitor<GivenType>(
         if (!executeAll && (staticConfig.runOnlyTag != null && !tags.contains(staticConfig.runOnlyTag)))
             return
 
+        // if we already ran a test in this context we don't need to visit the child context now
         if (this.isolation && ranATest) {
-            contextsLeft = true
             // but we need to run the root context again to visit this child context
+            contextsLeft = true
             if (onlyRunSubcontexts)
                 throw ContextFinished()
             return
@@ -159,7 +160,6 @@ internal class ContextVisitor<GivenType>(
         if (isolation == false)
             contextStateCollector.containsContextsWithoutIsolation = true
 
-        // if we already ran a test in this context we don't need to visit the child context now
         val contextPath = ContextPath(context, name)
         if (!staticConfig.testFilter.shouldRun(contextPath))
             return
@@ -190,8 +190,6 @@ internal class ContextVisitor<GivenType>(
         try {
             visitor.mutable = true
             visitor.contextLambda()
-            visitor.mutable = false
-            this.mutable = true
             contextStateCollector.investigatedContexts.add(context)
         } catch (_: ContextFinished) {
         } catch (exceptionInContext: ImmutableContextException) {
@@ -202,6 +200,7 @@ internal class ContextVisitor<GivenType>(
             ranATest = true
             return
         } finally {
+            visitor.mutable = false
             this.mutable = true
         }
         if (visitor.contextsLeft) {

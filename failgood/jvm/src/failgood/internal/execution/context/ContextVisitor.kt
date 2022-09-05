@@ -71,8 +71,6 @@ internal class ContextVisitor<GivenType>(
         if (!shouldRun(tags))
             return
 
-
-
         val contextPath = ContextPath(context, name)
         if (!staticConfig.testFilter.shouldRun(contextPath))
             return
@@ -85,7 +83,6 @@ internal class ContextVisitor<GivenType>(
                 throw ContextFinished()
             return
         }
-
 
         if (contextStateCollector.finishedPaths.contains(contextPath)) return
         if (isolation == false)

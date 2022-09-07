@@ -3,6 +3,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.8.1 - Unreleased
+
+### Fixed
+
+- Don't crash when root context is flaky.
+
 ## 0.8.0 "Position Chrome" - 2022-08-29
 
 ### Added

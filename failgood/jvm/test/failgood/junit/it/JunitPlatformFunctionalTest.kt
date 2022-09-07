@@ -7,6 +7,7 @@ import failgood.describe
 import failgood.junit.it.fixtures.*
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeout
+import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId
@@ -19,55 +20,25 @@ import strikt.assertions.hasSize
 import strikt.assertions.isEqualTo
 import kotlin.reflect.KClass
 import kotlin.test.assertNotNull
-import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
+
+data class Results(val rootResult: TestExecutionResult, val results: MutableMap<TestIdentifier, TestExecutionResult>)
 
 @Test
 class JunitPlatformFunctionalTest {
-    @OptIn(ExperimentalTime::class)
-    @Suppress("unused")
     val context = describe("The Junit Platform Engine") {
-        val listener = TEListener()
         it("can execute test in a class") {
-            executeSingleTest(DuplicateTestNameTest::class, listener)
-            expectThat(listener.rootResult.await()).get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
+            assertSuccess(executeSingleTest(DuplicateTestNameTest::class))
         }
         describe("duplicate test names") {
             it("are correctly handled in root contexts") {
-                LauncherFactory.create().execute(
-                    launcherDiscoveryRequest(
-                        listOf(selectClass(DoubleTestNamesInRootContextTestFixture::class.qualifiedName))
-                    ),
-                    listener
-                )
-                val rootResult = listener.rootResult.await()
-                assert(rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {
-                    rootResult.throwable.get().stackTraceToString()
-                }
+                assertSuccess(executeSingleTest(DoubleTestNamesInRootContextTestFixture::class))
             }
             it("are correctly handled in sub contexts") {
-                LauncherFactory.create().execute(
-                    launcherDiscoveryRequest(
-                        listOf(selectClass(DoubleTestNamesInSubContextTestFixture::class.qualifiedName))
-                    ),
-                    listener
-                )
-                val rootResult = listener.rootResult.await()
-                assert(rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {
-                    rootResult.throwable.get().stackTraceToString()
-                }
+                assertSuccess(executeSingleTest(DoubleTestNamesInSubContextTestFixture::class))
             }
             it("works even in deeply nested contexts") {
-                LauncherFactory.create().execute(
-                    launcherDiscoveryRequest(
-                        listOf(selectClass(DeeplyNestedDuplicateTestFixture::class.qualifiedName))
-                    ),
-                    listener
-                )
-                val rootResult = listener.rootResult.await()
-                assert(rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {
-                    rootResult.throwable.get().stackTraceToString()
-                }
+                assertSuccess(executeSingleTest(DeeplyNestedDuplicateTestFixture::class))
             }
         }
         it("works for a failing context or root context") {
@@ -80,40 +51,27 @@ class JunitPlatformFunctionalTest {
                 TestFixture::class,
                 TestWithNestedContextsFixture::class
             ).map { selectClass(it.qualifiedName) }
-            LauncherFactory.create().execute(
-                launcherDiscoveryRequest(selectors), listener
-            )
-
-            val result = withTimeout(5.seconds) { listener.rootResult.await() }
-            expectThat(result) {
+            val r = execute(selectors)
+            expectThat(r.rootResult) {
                 get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
             }
-            expectThat(listener.results).hasSize(24)
+            expectThat(r.results).hasSize(24)
             expectThat(
-                listener.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
+                r.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
                     .map { it.key.displayName }
             ).containsExactlyInAnyOrder("Failing Root Context", "error in context")
         }
         ignore("works with Blockhound installed") {
-            LauncherFactory.create().execute(
-                launcherDiscoveryRequest(
-                    listOf(selectClass(BlockhoundTestFixture::class.qualifiedName))
-                ),
-                listener
-            )
-            val rootResult = listener.rootResult.await()
-            assert(rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {
-                rootResult.throwable.get().stackTraceToString()
-            }
-            val entries = listener.results.entries
+            val result = executeSingleTest(BlockhoundTestFixture::class)
+            assertSuccess(result)
+            val entries = result.results.entries
 
             assert(entries.size > 1)
-            val throwable =
-                assertNotNull(
-                    entries.singleOrNull { (key, _) ->
-                        key.displayName == "interop with blockhound"
-                    }?.value?.throwable
-                )
+            val throwable = assertNotNull(
+                entries.singleOrNull { (key, _) ->
+                    key.displayName == "interop with blockhound"
+                }?.value?.throwable
+            )
             assert(throwable.get().message?.contains("blocking") == true)
         }
         it("returns tests in the order that they are declared in the file") {
@@ -136,59 +94,47 @@ class JunitPlatformFunctionalTest {
         }
         it("returns uniqueIds that it understands (uniqueid roundtrip test)") {
             // run a test by className
-            executeSingleTest(TestFixture::class, listener)
-            expectThat(listener.rootResult.await()).get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
+            val result = executeSingleTest(TestFixture::class)
+            expectThat(result.rootResult).get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
             val testName = TestFixture.testName
             val descriptor: TestIdentifier = assertNotNull(
-                listener.results.keys.singleOrNull {
+                result.results.keys.singleOrNull {
                     it.displayName == testName
                 }
             )
             val uniqueId = descriptor.uniqueId
             // now use the uniqueid that we just returned to run the same test again
-            val newListener = TEListener()
-            LauncherFactory.create().execute(launcherDiscoveryRequest(listOf(selectUniqueId(uniqueId))), newListener)
-            expectThat(newListener.rootResult.await()).get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
-            val tests = newListener.results.keys.filter { it.isTest }.map {
+            val newResult = execute(listOf(selectUniqueId(uniqueId)))
+            val tests = newResult.results.keys.filter { it.isTest }.map {
                 it.displayName
             }
             assert(tests.singleOrNull() == testName)
         }
         describe("error handling") {
             it("correctly reports exceptions in afterEach as test failures") {
-                LauncherFactory.create().execute(
-                    launcherDiscoveryRequest(
-                        listOf(selectClass(TestFixtureWithFailingTestAndAfterEach::class.qualifiedName))
-                    ),
-                    listener
-                )
-                val rootResult = listener.rootResult.await()
-                assert(rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {
-                    rootResult.throwable.get().stackTraceToString()
-                }
+                assertSuccess(executeSingleTest(TestFixtureWithFailingTestAndAfterEach::class))
             }
             it("correctly handles test that fail in their second pass") {
-                LauncherFactory.create().execute(
-                    launcherDiscoveryRequest(
-                        listOf(selectClass(TestFixtureThatFailsAfterFirstPass::class.qualifiedName))
-                    ),
-                    listener
-                )
-                val rootResult = listener.rootResult.await()
-                assert(rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {
-                    rootResult.throwable.get().stackTraceToString()
-                }
+                assertSuccess(executeSingleTest(TestFixtureThatFailsAfterFirstPass::class))
             }
         }
     }
 
-    private fun executeSingleTest(singleTest: KClass<*>, listener: TEListener) {
-        LauncherFactory.create().execute(
-            launcherDiscoveryRequest(
-                listOf(selectClass(singleTest.qualifiedName))
-            ),
-            listener
-        )
+    private suspend fun executeSingleTest(singleTest: KClass<*>): Results =
+        execute(listOf(selectClass(singleTest.qualifiedName)))
+
+    private suspend fun execute(discoverySelectors: List<DiscoverySelector>): Results {
+        val listener = TEListener()
+        LauncherFactory.create().execute(launcherDiscoveryRequest(discoverySelectors), listener)
+        // await with timeout to make sure the test does not hang
+        val rootResult = withTimeout(5000) { listener.rootResult.await() }
+        return Results(rootResult, listener.results)
+    }
+
+    private fun assertSuccess(result: Results) {
+        assert(result.rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {
+            result.rootResult.throwable.get().stackTraceToString()
+        }
     }
 }
 
@@ -198,6 +144,8 @@ class TEListener : TestExecutionListener {
     override fun executionFinished(testIdentifier: TestIdentifier, testExecutionResult: TestExecutionResult) {
         results[testIdentifier] = testExecutionResult
         val parentId = testIdentifier.parentId
-        if (!parentId.isPresent) rootResult.complete(testExecutionResult)
+        if (!parentId.isPresent) {
+            rootResult.complete(testExecutionResult)
+        }
     }
 }

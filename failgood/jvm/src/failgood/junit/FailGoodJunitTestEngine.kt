@@ -1,7 +1,10 @@
 package failgood.junit
 
 import failgood.*
-import failgood.internal.*
+import failgood.internal.ExecuteAllTestFilterProvider
+import failgood.internal.StaticTestFilterProvider
+import failgood.internal.StringListTestFilter
+import failgood.internal.SuiteExecutionContext
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES
 import failgood.junit.JunitExecutionListener.TestExecutionEvent
@@ -108,8 +111,15 @@ class FailGoodJunitTestEngine : TestEngine {
                         val mapping = mapper.getMappingOrNull(description)
                         // it's possible that we get a test event for a test that has no mapping because it is part of a failing context
                         if (mapping == null) {
-                            if (description.container.parents.isNotEmpty())
-                                throw FailGoodException("did not find mapping for event $event.")
+                            val parents = description.container.parents
+                            val isRootContext = parents.isEmpty() // I'm honestly not 100% sure why we check for that
+                            if (!isRootContext) {
+                                val isChildOfFailedRootContext = root.failedRootContexts.any {
+                                    it.context == parents.first()
+                                }
+                                if (!isChildOfFailedRootContext)
+                                    throw FailGoodException("did not find mapping for event $event.")
+                            }
                             // it's a failing root context, so ignore it
                             return@consumeEach
                         }

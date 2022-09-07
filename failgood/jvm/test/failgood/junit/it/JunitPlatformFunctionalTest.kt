@@ -167,6 +167,18 @@ class JunitPlatformFunctionalTest {
                     rootResult.throwable.get().stackTraceToString()
                 }
             }
+            it("correctly handles test that fail in their second pass") {
+                LauncherFactory.create().execute(
+                    launcherDiscoveryRequest(
+                        listOf(selectClass(TestFixtureThatFailsAfterFirstPass::class.qualifiedName))
+                    ),
+                    listener
+                )
+                val rootResult = listener.rootResult.await()
+                assert(rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {
+                    rootResult.throwable.get().stackTraceToString()
+                }
+            }
         }
     }
 

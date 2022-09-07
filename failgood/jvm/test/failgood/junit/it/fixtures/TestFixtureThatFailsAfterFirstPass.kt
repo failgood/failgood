@@ -14,17 +14,13 @@ class TestFixtureThatFailsAfterFirstPass {
         // not sure why it needs 3 invocations to trigger this bug.
         if (invocations++ == failAfter)
             throw RuntimeException()
-        it("test 1") {
-        }
+        it("test") {}
         describe("sub context") {
-            it("test 2") {
-            }
+            it("test") {}
             describe("another subcontext") {
-                it("test 3") {
-                }
+                it("test 3") {}
                 describe("another subcontext") {
-                    it("test 3") {
-                    }
+                    it("test") {}
                 }
             }
         }

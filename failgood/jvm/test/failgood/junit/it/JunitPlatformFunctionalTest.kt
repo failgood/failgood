@@ -22,10 +22,12 @@ import kotlin.reflect.KClass
 import kotlin.test.assertNotNull
 import kotlin.time.ExperimentalTime
 
-data class Results(val rootResult: TestExecutionResult, val results: MutableMap<TestIdentifier, TestExecutionResult>)
-
 @Test
 class JunitPlatformFunctionalTest {
+    data class Results(
+        val rootResult: TestExecutionResult,
+        val results: MutableMap<TestIdentifier, TestExecutionResult>
+    )
     val context = describe("The Junit Platform Engine") {
         it("can execute test in a class") {
             assertSuccess(executeSingleTest(DuplicateTestNameTest::class))
@@ -98,9 +100,7 @@ class JunitPlatformFunctionalTest {
             expectThat(result.rootResult).get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
             val testName = TestFixture.testName
             val descriptor: TestIdentifier = assertNotNull(
-                result.results.keys.singleOrNull {
-                    it.displayName == testName
-                }
+                result.results.keys.singleOrNull { it.displayName == testName }
             )
             val uniqueId = descriptor.uniqueId
             // now use the uniqueid that we just returned to run the same test again
@@ -112,7 +112,11 @@ class JunitPlatformFunctionalTest {
         }
         describe("error handling") {
             it("correctly reports exceptions in afterEach as test failures") {
-                assertSuccess(executeSingleTest(TestFixtureWithFailingTestAndAfterEach::class))
+                val result = executeSingleTest(TestFixtureWithFailingTestAndAfterEach::class)
+                assertSuccess(result)
+                val testResult =
+                    assertNotNull(result.results.entries.singleOrNull { it.key.displayName == "the test name" }).value
+                assert(testResult.throwable.get().message == "fail")
             }
             it("correctly handles test that fail in their second pass") {
                 assertSuccess(executeSingleTest(TestFixtureThatFailsAfterFirstPass::class))
@@ -136,16 +140,15 @@ class JunitPlatformFunctionalTest {
             result.rootResult.throwable.get().stackTraceToString()
         }
     }
-}
-
-class TEListener : TestExecutionListener {
-    val rootResult = CompletableDeferred<TestExecutionResult>()
-    val results = mutableMapOf<TestIdentifier, TestExecutionResult>()
-    override fun executionFinished(testIdentifier: TestIdentifier, testExecutionResult: TestExecutionResult) {
-        results[testIdentifier] = testExecutionResult
-        val parentId = testIdentifier.parentId
-        if (!parentId.isPresent) {
-            rootResult.complete(testExecutionResult)
+    class TEListener : TestExecutionListener {
+        val rootResult = CompletableDeferred<TestExecutionResult>()
+        val results = mutableMapOf<TestIdentifier, TestExecutionResult>()
+        override fun executionFinished(testIdentifier: TestIdentifier, testExecutionResult: TestExecutionResult) {
+            results[testIdentifier] = testExecutionResult
+            val parentId = testIdentifier.parentId
+            if (!parentId.isPresent) {
+                rootResult.complete(testExecutionResult)
+            }
         }
     }
 }

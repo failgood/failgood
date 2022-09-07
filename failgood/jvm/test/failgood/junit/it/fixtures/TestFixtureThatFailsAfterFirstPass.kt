@@ -11,22 +11,22 @@ class TestFixtureThatFailsAfterFirstPass {
     val contextThatFailsAfter3 = rootContext(3) // let's test another version because its so easy
 
     private fun rootContext(failAfter: Int) = describe("a test context that fails in its third pass") {
-            // not sure why it needs 3 invocations to trigger this bug.
-            if (invocations++ == failAfter)
-                throw RuntimeException()
-            it("test 1") {
+        // not sure why it needs 3 invocations to trigger this bug.
+        if (invocations++ == failAfter)
+            throw RuntimeException()
+        it("test 1") {
+        }
+        describe("sub context") {
+            it("test 2") {
             }
-            describe("sub context") {
-                it("test 2") {
+            describe("another subcontext") {
+                it("test 3") {
                 }
                 describe("another subcontext") {
                     it("test 3") {
                     }
-                    describe("another subcontext") {
-                        it("test 3") {
-                        }
-                    }
                 }
             }
         }
+    }
 }

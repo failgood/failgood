@@ -29,7 +29,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     }
 
     // set timeout to the timeout in milliseconds, an empty string to turn it off
-    private val timeoutMillis: Long = when (val timeout = getenv("TIMEOUT")) {
+    private val timeoutMillis: Long = when (val timeout = getenv("FAILGOOD_TIMEOUT")) {
         null -> DEFAULT_TIMEOUT
         "" -> Long.MAX_VALUE
         else -> timeout.toLongOrNull() ?: throw FailGoodException("TIMEOUT must be a number or an empty string")

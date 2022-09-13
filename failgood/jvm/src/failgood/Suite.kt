@@ -1,15 +1,10 @@
 package failgood
 
 import failgood.internal.*
-import failgood.internal.ContextExecutor
-import failgood.internal.ContextInfo
-import failgood.internal.ContextTreeReporter
-import failgood.internal.ExecuteAllTestFilterProvider
-import failgood.internal.TestFilterProvider
 import failgood.util.getenv
-import kotlinx.coroutines.*
 import java.lang.management.ManagementFactory
 import kotlin.reflect.KClass
+import kotlinx.coroutines.*
 
 const val DEFAULT_TIMEOUT: Long = 40000
 
@@ -34,19 +29,18 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     }
 
     // set timeout to the timeout in milliseconds, an empty string to turn it off
-    private val timeoutMillis: Long = getenv("TIMEOUT").let {
-        when (it) {
-            null -> DEFAULT_TIMEOUT
-            "" -> Long.MAX_VALUE
-            else -> it.toLongOrNull() ?: throw FailGoodException("TIMEOUT must be a number or an empty string")
-        }
+    private val timeoutMillis: Long = when (val timeout = getenv("TIMEOUT")) {
+        null -> DEFAULT_TIMEOUT
+        "" -> Long.MAX_VALUE
+        else -> timeout.toLongOrNull() ?: throw FailGoodException("TIMEOUT must be a number or an empty string")
     }
+
 
     internal suspend fun findTests(
         coroutineScope: CoroutineScope,
         executeTests: Boolean = true,
         executionFilter: TestFilterProvider = ExecuteAllTestFilterProvider,
-        listener: ExecutionListener = NullExecutionListener
+        listener: ExecutionListener = NullExecutionListener,
     ): List<Deferred<ContextResult>> {
         val tag = getenv("FAILGOOD_TAG")
         return contextProviders
@@ -65,6 +59,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                         CompletableDeferred(
                             FailedRootContext(Context(context.jClass.name ?: "unknown"), context.reason)
                         )
+
                     is RootContext -> {
                         val testFilter = executionFilter.forClass(context.sourceInfo.className)
                         coroutineScope.async {
@@ -109,7 +104,7 @@ internal fun uptime(totalTests: Int? = null): String {
 }
 
 private suspend fun awaitTestResult(
-    contextInfos: List<Deferred<ContextResult>>
+    contextInfos: List<Deferred<ContextResult>>,
 ): SuiteResult {
     return awaitTestResults(contextInfos.awaitAll())
 }
@@ -136,6 +131,7 @@ internal suspend fun awaitTestResults(resolvedContexts: List<ContextResult>): Su
 
     )
 }
+
 internal fun printResults(coroutineScope: CoroutineScope, contextInfos: List<Deferred<ContextResult>>) {
     contextInfos.forEach {
         coroutineScope.launch {
@@ -151,6 +147,7 @@ internal fun printResults(coroutineScope: CoroutineScope, contextInfos: List<Def
                             .joinToString("\n")
                     )
                 }
+
                 is FailedRootContext -> {
                     println("context ${context.context} failed: ${context.failure.stackTraceToString()}")
                 }

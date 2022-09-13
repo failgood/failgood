@@ -37,10 +37,10 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     private val timeoutMillis: Long = getenv("TIMEOUT").let {
         when (it) {
             null -> DEFAULT_TIMEOUT
-            "" -> null
+            "" -> Long.MAX_VALUE
             else -> it.toLongOrNull() ?: throw FailGoodException("TIMEOUT must be a number or an empty string")
         }
-    } ?: Long.MAX_VALUE
+    }
 
     internal suspend fun findTests(
         coroutineScope: CoroutineScope,

@@ -40,23 +40,23 @@ internal class ContextExecutor constructor(
         val function = rootContext.function
         val rootContext = Context(rootContext.name, null, rootContext.sourceInfo, rootContext.isolation)
         try {
-            withTimeout(timeoutMillis) {
-                do {
-                    startTime = System.nanoTime()
-                    val resourcesCloser = ResourcesCloser(scope)
-                    val visitor = ContextVisitor(
-                        rootContext,
-                        resourcesCloser,
-                        given = {}
+            do {
+                startTime = System.nanoTime()
+                val resourcesCloser = ResourcesCloser(scope)
+                val visitor = ContextVisitor(
+                    rootContext,
+                    resourcesCloser,
+                    given = {}
 
-                    )
+                )
+                withTimeout(timeoutMillis) {
                     visitor.function()
-                    investigatedContexts.add(rootContext)
-                    if (containsContextsWithoutIsolation) {
-                        afterSuiteCallbacks.add { resourcesCloser.closeAutoCloseables() }
-                    }
-                } while (visitor.contextsLeft)
-            }
+                }
+                investigatedContexts.add(rootContext)
+                if (containsContextsWithoutIsolation) {
+                    afterSuiteCallbacks.add { resourcesCloser.closeAutoCloseables() }
+                }
+            } while (visitor.contextsLeft)
         } catch (e: Throwable) {
             return FailedRootContext(rootContext, e)
         }

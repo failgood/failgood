@@ -3,11 +3,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## 0.8.1 - Unreleased
+## 0.8.1 - "Rather Interesting" 2022-09-13
 
 ### Fixed
 
 - Don't crash when root context is flaky.
+- Correctly handle root context timeouts. the timeout should be for one test execution that is part of the Root Context
+  and not for all the tests that are executed as part of the root context.
 
 ## 0.8.0 "Position Chrome" - 2022-08-29
 

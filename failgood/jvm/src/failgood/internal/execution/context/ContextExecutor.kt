@@ -40,7 +40,6 @@ internal class ContextExecutor(
         val function = rootContext.function
         val rootContext = Context(rootContext.name, null, rootContext.sourceInfo, rootContext.isolation)
         try {
-            withTimeout(staticExecutionConfig.timeoutMillis) {
                 do {
                     val startTime = System.nanoTime()
                     val resourcesCloser = OnlyResourcesCloser(staticExecutionConfig.scope)
@@ -55,7 +54,9 @@ internal class ContextExecutor(
                         startTime
                     )
                     try {
-                        visitor.function()
+                        withTimeout(staticExecutionConfig.timeoutMillis) {
+                            visitor.function()
+                        }
                     } catch (_: ContextFinished) {
                     }
                     stateCollector.investigatedContexts.add(rootContext)
@@ -63,7 +64,6 @@ internal class ContextExecutor(
                         stateCollector.afterSuiteCallbacks.add { resourcesCloser.closeAutoCloseables() }
                     }
                 } while (visitor.contextsLeft)
-            }
         } catch (e: Throwable) {
             return FailedRootContext(rootContext, e)
         }

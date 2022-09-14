@@ -13,7 +13,7 @@ class PureTest {
             context(
                 "a subcontext", {},
                 listOf(
-                    test("another test") {},
+                    test("another test") {}
                 )
             ),
             context(
@@ -57,7 +57,7 @@ class PureTestVarargs {
         test("a test") { mongoDb: MongoDB -> },
         context(
             "a subcontext", {},
-            test("another test") {},
+            test("another test") {}
         ),
         context(
             "dynamic tests",

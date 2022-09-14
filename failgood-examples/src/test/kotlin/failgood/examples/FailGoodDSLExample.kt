@@ -13,12 +13,12 @@ class FailGoodDSLExample {
             describe("disabled/pending tests") {
                 ignore("ignore can be used to disable  tests that are unfinished") {}
                 ignore("for ignore tests the test body is optional," +
-                        " you can use it as reminder of tests that you want to write")
+                    " you can use it as reminder of tests that you want to write")
             }
             context("context/test syntax is also supported") {
                 test(
                     "I prefer describe/it but if there is no subject to describe I use " +
-                            "context/test"
+                        "context/test"
                 ) {}
             }
 

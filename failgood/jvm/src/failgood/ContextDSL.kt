@@ -35,12 +35,12 @@ interface ResourcesDSL {
     suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit = {}): TestDependency<T>
 }
 
-@FailGoodDSL
 /**
  * This is used to define test contexts and tests.
  * It is recommended to use [describe]/[it]-syntax, but if you really have to you can also use [context] to define a context
  * and [test] to define a test
  */
+@FailGoodDSL
 interface ContextDSL<GivenType> : ResourcesDSL {
     /**
      * Define a context that describes a subject with a given block.

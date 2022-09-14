@@ -1,4 +1,5 @@
 @file:Test
+
 package failgood.docs
 
 import failgood.Test

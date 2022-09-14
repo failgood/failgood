@@ -4,15 +4,10 @@ import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA_PARALLEL
 
 plugins {
     java
-    id("org.jlleitschuh.gradle.ktlint")
     kotlin("jvm")
     id("com.adarshr.test-logger")
 }
 
-dependencies {
-    // must stay at 0.45.x because gradle plugin does not work with 0.46
-    ktlint("com.pinterest:ktlint:0.45.2")
-}
 
 tasks {
     test {

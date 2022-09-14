@@ -24,7 +24,6 @@ internal class Junit4Reporter(private val testResults: List<TestPlusResult>) {
     fun stringReport(): List<String> {
         val result = mutableListOf("<testsuite tests=\"${testResults.size}\">")
         testResults.forEach {
-
             val line = when (it.result) {
                 is Success ->
                     listOf("""<testcase classname="${it.test.container.stringPath()}" name="${it.test.testName}"/>""")

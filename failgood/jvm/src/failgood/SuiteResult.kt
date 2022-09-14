@@ -19,7 +19,6 @@ data class SuiteResult(
 
     @Suppress("UNREACHABLE_CODE")
     fun check(throwException: Boolean = false, writeReport: Boolean = false) {
-
         // **/build/test-results/test/TEST-*.xml'
         if (writeReport) {
             val reportDir = Paths.get("build", "test-results", "test")
@@ -50,7 +49,6 @@ data class SuiteResult(
             return
         }
         if (throwException) throw SuiteFailedException("test failed") else {
-
             val message =
                 failedTests.joinToString(separator = "\n") {
                     it.prettyPrint()

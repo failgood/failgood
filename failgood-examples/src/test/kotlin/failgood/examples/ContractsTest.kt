@@ -21,7 +21,6 @@ class ContractsTest {
 
     private suspend fun ContextDSL<Unit>.behavesAsMutableCollection(fixture: MutableList<String>) {
         context("behaves as MutableCollection") {
-
             test("is empty when created") {
                 expectThat(fixture.isEmpty())
             }

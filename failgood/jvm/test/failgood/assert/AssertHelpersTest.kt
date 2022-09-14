@@ -7,6 +7,7 @@ import failgood.describe
 enum class Letters {
     A, B, C
 }
+
 @Test
 object AssertHelpersTest {
     val tests = describe("AssertHelpers") {

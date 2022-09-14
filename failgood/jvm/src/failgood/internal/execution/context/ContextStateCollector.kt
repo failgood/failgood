@@ -47,7 +47,6 @@ internal class ContextStateCollector(
     ) {
         deferredTestResults[testDescription] =
             staticConfig.scope.async(start = staticConfig.coroutineStart) {
-
                 val listener = staticConfig.listener
                 listener.testStarted(testDescription)
                 val testResult = try {

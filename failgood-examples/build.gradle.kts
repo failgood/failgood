@@ -9,6 +9,7 @@ import info.solidsoft.gradle.pitest.PitestPluginExtension
 plugins {
     kotlin("jvm")
     id("info.solidsoft.pitest")
+    id("org.jmailen.kotlinter")
 }
 
 dependencies {

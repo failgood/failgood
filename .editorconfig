@@ -22,6 +22,8 @@ ij_kotlin_name_count_to_use_star_import_for_members = 5
 [*.{yml,yaml}]
 indent_size = 2
 
-# noinspection EditorConfigKeyCorrectness
 [*.{kt,kts}]
-disabled_rules=no-wildcard-imports
+# noinspection EditorConfigKeyCorrectness
+ktlint_disabled_rules=no-wildcard-imports,filename
+ij_kotlin_allow_trailing_comma_on_call_site=false
+ij_kotlin_allow_trailing_comma=false

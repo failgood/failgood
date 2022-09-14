@@ -40,30 +40,30 @@ internal class ContextExecutor(
         val function = rootContext.function
         val rootContext = Context(rootContext.name, null, rootContext.sourceInfo, rootContext.isolation)
         try {
-                do {
-                    val startTime = System.nanoTime()
-                    val resourcesCloser = OnlyResourcesCloser(staticExecutionConfig.scope)
-                    val visitor = ContextVisitor(
-                        staticExecutionConfig,
-                        stateCollector,
-                        rootContext,
-                        {},
-                        resourcesCloser,
-                        false,
-                        stateCollector.investigatedContexts.contains(rootContext),
-                        startTime
-                    )
-                    try {
-                        withTimeout(staticExecutionConfig.timeoutMillis) {
-                            visitor.function()
-                        }
-                    } catch (_: ContextFinished) {
+            do {
+                val startTime = System.nanoTime()
+                val resourcesCloser = OnlyResourcesCloser(staticExecutionConfig.scope)
+                val visitor = ContextVisitor(
+                    staticExecutionConfig,
+                    stateCollector,
+                    rootContext,
+                    {},
+                    resourcesCloser,
+                    false,
+                    stateCollector.investigatedContexts.contains(rootContext),
+                    startTime
+                )
+                try {
+                    withTimeout(staticExecutionConfig.timeoutMillis) {
+                        visitor.function()
                     }
-                    stateCollector.investigatedContexts.add(rootContext)
-                    if (stateCollector.containsContextsWithoutIsolation) {
-                        stateCollector.afterSuiteCallbacks.add { resourcesCloser.closeAutoCloseables() }
-                    }
-                } while (visitor.contextsLeft)
+                } catch (_: ContextFinished) {
+                }
+                stateCollector.investigatedContexts.add(rootContext)
+                if (stateCollector.containsContextsWithoutIsolation) {
+                    stateCollector.afterSuiteCallbacks.add { resourcesCloser.closeAutoCloseables() }
+                }
+            } while (visitor.contextsLeft)
         } catch (e: Throwable) {
             return FailedRootContext(rootContext, e)
         }

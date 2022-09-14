@@ -26,6 +26,7 @@ internal class ContextExecutor(
     )
 
     private val stateCollector = ContextStateCollector(staticExecutionConfig, !rootContext.isolation)
+
     /**
      * Execute the rootContext.
      *

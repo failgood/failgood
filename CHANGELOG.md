@@ -3,6 +3,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.8.2 - Unreleased
+
+### Fixed
+
+- handle exceptions in dependency block as result. (#130)
+
 ## 0.8.1 - "Rather Interesting" 2022-09-13
 
 ### Fixed

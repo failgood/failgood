@@ -3,7 +3,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 0.8.2 - Unreleased
+## 0.8.2 - "Blast First" - Unreleased
 
 ### Fixed
 

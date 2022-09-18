@@ -6,6 +6,7 @@ import failgood.Test
 import failgood.describe
 import strikt.api.expectThat
 import strikt.assertions.*
+import java.lang.RuntimeException
 import java.util.*
 import kotlin.test.assertNotNull
 
@@ -51,6 +52,14 @@ class ErrorHandlingTest {
                             "ContextDSL as receiver"
                     ) == true
             ) { failedContext.failure.stackTraceToString() }
+        }
+        it("handles errors in resource correctly") {
+            Suite {
+                dependency({
+                    throw RuntimeException()
+                })
+                it("test") {}
+            }.run(silent = true)
         }
     }
 }

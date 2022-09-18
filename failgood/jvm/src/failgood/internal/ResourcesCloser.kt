@@ -40,8 +40,8 @@ internal class OnlyResourcesCloser(private val scope: CoroutineScope) : Resource
     }
 
     override suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit): TestDependency<T> {
-        val result = scope.async(Dispatchers.IO) { creator() }
-        addClosable(SuspendAutoCloseable(result) { closer(result.await()) })
+        val result = scope.async(Dispatchers.IO) { kotlin.runCatching { creator() } }
+        addClosable(SuspendAutoCloseable(result) { closer(result.await().getOrThrow()) })
         return TestDependency(result)
     }
 

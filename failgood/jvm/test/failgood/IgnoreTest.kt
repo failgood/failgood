@@ -15,6 +15,7 @@ object IgnoreTest {
         }
         describe("with a String") {
             it("is false before now") {
+                // we test that the date format is yyyy-mm-dd by using a day > 12
                 assert(!Ignored.Until("2020-01-20").isIgnored())
             }
             it("is true after now") {

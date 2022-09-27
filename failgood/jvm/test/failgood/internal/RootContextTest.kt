@@ -1,5 +1,7 @@
-package failgood
+package failgood.internal
 
+import failgood.Test
+import failgood.describe
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 

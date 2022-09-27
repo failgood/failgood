@@ -3,6 +3,7 @@ package failgood
 import failgood.docs.ClassTestContextExample
 import failgood.docs.ContextListExample
 import failgood.docs.testContextsOnTopLevelExampleClassName
+import failgood.internal.RootContext
 import strikt.api.expectThat
 import strikt.assertions.*
 import kotlin.test.assertNotNull

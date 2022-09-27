@@ -1,6 +1,8 @@
 package failgood
 
 import failgood.internal.ContextPath
+import failgood.internal.RootContext
+import failgood.internal.SourceInfo
 import failgood.internal.TestFixture
 import java.io.File
 import java.nio.file.*
@@ -8,40 +10,6 @@ import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileTime
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
-
-sealed interface LoadResult {
-    val order: Int
-}
-
-data class RootContext(
-    val name: String = "root",
-    val ignored: Ignored = Ignored.Never,
-    override val order: Int = 0,
-    val isolation: Boolean = true,
-    val sourceInfo: SourceInfo = SourceInfo(findCallerSTE()),
-    val function: ContextLambda
-) : LoadResult, failgood.internal.Path {
-    override val path: List<String>
-        get() = listOf(name)
-}
-
-data class CouldNotLoadContext(val reason: Throwable, val jClass: Class<out Any>) : LoadResult {
-    override val order: Int
-        get() = 0
-}
-
-data class SourceInfo(val className: String, val fileName: String?, val lineNumber: Int) {
-    fun likeStackTrace(testName: String) = "$className.${testName.replace(" ", "-")}($fileName:$lineNumber)"
-
-    constructor(ste: StackTraceElement) : this(ste.className, ste.fileName!!, ste.lineNumber)
-}
-
-typealias ContextLambda = suspend ContextDSL<Unit>.() -> Unit
-
-typealias TestLambda<GivenType> = suspend TestDSL.(GivenType) -> Unit
-
-fun context(description: String, disabled: Boolean = false, order: Int = 0, function: ContextLambda): RootContext =
-    RootContext(description, { disabled }, order, function = function)
 
 fun describe(
     subjectDescription: String,
@@ -60,13 +28,6 @@ inline fun <reified T> describe(
 ):
     RootContext = describe(T::class, disabled, order, isolation, function)
 
-suspend inline fun <reified Class> ContextDSL<*>.describe(
-    tags: Set<String> = setOf(),
-    isolation: Boolean? = null,
-    noinline contextLambda: ContextLambda
-) =
-    this.describe(Class::class.simpleName!!, tags, isolation, contextLambda)
-
 fun describe(
     subjectType: KClass<*>,
     disabled: Boolean = false,
@@ -76,6 +37,16 @@ fun describe(
 ):
     RootContext =
     RootContext("The ${subjectType.simpleName}", { disabled }, order, isolation, function = function)
+
+fun context(description: String, disabled: Boolean = false, order: Int = 0, function: ContextLambda): RootContext =
+    RootContext(description, { disabled }, order, function = function)
+
+suspend inline fun <reified Class> ContextDSL<*>.describe(
+    tags: Set<String> = setOf(),
+    isolation: Boolean? = null,
+    noinline contextLambda: ContextLambda
+) =
+    this.describe(Class::class.simpleName!!, tags, isolation, contextLambda)
 
 data class TestDescription(
     val container: TestContainer,
@@ -223,6 +194,6 @@ object FailGood {
 
 private fun findCallerName(): String = findCallerSTE().className
 
-internal fun findCallerSTE(): StackTraceElement = Throwable().stackTrace.first {
-    !(it.fileName?.endsWith("FailGood.kt") ?: true)
+internal fun findCallerSTE(): StackTraceElement = Throwable().stackTrace.first { ste ->
+    ste.fileName?.let { !(it.endsWith("FailGood.kt") || it.endsWith("internal.kt")) } ?: true
 }

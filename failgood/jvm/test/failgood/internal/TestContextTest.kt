@@ -2,7 +2,6 @@ package failgood.internal
 
 import failgood.Context
 import failgood.ExecutionListener
-import failgood.SourceInfo
 import failgood.Test
 import failgood.TestDSL
 import failgood.TestDescription

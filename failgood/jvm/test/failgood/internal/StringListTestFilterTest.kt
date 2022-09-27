@@ -1,6 +1,5 @@
 package failgood.internal
 
-import failgood.RootContext
 import failgood.Test
 import failgood.describe
 import strikt.api.expectThat

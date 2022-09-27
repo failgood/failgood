@@ -3,6 +3,7 @@
 package failgood.functional
 
 import failgood.*
+import failgood.internal.RootContext
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 

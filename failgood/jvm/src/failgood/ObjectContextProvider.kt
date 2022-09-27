@@ -1,5 +1,7 @@
 package failgood
 
+import failgood.internal.RootContext
+import failgood.internal.SourceInfo
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
 

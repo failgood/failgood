@@ -2,7 +2,6 @@
 
 package failgood.internal
 
-import failgood.SourceInfo
 import failgood.Test
 import failgood.describe
 import strikt.api.expectThat

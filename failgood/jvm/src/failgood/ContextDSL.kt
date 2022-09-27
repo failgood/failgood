@@ -122,3 +122,5 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     ) =
         it(name, tags, ignored, function)
 }
+internal typealias ContextLambda = suspend ContextDSL<Unit>.() -> Unit
+internal typealias TestLambda<GivenType> = suspend TestDSL.(GivenType) -> Unit

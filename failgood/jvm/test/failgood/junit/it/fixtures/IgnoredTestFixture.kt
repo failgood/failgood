@@ -1,6 +1,6 @@
 package failgood.junit.it.fixtures
 
-import failgood.IsIgnored.Always
+import failgood.Ignored.Always
 import failgood.describe
 import failgood.internal.TestFixture
 

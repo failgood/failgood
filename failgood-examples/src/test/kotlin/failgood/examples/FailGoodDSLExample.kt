@@ -1,6 +1,6 @@
 package failgood.examples
 
-import failgood.IsIgnored.Always
+import failgood.Ignored.Always
 import failgood.Test
 import failgood.describe
 

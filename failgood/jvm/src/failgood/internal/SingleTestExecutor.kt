@@ -39,7 +39,7 @@ internal class SingleTestExecutor(
         ) {
         }
 
-        override suspend fun it(name: String, tags: Set<String>, ignored: IsIgnored, function: TestLambda<GivenType>) {}
+        override suspend fun it(name: String, tags: Set<String>, ignored: Ignored, function: TestLambda<GivenType>) {}
 
         @Suppress("OVERRIDE_DEPRECATION")
         override suspend fun ignore(name: String, function: TestLambda<GivenType>) {}
@@ -68,7 +68,7 @@ internal class SingleTestExecutor(
         if (parentContexts.isEmpty()) TestFinder(given) else ContextFinder(parentContexts)
 
     private inner class TestFinder<GivenType>(val given: suspend () -> GivenType) : Base<GivenType>() {
-        override suspend fun it(name: String, tags: Set<String>, ignored: IsIgnored, function: TestLambda<GivenType>) {
+        override suspend fun it(name: String, tags: Set<String>, ignored: Ignored, function: TestLambda<GivenType>) {
             if (test.name == name) {
                 throw TestResultAvailable(executeTest(function))
             }

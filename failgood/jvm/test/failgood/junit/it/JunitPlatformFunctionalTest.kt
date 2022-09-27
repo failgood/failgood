@@ -2,7 +2,7 @@
 
 package failgood.junit.it
 
-import failgood.IsIgnored.Always
+import failgood.Ignored.Always
 import failgood.Test
 import failgood.describe
 import failgood.junit.it.fixtures.*

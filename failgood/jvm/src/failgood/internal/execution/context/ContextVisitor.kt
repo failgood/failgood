@@ -27,7 +27,7 @@ internal class ContextVisitor<GivenType>(
     var contextsLeft = false // are there sub contexts left to run?
     private var mutable = true // we allow changes only to the current context to catch errors in the context structure
 
-    override suspend fun it(name: String, tags: Set<String>, ignored: IsIgnored, function: TestLambda<GivenType>) {
+    override suspend fun it(name: String, tags: Set<String>, ignored: Ignored, function: TestLambda<GivenType>) {
         if (onlyRunSubcontexts)
             return
         if (ignored.isIgnored()) {

@@ -1,7 +1,7 @@
 package failgood.internal.execution.context
 
 import failgood.*
-import failgood.IsIgnored.*
+import failgood.Ignored.*
 import failgood.internal.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

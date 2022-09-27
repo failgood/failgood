@@ -68,7 +68,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                     is RootContext -> {
                         val testFilter = executionFilter.forClass(context.sourceInfo.className)
                         coroutineScope.async {
-                            if (!context.ignored) {
+                            if (!context.ignored.isIgnored()) {
                                 ContextExecutor(
                                     context,
                                     coroutineScope,
@@ -167,5 +167,5 @@ fun Suite(kClasses: List<KClass<*>>) =
     Suite(kClasses.map { ObjectContextProvider(it) })
 
 fun Suite(rootContext: RootContext) = Suite(listOf(ContextProvider { listOf(rootContext) }))
-fun Suite(lambda: ContextLambda) = Suite(RootContext("root", false, 0, function = lambda))
+fun Suite(lambda: ContextLambda) = Suite(RootContext("root", order = 0, function = lambda))
 fun cpus() = Runtime.getRuntime().availableProcessors()

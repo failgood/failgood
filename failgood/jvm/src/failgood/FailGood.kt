@@ -15,7 +15,7 @@ sealed interface LoadResult {
 
 data class RootContext(
     val name: String = "root",
-    val ignored: Boolean = false,
+    val ignored: Ignored = Ignored.Never,
     override val order: Int = 0,
     val isolation: Boolean = true,
     val sourceInfo: SourceInfo = SourceInfo(findCallerSTE()),
@@ -41,7 +41,7 @@ typealias ContextLambda = suspend ContextDSL<Unit>.() -> Unit
 typealias TestLambda<GivenType> = suspend TestDSL.(GivenType) -> Unit
 
 fun context(description: String, disabled: Boolean = false, order: Int = 0, function: ContextLambda): RootContext =
-    RootContext(description, disabled, order, function = function)
+    RootContext(description, { disabled }, order, function = function)
 
 fun describe(
     subjectDescription: String,
@@ -50,7 +50,7 @@ fun describe(
     isolation: Boolean = true,
     function: ContextLambda
 ):
-    RootContext = RootContext(subjectDescription, disabled, order, isolation, function = function)
+    RootContext = RootContext(subjectDescription, { disabled }, order, isolation, function = function)
 
 inline fun <reified T> describe(
     disabled: Boolean = false,
@@ -75,7 +75,7 @@ fun describe(
     function: ContextLambda
 ):
     RootContext =
-    RootContext("The ${subjectType.simpleName}", disabled, order, isolation, function = function)
+    RootContext("The ${subjectType.simpleName}", { disabled }, order, isolation, function = function)
 
 data class TestDescription(
     val container: TestContainer,

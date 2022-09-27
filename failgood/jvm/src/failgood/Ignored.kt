@@ -7,7 +7,7 @@ import java.time.ZoneOffset
 /**
  * decide if a test should be ignored. you can add your own matchers like
  * ```
- * val onCi = IsIgnored { System.getenv("CI") != null }
+ * val onCi = Ignored { System.getenv("CI") != null }
  * ```
  */
 fun interface Ignored {

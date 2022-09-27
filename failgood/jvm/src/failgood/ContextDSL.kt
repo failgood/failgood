@@ -64,7 +64,12 @@ interface ContextDSL<GivenType> : ResourcesDSL {
         tags: Set<String> = setOf(),
         isolation: Boolean? = null,
         function: ContextLambda
-    )
+    ) = describe(name, tags, isolation, {}, function)
+
+    /**
+     * Define a test that describes one aspect of a subject.
+     */
+    suspend fun it(name: String, tags: Set<String> = setOf(), function: TestLambda<GivenType>)
 
     /**
      * Define an ignored test.
@@ -75,11 +80,6 @@ interface ContextDSL<GivenType> : ResourcesDSL {
      * Register a callback to be called after all tests have completed
      */
     fun afterSuite(function: suspend () -> Unit)
-
-    /**
-     * Define a test that describes one aspect of a subject.
-     */
-    suspend fun it(name: String, tags: Set<String> = setOf(), function: TestLambda<GivenType>)
 
     // Support for context/test. This will maybe be removed before 1.0, unless somebody really loves it.
     // another option would be to move it to a separate sub interface.

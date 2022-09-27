@@ -138,15 +138,6 @@ internal class ContextVisitor<GivenType>(
     private fun shouldRun(tags: Set<String>) =
         executeAll || (staticConfig.runOnlyTag == null || tags.contains(staticConfig.runOnlyTag))
 
-    override suspend fun describe(
-        name: String,
-        tags: Set<String>,
-        isolation: Boolean?,
-        function: ContextLambda
-    ) {
-        describe(name, tags, isolation, {}, function)
-    }
-
     private fun checkForDuplicateName(name: String) {
         if (!namesInThisContext.add(name))
             throw DuplicateNameInContextException("duplicate name \"$name\" in context \"${context.name}\"")

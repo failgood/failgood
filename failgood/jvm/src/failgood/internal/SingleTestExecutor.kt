@@ -39,14 +39,6 @@ internal class SingleTestExecutor(
         ) {
         }
 
-        override suspend fun describe(
-            name: String,
-            tags: Set<String>,
-            isolation: Boolean?,
-            function: ContextLambda
-        ) {
-        }
-
         override suspend fun it(name: String, tags: Set<String>, function: TestLambda<GivenType>) {}
         override suspend fun ignore(name: String, function: TestLambda<GivenType>) {}
         override fun afterSuite(function: suspend () -> Unit) {}
@@ -64,15 +56,6 @@ internal class SingleTestExecutor(
             if (contexts.first() != name) return
 
             contextDSL(given, contexts.drop(1)).contextLambda()
-        }
-
-        override suspend fun describe(
-            name: String,
-            tags: Set<String>,
-            isolation: Boolean?,
-            function: ContextLambda
-        ) {
-            describe(name, tags, isolation, {}, function)
         }
     }
 

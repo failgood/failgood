@@ -1,6 +1,6 @@
 package failgood.pitest
 
-import failgood.IgnoreAlways
+import failgood.IsIgnored.Always
 import failgood.Test
 import failgood.describe
 import failgood.mock.mock
@@ -23,7 +23,7 @@ object Tests {
         test("failing test") {
             throw failure
         }
-        test("pending test", ignored = IgnoreAlways) {}
+        test("pending test", ignored = Always) {}
         test("successful test") {}
     }
 }

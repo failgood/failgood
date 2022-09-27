@@ -1,6 +1,6 @@
 package failgood.junit.it.fixtures
 
-import failgood.IgnoreAlways
+import failgood.IsIgnored.Always
 import failgood.describe
 import failgood.internal.TestFixture
 
@@ -8,6 +8,6 @@ import failgood.internal.TestFixture
 object IgnoredTestFixture {
     private const val ROOT_CONTEXT_NAME = "the root context"
     val context = describe(ROOT_CONTEXT_NAME) {
-        it("pending test", ignored = IgnoreAlways) {}
+        it("pending test", ignored = Always) {}
     }
 }

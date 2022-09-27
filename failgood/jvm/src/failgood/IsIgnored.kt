@@ -1,5 +1,7 @@
 package failgood
 
+import java.time.Instant
+
 /**
  * decide if a test should be ignored. you can add your own matchers like
  * ```
@@ -8,12 +10,18 @@ package failgood
  */
 fun interface IsIgnored {
     fun isIgnored(): Boolean
-}
 
-object IgnoreAlways : IsIgnored {
-    override fun isIgnored(): Boolean = true
-}
+    object Always : IsIgnored {
+        override fun isIgnored(): Boolean = true
+    }
 
-object IgnoreNever : IsIgnored {
-    override fun isIgnored(): Boolean = false
+    object Never : IsIgnored {
+        override fun isIgnored(): Boolean = false
+    }
+
+    class Until(private val instant: Instant) : IsIgnored {
+        override fun isIgnored(): Boolean {
+            return instant.isAfter(Instant.now())
+        }
+    }
 }

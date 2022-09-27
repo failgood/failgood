@@ -1,6 +1,7 @@
 package failgood.internal.execution.context
 
 import failgood.*
+import failgood.IsIgnored.*
 import failgood.internal.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -340,7 +341,7 @@ class ContextExecutorTest {
                     "other test with the tag"
                 )
             }
-            it("can filter tests in a subcontext", ignored = IgnoreAlways) {
+            it("can filter tests in a subcontext", ignored = Always) {
                 val context = RootContext {
                     describe("context without the tag") {
                         events.add("context without tag")
@@ -370,7 +371,7 @@ class ContextExecutorTest {
             it("a context with only one ignored test") {
                 val context = RootContext {
                     describe("context") {
-                        it("pending", ignored = IgnoreAlways) {}
+                        it("pending", ignored = Always) {}
                     }
                     test("test") {}
                 }

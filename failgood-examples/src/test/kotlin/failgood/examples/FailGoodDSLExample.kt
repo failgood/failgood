@@ -1,6 +1,6 @@
 package failgood.examples
 
-import failgood.IgnoreAlways
+import failgood.IsIgnored.Always
 import failgood.Test
 import failgood.describe
 
@@ -12,8 +12,8 @@ class FailGoodDSLExample {
             it("can contain tests too") { assert(true) }
 
             describe("disabled/pending tests") {
-                it("ignore can be used to disable tests that are unfinished", ignored = IgnoreAlways) {}
-                test("ignore works for tests too", ignored = IgnoreAlways) {}
+                it("ignore can be used to disable tests that are unfinished", ignored = Always) {}
+                test("ignore works for tests too", ignored = Always) {}
             }
             context("context/test syntax is also supported") {
                 test(

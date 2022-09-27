@@ -2,6 +2,7 @@
 
 package failgood.junit.it
 
+import failgood.IgnoreAlways
 import failgood.Test
 import failgood.describe
 import failgood.junit.it.fixtures.*
@@ -49,7 +50,7 @@ class JunitPlatformFunctionalTest {
                 DuplicateTestNameTest::class,
                 FailingContext::class,
                 FailingRootContext::class,
-                PendingTestFixture::class,
+                IgnoredTestFixture::class,
                 TestFixture::class,
                 TestWithNestedContextsFixture::class
             ).map { selectClass(it.qualifiedName) }
@@ -63,7 +64,7 @@ class JunitPlatformFunctionalTest {
                     .map { it.key.displayName }
             ).containsExactlyInAnyOrder("Failing Root Context", "error in context")
         }
-        ignore("works with Blockhound installed") {
+        it("works with Blockhound installed", ignored = IgnoreAlways) {
             val result = executeSingleTest(BlockhoundTestFixture::class)
             assertSuccess(result)
             val entries = result.results.entries

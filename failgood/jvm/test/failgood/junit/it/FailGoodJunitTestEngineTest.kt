@@ -5,7 +5,7 @@ import failgood.describe
 import failgood.junit.FailGoodEngineDescriptor
 import failgood.junit.FailGoodJunitTestEngine
 import failgood.junit.FailGoodJunitTestEngineConstants
-import failgood.junit.it.fixtures.PendingTestFixture
+import failgood.junit.it.fixtures.IgnoredTestFixture
 import failgood.junit.it.fixtures.TestFixture
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.CHILD_CONTEXT_1_NAME
@@ -84,7 +84,7 @@ class FailGoodJunitTestEngineTest {
             it("sends one skip event and no start event for skipped tests") {
                 val testDescriptor = engine.discover(
                     launcherDiscoveryRequest(
-                        listOf(DiscoverySelectors.selectClass(PendingTestFixture::class.qualifiedName))
+                        listOf(DiscoverySelectors.selectClass(IgnoredTestFixture::class.qualifiedName))
                     ),
                     UniqueId.forEngine(engine.id)
                 )

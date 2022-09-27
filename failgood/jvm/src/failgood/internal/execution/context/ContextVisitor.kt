@@ -27,9 +27,14 @@ internal class ContextVisitor<GivenType>(
     var contextsLeft = false // are there sub contexts left to run?
     private var mutable = true // we allow changes only to the current context to catch errors in the context structure
 
-    override suspend fun it(name: String, tags: Set<String>, function: TestLambda<GivenType>) {
+    override suspend fun it(name: String, tags: Set<String>, ignored: IsIgnored, function: TestLambda<GivenType>) {
         if (onlyRunSubcontexts)
             return
+        if (ignored.isIgnored()) {
+            @Suppress("DEPRECATION")
+            ignore(name, function)
+            return
+        }
         checkForDuplicateName(name)
         if (!shouldRun(tags))
             return
@@ -149,6 +154,7 @@ internal class ContextVisitor<GivenType>(
         }
     }
 
+    @Suppress("OVERRIDE_DEPRECATION")
     override suspend fun ignore(name: String, function: TestLambda<GivenType>) {
         if (onlyRunSubcontexts)
             return

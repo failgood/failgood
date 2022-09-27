@@ -13,40 +13,71 @@ import kotlin.system.exitProcess
 
 fun describe(
     subjectDescription: String,
-    disabled: Boolean = false,
+    ignored: Ignored = Ignored.Never,
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextLambda
-):
-    RootContext = RootContext(subjectDescription, { disabled }, order, isolation, function = function)
+): RootContext = RootContext(subjectDescription, ignored, order, isolation, function = function)
 
 inline fun <reified T> describe(
-    disabled: Boolean = false,
+    ignored: Ignored = Ignored.Never,
     order: Int = 0,
     isolation: Boolean = true,
     noinline function: ContextLambda
-):
-    RootContext = describe(T::class, disabled, order, isolation, function)
+): RootContext = describe(T::class, ignored, order, isolation, function)
 
 fun describe(
     subjectType: KClass<*>,
+    ignored: Ignored = Ignored.Never,
+    order: Int = 0,
+    isolation: Boolean = true,
+    function: ContextLambda
+): RootContext = RootContext("The ${subjectType.simpleName}", ignored, order, isolation, function = function)
+
+@Deprecated(
+    "use new api", ReplaceWith("describe(subjectDescription, { disabled }, order, isolation, function = function)")
+)
+fun describe(
+    subjectDescription: String,
+    disabled: Boolean,
+    order: Int = 0,
+    isolation: Boolean = true,
+    function: ContextLambda
+): RootContext = describe(subjectDescription, { disabled }, order, isolation, function = function)
+
+@Deprecated("use new api", ReplaceWith("describe<T>({ disabled }, order, isolation, function)"))
+inline fun <reified T> describe(
+    disabled: Boolean,
+    order: Int = 0,
+    isolation: Boolean = true,
+    noinline function: ContextLambda
+): RootContext = describe<T>({ disabled }, order, isolation, function)
+
+@Deprecated(
+    "use new api", ReplaceWith("describe(subjectType, { disabled }, order, isolation, function = function)")
+)
+fun describe(
+    subjectType: KClass<*>,
+    disabled: Boolean,
+    order: Int = 0,
+    isolation: Boolean = true,
+    function: ContextLambda
+): RootContext = describe(subjectType, { disabled }, order, isolation, function = function)
+
+@Deprecated("use describe", ReplaceWith("describe(description, { disabled }, order, isolation, function)"))
+fun context(
+    description: String,
     disabled: Boolean = false,
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextLambda
-):
-    RootContext =
-    RootContext("The ${subjectType.simpleName}", { disabled }, order, isolation, function = function)
-
-fun context(description: String, disabled: Boolean = false, order: Int = 0, function: ContextLambda): RootContext =
-    RootContext(description, { disabled }, order, function = function)
+): RootContext = describe(description, { disabled }, order, isolation, function)
 
 suspend inline fun <reified Class> ContextDSL<*>.describe(
     tags: Set<String> = setOf(),
     isolation: Boolean? = null,
     noinline contextLambda: ContextLambda
-) =
-    this.describe(Class::class.simpleName!!, tags, isolation, contextLambda)
+) = this.describe(Class::class.simpleName!!, tags, isolation, contextLambda)
 
 data class TestDescription(
     val container: TestContainer,
@@ -54,9 +85,7 @@ data class TestDescription(
     val sourceInfo: SourceInfo
 ) {
     internal constructor(testPath: ContextPath, sourceInfo: SourceInfo) : this(
-        testPath.container,
-        testPath.name,
-        sourceInfo
+        testPath.container, testPath.name, sourceInfo
     )
 
     override fun toString(): String {
@@ -120,27 +149,21 @@ object FailGood {
         matchLambda: (String) -> Boolean = { true }
     ): MutableList<KClass<*>> {
         val results = mutableListOf<KClass<*>>()
-        Files.walkFileTree(
-            root,
-            object : SimpleFileVisitor<Path>() {
-                override fun visitFile(file: Path?, attrs: BasicFileAttributes?): FileVisitResult {
-                    val path = root.relativize(file!!).toString()
-                    if (path.matches(classIncludeRegex) &&
-                        (newerThan == null || attrs!!.lastModifiedTime() > newerThan)
-                    ) {
-                        val className = path.substringBefore(".class").replace(File.separatorChar, '.')
-                        if (matchLambda(className)) {
-                            val clazz = classloader.loadClass(className)
-                            if (clazz.isAnnotationPresent(Test::class.java) ||
-                                (runTestFixtures && clazz.isAnnotationPresent(TestFixture::class.java))
-                            )
-                                results.add(clazz.kotlin)
-                        }
+        Files.walkFileTree(root, object : SimpleFileVisitor<Path>() {
+            override fun visitFile(file: Path?, attrs: BasicFileAttributes?): FileVisitResult {
+                val path = root.relativize(file!!).toString()
+                if (path.matches(classIncludeRegex) && (newerThan == null || attrs!!.lastModifiedTime() > newerThan)) {
+                    val className = path.substringBefore(".class").replace(File.separatorChar, '.')
+                    if (matchLambda(className)) {
+                        val clazz = classloader.loadClass(className)
+                        if (clazz.isAnnotationPresent(Test::class.java) ||
+                            (runTestFixtures && clazz.isAnnotationPresent(TestFixture::class.java))
+                        ) results.add(clazz.kotlin)
                     }
-                    return FileVisitResult.CONTINUE
                 }
+                return FileVisitResult.CONTINUE
             }
-        )
+        })
         return results
     }
 
@@ -153,12 +176,11 @@ object FailGood {
     @Suppress("BlockingMethodInNonBlockingContext", "RedundantSuspendModifier")
     suspend fun autoTest(randomTestClass: KClass<*> = findCaller()) {
         val timeStampPath = Paths.get(".autotest.failgood")
-        val lastRun: FileTime? =
-            try {
-                Files.readAttributes(timeStampPath, BasicFileAttributes::class.java).lastModifiedTime()
-            } catch (e: NoSuchFileException) {
-                null
-            }
+        val lastRun: FileTime? = try {
+            Files.readAttributes(timeStampPath, BasicFileAttributes::class.java).lastModifiedTime()
+        } catch (e: NoSuchFileException) {
+            null
+        }
         Files.write(timeStampPath, byteArrayOf())
         println("last run:$lastRun")
         val classes = findTestClasses(newerThan = lastRun, randomTestClass = randomTestClass)

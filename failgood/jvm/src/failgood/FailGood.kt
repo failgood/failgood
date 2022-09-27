@@ -15,7 +15,7 @@ sealed interface LoadResult {
 
 data class RootContext(
     val name: String = "root",
-    val disabled: Boolean = false,
+    val ignored: Boolean = false,
     override val order: Int = 0,
     val isolation: Boolean = true,
     val sourceInfo: SourceInfo = SourceInfo(findCallerSTE()),

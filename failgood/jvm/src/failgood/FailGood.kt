@@ -1,7 +1,6 @@
 package failgood
 
 import failgood.internal.ContextPath
-import failgood.internal.RootContext
 import failgood.internal.SourceInfo
 import failgood.internal.TestFixture
 import java.io.File
@@ -95,6 +94,27 @@ data class TestDescription(
     override fun toString(): String {
         return "${container.stringPath()} > $testName"
     }
+}
+
+internal sealed interface LoadResult {
+    val order: Int
+}
+
+internal data class CouldNotLoadContext(val reason: Throwable, val jClass: Class<out Any>) : LoadResult {
+    override val order: Int
+        get() = 0
+}
+
+data class RootContext(
+    val name: String = "root",
+    val ignored: Ignored? = null,
+    override val order: Int = 0,
+    val isolation: Boolean = true,
+    val sourceInfo: SourceInfo = SourceInfo(findCallerSTE()),
+    val function: ContextLambda
+) : LoadResult, failgood.internal.Path {
+    override val path: List<String>
+        get() = listOf(name)
 }
 
 /* something that contains tests */
@@ -221,5 +241,5 @@ object FailGood {
 private fun findCallerName(): String = findCallerSTE().className
 
 internal fun findCallerSTE(): StackTraceElement = Throwable().stackTrace.first { ste ->
-    ste.fileName?.let { !(it.endsWith("FailGood.kt") || it.endsWith("internal.kt")) } ?: true
+    ste.fileName?.let { !(it.endsWith("FailGood.kt") || it.endsWith("SourceInfo.kt")) } ?: true
 }

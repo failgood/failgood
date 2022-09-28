@@ -1,7 +1,6 @@
 package failgood
 
 import failgood.internal.FailedRootContext
-import failgood.internal.RootContext
 import failgood.mock.mock
 import kotlinx.coroutines.*
 import strikt.api.expectThat

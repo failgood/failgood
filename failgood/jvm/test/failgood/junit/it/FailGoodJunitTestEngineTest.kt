@@ -94,7 +94,7 @@ class FailGoodJunitTestEngineTest {
                     listOf(
                         "start-FailGood",
                         "start-the root context",
-                        "skip-pending test",
+                        "skip-pending test-ignore-reason",
                         "stop-the root context",
                         "stop-FailGood"
                     )
@@ -117,6 +117,6 @@ class RememberingExecutionListener : EngineExecutionListener {
     }
 
     override fun executionSkipped(testDescriptor: TestDescriptor, reason: String?) {
-        list.add("skip-${testDescriptor.displayName}")
+        list.add("skip-${testDescriptor.displayName}-$reason")
     }
 }

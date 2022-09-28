@@ -17,7 +17,7 @@ class TestContextsAsMethodsExperiment {
 }
 
 fun describe(
-    ignored: Ignored = Ignored.Never,
+    ignored: Ignored? = null,
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextLambda

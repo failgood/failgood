@@ -14,7 +14,7 @@ internal data class CouldNotLoadContext(val reason: Throwable, val jClass: Class
 
 data class RootContext(
     val name: String = "root",
-    val ignored: Ignored = Ignored.Never,
+    val ignored: Ignored? = null,
     override val order: Int = 0,
     val isolation: Boolean = true,
     val sourceInfo: SourceInfo = SourceInfo(findCallerSTE()),

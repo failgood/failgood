@@ -72,7 +72,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     suspend fun it(
         name: String,
         tags: Set<String> = setOf(),
-        ignored: Ignored = Ignored.Never,
+        ignored: Ignored? = null,
         function: TestLambda<GivenType>
     )
 
@@ -117,7 +117,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     suspend fun test(
         name: String,
         tags: Set<String> = setOf(),
-        ignored: Ignored = Ignored.Never,
+        ignored: Ignored? = null,
         function: TestLambda<GivenType>
     ) =
         it(name, tags, ignored, function)

@@ -17,10 +17,6 @@ fun interface Ignored {
         override fun isIgnored() = reason
     }
 
-    object Never : Ignored {
-        override fun isIgnored() = null
-    }
-
     class Until(private val dateString: String) : Ignored {
 
         override fun isIgnored(): String? {

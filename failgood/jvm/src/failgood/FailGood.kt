@@ -13,14 +13,14 @@ import kotlin.system.exitProcess
 
 fun describe(
     subjectDescription: String,
-    ignored: Ignored = Ignored.Never,
+    ignored: Ignored? = null,
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextLambda
 ): RootContext = RootContext(subjectDescription, ignored, order, isolation, function = function)
 
 inline fun <reified T> describe(
-    ignored: Ignored = Ignored.Never,
+    ignored: Ignored? = null,
     order: Int = 0,
     isolation: Boolean = true,
     noinline function: ContextLambda
@@ -28,14 +28,14 @@ inline fun <reified T> describe(
 
 fun describe(
     subjectType: KClass<*>,
-    ignored: Ignored = Ignored.Never,
+    ignored: Ignored? = null,
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextLambda
 ): RootContext = RootContext("The ${subjectType.simpleName}", ignored, order, isolation, function = function)
 
-private fun ignoreReason(disabled: Boolean): Ignored =
-    if (disabled) Ignored.Because("disabled == true") else Ignored.Never
+private fun ignoreReason(disabled: Boolean): Ignored? =
+    if (disabled) Ignored.Because("disabled == true") else null
 
 @Deprecated(
     "use new api", ReplaceWith("describe(subjectDescription, { disabled }, order, isolation, function = function)")

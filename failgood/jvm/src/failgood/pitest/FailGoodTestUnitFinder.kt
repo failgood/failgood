@@ -3,7 +3,7 @@ package failgood.pitest
 import failgood.ContextProvider
 import failgood.Failure
 import failgood.ObjectContextProvider
-import failgood.Pending
+import failgood.Skipped
 import failgood.Success
 import failgood.Suite
 import failgood.TestDescription
@@ -42,7 +42,7 @@ object FailGoodTestUnitFinder : TestUnitFinder {
                 when (val result = deferredResult.await().result) {
                     is Success -> rc.notifyEnd(description)
                     is Failure -> rc.notifyEnd(description, result.failure)
-                    is Pending -> rc.notifySkipped(description)
+                    is Skipped -> rc.notifySkipped(description)
                 }
             }
         }

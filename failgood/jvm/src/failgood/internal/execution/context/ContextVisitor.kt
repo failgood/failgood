@@ -30,9 +30,11 @@ internal class ContextVisitor<GivenType>(
     override suspend fun it(name: String, tags: Set<String>, ignored: Ignored?, function: TestLambda<GivenType>) {
         if (onlyRunSubcontexts)
             return
-        if (ignored?.isIgnored() != null) {
+
+        val ignoreReason = ignored?.isIgnored()
+        if (ignoreReason != null) {
             @Suppress("DEPRECATION")
-            ignore(name, function)
+            ignored(name, ignoreReason)
             return
         }
         checkForDuplicateName(name)
@@ -158,12 +160,16 @@ internal class ContextVisitor<GivenType>(
     override suspend fun ignore(name: String, function: TestLambda<GivenType>) {
         if (onlyRunSubcontexts)
             return
+        ignored(name, "this test was defined via the deprecated ignore method")
+    }
+
+    private suspend fun ignored(name: String, ignoreReason: String) {
         val testPath = ContextPath(context, name)
 
         if (contextStateCollector.finishedPaths.add(testPath)) {
             val testDescriptor =
                 TestDescription(context, name, sourceInfo())
-            val result = Pending
+            val result = Skipped(ignoreReason)
 
             val testPlusResult = TestPlusResult(testDescriptor, result)
             contextStateCollector.deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)

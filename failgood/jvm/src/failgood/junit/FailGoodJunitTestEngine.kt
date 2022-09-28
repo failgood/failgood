@@ -153,10 +153,10 @@ class FailGoodJunitTestEngine : TestEngine {
                                         )
                                     }
 
-                                    is Pending -> {
+                                    is Skipped -> {
                                         withContext(Dispatchers.IO) {
                                             startParentContexts(event.testResult.test)
-                                            junitListener.executionSkipped(mapping, "test is skipped")
+                                            junitListener.executionSkipped(mapping, testPlusResult.result.reason)
                                         }
                                     }
                                 }

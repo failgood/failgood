@@ -2,7 +2,7 @@ package failgood.internal
 
 import failgood.Context
 import failgood.Failure
-import failgood.Pending
+import failgood.Skipped
 import failgood.Success
 import failgood.TestContainer
 import failgood.TestPlusResult
@@ -53,7 +53,7 @@ internal class ContextTreeReporter {
                             }",
                             "$indentString    ${testResult.test.sourceInfo.likeStackTrace(testResult.test.testName)}"
                         )
-                        is Pending -> {
+                        is Skipped -> {
                             listOf("$indentString  $PENDING ${testResult.test.testName} ${YELLOW}PENDING$RESET")
                         }
                     }

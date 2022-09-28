@@ -32,7 +32,7 @@ data class SuiteResult(
         if (allOk) {
             if (getenv("PRINT_SLOWEST") != null)
                 printSlowestTests()
-            val pendingTests = allTests.filter { it.isPending }
+            val pendingTests = allTests.filter { it.isSkipped }
             if (pendingTests.isNotEmpty()) {
                 // printPendingTests(ignoredTests)
                 val pending = pendingTests.size

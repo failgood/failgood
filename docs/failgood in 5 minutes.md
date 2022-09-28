@@ -29,7 +29,7 @@ class MyFirstFailgoodTests {
         it("runs super fast") {
             assert(true)
         }
-        describe("tests can be organized in subcontexts") {
+        describe("tests can be organized in sub-contexts") {
             it("just works") {}
         }
     }

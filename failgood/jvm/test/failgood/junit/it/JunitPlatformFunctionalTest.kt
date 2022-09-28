@@ -29,6 +29,7 @@ class JunitPlatformFunctionalTest {
         val rootResult: TestExecutionResult,
         val results: MutableMap<TestIdentifier, TestExecutionResult>
     )
+
     val context = describe("The Junit Platform Engine") {
         it("can execute test in a class") {
             assertSuccess(executeSingleTest(DuplicateTestNameTest::class))
@@ -64,7 +65,10 @@ class JunitPlatformFunctionalTest {
                     .map { it.key.displayName }
             ).containsExactlyInAnyOrder("Failing Root Context", "error in context")
         }
-        it("works with Blockhound installed", ignored = Ignored.Because("unfinished")) {
+        it(
+            "works with Blockhound installed",
+            ignored = Ignored.Because("this needs more work and I stopped using blockhound")
+        ) {
             val result = executeSingleTest(BlockhoundTestFixture::class)
             assertSuccess(result)
             val entries = result.results.entries
@@ -141,6 +145,7 @@ class JunitPlatformFunctionalTest {
             result.rootResult.throwable.get().stackTraceToString()
         }
     }
+
     class TEListener : TestExecutionListener {
         val rootResult = CompletableDeferred<TestExecutionResult>()
         val results = mutableMapOf<TestIdentifier, TestExecutionResult>()

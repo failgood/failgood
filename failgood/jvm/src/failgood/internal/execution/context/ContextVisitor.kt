@@ -30,7 +30,7 @@ internal class ContextVisitor<GivenType>(
     override suspend fun it(name: String, tags: Set<String>, ignored: Ignored, function: TestLambda<GivenType>) {
         if (onlyRunSubcontexts)
             return
-        if (ignored.isIgnored()) {
+        if (ignored.isIgnored() != NotIgnored) {
             @Suppress("DEPRECATION")
             ignore(name, function)
             return

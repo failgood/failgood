@@ -2,7 +2,7 @@
 
 package failgood.junit.it
 
-import failgood.Ignored.Always
+import failgood.Ignored
 import failgood.Test
 import failgood.describe
 import failgood.junit.it.fixtures.*
@@ -64,7 +64,7 @@ class JunitPlatformFunctionalTest {
                     .map { it.key.displayName }
             ).containsExactlyInAnyOrder("Failing Root Context", "error in context")
         }
-        it("works with Blockhound installed", ignored = Always) {
+        it("works with Blockhound installed", ignored = Ignored.Because("unfinished")) {
             val result = executeSingleTest(BlockhoundTestFixture::class)
             assertSuccess(result)
             val entries = result.results.entries

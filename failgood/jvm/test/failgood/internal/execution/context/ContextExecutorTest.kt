@@ -3,13 +3,7 @@ package failgood.internal.execution.context
 import failgood.*
 import failgood.Ignored.*
 import failgood.internal.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.*
 import strikt.api.expectThat
 import strikt.assertions.*
 import java.util.concurrent.ConcurrentHashMap
@@ -341,7 +335,11 @@ class ContextExecutorTest {
                     "other test with the tag"
                 )
             }
-            it("can filter tests in a subcontext", ignored = Always) {
+            it(
+                "can filter tests in a subcontext", ignored =
+                Because("This can currently not work " +
+                    "because we don't find the tests in the subcontext without executing the context")
+            ) {
                 val context = RootContext {
                     describe("context without the tag") {
                         events.add("context without tag")
@@ -371,7 +369,7 @@ class ContextExecutorTest {
             it("a context with only one ignored test") {
                 val context = RootContext {
                     describe("context") {
-                        it("pending", ignored = Always) {}
+                        it("pending", ignored = Because("testing a pending test")) {}
                     }
                     test("test") {}
                 }

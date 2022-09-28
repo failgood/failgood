@@ -11,21 +11,29 @@ import java.time.ZoneOffset
  * ```
  */
 fun interface Ignored {
-    fun isIgnored(): Boolean
+    fun isIgnored(): IgnoreReason
 
-    object Always : Ignored {
-        override fun isIgnored(): Boolean = true
+    class Because(private val reason: String) : Ignored {
+        override fun isIgnored() = IgnoredBecause(reason)
     }
 
     object Never : Ignored {
-        override fun isIgnored(): Boolean = false
+        override fun isIgnored() = NotIgnored
     }
 
-    class Until(private val instant: Instant) : Ignored {
-        constructor(dateString: String) : this(LocalDate.parse(dateString).atStartOfDay().toInstant(ZoneOffset.UTC))
+    class Until(private val dateString: String) : Ignored {
 
-        override fun isIgnored(): Boolean {
-            return instant.isAfter(Instant.now())
+        override fun isIgnored(): IgnoreReason {
+            val date = LocalDate.parse(dateString).atStartOfDay().toInstant(ZoneOffset.UTC)
+            val now = Instant.now()
+            return if (date.isAfter(now))
+                IgnoredBecause("$dateString is after now")
+            else
+                NotIgnored
         }
     }
 }
+
+sealed interface IgnoreReason
+object NotIgnored : IgnoreReason
+data class IgnoredBecause(val reason: String) : IgnoreReason

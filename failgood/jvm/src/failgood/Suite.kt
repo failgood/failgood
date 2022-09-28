@@ -68,7 +68,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                     is RootContext -> {
                         val testFilter = executionFilter.forClass(context.sourceInfo.className)
                         coroutineScope.async {
-                            if (!context.ignored.isIgnored()) {
+                            if (context.ignored.isIgnored() == NotIgnored) {
                                 ContextExecutor(
                                     context,
                                     coroutineScope,

@@ -34,6 +34,9 @@ fun describe(
     function: ContextLambda
 ): RootContext = RootContext("The ${subjectType.simpleName}", ignored, order, isolation, function = function)
 
+private fun ignoreReason(disabled: Boolean): Ignored =
+    if (disabled) Ignored.Because("disabled == true") else Ignored.Never
+
 @Deprecated(
     "use new api", ReplaceWith("describe(subjectDescription, { disabled }, order, isolation, function = function)")
 )
@@ -43,15 +46,16 @@ fun describe(
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextLambda
-): RootContext = describe(subjectDescription, { disabled }, order, isolation, function = function)
+): RootContext = describe(subjectDescription, ignoreReason(disabled), order, isolation, function = function)
 
+@Suppress("DEPRECATION")
 @Deprecated("use new api", ReplaceWith("describe<T>({ disabled }, order, isolation, function)"))
 inline fun <reified T> describe(
     disabled: Boolean,
     order: Int = 0,
     isolation: Boolean = true,
     noinline function: ContextLambda
-): RootContext = describe<T>({ disabled }, order, isolation, function)
+): RootContext = describe(T::class, disabled, order, isolation, function)
 
 @Deprecated(
     "use new api", ReplaceWith("describe(subjectType, { disabled }, order, isolation, function = function)")
@@ -62,7 +66,7 @@ fun describe(
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextLambda
-): RootContext = describe(subjectType, { disabled }, order, isolation, function = function)
+): RootContext = describe(subjectType, ignoreReason(disabled), order, isolation, function = function)
 
 @Deprecated("use describe", ReplaceWith("describe(description, { disabled }, order, isolation, function)"))
 fun context(
@@ -71,7 +75,7 @@ fun context(
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextLambda
-): RootContext = describe(description, { disabled }, order, isolation, function)
+): RootContext = describe(description, ignoreReason(disabled), order, isolation, function)
 
 suspend inline fun <reified Class> ContextDSL<*>.describe(
     tags: Set<String> = setOf(),

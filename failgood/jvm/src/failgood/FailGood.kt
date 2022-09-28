@@ -105,6 +105,10 @@ internal data class CouldNotLoadContext(val reason: Throwable, val jClass: Class
         get() = 0
 }
 
+@Deprecated("use the new Ignore API")
+fun RootContext(name: String, disabled: Boolean, order: Int = 0, isolation: Boolean = true, function: ContextLambda) =
+    RootContext(name, ignoreReason(disabled), order, isolation, function = function)
+
 data class RootContext(
     val name: String = "root",
     val ignored: Ignored? = null,

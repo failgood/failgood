@@ -1,5 +1,7 @@
 package failgood.internal
 
+import failgood.SourceInfo
+
 internal class ExceptionPrettyPrinter(private val throwable: Throwable, sourceInfo: SourceInfo? = null) {
     val stackTrace = run {
         val onlyElementsWithLineNumber = throwable.stackTrace

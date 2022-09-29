@@ -39,3 +39,4 @@ nexusPublishing {
 }
 
 
+tasks.register("compileTestKotlin") {}

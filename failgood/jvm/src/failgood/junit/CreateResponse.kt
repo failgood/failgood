@@ -1,11 +1,11 @@
 package failgood.junit
 
 import failgood.Context
+import failgood.SourceInfo
 import failgood.TestDescription
 import failgood.internal.ContextInfo
 import failgood.internal.ContextResult
 import failgood.internal.FailedRootContext
-import failgood.internal.SourceInfo
 import failgood.util.StringUniquer
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestSource

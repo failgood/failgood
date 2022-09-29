@@ -1,7 +1,6 @@
 package failgood
 
 import failgood.internal.ContextPath
-import failgood.internal.SourceInfo
 import failgood.internal.TestFixture
 import java.io.File
 import java.nio.file.*

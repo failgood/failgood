@@ -5,7 +5,7 @@ import java.time.LocalDate
 import java.time.ZoneOffset
 
 /**
- * decide if a test should be ignored. you can add your own matchers like
+ * Indicate that a test or context should be ignored. You can add your own matchers like
  * ```
  * val onCi = Ignored { if(System.getenv("CI") != null) "ignored on CI" else null }
  * ```

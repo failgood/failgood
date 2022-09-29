@@ -45,7 +45,8 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     /**
      * Define a context that describes a subject with a given block.
      * set [isolation] false to turn off test isolation for this context.
-     * the given block will be called for every test and passed as argument, even if the context has isolation off
+     * the [given] block will be called for every test and passed as argument, even if the context has isolation off
+     * the whole context can be set to be ignored by setting [ignored] to `Because(<Reason for ignoring>)`, see [Ignored]
      */
     suspend fun <ContextDependency> describe(
         name: String,

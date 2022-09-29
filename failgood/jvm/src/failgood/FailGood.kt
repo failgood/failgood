@@ -78,8 +78,9 @@ fun context(
 suspend inline fun <reified Class> ContextDSL<*>.describe(
     tags: Set<String> = setOf(),
     isolation: Boolean? = null,
+    ignored: Ignored? = null,
     noinline contextLambda: ContextLambda
-) = this.describe(Class::class.simpleName!!, tags, isolation, contextLambda)
+) = this.describe(Class::class.simpleName!!, tags, isolation, ignored, contextLambda)
 
 data class TestDescription(
     val container: TestContainer,

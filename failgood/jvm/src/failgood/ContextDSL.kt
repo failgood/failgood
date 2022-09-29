@@ -51,6 +51,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
         name: String,
         tags: Set<String> = setOf(),
         isolation: Boolean? = null,
+        ignored: Ignored? = null,
         given: (suspend () -> ContextDependency),
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
     )
@@ -63,11 +64,21 @@ interface ContextDSL<GivenType> : ResourcesDSL {
         name: String,
         tags: Set<String> = setOf(),
         isolation: Boolean? = null,
+        ignored: Ignored? = null,
         function: ContextLambda
-    ) = describe(name, tags, isolation, {}, function)
+    ) = describe(name, tags, isolation, ignored, {}, function)
 
     /**
      * Define a test that describes one aspect of a subject.
+     *
+     * examples:
+     * ```
+     * // just a normal test
+     * it("can fly") {...}
+     * // A test that is disabled for now.
+     * it("can fly", disabled=Because("this test only shows how the API should look like but nothing is implemented yet")) {...}
+     *
+     * ```
      */
     suspend fun it(
         name: String,
@@ -79,7 +90,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     /**
      * Define an ignored test.
      */
-    @Deprecated(replaceWith = ReplaceWith("it(name, ignored=alwaysIgnoreAlways) function"), message = "please use `it`")
+    @Deprecated(replaceWith = ReplaceWith("it(name, ignored=Because(...), function"), message = "please use `it`")
     suspend fun ignore(name: String, function: TestLambda<GivenType> = {})
 
     /**
@@ -98,8 +109,9 @@ interface ContextDSL<GivenType> : ResourcesDSL {
         tags: Set<String> = setOf(),
         isolation: Boolean? = null,
         given: (suspend () -> ContextDependency),
+        ignored: Ignored? = null,
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
-    ) = describe(name, tags, isolation, given, contextLambda)
+    ) = describe(name, tags, isolation, ignored, given, contextLambda)
 
     /**
      * Define a test context. Prefer [describe] with a description of behavior.
@@ -108,8 +120,9 @@ interface ContextDSL<GivenType> : ResourcesDSL {
         name: String,
         tags: Set<String> = setOf(),
         isolation: Boolean? = null,
+        ignored: Ignored? = null,
         function: ContextLambda
-    ) = describe(name, tags, isolation, function)
+    ) = describe(name, tags, isolation, ignored, function)
 
     /**
      * Define a test. Prefer [it]
@@ -119,8 +132,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
         tags: Set<String> = setOf(),
         ignored: Ignored? = null,
         function: TestLambda<GivenType>
-    ) =
-        it(name, tags, ignored, function)
+    ) = it(name, tags, ignored, function)
 }
 internal typealias ContextLambda = suspend ContextDSL<Unit>.() -> Unit
 internal typealias TestLambda<GivenType> = suspend TestDSL.(GivenType) -> Unit

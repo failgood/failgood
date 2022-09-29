@@ -13,6 +13,19 @@ import java.time.ZoneOffset
 fun interface Ignored {
     fun isIgnored(): String?
 
+    /**
+     * Indicate that a test is ignored. Always give a reason
+     *
+     * bad:
+     * ```
+     * it("can fly", ignored=Because("flaky"))
+     * ```
+     * good:
+     * ```
+     * it("can fly", ignored=Because("this test is flaky because it depends on shared state. see #127"))
+     * ```
+     *
+     */
     class Because(private val reason: String) : Ignored {
         override fun isIgnored() = reason
     }

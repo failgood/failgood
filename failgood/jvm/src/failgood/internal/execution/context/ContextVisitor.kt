@@ -71,6 +71,7 @@ internal class ContextVisitor<GivenType>(
         name: String,
         tags: Set<String>,
         isolation: Boolean?,
+        ignored: Ignored?,
         given: (suspend () -> ContextDependency),
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
     ) {

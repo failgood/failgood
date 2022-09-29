@@ -34,6 +34,7 @@ internal class SingleTestExecutor(
             name: String,
             tags: Set<String>,
             isolation: Boolean?,
+            ignored: Ignored?,
             given: suspend () -> ContextDependency,
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
@@ -52,6 +53,7 @@ internal class SingleTestExecutor(
             name: String,
             tags: Set<String>,
             isolation: Boolean?,
+            ignored: Ignored?,
             given: suspend () -> ContextDependency,
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {

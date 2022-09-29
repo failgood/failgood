@@ -1,10 +1,10 @@
 package failgood
 
 fun main() {
-    Suite(MultiThreadingPerformanceTestX().context).run(1000, silent = true).check()
+    Suite(MultiThreadingPerformanceTest().context).run(1000, silent = true).check()
 }
 
-class MultiThreadingPerformanceTestX {
+class MultiThreadingPerformanceTest {
     val context =
         describe("multi threaded test running") {
             repeat(1000) {

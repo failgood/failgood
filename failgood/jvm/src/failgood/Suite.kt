@@ -68,7 +68,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                     is RootContext -> {
                         val testFilter = executionFilter.forClass(context.sourceInfo.className)
                         coroutineScope.async {
-                            if (!context.disabled) {
+                            if (context.ignored?.isIgnored() == null) {
                                 ContextExecutor(
                                     context,
                                     coroutineScope,
@@ -87,7 +87,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     }
 }
 
-object NullExecutionListener : ExecutionListener {
+internal object NullExecutionListener : ExecutionListener {
     override suspend fun testStarted(testDescription: TestDescription) {}
     override suspend fun testFinished(testPlusResult: TestPlusResult) {}
     override suspend fun testEvent(testDescription: TestDescription, type: String, payload: String) {}
@@ -167,5 +167,5 @@ fun Suite(kClasses: List<KClass<*>>) =
     Suite(kClasses.map { ObjectContextProvider(it) })
 
 fun Suite(rootContext: RootContext) = Suite(listOf(ContextProvider { listOf(rootContext) }))
-fun Suite(lambda: ContextLambda) = Suite(RootContext("root", false, 0, function = lambda))
+fun Suite(lambda: ContextLambda) = Suite(RootContext("root", order = 0, function = lambda))
 fun cpus() = Runtime.getRuntime().availableProcessors()

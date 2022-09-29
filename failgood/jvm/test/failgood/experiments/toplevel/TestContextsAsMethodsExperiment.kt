@@ -1,6 +1,7 @@
 package failgood.experiments.toplevel
 
 import failgood.ContextLambda
+import failgood.Ignored
 import failgood.RootContext
 import failgood.Test
 
@@ -16,9 +17,9 @@ class TestContextsAsMethodsExperiment {
 }
 
 fun describe(
-    disabled: Boolean = false,
+    ignored: Ignored? = null,
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextLambda
 ):
-    RootContext = RootContext("todo", disabled, order, isolation, function = function)
+    RootContext = RootContext("todo", ignored, order, isolation, function = function)

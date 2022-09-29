@@ -1,6 +1,5 @@
 package failgood.internal
 
-import failgood.SourceInfo
 import failgood.Success
 import failgood.Test
 import failgood.TestDescription

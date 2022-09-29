@@ -1,5 +1,6 @@
 package failgood.pitest
 
+import failgood.Ignored
 import failgood.Test
 import failgood.describe
 import failgood.mock.mock
@@ -22,7 +23,7 @@ object Tests {
         test("failing test") {
             throw failure
         }
-        ignore("pending test")
+        test("pending test", ignored = Ignored.Because("testing ignored tests")) {}
         test("successful test") {}
     }
 }

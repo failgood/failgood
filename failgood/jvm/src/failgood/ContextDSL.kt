@@ -69,11 +69,17 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     /**
      * Define a test that describes one aspect of a subject.
      */
-    suspend fun it(name: String, tags: Set<String> = setOf(), function: TestLambda<GivenType>)
+    suspend fun it(
+        name: String,
+        tags: Set<String> = setOf(),
+        ignored: Ignored? = null,
+        function: TestLambda<GivenType>
+    )
 
     /**
      * Define an ignored test.
      */
+    @Deprecated(replaceWith = ReplaceWith("it(name, ignored=alwaysIgnoreAlways) function"), message = "please use `it`")
     suspend fun ignore(name: String, function: TestLambda<GivenType> = {})
 
     /**
@@ -108,6 +114,13 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     /**
      * Define a test. Prefer [it]
      */
-    suspend fun test(name: String, tags: Set<String> = setOf(), function: TestLambda<GivenType>) =
-        it(name, tags, function)
+    suspend fun test(
+        name: String,
+        tags: Set<String> = setOf(),
+        ignored: Ignored? = null,
+        function: TestLambda<GivenType>
+    ) =
+        it(name, tags, ignored, function)
 }
+internal typealias ContextLambda = suspend ContextDSL<Unit>.() -> Unit
+internal typealias TestLambda<GivenType> = suspend TestDSL.(GivenType) -> Unit

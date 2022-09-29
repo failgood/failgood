@@ -1,5 +1,6 @@
 package failgood.examples
 
+import failgood.Ignored
 import failgood.Test
 import failgood.describe
 
@@ -11,9 +12,9 @@ class FailGoodDSLExample {
             it("can contain tests too") { assert(true) }
 
             describe("disabled/pending tests") {
-                ignore("ignore can be used to disable  tests that are unfinished") {}
-                ignore("for ignore tests the test body is optional," +
-                    " you can use it as reminder of tests that you want to write")
+                it("ignore can be used to disable tests that are unfinished",
+                    ignored = Ignored.Because("This is just an Example")) {}
+                test("ignore works for tests too", ignored = Ignored.Because("This is just an Example")) {}
             }
             context("context/test syntax is also supported") {
                 test(

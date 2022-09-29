@@ -52,7 +52,7 @@ val testMain =
     }
 val multiThreadedTest =
     task("multiThreadedTest", JavaExec::class) {
-        mainClass.set("failgood.MultiThreadingPerformanceTestXKt")
+        mainClass.set("failgood.MultiThreadingPerformanceTestKt")
         classpath = sourceSets["test"].runtimeClasspath
         systemProperties = mapOf("kotlinx.coroutines.scheduler.core.pool.size" to "1000")
     }

@@ -2,6 +2,7 @@
 
 package failgood.junit.it
 
+import failgood.Ignored
 import failgood.Test
 import failgood.describe
 import failgood.junit.it.fixtures.*
@@ -28,6 +29,7 @@ class JunitPlatformFunctionalTest {
         val rootResult: TestExecutionResult,
         val results: MutableMap<TestIdentifier, TestExecutionResult>
     )
+
     val context = describe("The Junit Platform Engine") {
         it("can execute test in a class") {
             assertSuccess(executeSingleTest(DuplicateTestNameTest::class))
@@ -49,7 +51,7 @@ class JunitPlatformFunctionalTest {
                 DuplicateTestNameTest::class,
                 FailingContext::class,
                 FailingRootContext::class,
-                PendingTestFixture::class,
+                IgnoredTestFixture::class,
                 TestFixture::class,
                 TestWithNestedContextsFixture::class
             ).map { selectClass(it.qualifiedName) }
@@ -63,7 +65,10 @@ class JunitPlatformFunctionalTest {
                     .map { it.key.displayName }
             ).containsExactlyInAnyOrder("Failing Root Context", "error in context")
         }
-        ignore("works with Blockhound installed") {
+        it(
+            "works with Blockhound installed",
+            ignored = Ignored.Because("this needs more work and I stopped using blockhound")
+        ) {
             val result = executeSingleTest(BlockhoundTestFixture::class)
             assertSuccess(result)
             val entries = result.results.entries
@@ -140,6 +145,7 @@ class JunitPlatformFunctionalTest {
             result.rootResult.throwable.get().stackTraceToString()
         }
     }
+
     class TEListener : TestExecutionListener {
         val rootResult = CompletableDeferred<TestExecutionResult>()
         val results = mutableMapOf<TestIdentifier, TestExecutionResult>()

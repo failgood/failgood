@@ -3,8 +3,8 @@
 package failgood.experiments.builder
 
 import failgood.ContextDSL
-import failgood.SourceInfo
 import failgood.findCallerSTE
+import failgood.internal.SourceInfo
 
 /*
  * just playing around with a builder like syntax for contexts and tests.

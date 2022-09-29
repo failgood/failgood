@@ -4,6 +4,7 @@ package failgood.junit.it
 
 import failgood.Ignored
 import failgood.Test
+import failgood.assert.containsExactlyInAnyOrder
 import failgood.describe
 import failgood.junit.it.fixtures.*
 import kotlinx.coroutines.CompletableDeferred
@@ -15,10 +16,6 @@ import org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestIdentifier
 import org.junit.platform.launcher.core.LauncherFactory
-import strikt.api.expectThat
-import strikt.assertions.containsExactlyInAnyOrder
-import strikt.assertions.hasSize
-import strikt.assertions.isEqualTo
 import kotlin.reflect.KClass
 import kotlin.test.assertNotNull
 import kotlin.time.ExperimentalTime
@@ -56,14 +53,12 @@ class JunitPlatformFunctionalTest {
                 TestWithNestedContextsFixture::class
             ).map { selectClass(it.qualifiedName) }
             val r = execute(selectors)
-            expectThat(r.rootResult) {
-                get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
-            }
-            expectThat(r.results).hasSize(24)
-            expectThat(
+            assertSuccess(r)
+            assert(r.results.size == 24)
+            assert(
                 r.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
                     .map { it.key.displayName }
-            ).containsExactlyInAnyOrder("Failing Root Context", "error in context")
+                    .containsExactlyInAnyOrder("Failing Root Context", "error in context"))
         }
         it(
             "works with Blockhound installed",
@@ -102,7 +97,7 @@ class JunitPlatformFunctionalTest {
         it("returns uniqueIds that it understands (uniqueid round-trip test)") {
             // run a test by className
             val result = executeSingleTest(TestFixture::class)
-            expectThat(result.rootResult).get { status }.isEqualTo(TestExecutionResult.Status.SUCCESSFUL)
+            assertSuccess(result)
             val testName = TestFixture.testName
             val descriptor: TestIdentifier = assertNotNull(
                 result.results.keys.singleOrNull { it.displayName == testName }

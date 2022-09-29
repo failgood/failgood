@@ -7,6 +7,7 @@ import kotlinx.coroutines.*
 import strikt.api.expectThat
 import strikt.assertions.*
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.test.assertNotNull
 
 @Suppress("NAME_SHADOWING")
 @Test
@@ -199,22 +200,23 @@ class ContextExecutorTest {
                 }
                 context("context 4") { test("test 4") {} }
             }
-            val results = expectThat(execute(ctx)).isA<ContextInfo>().subject
+            val results = assertNotNull(execute(ctx) as? ContextInfo)
 
             it("it is reported as a failing test inside that context") {
-                expectThat(results.tests.values.awaitAll().filter { it.isFailure }).single().and {
-                    get { test }.and {
-                        get { testName }.isEqualTo("error in context")
-                        get { container.name }.isEqualTo("context 1")
-                        get { sourceInfo }.and {
-                            get { lineNumber }.isEqualTo(getLineNumber(error) - 1)
-                            get { className }.contains("ContextExecutorTest")
-                        }
+                val failures = results.tests.values.awaitAll().filter { it.isFailure }
+                val singleFailure = assertNotNull(failures.singleOrNull())
+                // candidate for a soft assert
+                with(singleFailure.test) {
+                    assert(testName == "error in context")
+                    assert(container.name == "context 1")
+                    with(sourceInfo) {
+                        assert(lineNumber == getLineNumber(error) - 1)
+                        assert(className.contains("ContextExecutorTest"))
                     }
                 }
             }
             it("reports the context as a context") {
-                expectThat(results.contexts).map { it.name }.contains("context 1")
+                assert(results.contexts.map { it.name }.contains("context 1"))
             }
         }
         it("handles failing root contexts") {

@@ -93,11 +93,23 @@ internal class ContextVisitor<GivenType>(
         }
 
         if (contextStateCollector.finishedPaths.contains(contextPath)) return
+        val subContextShouldHaveIsolation = isolation != false && this.isolation
+        val sourceInfo = sourceInfo()
+        val context = Context(name, context, sourceInfo, subContextShouldHaveIsolation)
+        val ignoreReason = ignored?.isIgnored()
+        if (ignoreReason != null) {
+            val testDescriptor = TestDescription(context, "context ignored because $ignoreReason", sourceInfo)
+            val testPlusResult = TestPlusResult(testDescriptor, Skipped(ignoreReason))
+            contextStateCollector.deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
+            staticConfig.listener.testFinished(testPlusResult)
+
+            contextStateCollector.finishedPaths.add(contextPath)
+            contextStateCollector.investigatedContexts.add(context)
+            contextStateCollector.foundContexts.add(context)
+            return
+        }
         if (isolation == false)
             contextStateCollector.containsContextsWithoutIsolation = true
-        val sourceInfo = sourceInfo()
-        val subContextShouldHaveIsolation = isolation != false && this.isolation
-        val context = Context(name, context, sourceInfo, subContextShouldHaveIsolation)
         if (isolation == true && !this.isolation) {
             contextStateCollector.recordContextAsFailed(
                 context, sourceInfo, contextPath,

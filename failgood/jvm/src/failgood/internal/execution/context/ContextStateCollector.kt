@@ -33,10 +33,10 @@ internal class ContextStateCollector(
         exceptionInContext: Throwable
     ) {
         val testDescriptor = TestDescription(context, "error in context", sourceInfo)
-
-        finishedPaths.add(contextPath) // don't visit this context again
         val testPlusResult = TestPlusResult(testDescriptor, Failure(exceptionInContext))
         deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
+
+        finishedPaths.add(contextPath) // don't visit this context again
         foundContexts.add(context)
         staticConfig.listener.testFinished(testPlusResult)
     }

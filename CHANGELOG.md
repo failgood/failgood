@@ -10,6 +10,7 @@ This version will be the last before 0.9 where all deprecated methods will be re
 
 ### Changed
 
+- Sub-contexts can now also be ignored
 - New Ignore API (#95,#63,139)
 
 ### Fixed

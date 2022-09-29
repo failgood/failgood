@@ -23,6 +23,9 @@ internal class ContextStateCollector(
     // tests or contexts that we don't have to execute again.
     val finishedPaths = LinkedHashSet<ContextPath>()
 
+    /*
+     * A context is reported as failure by reporting it as a context with a single failed test as child.
+     */
     suspend fun recordContextAsFailed(
         context: Context,
         sourceInfo: SourceInfo,

@@ -219,12 +219,37 @@ class ContextExecutorTest {
                 assert(results.contexts.map { it.name }.contains("context 1"))
             }
         }
+        describe("an ignored sub-context") {
+            val ctx = RootContext("root context") {
+                test("test 1") {}
+                test("test 2") {}
+                context("context 1", ignored = Because("We are testing that it is correctly reported")) {
+                }
+                context("context 4") { test("test 4") {} }
+            }
+            val results = assertNotNull(execute(ctx) as? ContextInfo)
+
+            it("it is reported as a skipped test inside that context") {
+                val skippedTest = results.tests.values.awaitAll().filter { it.isSkipped }
+                val singleSkippedTest = assertNotNull(skippedTest.singleOrNull())
+                // candidate for a soft assert
+                with(singleSkippedTest.test) {
+                    assert(testName == "context ignored because We are testing that it is correctly reported")
+                    assert(container.name == "context 1")
+                    assert(sourceInfo.className.contains("ContextExecutorTest"))
+                }
+                assert((singleSkippedTest.result as Skipped).reason == "We are testing that it is correctly reported")
+            }
+            it("reports the context as a context") {
+                assert(results.contexts.map { it.name }.contains("context 1"))
+            }
+        }
+
         it("handles failing root contexts") {
             val ctx = RootContext("root context") {
                 throw RuntimeException("root context failed")
             }
-            val result = execute(ctx)
-            expectThat(result).isA<FailedRootContext>()
+            assert(execute(ctx) is FailedRootContext)
         }
         describe("detects duplicated tests") {
             it("fails with duplicate tests in one context") {

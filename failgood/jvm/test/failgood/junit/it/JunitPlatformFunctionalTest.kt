@@ -49,7 +49,7 @@ class JunitPlatformFunctionalTest {
                 FailingContext::class,
                 FailingRootContext::class,
                 IgnoredTestFixture::class,
-                TestFixture::class,
+                SimpleTestFixture::class,
                 TestWithNestedContextsFixture::class
             ).map { selectClass(it.qualifiedName) }
             val r = execute(selectors)
@@ -96,9 +96,9 @@ class JunitPlatformFunctionalTest {
         }
         it("returns uniqueIds that it understands (uniqueid round-trip test)") {
             // run a test by className
-            val result = executeSingleTest(TestFixture::class)
+            val result = executeSingleTest(SimpleTestFixture::class)
             assertSuccess(result)
-            val testName = TestFixture.testName
+            val testName = SimpleTestFixture.testName
             val descriptor: TestIdentifier = assertNotNull(
                 result.results.keys.singleOrNull { it.displayName == testName }
             )

@@ -3,7 +3,7 @@ package failgood.junit
 import failgood.Test
 import failgood.describe
 import failgood.internal.StringListTestFilter
-import failgood.junit.it.fixtures.packagewith1test.TestFixture
+import failgood.junit.it.fixtures.packagewith1test.SimpleTestFixture
 import failgood.problematic.NonFailgoodTest
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.discovery.DiscoverySelectors
@@ -49,7 +49,7 @@ class ContextFinderTest {
                     .build()
                 val contextNames =
                     contextFinder.findContexts(request).contexts.flatMap { it.getContexts() }.map { it.name }
-                expectThat(contextNames).containsExactlyInAnyOrder(TestFixture.CONTEXT_NAME)
+                expectThat(contextNames).containsExactlyInAnyOrder(SimpleTestFixture.CONTEXT_NAME)
             }
         }
         describe("parsing unique id selectors") {

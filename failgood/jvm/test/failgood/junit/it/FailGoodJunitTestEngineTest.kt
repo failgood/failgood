@@ -6,7 +6,7 @@ import failgood.junit.FailGoodEngineDescriptor
 import failgood.junit.FailGoodJunitTestEngine
 import failgood.junit.FailGoodJunitTestEngineConstants
 import failgood.junit.it.fixtures.IgnoredTestFixture
-import failgood.junit.it.fixtures.TestFixture
+import failgood.junit.it.fixtures.SimpleTestFixture
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.CHILD_CONTEXT_1_NAME
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.CHILD_CONTEXT_2_NAME
@@ -30,7 +30,7 @@ class FailGoodJunitTestEngineTest {
                 // if we only call discover on the engine without calling execute afterwards,
                 // we have to close the execution context manually
                 engine.discover(
-                    launcherDiscoveryRequest(listOf(DiscoverySelectors.selectClass(TestFixture::class.qualifiedName))),
+                    launcherDiscoveryRequest(listOf(DiscoverySelectors.selectClass(SimpleTestFixture::class.qualifiedName))),
                     UniqueId.forEngine(engine.id)
                 )
             ) { (it as FailGoodEngineDescriptor).suiteExecutionContext.close() }
@@ -42,7 +42,7 @@ class FailGoodJunitTestEngineTest {
             it("returns all root contexts") { testDescriptor ->
                 expectThat(testDescriptor.children).single().and {
                     get { isContainer }.isTrue()
-                    get { displayName }.isEqualTo(TestFixture.ROOT_CONTEXT_NAME)
+                    get { displayName }.isEqualTo(SimpleTestFixture.ROOT_CONTEXT_NAME)
                 }
             }
         }

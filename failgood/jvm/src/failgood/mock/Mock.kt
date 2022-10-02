@@ -9,7 +9,7 @@ import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
 
 /**
- * create a mock for class Mock
+ * create a mock
  *
  * per default all method calls will return null. To define other results use [the]
  */
@@ -19,8 +19,7 @@ inline fun <reified Mock : Any> mock() = mock(Mock::class)
  * create a mock for class Mock and define its behavior
  */
 suspend inline fun <reified Mock : Any> mock(noinline lambda: suspend MockConfigureDSL<Mock>.() -> Unit): Mock {
-    val mock = mock(Mock::class)
-    return the(mock, lambda)
+    return the(mock(Mock::class), lambda)
 }
 
 /**
@@ -38,13 +37,14 @@ suspend fun <Mock : Any> the(
 /**
  * Define what to return when a method is called
  *
- * `whenever(mock) { methodCall(ignoredParameter) }.then {"resultString"}`
+ * `mock(mock) { methodCall(ignoredParameter) }.then {"resultString"}`
  * or
- * `whenever(mock) { methodCall(ignoredParameter) }.then { throw BlahException() }`
+ * `mock(mock) { methodCall(ignoredParameter) }.then { throw BlahException() }`
  *
  * parameters that you pass to method calls are ignored, any invocation of methodCall will return "resultString" or throw
  *
  */
+@Deprecated("please use the(mock) {} or configure the mock when it is created")
 suspend fun <Mock : Any, Result> mock(mock: Mock, lambda: suspend Mock.() -> Result):
     MockReplyRecorder<Result> = getHandler(mock).whenever(lambda)
 

@@ -44,10 +44,6 @@ class MockTest {
                     verify(mock) { suspendFunction(11, "string") }
                 }
             }
-            it("records results for suspend functions") {
-                mock(mock) { suspendFunction(0, "ignored") }.will { "suspendResultString" }
-                expectThat(mock.suspendFunction(10, "string")).isEqualTo("suspendResultString")
-            }
         }
         describe("defining results") {
             describe("with the") {
@@ -77,6 +73,11 @@ class MockTest {
                 }
                 expectThat(otherMock.stringReturningFunction()).isEqualTo("resultString")
                 expectThat(otherMock.functionThatReturnsNullableString()).isEqualTo("otherResultString")
+            }
+            it("the old deprecated way by calling mock") {
+                @Suppress("DEPRECATION")
+                mock(mock) { suspendFunction(0, "ignored") }.will { "suspendResultString" }
+                expectThat(mock.suspendFunction(10, "string")).isEqualTo("suspendResultString")
             }
         }
         it("can return function calls for normal asserting") {

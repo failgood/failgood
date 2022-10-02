@@ -3,7 +3,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 0.8.2 "Blast First" - Unreleased
+## 0.8.2 "Blast First" - 2022-10-02
 
 This version will be the last before 0.9 where all deprecated methods will be removed.
 0.9.x versions will be beta/release candidate versions for 1.0

@@ -1,9 +1,9 @@
 package failgood.assert
 
-fun <T : Comparable<T>> Iterable<T>.containsExactlyInAnyOrder(elements: Collection<T>) =
-    this.sorted() == elements.sorted()
+fun <T> Iterable<T>.containsExactlyInAnyOrder(elements: Collection<T>) =
+    this.toSet() == elements.toSet()
 
-fun <T : Comparable<T>> Iterable<T>.containsExactlyInAnyOrder(vararg elements: T) =
+fun <T> Iterable<T>.containsExactlyInAnyOrder(vararg elements: T) =
     this.containsExactlyInAnyOrder(elements.asList())
 
 fun <T> List<T>.endsWith(elements: List<T>) = this.takeLast(elements.size) == elements

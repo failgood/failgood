@@ -1,39 +1,38 @@
 package failgood.assert
 
 import failgood.Test
-import failgood.assert.Letters.*
 import failgood.describe
-
-enum class Letters {
-    A, B, C
-}
 
 @Test
 object AssertHelpersTest {
     val tests = describe("AssertHelpers") {
-        val list = listOf(A, B, C)
+        // use entries that do not implement comparable
+        val a = String::class
+        val b = Int::class
+        val c = Long::class
+        val list = listOf(a, b, c)
         describe("containsExactlyInAnyOrder") {
             it("works with list") {
-                assert(list.containsExactlyInAnyOrder(listOf(A, B, C)))
-                assert(list.containsExactlyInAnyOrder(listOf(A, C, B)))
-                assert(!list.containsExactlyInAnyOrder(listOf(A, B)))
+                assert(list.containsExactlyInAnyOrder(listOf(a, b, c)))
+                assert(list.containsExactlyInAnyOrder(listOf(a, c, b)))
+                assert(!list.containsExactlyInAnyOrder(listOf(a, b)))
             }
             it("works with vararg") {
-                assert(list.containsExactlyInAnyOrder(A, B, C))
-                assert(list.containsExactlyInAnyOrder(A, C, B))
-                assert(!list.containsExactlyInAnyOrder(A, B))
+                assert(list.containsExactlyInAnyOrder(a, b, c))
+                assert(list.containsExactlyInAnyOrder(a, c, b))
+                assert(!list.containsExactlyInAnyOrder(a, b))
             }
         }
         describe("endsWith") {
             it("works with list") {
-                assert(list.endsWith(listOf(C)))
-                assert(list.endsWith(listOf(B, C)))
-                assert(!list.endsWith(listOf(C, B)))
+                assert(list.endsWith(listOf(c)))
+                assert(list.endsWith(listOf(b, c)))
+                assert(!list.endsWith(listOf(c, b)))
             }
             it("works with vararg") {
-                assert(list.endsWith(C))
-                assert(list.endsWith(B, C))
-                assert(!list.endsWith(C, B))
+                assert(list.endsWith(c))
+                assert(list.endsWith(b, c))
+                assert(!list.endsWith(c, b))
             }
         }
     }

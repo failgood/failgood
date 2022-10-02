@@ -15,6 +15,7 @@ This version will be the last before 0.9 where all deprecated methods will be re
 
 ### Fixed
 
+- AssertHelpers.containsExactlyInAnyOrder works when elements are not Comparable
 - Handle exceptions in dependency block as result. (#130)
 
 ## 0.8.1 "Rather Interesting" - 2022-09-13

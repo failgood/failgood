@@ -65,9 +65,10 @@ tasks.check { dependsOn(testMain, multiThreadedTest) }
 
 plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
-        //        verbose.set(true)
+//                verbose.set(true)
         jvmArgs.set(listOf("-Xmx512m")) // necessary on CI
         avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))
+        excludedTestClasses.set(setOf("failgood.MultiThreadingPerformanceTest*"))
         targetClasses.set(setOf("failgood.*")) // by default "${project.group}.*"
         targetTests.set(setOf("failgood.*Test", "failgood.**.*Test"))
         pitestVersion.set(failgood.versions.pitestVersion)

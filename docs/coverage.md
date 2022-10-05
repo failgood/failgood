@@ -34,6 +34,6 @@ Failgood also works well with the [Kotlinx-Kover](https://github.com/Kotlin/kotl
 Just put it into your gradle plugins block and run test tasks as usual.
 ```kotlin
 plugins {
-    id("org.jetbrains.kotlinx.kover") version "0.6.0"
+    id("org.jetbrains.kotlinx.kover") version "0.6.1"
 }
 ```

@@ -14,12 +14,12 @@ class TestContextsAsMethodsExperiment {
         describe {
             it("makes it possible to have multiple top level contexts in a class and run them separately from idea") {}
         }
+    fun describe(
+        ignored: Ignored? = null,
+        order: Int = 0,
+        isolation: Boolean = true,
+        function: ContextLambda
+    ):
+            RootContext = RootContext("todo", ignored, order, isolation, function = function)
 }
 
-fun describe(
-    ignored: Ignored? = null,
-    order: Int = 0,
-    isolation: Boolean = true,
-    function: ContextLambda
-):
-    RootContext = RootContext("todo", ignored, order, isolation, function = function)

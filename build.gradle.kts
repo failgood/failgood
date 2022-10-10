@@ -6,6 +6,8 @@ plugins {
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
     id("com.autonomousapps.dependency-analysis") version "1.13.1"
     id("org.jmailen.kotlinter") version "3.12.0" apply false
+    kotlin("multiplatform") version "1.7.20" apply false
+
 }
 
 

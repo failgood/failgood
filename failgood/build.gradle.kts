@@ -6,7 +6,7 @@ import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA_PARALLEL
 
 
 plugins {
-    kotlin("multiplatform") version "1.6.21"
+    kotlin("multiplatform")
     `maven-publish`
     id("info.solidsoft.pitest")
     signing
@@ -42,7 +42,7 @@ kotlin {
                 }
             val multiThreadedTest =
                 task("multiThreadedTest", JavaExec::class) {
-                    mainClass.set("failgood.MultiThreadingPerformanceTestXKt")
+                    mainClass.set("failgood.MultiThreadingPerformanceTestKt")
                     classpath(runtimeDependencyFiles, output)
                     systemProperties = mapOf("kotlinx.coroutines.scheduler.core.pool.size" to "1000")
                 }

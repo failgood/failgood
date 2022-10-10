@@ -4,6 +4,7 @@ import failgood.internal.Colors
 import failgood.internal.ContextTreeReporter
 import failgood.internal.FailedRootContext
 import failgood.internal.Junit4Reporter
+import failgood.util.getenv
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.system.exitProcess
@@ -18,7 +19,6 @@ data class SuiteResult(
 
     @Suppress("UNREACHABLE_CODE")
     fun check(throwException: Boolean = false, writeReport: Boolean = false) {
-
         // **/build/test-results/test/TEST-*.xml'
         if (writeReport) {
             val reportDir = Paths.get("build", "test-results", "test")
@@ -30,9 +30,9 @@ data class SuiteResult(
         }
         val totalTests = allTests.size
         if (allOk) {
-            if (System.getenv("PRINT_SLOWEST") != null)
+            if (getenv("PRINT_SLOWEST") != null)
                 printSlowestTests()
-            val pendingTests = allTests.filter { it.isPending }
+            val pendingTests = allTests.filter { it.isSkipped }
             if (pendingTests.isNotEmpty()) {
                 // printPendingTests(ignoredTests)
                 val pending = pendingTests.size
@@ -49,7 +49,6 @@ data class SuiteResult(
             return
         }
         if (throwException) throw SuiteFailedException("test failed") else {
-
             val message =
                 failedTests.joinToString(separator = "\n") {
                     it.prettyPrint()

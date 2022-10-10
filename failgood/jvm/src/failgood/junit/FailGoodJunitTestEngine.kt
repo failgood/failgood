@@ -1,19 +1,21 @@
 package failgood.junit
 
 import failgood.*
-import failgood.internal.FailedRootContext
+import failgood.internal.ExecuteAllTestFilterProvider
+import failgood.internal.StaticTestFilterProvider
+import failgood.internal.StringListTestFilter
 import failgood.internal.SuiteExecutionContext
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES
 import failgood.junit.JunitExecutionListener.TestExecutionEvent
+import failgood.util.getenv
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.channels.consumeEach
 import org.junit.platform.engine.*
 import org.junit.platform.engine.reporting.ReportEntry
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
 import java.io.File
-import java.lang.RuntimeException
 import java.util.*
 import kotlin.concurrent.schedule
 import kotlin.system.exitProcess
@@ -21,7 +23,7 @@ import kotlin.system.exitProcess
 const val CONTEXT_SEGMENT_TYPE = "class"
 const val TEST_SEGMENT_TYPE = "method"
 
-private val watchdog = System.getenv("FAILGOOD_WATCHDOG_MILLIS")?.toLong()
+private val watchdog = getenv("FAILGOOD_WATCHDOG_MILLIS")?.toLong()
 
 class FailGoodJunitTestEngine : TestEngine {
     private var debug: Boolean = false
@@ -46,9 +48,14 @@ class FailGoodJunitTestEngine : TestEngine {
             return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.displayName)
         val suite = Suite(providers)
         val suiteExecutionContext = SuiteExecutionContext()
+        val filterProvider = contextsAndFilters.filter ?: getenv("FAILGOOD_FILTER")
+            ?.let { StaticTestFilterProvider(StringListTestFilter(parseFilterString(it))) }
         val testResult = runBlocking(suiteExecutionContext.coroutineDispatcher) {
             val testResult = suite.findTests(
-                suiteExecutionContext.scope, true, contextsAndFilters.filter, executionListener
+                suiteExecutionContext.scope,
+                true,
+                filterProvider ?: ExecuteAllTestFilterProvider,
+                executionListener
             ).awaitAll()
             val testsCollectedAt = upt()
             println("start: $startedAt tests collected at $testsCollectedAt, discover finished at ${upt()}")
@@ -79,25 +86,20 @@ class FailGoodJunitTestEngine : TestEngine {
                 LoggingEngineExecutionListener(request.engineExecutionListener), failureLogger
             )
             junitListener.executionStarted(root)
+
             // report failed contexts as failed immediately
-            val failedRootContexts: MutableList<FailedRootContext> = root.failedRootContexts
-            failedRootContexts.forEach {
+            root.failedRootContexts.forEach {
                 val testDescriptor = mapper.getMapping(it.context)
                 junitListener.executionStarted(testDescriptor)
                 junitListener.executionFinished(testDescriptor, TestExecutionResult.failed(it.failure))
             }
+
             val executionListener = root.executionListener
             val results = runBlocking(suiteExecutionContext.coroutineDispatcher) {
                 // report results while they come in. we use a channel because tests were already running before the execute
                 // method was called so when we get here there are probably tests already finished
                 val eventForwarder = launch {
-                    while (true) {
-                        val event = try {
-                            executionListener.events.receive()
-                        } catch (e: ClosedReceiveChannelException) {
-                            break
-                        }
-
+                    executionListener.events.consumeEach { event ->
                         fun startParentContexts(testDescriptor: TestDescription) {
                             val context = testDescriptor.container
                             (context.parents + context).forEach {
@@ -109,10 +111,16 @@ class FailGoodJunitTestEngine : TestEngine {
                         val mapping = mapper.getMappingOrNull(description)
                         // it's possible that we get a test event for a test that has no mapping because it is part of a failing context
                         if (mapping == null) {
-                            // it's a failing root context, so ignore it
-                            if (description.container.parents.isNotEmpty())
+                            val parents = description.container.parents
+                            val isRootContext = parents.isEmpty()
+                            val rootContextOfEvent = if (isRootContext) description.container else parents.first()
+                            val isInFailedRootContext = root.failedRootContexts.any {
+                                it.context == rootContextOfEvent
+                            }
+                            if (!isInFailedRootContext)
                                 throw FailGoodException("did not find mapping for event $event.")
-                            continue
+                            // it's a failing root context, so ignore it
+                            return@consumeEach
                         }
                         when (event) {
                             is TestExecutionEvent.Started -> {
@@ -145,10 +153,10 @@ class FailGoodJunitTestEngine : TestEngine {
                                         )
                                     }
 
-                                    is Pending -> {
+                                    is Skipped -> {
                                         withContext(Dispatchers.IO) {
                                             startParentContexts(event.testResult.test)
-                                            junitListener.executionSkipped(mapping, "test is skipped")
+                                            junitListener.executionSkipped(mapping, testPlusResult.result.reason)
                                         }
                                     }
                                 }
@@ -179,7 +187,7 @@ class FailGoodJunitTestEngine : TestEngine {
             junitListener.executionFinished(root, TestExecutionResult.successful())
 // for debugging println(junitListener.events.joinToString("\n"))
 
-            if (System.getenv("PRINT_SLOWEST") != null) results.printSlowestTests()
+            if (getenv("PRINT_SLOWEST") != null) results.printSlowestTests()
             suiteExecutionContext.close()
         } catch (e: Throwable) {
             failureLogger.fail(e)
@@ -215,4 +223,8 @@ private class Watchdog(timeoutMillis: Long) : AutoCloseable {
         timerTask.cancel()
         timer.cancel()
     }
+}
+
+internal fun parseFilterString(filterString: String): List<String> {
+    return filterString.split(Regex("[>✔]")).map { it.trim() }
 }

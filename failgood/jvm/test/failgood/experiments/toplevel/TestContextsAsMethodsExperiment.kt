@@ -1,6 +1,7 @@
 package failgood.experiments.toplevel
 
 import failgood.ContextLambda
+import failgood.Ignored
 import failgood.RootContext
 import failgood.Test
 
@@ -13,12 +14,11 @@ class TestContextsAsMethodsExperiment {
         describe {
             it("makes it possible to have multiple top level contexts in a class and run them separately from idea") {}
         }
+    fun describe(
+        ignored: Ignored? = null,
+        order: Int = 0,
+        isolation: Boolean = true,
+        function: ContextLambda
+    ):
+        RootContext = RootContext("todo", ignored, order, isolation, function = function)
 }
-
-fun describe(
-    disabled: Boolean = false,
-    order: Int = 0,
-    isolation: Boolean = true,
-    function: ContextLambda
-):
-    RootContext = RootContext("todo", disabled, order, isolation, function = function)

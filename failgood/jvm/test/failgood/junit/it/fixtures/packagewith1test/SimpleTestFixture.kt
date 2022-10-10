@@ -4,7 +4,7 @@ import failgood.describe
 import failgood.internal.TestFixture
 
 @TestFixture
-object TestFixture {
+object SimpleTestFixture {
     const val CONTEXT_NAME = "the test fixture"
     val context = describe(CONTEXT_NAME) {}
 }

@@ -43,14 +43,13 @@ class SuiteTest {
                     class MyErrorTest
 
                     val scope = CoroutineScope(Dispatchers.Unconfined)
-                    val objectContextProvider = mock<ContextProvider>()
-                    mock(objectContextProvider) { getContexts() }.will {
+                    val objectContextProvider = mock<ContextProvider> { method { getContexts() }.will {
                         throw ErrorLoadingContextsFromClass(
                             "the error",
                             MyErrorTest::class.java,
                             RuntimeException("exception error")
                         )
-                    }
+                    } }
 
                     val contextResult = assertNotNull(
                         Suite(listOf(objectContextProvider)).findTests(scope)

@@ -1,10 +1,6 @@
 package failgood.internal
 
-import failgood.Success
-import failgood.Test
-import failgood.TestDSL
-import failgood.TestResult
-import failgood.describe
+import failgood.*
 import failgood.mock.call
 import failgood.mock.getCalls
 import failgood.mock.mock
@@ -16,7 +12,7 @@ import kotlin.test.assertNotNull
 @Test
 class ResourcesCloserTest {
     val context = describe(ResourcesCloser::class) {
-        val subject = coroutineScope { ResourcesCloser(this) }
+        val subject = coroutineScope { OnlyResourcesCloser(this) }
         describe(ResourcesCloser::closeAutoCloseables.name) {
             it("closes autoclosables") {
                 val autoCloseable = mock<AutoCloseable>()
@@ -59,6 +55,12 @@ class ResourcesCloserTest {
                     val exception = assertNotNull(error.exceptionOrNull())
                     assert(exception is AssertionError && exception.message == "blah")
                 }
+            }
+        }
+        it("handles errors in dependency block") {
+            coroutineScope {
+                val failedDep by OnlyResourcesCloser(this).dependency({ if (true) throw RuntimeException(); "blah" })
+                assert(kotlin.runCatching { failedDep }.isFailure)
             }
         }
     }

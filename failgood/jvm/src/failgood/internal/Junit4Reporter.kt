@@ -1,7 +1,7 @@
 package failgood.internal
 
 import failgood.Failure
-import failgood.Pending
+import failgood.Skipped
 import failgood.Success
 import failgood.TestPlusResult
 
@@ -24,7 +24,6 @@ internal class Junit4Reporter(private val testResults: List<TestPlusResult>) {
     fun stringReport(): List<String> {
         val result = mutableListOf("<testsuite tests=\"${testResults.size}\">")
         testResults.forEach {
-
             val line = when (it.result) {
                 is Success ->
                     listOf("""<testcase classname="${it.test.container.stringPath()}" name="${it.test.testName}"/>""")
@@ -37,7 +36,7 @@ internal class Junit4Reporter(private val testResults: List<TestPlusResult>) {
                         """</testcase>"""
                     )
                 }
-                is Pending -> {
+                is Skipped -> {
                     listOf(
                         """<testcase classname="${it.test.container.stringPath()}" name="${it.test.testName}">""",
                         """<skipped/></testcase>"""

@@ -13,7 +13,6 @@ import kotlin.test.assertNotNull
 
 @Test
 class MockTest {
-
     val context = describe("the mocking framework") {
         val mock = mock<UserManager>()
         describe("records function calls") {
@@ -45,10 +44,6 @@ class MockTest {
                     verify(mock) { suspendFunction(11, "string") }
                 }
             }
-            it("records results for suspend functions") {
-                mock(mock) { suspendFunction(0, "ignored") }.will { "suspendResultString" }
-                expectThat(mock.suspendFunction(10, "string")).isEqualTo("suspendResultString")
-            }
         }
         describe("defining results") {
             describe("with the") {
@@ -78,6 +73,11 @@ class MockTest {
                 }
                 expectThat(otherMock.stringReturningFunction()).isEqualTo("resultString")
                 expectThat(otherMock.functionThatReturnsNullableString()).isEqualTo("otherResultString")
+            }
+            it("the old deprecated way by calling mock") {
+                @Suppress("DEPRECATION")
+                mock(mock) { suspendFunction(0, "ignored") }.will { "suspendResultString" }
+                expectThat(mock.suspendFunction(10, "string")).isEqualTo("suspendResultString")
             }
         }
         it("can return function calls for normal asserting") {
@@ -129,6 +129,27 @@ class MockTest {
                 assert(exception is MockException) { exception.stackTraceToString() }
             }
         }
+        describe("parameter placeholders") {
+
+            test("exist for all basic kotlin types") {
+                mock<I> {
+                    method {
+                        methodWithAllTypes(
+                            anyByte(),
+                            anyShort(),
+                            anyInt(),
+                            anyLong(),
+                            anyFloat(),
+                            anyDouble(),
+                            anyBoolean(),
+                            anyChar(),
+                            any(),
+                            any()
+                        )
+                    }
+                }
+            }
+        }
     }
 
     interface InterfaceWithOverloadedMethods {
@@ -148,4 +169,19 @@ class MockTest {
         suspend fun function(a: String, b: String, c: String, d: String)
         suspend fun function(a: String, b: String, c: String, d: String, e: String)
     }
+}
+private interface I {
+    // see https://kotlinlang.org/docs/basic-types.html
+    fun methodWithAllTypes(
+        a: Byte,
+        b: Short,
+        c: Int,
+        d: Long,
+        e: Float,
+        f: Double,
+        g: Boolean,
+        h: Char,
+        i: String,
+        j: Array<Byte>
+    )
 }

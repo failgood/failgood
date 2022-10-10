@@ -16,7 +16,7 @@ or a single subcontext, for easier debugging you can do so from the test results
 
 ### Re-running a failed test
 
-If rerunning single tests does not work out of the box, you can just create a run config for a single test or context manually.
+If re-running single tests does not work out of the box, you can just create a run config for a single test or context manually.
 To make this easier,  Failgood prints a UniqueId next to each test failure.
 For example this could be printed: `timestamp = 2022-02-17T18:21:16.367446, uniqueId to rerun just this test = [engine:failgood]/[class:The+Suite(failgood.SuiteTest)]/[class:error+handling]/[method:treats+errors+in+getContexts+as+failed+context]
 `
@@ -24,3 +24,10 @@ then take the part from `[engine:failgood]` until the end of the line and create
 ![run-config.png](images/run-config.png)
 
 you can also run a whole context via UniqueId, for example `[engine:failgood]/[class:The+Suite(failgood.SuiteTest)]/[class:error+handling]`
+
+### Running a subset of tests via gradle
+
+You can also use gradle to run a subset of tests or a single test. Just set the FAILGOOD_FILTER environment variable in your gradle run config:
+![gradle run config with FAILGOOD_FILTER](images/idea-run-single-test-gradle.png)
+
+See [gradle support](gradle.md)

@@ -2,77 +2,95 @@ package failgood
 
 import failgood.internal.ContextPath
 import failgood.internal.TestFixture
+import failgood.util.niceString
 import java.io.File
-import java.nio.file.FileVisitResult
-import java.nio.file.Files
-import java.nio.file.NoSuchFileException
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.nio.file.SimpleFileVisitor
+import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileTime
 import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlin.reflect.typeOf
 import kotlin.system.exitProcess
-
-sealed interface LoadResult {
-    val order: Int
-}
-
-data class RootContext(
-    val name: String = "root",
-    val disabled: Boolean = false,
-    override val order: Int = 0,
-    val isolation: Boolean = true,
-    val sourceInfo: SourceInfo = SourceInfo(findCallerSTE()),
-    val function: ContextLambda
-) : LoadResult, failgood.internal.Path {
-    override val path: List<String>
-        get() = listOf(name)
-}
-
-data class CouldNotLoadContext(val reason: Throwable, val jClass: Class<out Any>) : LoadResult {
-    override val order: Int
-        get() = 0
-}
-
-data class SourceInfo(val className: String, val fileName: String?, val lineNumber: Int) {
-    fun likeStackTrace(testName: String) = "$className.${testName.replace(" ", "-")}($fileName:$lineNumber)"
-
-    constructor(ste: StackTraceElement) : this(ste.className, ste.fileName!!, ste.lineNumber)
-}
-
-typealias ContextLambda = suspend ContextDSL<Unit>.() -> Unit
-
-typealias TestLambda<GivenType> = suspend TestDSL.(GivenType) -> Unit
-
-fun context(description: String, disabled: Boolean = false, order: Int = 0, function: ContextLambda): RootContext =
-    RootContext(description, disabled, order, function = function)
 
 fun describe(
     subjectDescription: String,
-    disabled: Boolean = false,
+    ignored: Ignored? = null,
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextLambda
-):
-    RootContext = RootContext(subjectDescription, disabled, order, isolation, function = function)
+): RootContext = RootContext(subjectDescription, ignored, order, isolation, function = function)
 
 inline fun <reified T> describe(
-    disabled: Boolean = false,
+    ignored: Ignored? = null,
     order: Int = 0,
     isolation: Boolean = true,
     noinline function: ContextLambda
-):
-    RootContext = describe(T::class, disabled, order, isolation, function)
+): RootContext = describe(typeOf<T>(), ignored, order, isolation, function)
+fun describe(
+    subjectType: KType,
+    ignored: Ignored? = null,
+    order: Int = 0,
+    isolation: Boolean = true,
+    function: ContextLambda
+): RootContext = RootContext(subjectType.niceString(), ignored, order, isolation, function = function)
 
 fun describe(
     subjectType: KClass<*>,
+    ignored: Ignored? = null,
+    order: Int = 0,
+    isolation: Boolean = true,
+    function: ContextLambda
+): RootContext = RootContext("${subjectType.simpleName}", ignored, order, isolation, function = function)
+
+private fun ignoreReason(disabled: Boolean): Ignored? =
+    if (disabled) Ignored.Because("disabled == true") else null
+
+@Deprecated(
+    "use new api", ReplaceWith("describe(subjectDescription, { disabled }, order, isolation, function = function)")
+)
+fun describe(
+    subjectDescription: String,
+    disabled: Boolean,
+    order: Int = 0,
+    isolation: Boolean = true,
+    function: ContextLambda
+): RootContext = describe(subjectDescription, ignoreReason(disabled), order, isolation, function = function)
+
+@Suppress("DEPRECATION")
+@Deprecated("use new api", ReplaceWith("describe<T>({ disabled }, order, isolation, function)"))
+inline fun <reified T> describe(
+    disabled: Boolean,
+    order: Int = 0,
+    isolation: Boolean = true,
+    noinline function: ContextLambda
+): RootContext = describe(T::class, disabled, order, isolation, function)
+
+@Deprecated(
+    "use new api", ReplaceWith("describe(subjectType, { disabled }, order, isolation, function = function)")
+)
+fun describe(
+    subjectType: KClass<*>,
+    disabled: Boolean,
+    order: Int = 0,
+    isolation: Boolean = true,
+    function: ContextLambda
+): RootContext = describe(subjectType, ignoreReason(disabled), order, isolation, function = function)
+
+@Deprecated("use describe", ReplaceWith("describe(description, { disabled }, order, isolation, function)"))
+fun context(
+    description: String,
     disabled: Boolean = false,
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextLambda
-):
-    RootContext = RootContext("The ${subjectType.simpleName}", disabled, order, isolation, function = function)
+): RootContext = describe(description, ignoreReason(disabled), order, isolation, function)
+
+suspend inline fun <reified Class> ContextDSL<*>.describe(
+    tags: Set<String> = setOf(),
+    isolation: Boolean? = null,
+    ignored: Ignored? = null,
+    noinline contextLambda: ContextLambda
+) = this.describe(Class::class.simpleName!!, tags, isolation, ignored, contextLambda)
 
 data class TestDescription(
     val container: TestContainer,
@@ -80,14 +98,37 @@ data class TestDescription(
     val sourceInfo: SourceInfo
 ) {
     internal constructor(testPath: ContextPath, sourceInfo: SourceInfo) : this(
-        testPath.container,
-        testPath.name,
-        sourceInfo
+        testPath.container, testPath.name, sourceInfo
     )
 
     override fun toString(): String {
         return "${container.stringPath()} > $testName"
     }
+}
+
+internal sealed interface LoadResult {
+    val order: Int
+}
+
+internal data class CouldNotLoadContext(val reason: Throwable, val jClass: Class<out Any>) : LoadResult {
+    override val order: Int
+        get() = 0
+}
+
+@Deprecated("use the new Ignore API")
+fun RootContext(name: String, disabled: Boolean, order: Int = 0, isolation: Boolean = true, function: ContextLambda) =
+    RootContext(name, ignoreReason(disabled), order, isolation, function = function)
+
+data class RootContext(
+    val name: String = "root",
+    val ignored: Ignored? = null,
+    override val order: Int = 0,
+    val isolation: Boolean = true,
+    val sourceInfo: SourceInfo = SourceInfo(findCallerSTE()),
+    val function: ContextLambda
+) : LoadResult, failgood.internal.Path {
+    override val path: List<String>
+        get() = listOf(name)
 }
 
 /* something that contains tests */
@@ -133,7 +174,7 @@ object FailGood {
         randomTestClass: KClass<*> = findCaller()
     ): MutableList<KClass<*>> {
         val classloader = randomTestClass.java.classLoader
-        val root = Paths.get(randomTestClass.java.protectionDomain.codeSource.location.path)
+        val root = Paths.get(randomTestClass.java.protectionDomain.codeSource.location.toURI())
         return findClassesInPath(root, classloader, classIncludeRegex, newerThan)
     }
 
@@ -146,27 +187,21 @@ object FailGood {
         matchLambda: (String) -> Boolean = { true }
     ): MutableList<KClass<*>> {
         val results = mutableListOf<KClass<*>>()
-        Files.walkFileTree(
-            root,
-            object : SimpleFileVisitor<Path>() {
-                override fun visitFile(file: Path?, attrs: BasicFileAttributes?): FileVisitResult {
-                    val path = root.relativize(file!!).toString()
-                    if (path.matches(classIncludeRegex) &&
-                        (newerThan == null || attrs!!.lastModifiedTime() > newerThan)
-                    ) {
-                        val className = path.substringBefore(".class").replace(File.separatorChar, '.')
-                        if (matchLambda(className)) {
-                            val clazz = classloader.loadClass(className)
-                            if (clazz.isAnnotationPresent(Test::class.java) ||
-                                (runTestFixtures && clazz.isAnnotationPresent(TestFixture::class.java))
-                            )
-                                results.add(clazz.kotlin)
-                        }
+        Files.walkFileTree(root, object : SimpleFileVisitor<Path>() {
+            override fun visitFile(file: Path?, attrs: BasicFileAttributes?): FileVisitResult {
+                val path = root.relativize(file!!).toString()
+                if (path.matches(classIncludeRegex) && (newerThan == null || attrs!!.lastModifiedTime() > newerThan)) {
+                    val className = path.substringBefore(".class").replace(File.separatorChar, '.')
+                    if (matchLambda(className)) {
+                        val clazz = classloader.loadClass(className)
+                        if (clazz.isAnnotationPresent(Test::class.java) ||
+                            (runTestFixtures && clazz.isAnnotationPresent(TestFixture::class.java))
+                        ) results.add(clazz.kotlin)
                     }
-                    return FileVisitResult.CONTINUE
                 }
+                return FileVisitResult.CONTINUE
             }
-        )
+        })
         return results
     }
 
@@ -179,12 +214,11 @@ object FailGood {
     @Suppress("BlockingMethodInNonBlockingContext", "RedundantSuspendModifier")
     suspend fun autoTest(randomTestClass: KClass<*> = findCaller()) {
         val timeStampPath = Paths.get(".autotest.failgood")
-        val lastRun: FileTime? =
-            try {
-                Files.readAttributes(timeStampPath, BasicFileAttributes::class.java).lastModifiedTime()
-            } catch (e: NoSuchFileException) {
-                null
-            }
+        val lastRun: FileTime? = try {
+            Files.readAttributes(timeStampPath, BasicFileAttributes::class.java).lastModifiedTime()
+        } catch (e: NoSuchFileException) {
+            null
+        }
         Files.write(timeStampPath, byteArrayOf())
         println("last run:$lastRun")
         val classes = findTestClasses(newerThan = lastRun, randomTestClass = randomTestClass)
@@ -220,6 +254,6 @@ object FailGood {
 
 private fun findCallerName(): String = findCallerSTE().className
 
-internal fun findCallerSTE(): StackTraceElement = Throwable().stackTrace.first {
-    !(it.fileName?.endsWith("FailGood.kt") ?: true)
+internal fun findCallerSTE(): StackTraceElement = Throwable().stackTrace.first { ste ->
+    ste.fileName?.let { !(it.endsWith("FailGood.kt") || it.endsWith("SourceInfo.kt")) } ?: true
 }

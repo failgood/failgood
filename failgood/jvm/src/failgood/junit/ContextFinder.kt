@@ -20,7 +20,7 @@ import org.junit.platform.launcher.LauncherDiscoveryRequest
 import java.nio.file.Paths
 import java.util.LinkedList
 
-internal data class ContextsAndFilters(val contexts: List<ContextProvider>, val filter: TestFilterProvider)
+internal data class ContextsAndFilters(val contexts: List<ContextProvider>, val filter: TestFilterProvider?)
 class ContextFinder(private val runTestFixtures: Boolean = false) {
     internal fun findContexts(discoveryRequest: EngineDiscoveryRequest): ContextsAndFilters {
         val filterConfig = mutableMapOf<String, List<String>>()
@@ -52,11 +52,7 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
                         listOf()
                 }
                 is UniqueIdSelector -> {
-                    val segments = selector.uniqueId.segments
-                    val segment1 = segments[1].value
-                    val rootContextName = segment1.substringBefore("(")
-                    val filterString = listOf(rootContextName) + segments.drop(2).map { it.value }
-                    val className = segment1.substringAfter("(").substringBefore(")")
+                    val (filterString, className) = parseUniqueIdSelector(selector)
                     filterConfig[className] = filterString
                     val javaClass = try {
                         Thread.currentThread().contextClassLoader.loadClass(className)
@@ -74,10 +70,18 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
                 }
             }
         }
-        return ContextsAndFilters(contexts, ClassTestFilterProvider(filterConfig))
+        return ContextsAndFilters(contexts, if (filterConfig.isEmpty()) null else ClassTestFilterProvider(filterConfig))
     }
 }
 
+internal fun parseUniqueIdSelector(selector: UniqueIdSelector): Pair<List<String>, String> {
+    val segments = selector.uniqueId.segments
+    val segment1 = segments[1].value
+    val rootContextName = segment1.substringBeforeLast("(")
+    val filterString = listOf(rootContextName) + segments.drop(2).map { it.value }
+    val className = segment1.substringAfterLast("(").substringBefore(")")
+    return Pair(filterString, className)
+}
 internal fun discoveryRequestToString(discoveryRequest: EngineDiscoveryRequest): String {
     val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)
     val allFilters = discoveryRequest.getFiltersByType(DiscoveryFilter::class.java)

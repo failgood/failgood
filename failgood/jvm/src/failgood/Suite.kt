@@ -1,11 +1,12 @@
 package failgood
 
 import failgood.internal.*
-import failgood.internal.ContextExecutor
 import failgood.internal.ContextInfo
 import failgood.internal.ContextTreeReporter
 import failgood.internal.ExecuteAllTestFilterProvider
 import failgood.internal.TestFilterProvider
+import failgood.internal.execution.context.ContextExecutor
+import failgood.util.getenv
 import kotlinx.coroutines.*
 import java.lang.management.ManagementFactory
 import kotlin.reflect.KClass
@@ -33,7 +34,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     }
 
     // set timeout to the timeout in milliseconds, an empty string to turn it off
-    private val timeoutMillis: Long = System.getenv("TIMEOUT").let {
+    private val timeoutMillis: Long = getenv("TIMEOUT").let {
         when (it) {
             null -> DEFAULT_TIMEOUT
             "" -> null
@@ -47,7 +48,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         executionFilter: TestFilterProvider = ExecuteAllTestFilterProvider,
         listener: ExecutionListener = NullExecutionListener
     ): List<Deferred<ContextResult>> {
-        val tag = System.getenv("FAILGOOD_TAG")
+        val tag = getenv("FAILGOOD_TAG")
         return contextProviders
             .map {
                 coroutineScope.async {
@@ -67,7 +68,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                     is RootContext -> {
                         val testFilter = executionFilter.forClass(context.sourceInfo.className)
                         coroutineScope.async {
-                            if (!context.disabled) {
+                            if (context.ignored?.isIgnored() == null) {
                                 ContextExecutor(
                                     context,
                                     coroutineScope,
@@ -75,7 +76,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                                     listener,
                                     testFilter,
                                     timeoutMillis,
-                                    onlyTag = tag
+                                    runOnlyTag = tag
                                 ).execute()
                             } else
                                 ContextInfo(emptyList(), mapOf(), setOf())
@@ -86,7 +87,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     }
 }
 
-object NullExecutionListener : ExecutionListener {
+internal object NullExecutionListener : ExecutionListener {
     override suspend fun testStarted(testDescription: TestDescription) {}
     override suspend fun testFinished(testPlusResult: TestPlusResult) {}
     override suspend fun testEvent(testDescription: TestDescription, type: String, payload: String) {}
@@ -121,6 +122,7 @@ internal suspend fun awaitTestResults(resolvedContexts: List<ContextResult>): Su
         it.afterSuiteCallbacks.forEach { callback ->
             try {
                 callback.invoke()
+                // here we don't catch throwable because we are already finished anyway.
             } catch (ignored: Exception) {
             } catch (ignored: AssertionError) {
             }
@@ -165,5 +167,5 @@ fun Suite(kClasses: List<KClass<*>>) =
     Suite(kClasses.map { ObjectContextProvider(it) })
 
 fun Suite(rootContext: RootContext) = Suite(listOf(ContextProvider { listOf(rootContext) }))
-fun Suite(lambda: ContextLambda) = Suite(RootContext("root", false, 0, function = lambda))
+fun Suite(lambda: ContextLambda) = Suite(RootContext("root", order = 0, function = lambda))
 fun cpus() = Runtime.getRuntime().availableProcessors()

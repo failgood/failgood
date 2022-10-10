@@ -5,8 +5,8 @@ import failgood.describe
 import failgood.junit.FailGoodEngineDescriptor
 import failgood.junit.FailGoodJunitTestEngine
 import failgood.junit.FailGoodJunitTestEngineConstants
-import failgood.junit.it.fixtures.PendingTestFixture
-import failgood.junit.it.fixtures.TestFixture
+import failgood.junit.it.fixtures.IgnoredTestFixture
+import failgood.junit.it.fixtures.SimpleTestFixture
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.CHILD_CONTEXT_1_NAME
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.CHILD_CONTEXT_2_NAME
@@ -30,7 +30,9 @@ class FailGoodJunitTestEngineTest {
                 // if we only call discover on the engine without calling execute afterwards,
                 // we have to close the execution context manually
                 engine.discover(
-                    launcherDiscoveryRequest(listOf(DiscoverySelectors.selectClass(TestFixture::class.qualifiedName))),
+                    launcherDiscoveryRequest(
+                        listOf(DiscoverySelectors.selectClass(SimpleTestFixture::class.qualifiedName))
+                    ),
                     UniqueId.forEngine(engine.id)
                 )
             ) { (it as FailGoodEngineDescriptor).suiteExecutionContext.close() }
@@ -42,7 +44,7 @@ class FailGoodJunitTestEngineTest {
             it("returns all root contexts") { testDescriptor ->
                 expectThat(testDescriptor.children).single().and {
                     get { isContainer }.isTrue()
-                    get { displayName }.isEqualTo(TestFixture.ROOT_CONTEXT_NAME)
+                    get { displayName }.isEqualTo(SimpleTestFixture.ROOT_CONTEXT_NAME)
                 }
             }
         }
@@ -51,8 +53,7 @@ class FailGoodJunitTestEngineTest {
                 val testDescriptor = engine.discover(
                     launcherDiscoveryRequest(
                         listOf(DiscoverySelectors.selectClass(TestWithNestedContextsFixture::class.qualifiedName))
-                    ),
-                    UniqueId.forEngine(engine.id)
+                    ), UniqueId.forEngine(engine.id)
                 )
                 val listener = RememberingExecutionListener()
                 engine.execute(ExecutionRequest(testDescriptor, listener, null))
@@ -61,8 +62,7 @@ class FailGoodJunitTestEngineTest {
                         // we don't know in what order the tests will run
                         setOf(
                             "start-$TEST_NAME", "stop-$TEST_NAME", "start-$TEST2_NAME", "stop-$TEST2_NAME"
-                        ),
-                        "some-test-event"
+                        ), "some-test-event"
                     )
                 ).isEqualTo(
                     listOf(
@@ -84,9 +84,8 @@ class FailGoodJunitTestEngineTest {
             it("sends one skip event and no start event for skipped tests") {
                 val testDescriptor = engine.discover(
                     launcherDiscoveryRequest(
-                        listOf(DiscoverySelectors.selectClass(PendingTestFixture::class.qualifiedName))
-                    ),
-                    UniqueId.forEngine(engine.id)
+                        listOf(DiscoverySelectors.selectClass(IgnoredTestFixture::class.qualifiedName))
+                    ), UniqueId.forEngine(engine.id)
                 )
                 val listener = RememberingExecutionListener()
                 engine.execute(ExecutionRequest(testDescriptor, listener, null))
@@ -94,7 +93,7 @@ class FailGoodJunitTestEngineTest {
                     listOf(
                         "start-FailGood",
                         "start-the root context",
-                        "skip-pending test",
+                        "skip-pending test-ignore-reason",
                         "stop-the root context",
                         "stop-FailGood"
                     )
@@ -117,6 +116,6 @@ class RememberingExecutionListener : EngineExecutionListener {
     }
 
     override fun executionSkipped(testDescriptor: TestDescriptor, reason: String?) {
-        list.add("skip-${testDescriptor.displayName}")
+        list.add("skip-${testDescriptor.displayName}-$reason")
     }
 }

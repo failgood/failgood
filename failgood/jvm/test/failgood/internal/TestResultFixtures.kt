@@ -1,11 +1,6 @@
 package failgood.internal
 
-import failgood.Context
-import failgood.Failure
-import failgood.SourceInfo
-import failgood.Success
-import failgood.TestDescription
-import failgood.TestPlusResult
+import failgood.*
 
 object TestResultFixtures {
     val rootContext = Context("the test runner", null)

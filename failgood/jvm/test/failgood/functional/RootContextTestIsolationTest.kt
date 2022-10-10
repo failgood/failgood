@@ -1,13 +1,6 @@
 package failgood.functional
 
-import failgood.ContextDSL
-import failgood.Failure
-import failgood.Success
-import failgood.Suite
-import failgood.Test
-import failgood.TestDSL
-import failgood.TestResult
-import failgood.describe
+import failgood.*
 import strikt.api.Assertion
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
@@ -20,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 
 @Test
-class TestIsolationTest {
+class RootContextTestIsolationTest {
     companion object {
         const val ROOT_CONTEXT_EXECUTED = "root context executed"
         const val DEPENDENCY_CLOSED = "dependency closed"
@@ -28,7 +21,7 @@ class TestIsolationTest {
         const val CONTEXT_2_EXECUTED = "context 2 executed"
     }
 
-    val context = describe("test isolation") {
+    val context = describe("test isolation for root contexts") {
         val afterEachParameters = ConcurrentHashMap<String, TestResult>()
         val totalEvents = CopyOnWriteArrayList<List<String>>()
         suspend fun ContextDSL<Unit>.contextFixture() {
@@ -75,8 +68,8 @@ class TestIsolationTest {
             val result = Suite {
                 contextFixture()
             }.run(silent = true)
-            assert(!result.allOk) { "there should be one failing test" }
             it("test dependencies are recreated for each test") {
+                assert(!result.allOk) { "there should be one failing test" }
                 // tests run in parallel, so the total order of events is not defined.
                 // we track events in a list of lists and record the events that lead to each test
                 expectThat(totalEvents).containsExactlyInAnyOrder(
@@ -103,7 +96,7 @@ class TestIsolationTest {
         }
         describe("a root context with isolation set to false") {
             Suite(
-                describe("root context without isolation", isolation = false) {
+                failgood.describe("root context without isolation", isolation = false) {
                     contextFixture()
                 }
             ).run(silent = true)

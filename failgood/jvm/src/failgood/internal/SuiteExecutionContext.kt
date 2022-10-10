@@ -1,13 +1,14 @@
 package failgood.internal
 
 import failgood.cpus
+import failgood.util.getenv
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-private val envParallelism: Int? = System.getenv("FAILGOOD_PARALLELISM")?.toInt()
+private val envParallelism = getenv("FAILGOOD_PARALLELISM")?.toInt()
 
 class SuiteExecutionContext(parallelismOverride: Int? = null) : AutoCloseable {
     // constructor parameter overrides system env variable overrides number of cpus autodetect

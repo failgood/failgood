@@ -3,11 +3,51 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 0.8.2 "Blast First" - 2022-10-02
+
+This version will be the last before 0.9 where all deprecated methods will be removed.
+0.9.x versions will be beta/release candidate versions for 1.0
+
+### Changed
+
+- Sub-contexts can now also be ignored
+- New Ignore API (#95,#63,139)
+
+### Fixed
+
+- AssertHelpers.containsExactlyInAnyOrder works when elements are not Comparable
+- Handle exceptions in dependency block as result. (#130)
+
+## 0.8.1 "Rather Interesting" - 2022-09-13
+
+### Fixed
+
+- Don't crash when root context is flaky.
+- Correctly handle root context timeouts. the timeout should be for one test execution that is part of the Root Context
+  and not for all the tests that are executed as part of the root context.
+
+## 0.8.0 "Position Chrome" - 2022-08-29
 
 ### Added
 
-- Collect all interesting events and add them to an exception in case of error. Or print it to a file when debug is set
+- allow to disable isolation for sub-contexts.
+
+### Fixed
+
+- fix running tests by uniqueid where the root context contains ( or ) (#109)
+- handle exceptions in afterEach after a test failure (fixes #110)
+- context silently ignored when using describe<Class> for subcontexts. (#104)
+- Running tests using FailGood::runAllTests or using the auto-test feature fails on Windows (#114)
+
+
+## 0.7.2 "Rough Trade" - 2022-07-22
+
+### Added
+
+- Run single tests from gradle (#96)
+- Collect Events that happen during test execution and add them to an exception in case of error.
+  Or print it to a file when debug is set.
+
 
 ## 0.7.1 - "Ariola" - 2022-05-03
 

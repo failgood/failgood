@@ -3,18 +3,14 @@ package failgood.junit
 import failgood.Test
 import failgood.describe
 import failgood.internal.StringListTestFilter
-import failgood.junit.it.fixtures.packagewith1test.TestFixture
+import failgood.junit.it.fixtures.packagewith1test.SimpleTestFixture
 import failgood.problematic.NonFailgoodTest
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.discovery.DiscoverySelectors
 import org.junit.platform.engine.discovery.PackageNameFilter
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 import strikt.api.expectThat
-import strikt.assertions.containsExactly
 import strikt.assertions.containsExactlyInAnyOrder
-import strikt.assertions.isA
-import strikt.assertions.isEqualTo
-import strikt.assertions.single
 import java.nio.file.Paths
 
 @Test
@@ -29,12 +25,13 @@ class ContextFinderTest {
             val request = LauncherDiscoveryRequestBuilder.request()
                 .selectors(DiscoverySelectors.selectUniqueId(UniqueId.parse(s)))
                 .build()
-            expectThat(contextFinder.findContexts(request)) {
-                get { contexts }.single().get { getContexts() }.single().get { this.name }
-                    .isEqualTo(rootName)
-                get { filter.forClass(className) }.isA<StringListTestFilter>().get { filterList }
-                    .containsExactly(rootName, testName)
-            }
+            val result = contextFinder.findContexts(request)
+            assert(result.contexts.singleOrNull()?.getContexts()?.singleOrNull()?.name == rootName)
+            assert(
+                result.filter?.forClass(className)?.let {
+                    it is StringListTestFilter && it.filterList == listOf(rootName, testName)
+                } == true
+            )
         }
         it("does not run a class that has no failgood test annotation") {
             val r = LauncherDiscoveryRequestBuilder.request()
@@ -44,7 +41,7 @@ class ContextFinderTest {
         }
         describe("test filtering") {
             it("supports a classpathRootSelector with a package filter") {
-                val path = ContextFinderTest::class.java.protectionDomain.codeSource.location.path
+                val path = ContextFinderTest::class.java.protectionDomain.codeSource.location.toURI()
                 val request = LauncherDiscoveryRequestBuilder.request()
                     .selectors(DiscoverySelectors.selectClasspathRoots(setOf(Paths.get(path))))
                     .configurationParameters(mapOf(FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES to "true"))
@@ -52,7 +49,20 @@ class ContextFinderTest {
                     .build()
                 val contextNames =
                     contextFinder.findContexts(request).contexts.flatMap { it.getContexts() }.map { it.name }
-                expectThat(contextNames).containsExactlyInAnyOrder(TestFixture.CONTEXT_NAME)
+                expectThat(contextNames).containsExactlyInAnyOrder(SimpleTestFixture.CONTEXT_NAME)
+            }
+        }
+        describe("parsing unique id selectors") {
+            it("works when the root contexts contains brackets") {
+                val (filterStringList, className) = parseUniqueIdSelector(
+                    DiscoverySelectors.selectUniqueId(
+                        UniqueId.parse(
+                            "[engine:failgood]/[class:Root Context (with brackets)(className)]/[method:test name]"
+                        )
+                    )
+                )
+                assert(filterStringList == listOf("Root Context (with brackets)", "test name"))
+                assert(className == "className")
             }
         }
     }

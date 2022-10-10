@@ -24,7 +24,7 @@ class ContextOrderTest {
                             events.add("context 2")
                             test("test") {
                             }
-                        },
+                        }
                     )
                 ).run(parallelism = 1, silent = true).allOk
             ).isTrue()

@@ -1,11 +1,6 @@
 package failgood.internal
 
-import failgood.SourceInfo
-import failgood.Success
-import failgood.Test
-import failgood.TestDescription
-import failgood.TestPlusResult
-import failgood.describe
+import failgood.*
 import failgood.internal.Colors.FAILED
 import failgood.internal.Colors.RED
 import failgood.internal.Colors.RESET

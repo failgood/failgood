@@ -57,7 +57,7 @@ class TestResourcesLifecycleTest {
                     listOf("first test", "second close callback", "first close callback"),
                     listOf("second test", "second close callback", "first close callback"),
                     listOf("first failing test", "second close callback", "first close callback"),
-                    listOf("second failing test", "second close callback", "first close callback"),
+                    listOf("second failing test", "second close callback", "first close callback")
                 )
                 expectThat(resource1).isSameInstanceAs(closeable1)
                 expectThat(resource2).isSameInstanceAs(closeable2)
@@ -84,7 +84,7 @@ class TestResourcesLifecycleTest {
                 ).get { allOk }.isTrue()
                 expectThat(totalEvents).containsExactly(
                     listOf("first test", "second close callback", "first close callback"),
-                    listOf("second test", "second close callback", "first close callback"),
+                    listOf("second test", "second close callback", "first close callback")
                 )
                 expectThat(resource1).isSameInstanceAs(ac1)
                 expectThat(resource2).isSameInstanceAs(ac2)
@@ -111,7 +111,7 @@ class TestResourcesLifecycleTest {
                 ).get { allOk }.isTrue()
                 expectThat(totalEvents).containsExactly(
                     listOf("first test", "first close callback"),
-                    listOf("second test", "second close callback"),
+                    listOf("second test", "second close callback")
                 )
                 expectThat(resource1).isSameInstanceAs(closeable1)
                 expectThat(resource2).isSameInstanceAs(closeable2)
@@ -165,7 +165,19 @@ class TestResourcesLifecycleTest {
                         assertFailedGracefully(result)
                     }
                 }
-                describe("when the test suceeds, autoclose fails and aftereach works") {
+                describe("when the test fails and aftereach fails") {
+                    val result = suiteResult(testsFail = true, afterEachFails = true, autoCloseFails = false)
+                    it("calls autoclose callbacks") {
+                        assert(autoCloseCalled == 2)
+                    }
+                    it("calls afterEach callbacks") {
+                        assert(afterEachCalled == 2)
+                    }
+                    it("reports the test failure") {
+                        assertFailedGracefully(result)
+                    }
+                }
+                describe("when the test succeeds, autoclose fails and aftereach works") {
                     val result = suiteResult(testsFail = false, afterEachFails = true, autoCloseFails = false)
                     it("calls autoclose callbacks") {
                         assert(autoCloseCalled == 2)

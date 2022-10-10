@@ -9,17 +9,18 @@ import info.solidsoft.gradle.pitest.PitestPluginExtension
 plugins {
     kotlin("jvm")
     id("info.solidsoft.pitest")
+    id("org.jmailen.kotlinter")
 }
 
 dependencies {
-    testImplementation("dev.failgood:failgood:0.7.1")
+    testImplementation(project(":failgood"))
 
     // everything else is optional, and only here because some tests show interactions with these libs
     testImplementation("io.strikt:strikt-core:$striktVersion")
-    testImplementation("io.mockk:mockk:1.12.3")
+    testImplementation("io.mockk:mockk:1.13.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
-    implementation("io.github.microutils:kotlin-logging-jvm:2.1.21")
-    implementation("org.slf4j:slf4j-api:1.7.36")
+    implementation("io.github.microutils:kotlin-logging-jvm:3.0.0")
+    implementation("org.slf4j:slf4j-api:2.0.3")
 }
 
 tasks {
@@ -36,7 +37,7 @@ plugins.withId("info.solidsoft.pitest") {
         avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))
         targetClasses.set(setOf("failgood.examples.*")) // by default "${project.group}.*"
         targetTests.set(setOf("failgood.examples.*Test", "failgood.examples.**.*Test"))
-        pitestVersion.set("1.6.7")
+        pitestVersion.set("1.9.7")
         threads.set(
             System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()
         )

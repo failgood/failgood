@@ -2,8 +2,10 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
     id("com.github.ben-manes.versions") version "0.42.0"
+    id("info.solidsoft.pitest") version "1.9.0" apply false
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
-    id("com.autonomousapps.dependency-analysis") version "1.2.0"
+    id("com.autonomousapps.dependency-analysis") version "1.13.1"
+    id("org.jmailen.kotlinter") version "3.12.0" apply false
 }
 
 
@@ -29,7 +31,7 @@ tasks.wrapper { distributionType = Wrapper.DistributionType.ALL }
 
 nexusPublishing {
     repositories {
-        sonatype {  //only for users registered in Sonatype after 24 Feb 2021
+        sonatype {
             nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
             snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
         }
@@ -37,3 +39,4 @@ nexusPublishing {
 }
 
 
+tasks.register("compileTestKotlin") {}

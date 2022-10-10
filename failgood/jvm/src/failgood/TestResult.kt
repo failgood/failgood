@@ -5,7 +5,7 @@ import failgood.internal.Colors.RESET
 import failgood.internal.ExceptionPrettyPrinter
 
 data class TestPlusResult(val test: TestDescription, val result: TestResult) {
-    val isPending = result is Pending
+    val isSkipped = result is Skipped
     val isFailure = result is Failure
     val isSuccess = result is Success
 
@@ -18,7 +18,7 @@ data class TestPlusResult(val test: TestDescription, val result: TestResult) {
                 "$testDescription:$RED failed$RESET with $exceptionInfo.\ntest: ${test.sourceInfo}"
             }
             is Success -> "$testDescription passed"
-            is Pending -> "$testDescription skipped"
+            is Skipped -> "$testDescription skipped"
         }
     }
 }
@@ -26,7 +26,7 @@ data class TestPlusResult(val test: TestDescription, val result: TestResult) {
 sealed class TestResult
 
 data class Success(val timeMicro: Long) : TestResult()
-internal object Pending : TestResult()
+internal class Skipped(val reason: String) : TestResult()
 class Failure(val failure: Throwable) :
     TestResult() {
     override fun equals(other: Any?): Boolean {

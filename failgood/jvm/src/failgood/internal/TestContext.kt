@@ -13,11 +13,11 @@ internal class TestContext(
 ) : TestDSL, ResourcesDSL by resourcesDSL {
     override val testInfo: TestInfo = TestInfo(testDescription.testName)
 
-    override suspend fun println(body: String) {
+    override suspend fun log(body: String) {
         _test_event("stdout", body)
     }
 
     override suspend fun _test_event(type: String, body: String) {
-        listener.testEvent(testDescription, type, body)
+        listener.testEvent(testDescription, type, body.ifBlank { "<empty>" })
     }
 }

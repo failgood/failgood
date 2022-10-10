@@ -20,7 +20,7 @@ class StringProvider {
 }
 
 class Example(
-    private val stringProvider: StringProvider,
+    private val stringProvider: StringProvider
 ) {
 
     suspend fun hello(): String {

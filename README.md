@@ -32,7 +32,7 @@ This is failgood running its own test suite on a Macbook Air:
 147 Tests in 0.4 seconds. Your test suite could be so fast too.
 
 ### Boring
-Failgood is boring at runtime. Every test runs with fresh dependencies, just like in junit 4. [more...](docs/how%20to%20write%20tests%20with%20failgood.md)
+Failgood is boring at runtime. Every test runs with fresh dependencies, just like in junit 4, see [test lifecycle](docs/how%20to%20write%20tests%20with%20failgood.md). For advanced lifecycle option look at [More on lifecycle](docs/isolation.md)
 
 Everything is just kotlin.
 Want to reuse a group of tests? extract a function for them.
@@ -43,6 +43,9 @@ To create parameterized tests use `forEach` [more...](docs/parametrized%20tests.
 
 Failgood works well with [IntelliJ IDEA](docs/idea%20support.md), [Gradle](docs/gradle.md), your favorite [assertion library](docs/assertion%20libraries.md) and [code coverage tools](docs/coverage.md).
 
+### Contributing
+
+Contributions are always welcome, please look [here](./docs/contributing.md)
 
 ### Example test suites
 

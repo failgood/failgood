@@ -8,14 +8,15 @@ import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA_PARALLEL
 plugins {
     kotlin("multiplatform") version "1.6.21"
     `maven-publish`
-    id("info.solidsoft.pitest") version "1.7.4"
+    id("info.solidsoft.pitest")
     signing
+//    id("failgood.common")
 //    id("failgood.publishing")
-    id("com.bnorm.power.kotlin-power-assert") version "0.11.0"
-    id("org.jetbrains.kotlinx.kover") version "0.5.1"
-//    id("org.jetbrains.dokka") version "1.6.21"
+    id("com.bnorm.power.kotlin-power-assert") version "0.12.0"
+    id("org.jetbrains.kotlinx.kover") version "0.6.1"
+//    id("org.jetbrains.dokka") version "1.7.10"
+    id("org.jmailen.kotlinter")
     id("com.adarshr.test-logger") version "3.2.0"
-
 }
 // to release:
 // ./gradlew publishToSonatype closeSonatypeStagingRepository (or ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository)
@@ -90,9 +91,10 @@ kotlin {
 }
 plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
-        //        verbose.set(true)
+//                verbose.set(true)
         jvmArgs.set(listOf("-Xmx512m")) // necessary on CI
         avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))
+        excludedTestClasses.set(setOf("failgood.MultiThreadingPerformanceTest*"))
         targetClasses.set(setOf("failgood.*")) // by default "${project.group}.*"
         targetTests.set(setOf("failgood.*Test", "failgood.**.*Test"))
         pitestVersion.set("1.9.0")

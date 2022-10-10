@@ -1,20 +1,13 @@
-package failgood.internal
+package failgood.internal.execution.context
 
-import failgood.Failure
-import failgood.RootContext
-import failgood.Success
-import failgood.Test
-import failgood.describe
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withTimeout
+import failgood.*
+import failgood.Ignored.*
+import failgood.internal.*
+import kotlinx.coroutines.*
 import strikt.api.expectThat
 import strikt.assertions.*
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.test.assertNotNull
 
 @Suppress("NAME_SHADOWING")
 @Test
@@ -207,30 +200,56 @@ class ContextExecutorTest {
                 }
                 context("context 4") { test("test 4") {} }
             }
-            val results = expectThat(execute(ctx)).isA<ContextInfo>().subject
+            val results = assertNotNull(execute(ctx) as? ContextInfo)
 
             it("it is reported as a failing test inside that context") {
-                expectThat(results.tests.values.awaitAll().filter { it.isFailure }).single().and {
-                    get { test }.and {
-                        get { testName }.isEqualTo("error in context")
-                        get { container.name }.isEqualTo("context 1")
-                        get { sourceInfo }.and {
-                            get { lineNumber }.isEqualTo(getLineNumber(error) - 1)
-                            get { className }.contains("ContextExecutorTest")
-                        }
+                val failures = results.tests.values.awaitAll().filter { it.isFailure }
+                val singleFailure = assertNotNull(failures.singleOrNull())
+                // candidate for a soft assert
+                with(singleFailure.test) {
+                    assert(testName == "error in context")
+                    assert(container.name == "context 1")
+                    with(sourceInfo) {
+                        assert(lineNumber == getLineNumber(error) - 1)
+                        assert(className.contains("ContextExecutorTest"))
                     }
                 }
             }
             it("reports the context as a context") {
-                expectThat(results.contexts).map { it.name }.contains("context 1")
+                assert(results.contexts.map { it.name }.contains("context 1"))
             }
         }
+        describe("an ignored sub-context") {
+            val ctx = RootContext("root context") {
+                test("test 1") {}
+                test("test 2") {}
+                context("context 1", ignored = Because("We are testing that it is correctly reported")) {
+                }
+                context("context 4") { test("test 4") {} }
+            }
+            val results = assertNotNull(execute(ctx) as? ContextInfo)
+
+            it("it is reported as a skipped test inside that context") {
+                val skippedTest = results.tests.values.awaitAll().filter { it.isSkipped }
+                val singleSkippedTest = assertNotNull(skippedTest.singleOrNull())
+                // candidate for a soft assert
+                with(singleSkippedTest.test) {
+                    assert(testName == "context ignored because We are testing that it is correctly reported")
+                    assert(container.name == "context 1")
+                    assert(sourceInfo.className.contains("ContextExecutorTest"))
+                }
+                assert((singleSkippedTest.result as Skipped).reason == "We are testing that it is correctly reported")
+            }
+            it("reports the context as a context") {
+                assert(results.contexts.map { it.name }.contains("context 1"))
+            }
+        }
+
         it("handles failing root contexts") {
             val ctx = RootContext("root context") {
                 throw RuntimeException("root context failed")
             }
-            val result = execute(ctx)
-            expectThat(result).isA<FailedRootContext>()
+            assert(execute(ctx) is FailedRootContext)
         }
         describe("detects duplicated tests") {
             it("fails with duplicate tests in one context") {
@@ -343,7 +362,11 @@ class ContextExecutorTest {
                     "other test with the tag"
                 )
             }
-            ignore("can filter tests in a subcontext") {
+            it(
+                "can filter tests in a subcontext", ignored =
+                Because("This can currently not work " +
+                    "because we don't find the tests in the subcontext without executing the context")
+            ) {
                 val context = RootContext {
                     describe("context without the tag") {
                         events.add("context without tag")
@@ -370,10 +393,10 @@ class ContextExecutorTest {
             }
         }
         describe("handles strange contexts correctly") {
-            it("a context with only one pending test") {
+            it("a context with only one ignored test") {
                 val context = RootContext {
                     describe("context") {
-                        ignore("pending") {}
+                        it("pending", ignored = Because("testing a pending test")) {}
                     }
                     test("test") {}
                 }
@@ -392,7 +415,7 @@ class ContextExecutorTest {
 
     private suspend fun execute(context: RootContext, tag: String? = null): ContextResult {
         return coroutineScope {
-            ContextExecutor(context, this, onlyTag = tag).execute()
+            ContextExecutor(context, this, runOnlyTag = tag).execute()
         }
     }
 

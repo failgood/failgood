@@ -9,7 +9,7 @@ repositories {
 }
 
 dependencies {
-    testImplementation("dev.failgood:failgood:0.7.ß")
+    testImplementation("dev.failgood:failgood:0.8.1")
 }
 tasks.test {
     useJUnitPlatform()
@@ -29,22 +29,22 @@ class MyFirstFailgoodTests {
         it("runs super fast") {
             assert(true)
         }
-        describe("tests can be organized in subcontexts") {
+        describe("tests can be organized in sub-contexts") {
             it("just works") {}
         }
     }
 }
 ```
 
-Failgood detects that something contains tests by the `failgood.Test` annotation.
+Failgood searches tests in classes,objects or files that have the `failgood.Test` annotation.
 This annotation also tell idea to display a run icon to run tests in the IDE.
-If the run icon next to the class is missing you can also run the test by right clicking the classname.
+If the run icon next to the class is missing you can also run the test by right-clicking the classname.
 
 ![run popup.png](images/run%20popup.png)
 
 This will show you the test results in a tree:
 ![test results.png](images/test%20results.png)
 
-In this result tree you can jump to test sources, or re-run single tests or contexts.
+In this result tree you can jump to test sources, or run single tests or contexts.
 
 Now start writing some tests or if you want to continue reading why not head here: [idea support](idea%20support.md)

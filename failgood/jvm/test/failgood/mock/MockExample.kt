@@ -16,7 +16,7 @@ class MockExample {
                 method { functionWithDataClassParameters(any()) }.returns("resultString2")
                 method { functionThatReturnsNullableString() }.will { throw RuntimeException("oops I failed") }
             }
-            // we call the methods and they indeed act like we expected
+            // now calling the functions returns the configured values
             assert(userManager.stringReturningFunction() == "resultString")
             assert(userManager.functionWithParameters(1, "blah") == "resultString1")
             assert(userManager.functionWithDataClassParameters(User("blah")) == "resultString2")
@@ -32,7 +32,7 @@ class MockExample {
             verify(userManager) { functionWithDataClassParameters(User("blah")) }
             verify(userManager) { functionThatReturnsNullableString() }
 
-            // then next line will throw because the parameters are different
+            // the next line will throw because the parameters are different
             assertNotNull(
                 kotlin.runCatching { verify(userManager) { functionWithParameters(2, "blah") } }
                     .exceptionOrNull()
@@ -46,8 +46,10 @@ class MockExample {
                         "functionThatReturnsNullableString()"
                 )
             }
-            // or the different way that gives you more flexibility: get the calls and use your assertion lib on them
-            // this way you can assert on call order, or ignore certain parameter values. also you can just use a syntax you already know
+            // or the other way that gives you more flexibility:
+            // get the calls and use your assertion lib on them.
+            // this way you can assert on call order, or ignore certain parameter values. also you can
+            // use a syntax you already know.
             // this is the better way and probably the syntax that you should use.
             val calls = getCalls(userManager)
             assert(

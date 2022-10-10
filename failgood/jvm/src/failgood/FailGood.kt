@@ -2,12 +2,15 @@ package failgood
 
 import failgood.internal.ContextPath
 import failgood.internal.TestFixture
+import failgood.util.niceString
 import java.io.File
 import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileTime
 import kotlin.reflect.KClass
+import kotlin.reflect.KType
 import kotlin.system.exitProcess
+import kotlin.reflect.typeOf
 
 fun describe(
     subjectDescription: String,
@@ -22,7 +25,15 @@ inline fun <reified T> describe(
     order: Int = 0,
     isolation: Boolean = true,
     noinline function: ContextLambda
-): RootContext = describe(T::class, ignored, order, isolation, function)
+): RootContext = describe(typeOf<T>(), ignored, order, isolation, function)
+fun describe(
+    subjectType: KType,
+    ignored: Ignored? = null,
+    order: Int = 0,
+    isolation: Boolean = true,
+    function: ContextLambda
+): RootContext = RootContext(subjectType.niceString(), ignored, order, isolation, function = function)
+
 
 fun describe(
     subjectType: KClass<*>,
@@ -30,7 +41,7 @@ fun describe(
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextLambda
-): RootContext = RootContext("The ${subjectType.simpleName}", ignored, order, isolation, function = function)
+): RootContext = RootContext("${subjectType.simpleName}", ignored, order, isolation, function = function)
 
 private fun ignoreReason(disabled: Boolean): Ignored? =
     if (disabled) Ignored.Because("disabled == true") else null

@@ -1,8 +1,9 @@
 @file:Suppress("KotlinConstantConditions")
 
-package failgood.assert
+package failgood.experiments
 
 import failgood.Test
+import failgood.assert.containsExactlyInAnyOrder
 import failgood.describe
 import org.opentest4j.MultipleFailuresError
 import java.util.concurrent.CopyOnWriteArrayList
@@ -24,8 +25,10 @@ object SoftAssertExample {
 }
 
 private fun assertSoftly(function: AssertDSL.() -> Unit) {
-    with(Asserter()) { function()
-        check() }
+    with(Asserter()) {
+        function()
+        check()
+    }
 }
 
 interface AssertDSL {

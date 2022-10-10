@@ -1,3 +1,5 @@
+@file:Suppress("KotlinConstantConditions")
+
 package failgood.assert
 
 import failgood.Test
@@ -16,19 +18,14 @@ object SoftAssertExample {
                 that(name == "klausi") { "assert error message" }
 
                 that(!listOf("a", "b", "c").containsExactlyInAnyOrder("b", "a"))
-
             }
         }
-
     }
-
-
 }
 
 private fun assertSoftly(function: AssertDSL.() -> Unit) {
     with(Asserter()) { function()
-    check()}
-
+        check() }
 }
 
 interface AssertDSL {
@@ -51,5 +48,4 @@ class Asserter : AssertDSL {
         if (errors.isNotEmpty())
             throw MultipleFailuresError("assertions failed", errors)
     }
-
 }

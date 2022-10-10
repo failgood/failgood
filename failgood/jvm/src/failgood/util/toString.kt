@@ -14,8 +14,8 @@ fun KType.niceString(): String {
                         prefix = "<",
                         postfix = ">"
                     ) {
-                        (with (it.type) {if (this == null) "*" else (this.classifier as KClass<*>).simpleName!!
-                    })})
+                        (with(it.type) { if (this == null) "*" else (this.classifier as KClass<*>).simpleName!!
+                        }) })
             }
         }
     } catch (e: Exception) {

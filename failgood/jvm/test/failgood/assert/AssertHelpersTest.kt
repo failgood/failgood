@@ -16,7 +16,7 @@ object AssertHelpersTest {
                 }
             }
             describe("with a class that does not implement comparable") {
-                class C(val v:String) {
+                class C(val v: String) {
                     override fun toString(): String {
                         return "C(v='$v')"
                     }
@@ -36,17 +36,16 @@ object AssertHelpersTest {
                     assert(list.containsExactlyInAnyOrder(a, c, b))
                     assert(!list.containsExactlyInAnyOrder(a, b))
                 }
-
             }
         }
         describe("endsWith") {
             it("works with list") {
-                assert(listOf("a","b","c").endsWith(listOf("c")))
-                assert(listOf("a","b","c").endsWith(listOf("b","c")))
-                assert(listOf("a","b","c").endsWith(listOf("a","b","c")))
+                assert(listOf("a", "b", "c").endsWith(listOf("c")))
+                assert(listOf("a", "b", "c").endsWith(listOf("b", "c")))
+                assert(listOf("a", "b", "c").endsWith(listOf("a", "b", "c")))
             }
             it("works with vararg") {
-                assert(listOf("a","b","c").endsWith("b","c"))
+                assert(listOf("a", "b", "c").endsWith("b", "c"))
             }
         }
     }

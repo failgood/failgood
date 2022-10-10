@@ -9,8 +9,8 @@ import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileTime
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
-import kotlin.system.exitProcess
 import kotlin.reflect.typeOf
+import kotlin.system.exitProcess
 
 fun describe(
     subjectDescription: String,
@@ -33,7 +33,6 @@ fun describe(
     isolation: Boolean = true,
     function: ContextLambda
 ): RootContext = RootContext(subjectType.niceString(), ignored, order, isolation, function = function)
-
 
 fun describe(
     subjectType: KClass<*>,

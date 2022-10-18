@@ -7,6 +7,7 @@ gradle-app.setting
 .DS_Store
 out/
 /.idea
+/.fleet
 /*.iml
 /.autotest.failgood
 /.vscode

@@ -21,9 +21,18 @@ class RetryForTests {
             )
             assert(exception.message == "error!")
         }
-        it("returns result") {
+        it("retries for given time and returns result when it eventually succeeds") {
+            var calls = 2
+            val result = retryFor(1000.milliseconds) {
+                if (calls-- > 0)
+                    throw RuntimeException("error!")
+                "result"
+            }
+            assert(result == "result")
+        }
+        it("retries at least once") {
             var calls = 1
-            val result = retryFor(100.milliseconds) {
+            val result = retryFor(0.milliseconds) {
                 if (calls-- > 0)
                     throw RuntimeException("error!")
                 "result"

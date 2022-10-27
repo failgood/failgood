@@ -1,6 +1,7 @@
 plugins {
     `kotlin-dsl`
     `kotlin-dsl-precompiled-script-plugins`
+    idea
 }
 
 repositories {
@@ -13,4 +14,9 @@ dependencies {
     implementation(kotlin("gradle-plugin", "1.7.20"))
     implementation("com.adarshr:gradle-test-logger-plugin:3.2.0")
 }
-
+idea {
+    module {
+        generatedSourceDirs.add(File(buildDir, "generated-sources/kotlin-dsl-accessors/kotlin"))
+        generatedSourceDirs.add(File(buildDir, "generated-sources/kotlin-dsl-plugins/kotlin"))
+    }
+}

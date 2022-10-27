@@ -59,6 +59,7 @@ class ResourcesCloserTest {
         }
         it("handles errors in dependency block") {
             coroutineScope {
+                @Suppress("ConstantConditionIf")
                 val failedDep by OnlyResourcesCloser(this).dependency({ if (true) throw RuntimeException(); "blah" })
                 assert(kotlin.runCatching { failedDep }.isFailure)
             }

@@ -5,11 +5,9 @@ import failgood.describe
 import kotlinx.coroutines.delay
 import kotlin.test.assertNotNull
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.ExperimentalTime
 
 @Test
 class RetryForTests {
-    @OptIn(ExperimentalTime::class)
     val tests = describe("retryFor") {
         it("rethrows exception when time is up") {
             val exception = assertNotNull(

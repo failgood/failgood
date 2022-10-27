@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalTime::class)
-
 package failgood.junit.it
 
 import failgood.Ignored
@@ -18,7 +16,6 @@ import org.junit.platform.launcher.TestIdentifier
 import org.junit.platform.launcher.core.LauncherFactory
 import kotlin.reflect.KClass
 import kotlin.test.assertNotNull
-import kotlin.time.ExperimentalTime
 
 @Test
 class JunitPlatformFunctionalTest {

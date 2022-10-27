@@ -5,8 +5,8 @@ import failgood.internal.TestFixture
 
 @TestFixture
 class TestFixtureThatFailsAfterFirstPass {
-    var invocations = 0
-    val contextThatFailsAfter2 = describe("a test context that fails after 2 passes") {
+    private var invocations = 0
+    val context = describe("a test context that fails after 2 passes") {
         // not sure why it needs 3 invocations to trigger this bug.
         if (invocations++ == 2)
             throw RuntimeException()

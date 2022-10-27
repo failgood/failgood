@@ -18,4 +18,4 @@ For example if you have failgood checked out in the same directory level as your
 `includeBuild("../failgood")`
 
 Trying out the failgood main branch is very helpful for the failgood project. Make sure to report any issues you find
-in slack, or as github issues if it is clearly a bug.
+in slack, or as GitHub issues if it is clearly a bug.

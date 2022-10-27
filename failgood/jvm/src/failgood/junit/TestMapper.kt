@@ -22,7 +22,7 @@ class TestMapper {
                     " I have mappings for ${context2JunitTestDescriptor.keys.joinToString()}"
             )
 
-    fun getMappingOrNull(context: TestContainer) = context2JunitTestDescriptor[context]
+    private fun getMappingOrNull(context: TestContainer) = context2JunitTestDescriptor[context]
 
     fun addMapping(context: TestContainer, testDescriptor: TestDescriptor) {
         context2JunitTestDescriptor[context] = testDescriptor

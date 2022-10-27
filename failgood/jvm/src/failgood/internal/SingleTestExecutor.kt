@@ -10,7 +10,7 @@ internal class SingleTestExecutor(
     private val test: ContextPath,
     val testDSL: TestDSL,
     val resourcesCloser: ResourcesCloser,
-    val rootContextLambda: ContextLambda
+    private val rootContextLambda: ContextLambda
 ) {
     private val startTime = System.nanoTime()
 

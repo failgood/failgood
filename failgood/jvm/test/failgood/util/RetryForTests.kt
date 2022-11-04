@@ -5,6 +5,7 @@ import failgood.describe
 import kotlinx.coroutines.delay
 import kotlin.test.assertNotNull
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @Test
 class RetryForTests {
@@ -21,7 +22,8 @@ class RetryForTests {
         }
         it("retries for given time and returns result when it eventually succeeds") {
             var calls = 2
-            val result = retryFor(1000.milliseconds) {
+            // this randomly fails on windows CI when set to 1 second
+            val result = retryFor(5.seconds) {
                 if (calls-- > 0)
                     throw RuntimeException("error!")
                 "result"

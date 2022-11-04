@@ -17,6 +17,12 @@ inline fun <reified Mock : Any> mock() = mock(Mock::class)
 
 /**
  * create a mock for class Mock and define its behavior
+ * ```
+ *                 val mock = mock<UserManager> {
+ *                     method { stringReturningFunction() }.returns("resultString")
+ *                     method { functionThatReturnsNullableString() }.will { "otherResultString" }
+ *                 }```
+ *
  */
 suspend inline fun <reified Mock : Any> mock(noinline lambda: suspend MockConfigureDSL<Mock>.() -> Unit): Mock {
     return the(mock(Mock::class), lambda)
@@ -24,6 +30,11 @@ suspend inline fun <reified Mock : Any> mock(noinline lambda: suspend MockConfig
 
 /**
  * define results for method invocations on a mock
+ * ```
+ *             val userManager: UserManager = mock()
+ *             the(userManager) {
+ *                 method { stringReturningFunction() }.returns("resultString")
+ *             }```
  */
 suspend fun <Mock : Any> the(
     mock: Mock,
@@ -33,20 +44,6 @@ suspend fun <Mock : Any> the(
     dsl.lambda()
     return mock
 }
-
-/**
- * Define what to return when a method is called
- *
- * `mock(mock) { methodCall(ignoredParameter) }.then {"resultString"}`
- * or
- * `mock(mock) { methodCall(ignoredParameter) }.then { throw BlahException() }`
- *
- * parameters that you pass to method calls are ignored, any invocation of methodCall will return "resultString" or throw
- *
- */
-@Deprecated("please use the(mock) {} or configure the mock when it is created")
-suspend fun <Mock : Any, Result> mock(mock: Mock, lambda: suspend Mock.() -> Result):
-    MockReplyRecorder<Result> = getHandler(mock).whenever(lambda)
 
 /**
  * Verify mock invocations
@@ -96,8 +93,12 @@ interface MockConfigureDSL<Mock> {
     fun anyBoolean(): Boolean = false
     fun anyChar(): Char = 'A'
 }
+
 private class MockConfigureDSLImpl<Mock : Any>(val mock: Mock) : MockConfigureDSL<Mock> {
-    init { getHandler(mock) } // fail fast if the mock is not a mock
+    init {
+        getHandler(mock)
+    } // fail fast if the mock is not a mock
+
     override suspend fun <Result> method(lambda: suspend Mock.() -> Result):
         MockReplyRecorder<Result> = getHandler(mock).whenever(lambda)
 }

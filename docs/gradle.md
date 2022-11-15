@@ -25,7 +25,7 @@ import com.adarshr.gradle.testlogger.TestLoggerExtension
 import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA_PARALLEL
 
 plugins {
-    kotlin("jvm") version "1.7.20"
+    kotlin("jvm") version "1.7.21"
     id("com.bnorm.power.kotlin-power-assert") version "0.12.0"
     id("org.jetbrains.kotlinx.kover") version "0.5.0"
     id("com.adarshr.test-logger") version "3.2.0"

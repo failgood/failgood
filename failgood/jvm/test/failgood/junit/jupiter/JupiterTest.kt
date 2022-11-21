@@ -1,6 +1,5 @@
 package failgood.junit.jupiter
 
-import failgood.Test
 import failgood.describe
 import failgood.junit.it.JunitPlatformFunctionalTest
 import failgood.junit.jupiter.fixtures.JunitTest
@@ -10,6 +9,8 @@ import org.junit.platform.engine.discovery.DiscoverySelectors
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 import org.junit.platform.launcher.core.LauncherFactory
 import org.junit.platform.launcher.listeners.LoggingListener
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.function.BiConsumer
 import java.util.function.Supplier
 
 // @Test // this test is currently for running manually, more like a main method. (maybe it should be a main method?)
@@ -36,9 +37,12 @@ object JupiterTest {
     }
 
     fun printingListener(): LoggingListener? =
-        LoggingListener.forBiConsumer { t: Throwable?, s: Supplier<String> ->
-            assert(t == null)
-            println(s.get())
-        }
+        LoggingListener.forBiConsumer(Printer())
 
+    class Printer : BiConsumer<Throwable?, Supplier<String>> {
+        val counter = AtomicInteger()
+        override fun accept(t: Throwable?, u: Supplier<String>) {
+            println("${counter.incrementAndGet()}-${u.get()}")
+        }
+    }
 }

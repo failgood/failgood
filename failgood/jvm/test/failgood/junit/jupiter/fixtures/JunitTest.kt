@@ -1,7 +1,9 @@
 package failgood.junit.jupiter.fixtures
 
-class MyFirstJUnitJupiterTests {
-    @org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Test
+
+class JunitTest {
+    @Test
     fun `a test`() {
     }
 }

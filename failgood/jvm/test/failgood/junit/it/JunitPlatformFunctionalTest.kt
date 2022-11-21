@@ -5,6 +5,7 @@ import failgood.Test
 import failgood.assert.containsExactlyInAnyOrder
 import failgood.describe
 import failgood.junit.it.fixtures.*
+import failgood.junit.jupiter.JupiterTest
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeout
 import org.junit.platform.engine.DiscoverySelector
@@ -18,14 +19,20 @@ import kotlin.reflect.KClass
 import kotlin.test.assertNotNull
 
 @Test
-class JunitPlatformFunctionalTest {
+object JunitPlatformFunctionalTest {
     data class Results(
         val rootResult: TestExecutionResult,
         val results: MutableMap<TestIdentifier, TestExecutionResult>
     )
 
     val context = describe("The Junit Platform Engine") {
-        it("can execute test in a class") {
+        it("can execute a simple test defined in an object") {
+            assertSuccess(executeSingleTest(SimpleTestFixture::class))
+        }
+        it("can execute a simple test defined in a class") {
+            assertSuccess(executeSingleTest(SimpleClassTestFixture::class))
+        }
+        it("executes contexts that contain tests with the same names") {
             assertSuccess(executeSingleTest(DuplicateTestNameTest::class))
         }
         describe("duplicate test names") {
@@ -126,7 +133,9 @@ class JunitPlatformFunctionalTest {
 
     private suspend fun execute(discoverySelectors: List<DiscoverySelector>): Results {
         val listener = TEListener()
-        LauncherFactory.create().execute(launcherDiscoveryRequest(discoverySelectors), listener)
+        LauncherFactory.create().execute(launcherDiscoveryRequest(discoverySelectors), listener,
+            JupiterTest.printingListener()
+        )
         // await with timeout to make sure the test does not hang
         val rootResult = withTimeout(5000) { listener.rootResult.await() }
         return Results(rootResult, listener.results)

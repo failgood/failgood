@@ -21,7 +21,8 @@ class GradleTest {
             GradleConnector.newConnector()
                 .forProjectDirectory(buildDir)
                 .connect().use { connection ->
-                    connection.newTestLauncher().withJvmTestClasses("failgood.gradle.test").addProgressListener(Listener()).run()
+                    connection.newTestLauncher().withJvmTestClasses("failgood.gradle.test")
+                        .addProgressListener(Listener()).run()
                 }
         }
     }
@@ -29,18 +30,15 @@ class GradleTest {
 
 class Listener : ProgressListener {
     override fun statusChanged(event: ProgressEvent) {
-        when(event) {
+        when (event) {
             is DefaultTestStartEvent -> {
-                when(val d = event.descriptor) {
+                when (val d = event.descriptor) {
                     is JvmTestOperationDescriptor -> {
                         println("$event $d")
                     }
                 }
-
             }
         }
 //        println("${event::class.java}-$event")
     }
-
 }
-

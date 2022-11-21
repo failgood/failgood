@@ -195,7 +195,7 @@ class FailGoodJunitTestEngine : TestEngine {
             watchdog?.close()
         }
         if (debug)
-            File("failgood.debug.txt").writeText(failureLogger.envString())
+            File("failgood.debug-${UUID.randomUUID().toString().take(3)}.txt").writeText(failureLogger.envString())
         println("finished after ${uptime()}")
     }
 }

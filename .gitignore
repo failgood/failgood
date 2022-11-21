@@ -13,4 +13,4 @@ out/
 /.vscode
 .autotest.failgood
 junit-platform.properties
-failgood.debug.txt
+failgood.debug*

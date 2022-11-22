@@ -186,7 +186,6 @@ class FailGoodJunitTestEngine : TestEngine {
             }
 
             junitListener.executionFinished(root, TestExecutionResult.successful())
-// for debugging println(junitListener.events.joinToString("\n"))
 
             if (getenv("PRINT_SLOWEST") != null) results.printSlowestTests()
             suiteExecutionContext.close()

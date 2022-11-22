@@ -14,7 +14,7 @@ tasks {
         environment("TIMEOUT", "10000")
 
         useJUnitPlatform {
-//            includeEngines = setOf("failgood")
+            includeEngines = setOf("failgood")
         }
         outputs.upToDateWhen { false }
     }

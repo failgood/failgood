@@ -11,8 +11,9 @@ plugins {
 
 tasks {
     test {
-        environment("TIMEOUT", "10000")
-        useJUnitPlatform()
+        useJUnitPlatform {
+            includeEngines = setOf("failgood")
+        }
         outputs.upToDateWhen { false }
     }
 

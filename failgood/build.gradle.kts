@@ -36,6 +36,10 @@ dependencies {
     testImplementation("io.projectreactor.tools:blockhound:1.0.6.RELEASE")
 
     testImplementation(kotlin("test"))
+
+    // for the tools that analyze what events jupiter tests generate.
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.1")
 }
 sourceSets.main {
     java.srcDirs("jvm/src")

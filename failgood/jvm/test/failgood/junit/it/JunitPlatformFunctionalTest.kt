@@ -4,7 +4,21 @@ import failgood.Ignored
 import failgood.Test
 import failgood.assert.containsExactlyInAnyOrder
 import failgood.describe
-import failgood.junit.it.fixtures.*
+import failgood.junit.it.fixtures.BlockhoundTestFixture
+import failgood.junit.it.fixtures.DeeplyNestedDuplicateTestFixture
+import failgood.junit.it.fixtures.DoubleTestNamesInRootContextTestFixture
+import failgood.junit.it.fixtures.DoubleTestNamesInSubContextTestFixture
+import failgood.junit.it.fixtures.DuplicateRootWithOneTestFixture
+import failgood.junit.it.fixtures.DuplicateTestNameTest
+import failgood.junit.it.fixtures.FailingContext
+import failgood.junit.it.fixtures.FailingRootContext
+import failgood.junit.it.fixtures.IgnoredTestFixture
+import failgood.junit.it.fixtures.SimpleClassTestFixture
+import failgood.junit.it.fixtures.SimpleTestFixture
+import failgood.junit.it.fixtures.TestFixtureThatFailsAfterFirstPass
+import failgood.junit.it.fixtures.TestFixtureWithFailingTestAndAfterEach
+import failgood.junit.it.fixtures.TestOrderFixture
+import failgood.junit.it.fixtures.TestWithNestedContextsFixture
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeout
 import org.junit.platform.engine.DiscoverySelector
@@ -18,14 +32,20 @@ import kotlin.reflect.KClass
 import kotlin.test.assertNotNull
 
 @Test
-class JunitPlatformFunctionalTest {
+object JunitPlatformFunctionalTest {
     data class Results(
         val rootResult: TestExecutionResult,
         val results: MutableMap<TestIdentifier, TestExecutionResult>
     )
 
     val context = describe("The Junit Platform Engine") {
-        it("can execute test in a class") {
+        it("can execute a simple test defined in an object") {
+            assertSuccess(executeSingleTest(SimpleTestFixture::class))
+        }
+        it("can execute a simple test defined in a class") {
+            assertSuccess(executeSingleTest(SimpleClassTestFixture::class))
+        }
+        it("executes contexts that contain tests with the same names") {
             assertSuccess(executeSingleTest(DuplicateTestNameTest::class))
         }
         describe("duplicate test names") {
@@ -51,7 +71,7 @@ class JunitPlatformFunctionalTest {
             ).map { selectClass(it.qualifiedName) }
             val r = execute(selectors)
             assertSuccess(r)
-            assert(r.results.size == 24)
+            assert(r.results.size > 20) // just assert that a lot of tests were running. this test is a bit unfocused
             assert(
                 r.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
                     .map { it.key.displayName }
@@ -124,8 +144,9 @@ class JunitPlatformFunctionalTest {
     private suspend fun executeSingleTest(singleTest: KClass<*>): Results =
         execute(listOf(selectClass(singleTest.qualifiedName)))
 
-    private suspend fun execute(discoverySelectors: List<DiscoverySelector>): Results {
+    suspend fun execute(discoverySelectors: List<DiscoverySelector>): Results {
         val listener = TEListener()
+
         LauncherFactory.create().execute(launcherDiscoveryRequest(discoverySelectors), listener)
         // await with timeout to make sure the test does not hang
         val rootResult = withTimeout(5000) { listener.rootResult.await() }

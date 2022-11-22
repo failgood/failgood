@@ -77,13 +77,14 @@ class FailGoodJunitTestEngine : TestEngine {
         if (root !is FailGoodEngineDescriptor) return
         val watchdog = watchdog?.let { Watchdog(it) }
         val suiteExecutionContext = root.suiteExecutionContext
+        val loggingEngineExecutionListener = LoggingEngineExecutionListener(request.engineExecutionListener)
         try {
             failureLogger.add("nodes received", root.allDescendants())
             failureLogger.add("execute-stacktrace", RuntimeException().stackTraceToString())
             val mapper = root.mapper
             val startedContexts = mutableSetOf<TestContainer>()
             val junitListener = FailureLoggingEngineExecutionListener(
-                LoggingEngineExecutionListener(request.engineExecutionListener), failureLogger
+                loggingEngineExecutionListener, failureLogger
             )
             junitListener.executionStarted(root)
 
@@ -185,7 +186,6 @@ class FailGoodJunitTestEngine : TestEngine {
             }
 
             junitListener.executionFinished(root, TestExecutionResult.successful())
-// for debugging println(junitListener.events.joinToString("\n"))
 
             if (getenv("PRINT_SLOWEST") != null) results.printSlowestTests()
             suiteExecutionContext.close()
@@ -194,8 +194,10 @@ class FailGoodJunitTestEngine : TestEngine {
         } finally {
             watchdog?.close()
         }
-        if (debug)
+        if (debug) {
+            failureLogger.add("events", loggingEngineExecutionListener.events.toString())
             File("failgood.debug.txt").writeText(failureLogger.envString())
+        }
         println("finished after ${uptime()}")
     }
 }

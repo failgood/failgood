@@ -3,9 +3,9 @@ package failgood.pitest
 import failgood.Ignored
 import failgood.Test
 import failgood.describe
-import failgood.mock.mock
 import org.pitest.testapi.Description
 import org.pitest.testapi.ResultCollector
+import org.pitest.testapi.TestUnit
 import org.pitest.testapi.TestUnitFinder
 import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
@@ -28,12 +28,18 @@ object Tests {
     }
 }
 
+object NoTests {
+    init {
+        throw RuntimeException()
+    }
+}
+
 @Test
 class FailGoodTestUnitFinderTest {
     val context = describe(FailGoodTestUnitFinder::class) {
-        test("creates a test unit for each test") {
+        it("creates a test unit for each test") {
             val finder: TestUnitFinder = FailGoodTestUnitFinder
-            val testUnits = finder.findTestUnits(Tests::class.java, mock())
+            val testUnits = finder.findTestUnits(Tests::class.java, null)
             expectThat(testUnits).hasSize(3)
             val collector = TestResultCollector()
             testUnits.forEach {
@@ -61,6 +67,9 @@ class FailGoodTestUnitFinderTest {
                     )
                 )
             )
+        }
+        it("returns an no tests when the test class cannot be instantiated") {
+            assert(FailGoodTestUnitFinder.findTestUnits(NoTests::class.java, null) == listOf<TestUnit>())
         }
     }
 

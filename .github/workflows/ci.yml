@@ -35,6 +35,7 @@ jobs:
       - name: Build with Gradle
         env:
           CI: true
+          SLOW_CI: true
           FAILGOOD_WATCHDOG_MILLIS: 100000
         run: ./gradlew check build koverXmlReport
       - name: upload artifacts

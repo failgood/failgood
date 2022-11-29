@@ -55,7 +55,8 @@ suspend fun main() {
     FailGood.runAllTests(true)
 
     // let's see how far we can get with one second.
-    // on CI everything is much slower, and we don't want to randomly fail ci so lets use 8000 for now
-    val limit: Long = if (getenv("CI") != null) 8000 else 1000
+    // on CI everything is much slower, especially on windows
+    // and we don't want to randomly fail ci so lets use 20000 for now
+    val limit: Long = if (getenv("SLOW_CI") != null) 20000 else 1000
     expectThat(ManagementFactory.getRuntimeMXBean().uptime).isLessThan(limit)
 }

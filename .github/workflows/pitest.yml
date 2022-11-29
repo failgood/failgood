@@ -28,11 +28,12 @@ jobs:
       - name: Build with Gradle
         env:
           CI: true
+          PITEST_THREADS: 2
           FAILGOOD_WATCHDOG_MILLIS: 100000
         run: ./gradlew pitest
       - name: upload artifacts
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: build-reports-${{ matrix.os }}-${{ matrix.java }}
+          name: build-reports-pitest
           path: failgood/build/reports

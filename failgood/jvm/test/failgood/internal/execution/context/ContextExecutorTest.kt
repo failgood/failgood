@@ -17,16 +17,24 @@ class ContextExecutorTest {
     val context = describe(ContextExecutor::class) {
         describe("with a valid root context") {
             val ctx = RootContext("root context") {
-                test("test 1") {}
-                test("test 2") {}
+                test("test 1") {
+                    delay(1)
+                }
+                test("test 2") {
+                    delay(1)
+                }
                 test("failed test") {
                     assertionError = AssertionError("failed")
                     throw assertionError!!
                 }
                 context("context 1") {
-                    context("context 2") { test("test 3") {} }
+                    context("context 2") { test("test 3") {
+                        delay(1)
+                    } }
                 }
-                context("context 4") { test("test 4") {} }
+                context("context 4") { test("test 4") {
+                    delay(1)
+                } }
             }
             describe("executing all the tests") {
                 val contextResult = execute(ctx)

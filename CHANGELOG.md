@@ -3,14 +3,14 @@
 
 All notable changes to this project will be documented in this file.
 
-## 0.8.3 " Beggars Banquet" - 2022-11-29
+## 0.8.3 "Beggars Banquet" - 2022-11-29
 
 Ok another bugfix release before 0.9
 
 ### Fixed
 
-- don't report ignored tests that should not run (#160)
-- ignore tests that can not be instantiated in pitest plugin
+- Don't report ignored tests that should not run (#160)
+- Ignore tests that can not be instantiated in pitest plugin
 
 ## 0.8.2 "Blast First" - 2022-10-02
 

@@ -33,7 +33,6 @@ internal class ContextVisitor<GivenType>(
 
         val ignoreReason = ignored?.isIgnored()
         if (ignoreReason != null) {
-            @Suppress("DEPRECATION")
             ignored(name, ignoreReason)
             return
         }
@@ -177,7 +176,10 @@ internal class ContextVisitor<GivenType>(
     }
 
     private suspend fun ignored(name: String, ignoreReason: String) {
+        checkForDuplicateName(name)
         val testPath = ContextPath(context, name)
+        if (!staticConfig.testFilter.shouldRun(testPath))
+            return
 
         if (contextStateCollector.finishedPaths.add(testPath)) {
             val testDescriptor =

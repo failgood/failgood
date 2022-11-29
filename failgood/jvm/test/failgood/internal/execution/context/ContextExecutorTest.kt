@@ -14,8 +14,9 @@ import kotlin.test.assertNotNull
 class ContextExecutorTest {
     private var assertionError: AssertionError? = null
 
+    @Suppress("SimplifiableCallChain")
     val context = describe(ContextExecutor::class) {
-        describe("with a valid root context") {
+        describe("with a typical valid root context") {
             val ctx = RootContext("root context") {
                 test("test 1") {
                     delay(1)
@@ -23,6 +24,7 @@ class ContextExecutorTest {
                 test("test 2") {
                     delay(1)
                 }
+                test("ignored test", ignored = Because("testing")) {}
                 test("failed test") {
                     assertionError = AssertionError("failed")
                     throw assertionError!!
@@ -37,23 +39,24 @@ class ContextExecutorTest {
                 } }
             }
             describe("executing all the tests") {
-                val contextResult = execute(ctx)
-                val contextInfo = expectThat(contextResult).isA<ContextInfo>().subject
+                val contextInfo = assertNotNull(execute(ctx) as? ContextInfo)
                 it("returns tests in the same order as they are declared in the file") {
-                    expectThat(contextInfo).get { tests.keys }.map { it.testName }
-                        .containsExactly("test 1", "test 2", "failed test", "test 3", "test 4")
+                    assert(contextInfo.tests.keys.map { it.testName }
+                        == listOf("test 1", "test 2", "ignored test", "failed test", "test 3", "test 4"))
                 }
                 it("returns deferred test results") {
                     val testResults = contextInfo.tests.values.awaitAll()
                     val successful = testResults.filter { it.isSuccess }
-                    val failed = testResults - successful.toSet()
-                    expectThat(successful.map { it.test.testName }).containsExactly(
+                    val failed = assertNotNull(testResults.filter { it.isFailure }.singleOrNull())
+                    val skipped = assertNotNull(testResults.filter { it.isSkipped }.singleOrNull())
+                    assert(successful.map { it.test.testName } == listOf(
                         "test 1",
                         "test 2",
                         "test 3",
                         "test 4"
-                    )
-                    expectThat(failed).map { it.test.testName }.containsExactly("failed test")
+                    ))
+                    assert(failed.test.testName == "failed test")
+                    assert(skipped.test.testName == "ignored test")
                 }
 
                 it("returns contexts in the same order as they appear in the file") {
@@ -125,10 +128,7 @@ class ContextExecutorTest {
                         }
                     }
                 }
-                val contextResult = execute(ctx)
-                expectThat(contextResult).isA<ContextInfo>()
-
-                val contextInfo = contextResult as ContextInfo
+                val contextInfo = assertNotNull(execute(ctx) as? ContextInfo)
                 it("returns file info for all subcontexts") {
                     expectThat(contextInfo.contexts).all {
                         get { sourceInfo }.isNotNull().and {
@@ -156,6 +156,17 @@ class ContextExecutorTest {
                         get(1).get { sourceInfo }.get { lineNumber }.isEqualTo(test2Line)
                     }
                 }
+            }
+        }
+        describe("ignored tests") {
+            it("are reported") {
+                val result = execute(RootContext("root context") {
+                    it("contains a single ignored test", ignored = Because("testing ignoring")) {
+                    }
+                })
+                val contextInfo = assertNotNull(result as? ContextInfo)
+                val test = assertNotNull(contextInfo.tests.keys.singleOrNull())
+                assert(test.testName == "contains a single ignored test")
             }
         }
         describe("supports lazy execution") {

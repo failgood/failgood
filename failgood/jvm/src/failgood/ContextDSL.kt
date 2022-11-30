@@ -89,18 +89,10 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     )
 
     /**
-     * Define an ignored test.
-     */
-    @Deprecated(replaceWith = ReplaceWith("it(name, ignored=Because(...), function"), message = "please use `it`")
-    suspend fun ignore(name: String, function: TestLambda<GivenType> = {})
-
-    /**
      * Register a callback to be called after all tests have completed
      */
     fun afterSuite(function: suspend () -> Unit)
 
-    // Support for context/test. This will maybe be removed before 1.0, unless somebody really loves it.
-    // another option would be to move it to a separate sub interface.
     /**
      * Define a context with a given block. The given block will be called for every test and passed as argument,
      * even if isolation is turned off.

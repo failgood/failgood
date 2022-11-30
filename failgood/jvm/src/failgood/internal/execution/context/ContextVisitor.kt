@@ -1,6 +1,14 @@
 package failgood.internal.execution.context
 
-import failgood.*
+import failgood.Context
+import failgood.ContextDSL
+import failgood.FailGoodException
+import failgood.Ignored
+import failgood.ResourcesDSL
+import failgood.Skipped
+import failgood.TestDescription
+import failgood.TestLambda
+import failgood.TestPlusResult
 import failgood.internal.ContextPath
 import failgood.internal.ResourcesCloser
 import kotlinx.coroutines.CompletableDeferred
@@ -33,7 +41,19 @@ internal class ContextVisitor<GivenType>(
 
         val ignoreReason = ignored?.isIgnored()
         if (ignoreReason != null) {
-            ignored(name, ignoreReason)
+            checkForDuplicateName(name)
+            val testPath = ContextPath(context, name)
+            if (staticConfig.testFilter.shouldRun(testPath)) {
+                if (contextStateCollector.finishedPaths.add(testPath)) {
+                    val testDescriptor =
+                        TestDescription(context, name, sourceInfo())
+                    val result = Skipped(ignoreReason)
+
+                    val testPlusResult = TestPlusResult(testDescriptor, result)
+                    contextStateCollector.deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
+                    staticConfig.listener.testFinished(testPlusResult)
+                }
+            }
             return
         }
         checkForDuplicateName(name)
@@ -165,30 +185,6 @@ internal class ContextVisitor<GivenType>(
                 "Trying to create a test in the wrong context. " +
                     "Make sure functions that create tests have ContextDSL as receiver"
             )
-        }
-    }
-
-    @Suppress("OVERRIDE_DEPRECATION")
-    override suspend fun ignore(name: String, function: TestLambda<GivenType>) {
-        if (onlyRunSubcontexts)
-            return
-        ignored(name, "this test was defined via the deprecated ignore method")
-    }
-
-    private suspend fun ignored(name: String, ignoreReason: String) {
-        checkForDuplicateName(name)
-        val testPath = ContextPath(context, name)
-        if (!staticConfig.testFilter.shouldRun(testPath))
-            return
-
-        if (contextStateCollector.finishedPaths.add(testPath)) {
-            val testDescriptor =
-                TestDescription(context, name, sourceInfo())
-            val result = Skipped(ignoreReason)
-
-            val testPlusResult = TestPlusResult(testDescriptor, result)
-            contextStateCollector.deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
-            staticConfig.listener.testFinished(testPlusResult)
         }
     }
 

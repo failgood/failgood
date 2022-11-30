@@ -42,8 +42,6 @@ internal class SingleTestExecutor(
 
         override suspend fun it(name: String, tags: Set<String>, ignored: Ignored?, function: TestLambda<GivenType>) {}
 
-        @Suppress("OVERRIDE_DEPRECATION")
-        override suspend fun ignore(name: String, function: TestLambda<GivenType>) {}
         override fun afterSuite(function: suspend () -> Unit) {}
     }
 

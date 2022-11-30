@@ -3,6 +3,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.9.0 - Unreleased
+
+### Changed
+
+- Remove all deprecated methods
+
 ## 0.8.3 "Beggars Banquet" - 2022-11-29
 
 Ok another bugfix release before 0.9

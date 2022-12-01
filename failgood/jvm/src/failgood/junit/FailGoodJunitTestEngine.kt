@@ -58,7 +58,8 @@ class FailGoodJunitTestEngine : TestEngine {
                 executionListener
             ).awaitAll()
             val testsCollectedAt = upt()
-            println("start: $startedAt tests collected at $testsCollectedAt, discover finished at ${upt()}")
+            if (debug)
+                println("start: $startedAt tests collected at $testsCollectedAt, discover finished at ${upt()}")
             testResult
         }
         watchdog?.close()

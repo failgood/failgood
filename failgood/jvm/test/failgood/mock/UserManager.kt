@@ -7,6 +7,7 @@ interface UserManager {
     fun overloadedFunction(s: String): String
     fun overloadedFunction(i: Int): String
 
+    fun functionThatHasLambdaParameter(f: () -> Unit)
     fun function()
     fun function2()
     fun functionWithParameters(number: Int, name: String): String

@@ -121,10 +121,10 @@ fun <Mock : Any> mock(kClass: KClass<Mock>): Mock {
 
 interface MockReplyRecorder<Type> {
     fun returns(parameter: Type)
-    fun will(result: () -> Type)
+    fun will(result: (MethodWithArguments) -> Type)
 }
 
-internal data class MethodWithArguments(val method: Method, val arguments: List<Any?>) {
+data class MethodWithArguments(val method: Method, val arguments: List<Any?>) {
     override fun toString(): String {
         return "${method.name}(" + arguments.joinToString() + ")"
     }
@@ -140,11 +140,12 @@ internal fun getHandler(mock: Any): MockHandler {
 }
 
 internal class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
-    val results = mutableMapOf<Method, () -> Any?>()
+    val results = mutableMapOf<Method, (MethodWithArguments) -> Any?>()
     internal val calls = CopyOnWriteArrayList<MethodWithArguments>()
     override fun invoke(proxy: Any, method: Method, arguments: Array<out Any>?): Any? {
         val nonCoroutinesArgs = cleanArguments(arguments)
-        calls.add(MethodWithArguments(method, nonCoroutinesArgs))
+        val methodWithArguments = MethodWithArguments(method, nonCoroutinesArgs)
+        calls.add(methodWithArguments)
         val result = results[method]
         if (result == null) {
             if (method.name == "equals")
@@ -153,10 +154,10 @@ internal class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
                 return "mock<${kClass.simpleName}>"
         }
         // if there is a result lambda defined, call that, otherwise return null
-        return result?.invoke()
+        return result?.invoke(methodWithArguments)
     }
 
-    fun <T> defineResult(method: Method, result: () -> T) {
+    fun <T> defineResult(method: Method, result: (MethodWithArguments) -> T) {
         results[method] = result
     }
 
@@ -196,7 +197,7 @@ internal class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
                 mockHandler.defineResult(call.method) { parameter }
         }
 
-        override fun will(result: () -> Type) {
+        override fun will(result: (MethodWithArguments) -> Type) {
             val call = recordingHandler.call!!
             mockHandler.defineResult(call.method, result)
         }

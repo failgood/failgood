@@ -56,10 +56,8 @@ class MockTest {
                 }
                 it("mocks can throw") {
                     the(mock) { method { stringReturningFunction() }.will { throw RuntimeException("message") } }
-                    expectThat(
-                        kotlin.runCatching { mock.stringReturningFunction() }
-                            .exceptionOrNull()
-                    ).isA<RuntimeException>().message.isEqualTo("message")
+                    expectThat(kotlin.runCatching { mock.stringReturningFunction() }
+                        .exceptionOrNull()).isA<RuntimeException>().message.isEqualTo("message")
                 }
                 it("defines results via calling the mock even works for nullable functions") {
                     the(mock) { method { functionThatReturnsNullableString() }.will { "resultString" } }
@@ -73,6 +71,17 @@ class MockTest {
                 }
                 expectThat(otherMock.stringReturningFunction()).isEqualTo("resultString")
                 expectThat(otherMock.functionThatReturnsNullableString()).isEqualTo("otherResultString")
+            }
+            it("can call lambdas") {
+                @Suppress("UNCHECKED_CAST")
+                val m = mock<UserManager> {
+                    method { functionThatHasLambdaParameter {} }.will {
+                        (it.arguments.last() as () -> Unit)()
+                    }
+                }
+                var lambdaCalled = false
+                m.functionThatHasLambdaParameter { lambdaCalled = true }
+                assert(lambdaCalled)
             }
         }
         it("can return function calls for normal asserting") {
@@ -165,6 +174,7 @@ class MockTest {
         suspend fun function(a: String, b: String, c: String, d: String, e: String)
     }
 }
+
 private interface I {
     // see https://kotlinlang.org/docs/basic-types.html
     fun methodWithAllTypes(

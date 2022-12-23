@@ -12,8 +12,8 @@ plugins {
 
 dependencies {
     testImplementation(project(":failgood"))
-    implementation("org.gradle:gradle-tooling-api:7.6")
-    implementation(kotlin("stdlib-jdk8"))
+    testImplementation("org.gradle:gradle-tooling-api:7.6")
+    testImplementation(kotlin("stdlib-jdk8"))
 }
 
 tasks {

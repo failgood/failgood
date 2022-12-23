@@ -7,7 +7,7 @@ import failgood.assert.containsExactlyInAnyOrder
 import failgood.describe
 
 @Test
-object SoftAssertExample {
+object SoftAssertTest {
     val tests = describe("soft assert syntax") {
         it("could look like this") {
             val name = "klausi"

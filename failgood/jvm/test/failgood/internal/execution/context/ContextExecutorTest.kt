@@ -195,13 +195,14 @@ class ContextExecutorTest {
                 val ctx = RootContext("root context") {
                     repeat(10) {
                         test("test $it") {
-                            delay(1000)
+                            delay(2000)
                         }
                     }
                 }
                 val scope = CoroutineScope(Dispatchers.Unconfined)
-                withTimeout(100) {
-                    expectThat(ContextExecutor(ctx, scope).execute()).isA<ContextInfo>()
+                // this timeout is huge because of slow ci, that does not mean it takes 1 second in normal use
+                withTimeout(1000) {
+                    assert(ContextExecutor(ctx, scope).execute() is ContextInfo)
                 }
                 scope.cancel()
             }

@@ -11,7 +11,7 @@ import kotlin.test.assertNotNull
 
 @Suppress("NAME_SHADOWING")
 @Test
-class ContextExecutorTest {
+object ContextExecutorTest {
     private var assertionError: AssertionError? = null
 
     @Suppress("SimplifiableCallChain")

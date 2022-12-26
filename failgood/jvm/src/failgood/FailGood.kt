@@ -26,6 +26,7 @@ inline fun <reified T> describe(
     isolation: Boolean = true,
     noinline function: ContextLambda
 ): RootContext = describe(typeOf<T>(), ignored, order, isolation, function)
+
 fun describe(
     subjectType: KType,
     ignored: Ignored? = null,
@@ -114,7 +115,10 @@ object FailGood {
      *
      * @param classIncludeRegex regex that included classes must match
      *        you can also call findTestClasses multiple times to run unit tests before integration tests.
-     *        for example Suite.fromClasses(findTestClasses(TestClass::class, Regex(".*Test.class\$)+findTestClasses(TestClass::class, Regex(".*IT.class\$))
+     *        for example
+     *        ```kotlin
+     *        Suite(findTestClasses(TestClass::class, Regex(".*Test.class\$)+findTestClasses(TestClass::class, Regex(".*IT.class\$))
+     *        ```
      *
      * @param newerThan only return classes that are newer than this. used by autotest
      *
@@ -166,6 +170,10 @@ object FailGood {
      */
     @Suppress("BlockingMethodInNonBlockingContext", "RedundantSuspendModifier")
     suspend fun autoTest(randomTestClass: KClass<*> = findCaller()) {
+        createAutoTestSuite(randomTestClass)?.run()?.check(false)
+    }
+
+    fun createAutoTestSuite(randomTestClass: KClass<*> = findCaller()): Suite? {
         val timeStampPath = Paths.get(".autotest.failgood")
         val lastRun: FileTime? = try {
             Files.readAttributes(timeStampPath, BasicFileAttributes::class.java).lastModifiedTime()
@@ -176,7 +184,8 @@ object FailGood {
         println("last run:$lastRun")
         val classes = findTestClasses(newerThan = lastRun, randomTestClass = randomTestClass)
         println("will run: ${classes.joinToString { it.simpleName!! }}")
-        if (classes.isNotEmpty()) Suite(classes.map { ObjectContextProvider(it) }).run().check(false)
+        return if (classes.isNotEmpty()) Suite(classes.map { ObjectContextProvider(it) })
+        else null
     }
 
     @Suppress("RedundantSuspendModifier")

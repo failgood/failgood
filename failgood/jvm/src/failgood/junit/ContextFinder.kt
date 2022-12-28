@@ -14,6 +14,7 @@ import org.junit.platform.engine.EngineDiscoveryRequest
 import org.junit.platform.engine.discovery.ClassNameFilter
 import org.junit.platform.engine.discovery.ClassSelector
 import org.junit.platform.engine.discovery.ClasspathRootSelector
+import org.junit.platform.engine.discovery.MethodSelector
 import org.junit.platform.engine.discovery.PackageNameFilter
 import org.junit.platform.engine.discovery.UniqueIdSelector
 import org.junit.platform.launcher.LauncherDiscoveryRequest
@@ -56,14 +57,18 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
                 is UniqueIdSelector -> {
                     val (className, filterString) = selector.toClassFilter()
                     filterConfig[className] = filterString
-                    val javaClass = try {
-                        Thread.currentThread().contextClassLoader.loadClass(className)
-                    } catch (e: ClassNotFoundException) {
-                        throw FailGoodException("error loading class $className", e)
-                    }
-                    listOf(ObjectContextProvider(javaClass.kotlin))
+                    listOf(ObjectContextProvider(loadClass(className).kotlin))
                 }
+                is MethodSelector -> {
+                    // TODO don't use kotlin reflection
+                    val result = selector.javaMethod.invoke(selector.javaClass.kotlin.objectInstance)
+                    if (result is Suite) {
+                        return SuiteAndFilters(result, null)
+                    }
+                    listOf()
 
+
+                }
                 else -> {
                     val message = "unknown selector in discovery request: ${
                     discoveryRequestToString(discoveryRequest)
@@ -79,6 +84,12 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
             SuiteAndFilters(
                 Suite(contexts), if (filterConfig.isEmpty()) null else ClassTestFilterProvider(filterConfig)
             )
+    }
+
+    private fun loadClass(className: String): Class<*> = try {
+        Thread.currentThread().contextClassLoader.loadClass(className)
+    } catch (e: ClassNotFoundException) {
+        throw FailGoodException("error loading class $className", e)
     }
 }
 

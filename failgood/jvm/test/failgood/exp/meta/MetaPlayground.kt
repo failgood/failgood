@@ -13,7 +13,8 @@ object Configs {
     fun runAutoTest(): Suite? = FailGood.createAutoTestSuite()
     fun runAllTests(): Suite = Suite(FailGood.findTestClasses())
 }
-
+/*
 fun main() {
     Configs.runAutoTest()?.run()?.check()
 }
+*/

@@ -54,13 +54,11 @@ class ContextFinderTest {
         }
         describe("parsing unique id selectors") {
             it("works when the root contexts contains brackets") {
-                val (filterStringList, className) = parseUniqueIdSelector(
-                    DiscoverySelectors.selectUniqueId(
-                        UniqueId.parse(
-                            "[engine:failgood]/[class:Root Context (with brackets)(className)]/[method:test name]"
-                        )
+                val (className, filterStringList) = DiscoverySelectors.selectUniqueId(
+                    UniqueId.parse(
+                        "[engine:failgood]/[class:Root Context (with brackets)(className)]/[method:test name]"
                     )
-                )
+                ).toClassFilter()
                 assert(filterStringList == listOf("Root Context (with brackets)", "test name"))
                 assert(className == "className")
             }

@@ -52,7 +52,7 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
                         listOf()
                 }
                 is UniqueIdSelector -> {
-                    val (filterString, className) = parseUniqueIdSelector(selector)
+                    val (className, filterString) = selector.toClassFilter()
                     filterConfig[className] = filterString
                     val javaClass = try {
                         Thread.currentThread().contextClassLoader.loadClass(className)
@@ -73,14 +73,14 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
         return ContextsAndFilters(contexts, if (filterConfig.isEmpty()) null else ClassTestFilterProvider(filterConfig))
     }
 }
-data class ClassFilter(val filterStringList: List<String>, val className: String)
-internal fun parseUniqueIdSelector(selector: UniqueIdSelector): ClassFilter {
-    val segments = selector.uniqueId.segments
+data class ClassFilter(val className: String, val filterStringList: List<String>)
+internal fun UniqueIdSelector.toClassFilter(): ClassFilter {
+    val segments = uniqueId.segments
     val segment1 = segments[1].value
     val rootContextName = segment1.substringBeforeLast("(")
     val filterString = listOf(rootContextName) + segments.drop(2).map { it.value }
     val className = segment1.substringAfterLast("(").substringBefore(")")
-    return ClassFilter(filterString, className)
+    return ClassFilter(className, filterString)
 }
 internal fun discoveryRequestToString(discoveryRequest: EngineDiscoveryRequest): String {
     val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)

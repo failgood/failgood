@@ -59,16 +59,16 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
                     filterConfig[className] = filterString
                     listOf(ObjectContextProvider(loadClass(className).kotlin))
                 }
+
                 is MethodSelector -> {
-                    // TODO don't use kotlin reflection
-                    val result = selector.javaMethod.invoke(selector.javaClass.kotlin.objectInstance)
+                    val result =
+                        selector.javaMethod.invoke(ObjectContextProvider.instantiateClassOrObject(selector.javaClass))
                     if (result is Suite) {
                         return SuiteAndFilters(result, null)
                     }
                     listOf()
-
-
                 }
+
                 else -> {
                     val message = "unknown selector in discovery request: ${
                     discoveryRequestToString(discoveryRequest)

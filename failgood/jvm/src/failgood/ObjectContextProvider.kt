@@ -29,31 +29,21 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
     }
 
     private fun getContextsInternal(): List<RootContext> {
-        val instanceField = try {
-            jClass.getDeclaredField("INSTANCE")
-        } catch (e: Exception) {
-            null
-        }
-        val obj = if (instanceField != null)
-        // its a kotlin object
-            instanceField.get(null)
-        else {
-            // it's a kotlin class or a top level context
-            jClass.constructors.singleOrNull()?.let {
-                try {
-                    it.newInstance()
-                } catch (e: InvocationTargetException) {
-                    throw ErrorLoadingContextsFromClass("Could not load contexts from class", jClass, e.targetException)
-                } catch (e: IllegalArgumentException) {
-                    // should we just ignore classes that fit the pattern but have no suitable constructor?
-                    throw ErrorLoadingContextsFromClass(
-                        "No suitable constructor found for class ${jClass.name}", jClass, e
-                    )
-                } catch (e: IllegalAccessException) { // just ignore private classes
-                    return listOf()
-                }
+        val obj =
+            try {
+                instantiateClassOrObject(jClass)
+            } catch (e: InvocationTargetException) {
+                throw ErrorLoadingContextsFromClass("Could not load contexts from class",
+                    jClass, e.targetException)
+            } catch (e: IllegalArgumentException) {
+                // should we just ignore classes that fit the pattern but have no suitable constructor?
+                throw ErrorLoadingContextsFromClass(
+                    "No suitable constructor found for class ${jClass.name}",
+                    jClass, e
+                )
+            } catch (e: IllegalAccessException) { // just ignore private classes
+                return listOf()
             }
-        }
 
         // get contexts from all methods returning RootContext
         val methodsReturningRootContext = jClass.methods.filter { it.returnType == RootContext::class.java }
@@ -69,6 +59,24 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
             val contexts = it.invoke(obj)
             @Suppress("UNCHECKED_CAST")
             contexts as? List<RootContext> ?: listOf(contexts as RootContext)
+        }
+    }
+
+    companion object {
+        fun instantiateClassOrObject(clazz: Class<out Any>): Any? {
+            val instanceField = try {
+                clazz.getDeclaredField("INSTANCE")
+            } catch (e: Exception) {
+                null
+            }
+            val obj = if (instanceField != null)
+            // its a kotlin object
+                instanceField.get(null)
+            else {
+                // it's a kotlin class or a top level context
+                clazz.constructors.singleOrNull()?.newInstance()
+            }
+            return obj
         }
     }
 }

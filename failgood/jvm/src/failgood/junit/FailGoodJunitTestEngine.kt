@@ -41,14 +41,12 @@ class FailGoodJunitTestEngine : TestEngine {
 
         val executionListener = JunitExecutionListener()
         val runTestFixtures = discoveryRequest.configurationParameters.getBoolean(RUN_TEST_FIXTURES).orElse(false)
-        val contextsAndFilters = ContextFinder(runTestFixtures).findContexts(discoveryRequest)
-        val providers: List<ContextProvider> = contextsAndFilters.contexts
-        if (providers.isEmpty())
-        // if we did not find any tests just return an empty descriptor, maybe other engines have tests to run
+        val suiteAndFilters = ContextFinder(runTestFixtures).findContexts(discoveryRequest)
+            ?: // if we did not find any tests just return an empty descriptor, maybe other engines have tests to run
             return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.displayName)
-        val suite = Suite(providers)
+        val suite = suiteAndFilters.suite
         val suiteExecutionContext = SuiteExecutionContext()
-        val filterProvider = contextsAndFilters.filter ?: getenv("FAILGOOD_FILTER")
+        val filterProvider = suiteAndFilters.filter ?: getenv("FAILGOOD_FILTER")
             ?.let { StaticTestFilterProvider(StringListTestFilter(parseFilterString(it))) }
         val testResult = runBlocking(suiteExecutionContext.coroutineDispatcher) {
             val testResult = suite.findTests(

@@ -1,9 +1,9 @@
 package failgood.junit
 
-import failgood.ContextProvider
 import failgood.FailGood
 import failgood.FailGoodException
 import failgood.ObjectContextProvider
+import failgood.Suite
 import failgood.Test
 import failgood.internal.ClassTestFilterProvider
 import failgood.internal.TestFilterProvider
@@ -20,9 +20,9 @@ import org.junit.platform.launcher.LauncherDiscoveryRequest
 import java.nio.file.Paths
 import java.util.LinkedList
 
-internal data class ContextsAndFilters(val contexts: List<ContextProvider>, val filter: TestFilterProvider?)
+internal data class SuiteAndFilters(val suite: Suite, val filter: TestFilterProvider?)
 class ContextFinder(private val runTestFixtures: Boolean = false) {
-    internal fun findContexts(discoveryRequest: EngineDiscoveryRequest): ContextsAndFilters {
+    internal fun findContexts(discoveryRequest: EngineDiscoveryRequest): SuiteAndFilters? {
         val filterConfig = mutableMapOf<String, List<String>>()
         val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)
         val classNamePredicates =
@@ -43,6 +43,7 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
                         ObjectContextProvider(it)
                     }
                 }
+
                 is ClassSelector -> {
                     if (selector.javaClass.isAnnotationPresent(Test::class.java) ||
                         (runTestFixtures && selector.javaClass.isAnnotationPresent(TestFixture::class.java))
@@ -51,6 +52,7 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
                     else
                         listOf()
                 }
+
                 is UniqueIdSelector -> {
                     val (className, filterString) = selector.toClassFilter()
                     filterConfig[className] = filterString
@@ -61,6 +63,7 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
                     }
                     listOf(ObjectContextProvider(javaClass.kotlin))
                 }
+
                 else -> {
                     val message = "unknown selector in discovery request: ${
                     discoveryRequestToString(discoveryRequest)
@@ -70,10 +73,17 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
                 }
             }
         }
-        return ContextsAndFilters(contexts, if (filterConfig.isEmpty()) null else ClassTestFilterProvider(filterConfig))
+        return if (contexts.isEmpty())
+            null
+        else
+            SuiteAndFilters(
+                Suite(contexts), if (filterConfig.isEmpty()) null else ClassTestFilterProvider(filterConfig)
+            )
     }
 }
+
 data class ClassFilter(val className: String, val filterStringList: List<String>)
+
 internal fun UniqueIdSelector.toClassFilter(): ClassFilter {
     val segments = uniqueId.segments
     val segment1 = segments[1].value
@@ -82,6 +92,7 @@ internal fun UniqueIdSelector.toClassFilter(): ClassFilter {
     val className = segment1.substringAfterLast("(").substringBefore(")")
     return ClassFilter(className, filterString)
 }
+
 internal fun discoveryRequestToString(discoveryRequest: EngineDiscoveryRequest): String {
     val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)
     val allFilters = discoveryRequest.getFiltersByType(DiscoveryFilter::class.java)

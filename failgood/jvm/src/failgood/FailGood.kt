@@ -174,7 +174,7 @@ object FailGood {
     }
 
     fun createAutoTestSuite(randomTestClass: KClass<*> = findCaller()): Suite? {
-        val timeStampPath = Paths.get(".autotest.failgood")
+        val timeStampPath = Paths.get(".failgood.autotest.timestamp")
         val lastRun: FileTime? = try {
             Files.readAttributes(timeStampPath, BasicFileAttributes::class.java).lastModifiedTime()
         } catch (e: NoSuchFileException) {

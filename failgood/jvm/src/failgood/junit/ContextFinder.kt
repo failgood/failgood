@@ -73,14 +73,14 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
         return ContextsAndFilters(contexts, if (filterConfig.isEmpty()) null else ClassTestFilterProvider(filterConfig))
     }
 }
-
-internal fun parseUniqueIdSelector(selector: UniqueIdSelector): Pair<List<String>, String> {
+data class ClassFilter(val filterStringList: List<String>, val className: String)
+internal fun parseUniqueIdSelector(selector: UniqueIdSelector): ClassFilter {
     val segments = selector.uniqueId.segments
     val segment1 = segments[1].value
     val rootContextName = segment1.substringBeforeLast("(")
     val filterString = listOf(rootContextName) + segments.drop(2).map { it.value }
     val className = segment1.substringAfterLast("(").substringBefore(")")
-    return Pair(filterString, className)
+    return ClassFilter(filterString, className)
 }
 internal fun discoveryRequestToString(discoveryRequest: EngineDiscoveryRequest): String {
     val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)

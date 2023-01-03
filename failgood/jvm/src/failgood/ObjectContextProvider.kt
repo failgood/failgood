@@ -1,6 +1,7 @@
 package failgood
 
 import java.lang.reflect.InvocationTargetException
+import java.lang.reflect.ParameterizedType
 import kotlin.reflect.KClass
 
 fun interface ContextProvider {
@@ -21,41 +22,38 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
         // overwrite that information with a pointer to the first line of the class we just loaded.
 
         return getContextsInternal().map {
-            if (it.sourceInfo.className != jClass.name)
-                it.copy(sourceInfo = SourceInfo(jClass.name, null, 1))
-            else
-                it
+            if (it.sourceInfo.className != jClass.name) it.copy(sourceInfo = SourceInfo(jClass.name, null, 1))
+            else it
         }
     }
 
     private fun getContextsInternal(): List<RootContext> {
-        val obj =
-            try {
-                instantiateClassOrObject(jClass)
-            } catch (e: InvocationTargetException) {
-                throw ErrorLoadingContextsFromClass("Could not load contexts from class",
-                    jClass, e.targetException)
-            } catch (e: IllegalArgumentException) {
-                // should we just ignore classes that fit the pattern but have no suitable constructor?
-                throw ErrorLoadingContextsFromClass(
-                    "No suitable constructor found for class ${jClass.name}",
-                    jClass, e
-                )
-            } catch (e: IllegalAccessException) { // just ignore private classes
-                return listOf()
-            }
-
-        // get contexts from all methods returning RootContext
-        val methodsReturningRootContext = jClass.methods.filter { it.returnType == RootContext::class.java }
-        // if there are no methods returning RootContext, maybe getContext returns a list of RootContexts
-        val contextGetters = methodsReturningRootContext.ifEmpty {
-            try {
-                listOf(jClass.getDeclaredMethod("getContext"))
-            } catch (e: Exception) {
-                throw ErrorLoadingContextsFromClass("no contexts found in class", jClass)
-            }
+        val obj = try {
+            instantiateClassOrObject(jClass)
+        } catch (e: InvocationTargetException) {
+            throw ErrorLoadingContextsFromClass(
+                "Could not load contexts from class", jClass, e.targetException
+            )
+        } catch (e: IllegalArgumentException) {
+            // should we just ignore classes that fit the pattern but have no suitable constructor?
+            throw ErrorLoadingContextsFromClass(
+                "No suitable constructor found for class ${jClass.name}", jClass, e
+            )
+        } catch (e: IllegalAccessException) { // just ignore private classes
+            return listOf()
         }
-        return contextGetters.flatMap {
+
+        // get contexts from all methods returning RootContext or List<RootContext>
+        val methodsReturningRootContext = jClass.methods.filter {
+            it.returnType == RootContext::class.java || it.returnType == List::class.java &&
+                (it.genericReturnType.let { genericReturnType ->
+                    genericReturnType is ParameterizedType &&
+                        genericReturnType.actualTypeArguments.singleOrNull() == RootContext::class.java
+                })
+        }.ifEmpty {
+            throw ErrorLoadingContextsFromClass("no contexts found in class", jClass)
+        }
+        return methodsReturningRootContext.flatMap {
             val contexts = it.invoke(obj)
             @Suppress("UNCHECKED_CAST")
             contexts as? List<RootContext> ?: listOf(contexts as RootContext)

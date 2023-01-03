@@ -14,10 +14,8 @@ class ContextListExample {
  also starting the postgresql container in a separate thread in a static initializer.
  that way the tests that don't need the container will run first while the postgres container starts in the background
  and is ready for the other tests later.
- right now only the field "context" is checked for a list of contexts. this will probably change at some point,
- but it's also a very exotic feature.
 */
-    val context = listOf(
+    val contexts = listOf(
         describe("first of multiple contexts defined in one object", order = 0) {
             it("describes behavior") { expectThat("test").isEqualTo("test") }
         },

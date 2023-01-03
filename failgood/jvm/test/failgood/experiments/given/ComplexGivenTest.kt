@@ -33,11 +33,11 @@ class ComplexGivenTest {
                             expectThat(string).isEqualTo("StringDependencyAddedString")
                         }
                     }
-                    context(
+                    describe(
                         "a child context that does not use the parent dependency." +
                             " for tests in this context the parent context dependencies" +
                             " are not constructed",
-                        given = { -> "TotallyNewString" }
+                        given = { "TotallyNewString" }
                     ) {
                         this@given2.test2("another test that takes a string dependency") { string ->
                             expectThat(string).isEqualTo("TotallyNewString")

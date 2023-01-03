@@ -103,9 +103,9 @@ object JunitPlatformFunctionalTest {
             val rootContext = assertNotNull(testPlan.getChildren(root).singleOrNull())
             val (tests, subcontexts) = testPlan.getChildren(rootContext).partition { it.isTest }
             assert(tests.map { it.displayName } == listOf("test 1", "test 2", "test 3", "test 4"))
-            subcontexts.forEach {
+            subcontexts.forEach { testIdentifier ->
                 assert(
-                    testPlan.getChildren(it).map { it.displayName } == listOf(
+                    testPlan.getChildren(testIdentifier).map { it.displayName } == listOf(
                         "test 1", "test 2", "test 3", "test 4"
                     )
                 )
@@ -144,7 +144,7 @@ object JunitPlatformFunctionalTest {
     private suspend fun executeSingleTest(singleTest: KClass<*>): Results =
         execute(listOf(selectClass(singleTest.qualifiedName)))
 
-    suspend fun execute(discoverySelectors: List<DiscoverySelector>): Results {
+    private suspend fun execute(discoverySelectors: List<DiscoverySelector>): Results {
         val listener = TEListener()
 
         LauncherFactory.create().execute(launcherDiscoveryRequest(discoverySelectors), listener)

@@ -1,4 +1,4 @@
-package failgood.exp.meta
+package failgood.experiments.meta
 
 import org.junit.platform.commons.annotation.Testable
 

@@ -46,10 +46,10 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
         // get contexts from all methods returning RootContext or List<RootContext>
         val methodsReturningRootContext = jClass.methods.filter {
             it.returnType == RootContext::class.java || it.returnType == List::class.java &&
-                (it.genericReturnType.let { genericReturnType ->
+                it.genericReturnType.let { genericReturnType ->
                     genericReturnType is ParameterizedType &&
                         genericReturnType.actualTypeArguments.singleOrNull() == RootContext::class.java
-                })
+                }
         }.ifEmpty {
             throw ErrorLoadingContextsFromClass("no contexts found in class", jClass)
         }

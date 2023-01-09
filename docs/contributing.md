@@ -17,5 +17,4 @@ To do this just add `includeBuild(<PATH_TO_FAILGOOD_ROOT_DIR>)` to your projects
 For example if you have failgood checked out in the same directory level as your project this would be
 `includeBuild("../failgood")`
 
-Trying out the failgood main branch is very helpful for the failgood project. Make sure to report any issues you find
-in slack, or as GitHub issues if it is clearly a bug.
+Trying out the failgood main branch is very helpful for the failgood project. Make sure to report any issues you find in slack, or as GitHub issues if you think it is a bug.

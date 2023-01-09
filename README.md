@@ -21,18 +21,20 @@ class MyFirstFailgoodTest {
 }
 ```
 [Failgood in 5 minutes](docs/failgood%20in%205%20minutes.md)
-## Why failgood is the best test-runner for most people
 
-### Super Fast
+## Whats so cool about it?
+
+### Its Fast
 While other test-runners are still busy scanning your classpath for tests, failgood is already running them in parallel, and if your test suite is lightweight and well written maybe its already finished.
 This is failgood running its own test suite on a Macbook Air:
+
 ```
 147 tests. 145 ok, 2 pending. time: 403ms. load:312%. 364 tests/sec
 ```
 147 Tests in 0.4 seconds. Your test suite could be so fast too.
 
 ### Boring
-Failgood is boring at runtime. Every test runs with fresh dependencies, just like in junit 4, see [test lifecycle](docs/how%20to%20write%20tests%20with%20failgood.md). For advanced lifecycle option look at [More on lifecycle](docs/isolation.md)
+Failgood is boring at runtime. Every test runs with fresh dependencies, just like in JUnit, see [test lifecycle](docs/how%20to%20write%20tests%20with%20failgood.md). For advanced lifecycle option look at [More on lifecycle](docs/isolation.md)
 
 Everything is just kotlin.
 Want to reuse a group of tests? extract a function for them.

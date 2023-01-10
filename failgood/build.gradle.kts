@@ -39,8 +39,8 @@ dependencies {
     testImplementation(kotlin("test"))
 
     // for the tools that analyze what events jupiter tests generate.
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.1")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.2")
 }
 sourceSets.main {
     java.srcDirs("jvm/src")

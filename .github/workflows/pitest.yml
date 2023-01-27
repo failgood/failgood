@@ -1,4 +1,4 @@
-name: PITest
+name: PIT
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
 jobs:
   build:
 
-    name: pitest jdk 19
+    name: Pitest on jdk 19
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

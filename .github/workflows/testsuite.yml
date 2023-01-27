@@ -1,4 +1,4 @@
-name: Test Suite
+name: Tests
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
           - os: windows-latest
             java: 11
 
-    name: test-suite-on-${{ matrix.os }}-with-java-version-${{ matrix.java }}
+    name: Tests on ${{ matrix.os }} with JDK ${{ matrix.java }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3

@@ -1,4 +1,4 @@
-name: CI
+name: PITest
 
 on:
   push:
@@ -11,14 +11,14 @@ on:
 jobs:
   build:
 
-    name: pitest jdk 17
+    name: pitest jdk 19
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: 17
+          java-version: 19
       - name: Cache Gradle packages
         uses: actions/cache@v3
         with:

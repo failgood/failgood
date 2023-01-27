@@ -17,7 +17,7 @@ dependencies {
 
     // everything else is optional, and only here because some tests show interactions with these libs
     testImplementation("io.strikt:strikt-core:$striktVersion")
-    testImplementation("io.mockk:mockk:1.13.3")
+    testImplementation("io.mockk:mockk:1.13.4")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.4")
     implementation("org.slf4j:slf4j-api:2.0.6")

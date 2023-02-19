@@ -16,9 +16,9 @@ jobs:
         java: [ 11, 17 ]
         experimental: [ false ]
         include:
-          - os: [ windows-latest ]
-            java: [ 17 ]
-            experimental: [ true ]
+          - os: windows-latest
+            java: 17
+            experimental: true
 
     name: Tests on ${{ matrix.os }} with JDK ${{ matrix.java }}
     runs-on: ${{ matrix.os }}

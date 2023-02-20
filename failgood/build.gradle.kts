@@ -34,7 +34,7 @@ dependencies {
     testImplementation("org.pitest:pitest:$pitestVersion")
     testImplementation("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
     testImplementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
-    testImplementation("io.projectreactor.tools:blockhound:1.0.6.RELEASE")
+    testImplementation("io.projectreactor.tools:blockhound:1.0.7.RELEASE")
 
     testImplementation(kotlin("test"))
 

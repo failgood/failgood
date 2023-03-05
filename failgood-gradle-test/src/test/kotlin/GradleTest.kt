@@ -8,6 +8,7 @@ import org.gradle.tooling.events.ProgressListener
 import org.gradle.tooling.events.test.JvmTestOperationDescriptor
 import org.gradle.tooling.events.test.internal.DefaultTestStartEvent
 import java.io.File
+import kotlin.io.path.createTempDirectory
 
 @Test
 class GradleTest {
@@ -18,8 +19,10 @@ class GradleTest {
             ).parentFile.parentFile.parentFile.parentFile.parentFile
 
             val buildDir = File(rootDirectory, "simple-gradle-project")
+            val tempDir = createTempDirectory()
+            buildDir.copyRecursively(tempDir.toFile())
             GradleConnector.newConnector()
-                .forProjectDirectory(buildDir)
+                .forProjectDirectory(tempDir.toFile())
                 .connect().use { connection ->
                     connection.newTestLauncher().withJvmTestClasses("failgood.gradle.test")
                         .addProgressListener(Listener()).run()

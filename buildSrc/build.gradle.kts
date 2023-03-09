@@ -11,7 +11,7 @@ repositories {
 dependencies {
     // hotfix to make kotlin scratch files work in idea
     implementation(kotlin("script-runtime"))
-    implementation(kotlin("gradle-plugin", "1.7.22"))
+    implementation(kotlin("gradle-plugin", "1.8.20-RC"))
     implementation("com.adarshr:gradle-test-logger-plugin:3.2.0")
 }
 idea {

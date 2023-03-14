@@ -71,7 +71,7 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
 
                 else -> {
                     val message = "unknown selector in discovery request: ${
-                    discoveryRequestToString(discoveryRequest)
+                        discoveryRequestToString(discoveryRequest)
                     }"
                     System.err.println(message)
                     throw FailGoodException(message)

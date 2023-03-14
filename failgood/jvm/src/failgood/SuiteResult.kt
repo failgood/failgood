@@ -38,9 +38,9 @@ data class SuiteResult(
                 val pending = pendingTests.size
                 println(
                     pluralize(totalTests, "test") + ". ${totalTests - pending} ok, $pending pending. time: ${
-                    uptime(
-                        totalTests
-                    )
+                        uptime(
+                            totalTests
+                        )
                     }"
                 )
                 return

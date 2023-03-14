@@ -46,10 +46,10 @@ internal class ContextTreeReporter {
                         is Failure -> listOf(
                             "$indentString  $FAILED ${testResult.test.testName} ${RED}FAILED$RESET",
                             "$indentString    ${
-                            testResult.result.failure.message?.replace(
-                                "\n",
-                                "\\n"
-                            )
+                                testResult.result.failure.message?.replace(
+                                    "\n",
+                                    "\\n"
+                                )
                             }",
                             "$indentString    ${testResult.test.sourceInfo.likeStackTrace(testResult.test.testName)}"
                         )

@@ -24,6 +24,12 @@ indent_size = 2
 
 [*.{kt,kts}]
 # noinspection EditorConfigKeyCorrectness
-ktlint_disabled_rules = no-wildcard-imports, filename, multiline-if-else, argument-list-wrapping, wrapping
+#ktlint_disabled_rules = no-wildcard-imports, filename, multiline-if-else, argument-list-wrapping, wrapping
+ktlint_standard_no-wildcard-imports = disabled
+ktlint_standard_filename = disabled
+ktlint_standard_multiline-if-else = disabled
+ktlint_standard_argument-list-wrapping = disabled
+ktlint_standard_wrapping = disabled
+
 ij_kotlin_allow_trailing_comma_on_call_site = false
 ij_kotlin_allow_trailing_comma = false

@@ -9,7 +9,7 @@ import failgood.Suite
 this is just an experiment for now to start suites from idea. does not work from gradle.
  */
 @MetaTest
-object Configs {
+object MetaPlayground {
     // maybe:
     // SuiteBuilder().createAutoTestSuite()
     // SuiteBuilder().addTestClasses("**Test").addTestClasses("...")

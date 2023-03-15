@@ -4,24 +4,26 @@ import com.sun.jdi.Bootstrap
 import com.sun.jdi.ClassType
 import com.sun.jdi.VMDisconnectedException
 import com.sun.jdi.event.ClassPrepareEvent
-import com.sun.jdi.event.VMDeathEvent
 import failgood.Test
 import failgood.describe
 
 @Test
-object DebuggerTest {
+object DebuggerPlayground {
     val context = describe("experimenting with debugging") {
         test("whatever") {
-            val clazzName = Debuggee::class.java.name
-            println(clazzName)
+            val mainClass = Debuggee::class.java.name
+            println(mainClass)
+            val classPath = System.getProperty("java.class.path")
+            println(classPath)
             val launchingConnector = Bootstrap.virtualMachineManager()
                 .defaultConnector()
             val arguments = launchingConnector.defaultArguments()
-            arguments["main"]!!.setValue(clazzName)
+            arguments["main"]!!.setValue(mainClass)
+            arguments["options"]!!.setValue("-cp \"$classPath\"")
             val vm = launchingConnector.launch(arguments)
 
             val classPrepareRequest = vm.eventRequestManager().createClassPrepareRequest()
-            classPrepareRequest.addClassFilter("*Debugee*")
+            classPrepareRequest.addClassFilter(mainClass)
             classPrepareRequest.enable()
             val queue = vm.eventQueue()
             try {
@@ -29,9 +31,6 @@ object DebuggerTest {
                     val eventSet = queue.remove() ?: break
                     eventSet.forEach { ev ->
                         when (ev) {
-                            is VMDeathEvent -> {
-                                println("death:$ev")
-                            }
                             is ClassPrepareEvent -> {
                                 println("r:" + ev.referenceType())
                                 val classType = ev.referenceType() as ClassType

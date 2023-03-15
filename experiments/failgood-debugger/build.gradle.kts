@@ -5,7 +5,7 @@ import info.solidsoft.gradle.pitest.PitestPluginExtension
 
 plugins {
     kotlin("jvm")
-    id("info.solidsoft.pitest")
+//    id("info.solidsoft.pitest")
     id("failgood.common")
 //    id("failgood.publishing")
     id("com.bnorm.power.kotlin-power-assert") version "0.12.0"

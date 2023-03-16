@@ -2,7 +2,9 @@ package failgood.experiments
 
 import com.sun.jdi.Bootstrap
 import com.sun.jdi.ClassType
+import com.sun.jdi.StackFrame
 import com.sun.jdi.VMDisconnectedException
+import com.sun.jdi.event.BreakpointEvent
 import com.sun.jdi.event.ClassPrepareEvent
 import failgood.Test
 import failgood.describe
@@ -12,9 +14,7 @@ object DebuggerPlayground {
     val context = describe("experimenting with debugging") {
         test("whatever") {
             val mainClass = Debuggee::class.java.name
-            println(mainClass)
             val classPath = System.getProperty("java.class.path")
-            println(classPath)
             val launchingConnector = Bootstrap.virtualMachineManager()
                 .defaultConnector()
             val arguments = launchingConnector.defaultArguments()
@@ -22,7 +22,8 @@ object DebuggerPlayground {
             arguments["options"]!!.setValue("-cp \"$classPath\"")
             val vm = launchingConnector.launch(arguments)
 
-            val classPrepareRequest = vm.eventRequestManager().createClassPrepareRequest()
+            val eventRequestManager = vm.eventRequestManager()
+            val classPrepareRequest = eventRequestManager.createClassPrepareRequest()
             classPrepareRequest.addClassFilter(mainClass)
             classPrepareRequest.enable()
             val queue = vm.eventQueue()
@@ -32,9 +33,21 @@ object DebuggerPlayground {
                     eventSet.forEach { ev ->
                         when (ev) {
                             is ClassPrepareEvent -> {
-                                println("r:" + ev.referenceType())
                                 val classType = ev.referenceType() as ClassType
-                                println(classType.allLineLocations().map { it.lineNumber() })
+                                classType.allLineLocations()
+                                    .forEach { eventRequestManager.createBreakpointRequest(it).also { it.enable() } }
+                            }
+                            is BreakpointEvent -> {
+                                val event = ev
+                                val stackFrame: StackFrame = event.thread().frame(0)
+
+                                if (stackFrame.location().toString().contains(mainClass)) {
+                                    val visibleVariables = stackFrame.getValues(stackFrame.visibleVariables())
+                                    println("Variables at " + stackFrame.location().toString() + " > ")
+                                    for ((key, value) in visibleVariables) {
+                                        println(key.name() + " = " + value)
+                                    }
+                                }
                             }
                         }
                     }

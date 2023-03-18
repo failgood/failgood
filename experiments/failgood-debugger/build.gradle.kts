@@ -5,7 +5,7 @@ import info.solidsoft.gradle.pitest.PitestPluginExtension
 
 plugins {
     kotlin("jvm")
-//    id("info.solidsoft.pitest")
+    id("info.solidsoft.pitest")
     id("failgood.common")
 //    id("failgood.publishing")
     id("com.bnorm.power.kotlin-power-assert") version "0.12.0"
@@ -27,7 +27,6 @@ sourceSets.test {
     java.srcDirs("test")
     resources.srcDirs("test-resources")
 }
-/*
 plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
 //                verbose.set(true)
@@ -43,7 +42,6 @@ plugins.withId("info.solidsoft.pitest") {
         outputFormats.set(setOf("XML", "HTML"))
     }
 }
-*/
 configure<com.bnorm.power.PowerAssertGradleExtension> {
     functions = listOf("kotlin.assert", "kotlin.test.assertTrue", "kotlin.test.assertNotNull")
 }

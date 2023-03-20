@@ -1,6 +1,8 @@
+@file:Suppress("EmptyMethod")
+
 package failgood.gradle.test
 
-class MyFirstJUnitJupiterTests {
+class JupiterTest {
     @org.junit.jupiter.api.Test
     fun  `a test`() {
     }

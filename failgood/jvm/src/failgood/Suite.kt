@@ -28,14 +28,14 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                         if (!silent) {
                             printResults(this, contextInfos)
                         }
-                        awaitTestResult(contextInfos)
+                        awaitTestResults(contextInfos.awaitAll())
                     }
                 }
         }
     }
 
     // set timeout to the timeout in milliseconds, an empty string to turn it off
-    val timeoutMillis: Long = parseTimeout(getenv("TIMEOUT"))
+    private val timeoutMillis: Long = parseTimeout(getenv("TIMEOUT"))
 
     companion object {
         internal fun parseTimeout(timeout: String?): Long {
@@ -111,12 +111,6 @@ internal fun uptime(totalTests: Int? = null): String {
         " " + pluralize(totalTests * 1000 / uptime.toInt(), "test") + "/sec"
     } else
         ""
-}
-
-private suspend fun awaitTestResult(
-    contextInfos: List<Deferred<ContextResult>>
-): SuiteResult {
-    return awaitTestResults(contextInfos.awaitAll())
 }
 
 internal suspend fun awaitTestResults(resolvedContexts: List<ContextResult>): SuiteResult {

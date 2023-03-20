@@ -1,5 +1,3 @@
-@file:Suppress("UNUSED_PARAMETER")
-
 package failgood.experiments.meta
 
 import failgood.FailGood

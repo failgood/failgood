@@ -11,9 +11,7 @@ object DebuggerPlayground {
         test("can start a class in a new vm and get variable values for every line") {
             val mainClass = Debuggee::class.java.name
             val variableInfo = runClass(mainClass)
-            assertNotNull(variableInfo[10]).let {
-                assertEquals(it["name"], "\"blubbi\"")
-            }
+            assertEquals(assertNotNull(variableInfo[10])["name"], "\"blubbi\"")
         }
     }
 }

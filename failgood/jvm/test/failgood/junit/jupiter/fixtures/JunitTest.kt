@@ -1,3 +1,5 @@
+@file:Suppress("EmptyMethod")
+
 package failgood.junit.jupiter.fixtures
 
 import org.junit.jupiter.api.Test

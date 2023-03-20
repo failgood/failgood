@@ -1,8 +1,5 @@
 @file:Suppress("GradlePackageUpdate")
 
-import failgood.versions.*
-import info.solidsoft.gradle.pitest.PitestPluginExtension
-
 plugins {
     kotlin("jvm")
     id("info.solidsoft.pitest")
@@ -28,7 +25,7 @@ sourceSets.test {
     resources.srcDirs("test-resources")
 }
 plugins.withId("info.solidsoft.pitest") {
-    configure<PitestPluginExtension> {
+    configure<info.solidsoft.gradle.pitest.PitestPluginExtension> {
 //                verbose.set(true)
         jvmArgs.set(listOf("-Xmx512m")) // necessary on CI
         avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))

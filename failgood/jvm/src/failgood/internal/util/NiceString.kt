@@ -1,4 +1,4 @@
-package failgood.util
+package failgood.internal.util
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KType

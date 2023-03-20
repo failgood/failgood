@@ -1,4 +1,4 @@
-package failgood.util
+package failgood.internal.util
 
 internal class StringUniquer {
     private val used = mutableSetOf<String>()

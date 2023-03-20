@@ -6,7 +6,7 @@ import failgood.TestDescription
 import failgood.internal.ContextInfo
 import failgood.internal.ContextResult
 import failgood.internal.FailedRootContext
-import failgood.util.StringUniquer
+import failgood.internal.util.StringUniquer
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestSource
 import org.junit.platform.engine.UniqueId

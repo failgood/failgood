@@ -2,7 +2,7 @@ package failgood
 
 import failgood.internal.ContextPath
 import failgood.internal.TestFixture
-import failgood.util.niceString
+import failgood.internal.util.niceString
 import java.io.File
 import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes

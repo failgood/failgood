@@ -1,7 +1,7 @@
 package failgood.internal
 
 import failgood.cpus
-import failgood.util.getenv
+import failgood.internal.util.getenv
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel

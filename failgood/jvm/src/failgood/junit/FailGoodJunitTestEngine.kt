@@ -5,10 +5,10 @@ import failgood.internal.ExecuteAllTestFilterProvider
 import failgood.internal.StaticTestFilterProvider
 import failgood.internal.StringListTestFilter
 import failgood.internal.SuiteExecutionContext
+import failgood.internal.util.getenv
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES
 import failgood.junit.JunitExecutionListener.TestExecutionEvent
-import failgood.util.getenv
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import org.junit.platform.engine.*

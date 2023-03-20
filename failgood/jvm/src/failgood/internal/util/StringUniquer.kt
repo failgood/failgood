@@ -1,7 +1,11 @@
-package failgood.util
+package failgood.internal.util
 
 internal class StringUniquer {
     private val used = mutableSetOf<String>()
+
+    /**
+     * this adds a number to a string to make it unique
+     */
     fun makeUnique(path: String): String {
         return if (used.add(path))
             path

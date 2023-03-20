@@ -94,3 +94,5 @@ tasks.register<Test>("runSingleNonFailgoodTest") {
     include("**/NonFailgoodTest.class")
     useJUnitPlatform()
 }
+
+tasks.withType<Jar> { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }

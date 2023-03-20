@@ -2,6 +2,7 @@ package failgood.util
 
 import failgood.Test
 import failgood.describe
+import failgood.internal.util.niceString
 import kotlin.reflect.typeOf
 
 @Test

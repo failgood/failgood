@@ -6,7 +6,8 @@ import failgood.internal.ContextTreeReporter
 import failgood.internal.ExecuteAllTestFilterProvider
 import failgood.internal.TestFilterProvider
 import failgood.internal.execution.context.ContextExecutor
-import failgood.util.getenv
+import failgood.internal.util.getenv
+import failgood.internal.util.pluralize
 import kotlinx.coroutines.*
 import java.lang.management.ManagementFactory
 import kotlin.reflect.KClass
@@ -34,13 +35,17 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     }
 
     // set timeout to the timeout in milliseconds, an empty string to turn it off
-    private val timeoutMillis: Long = getenv("TIMEOUT").let {
-        when (it) {
-            null -> DEFAULT_TIMEOUT
-            "" -> null
-            else -> it.toLongOrNull() ?: throw FailGoodException("TIMEOUT must be a number or an empty string")
+    val timeoutMillis: Long = parseTimeout(getenv("TIMEOUT"))
+
+    companion object {
+        internal fun parseTimeout(timeout: String?): Long {
+            return when (timeout) {
+                null -> DEFAULT_TIMEOUT
+                "" -> Long.MAX_VALUE
+                else -> timeout.toLongOrNull() ?: throw FailGoodException("TIMEOUT must be a number or an empty string")
+            }
         }
-    } ?: Long.MAX_VALUE
+    }
 
     internal suspend fun findTests(
         coroutineScope: CoroutineScope,
@@ -159,7 +164,6 @@ internal fun printResults(coroutineScope: CoroutineScope, contextInfos: List<Def
     }
 }
 
-internal fun pluralize(count: Int, item: String) = if (count == 1) "1 $item" else "$count ${item}s"
 fun Suite(rootContexts: Collection<RootContext>) =
     Suite(rootContexts.map { ContextProvider { listOf(it) } })
 

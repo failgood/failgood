@@ -4,7 +4,8 @@ import failgood.internal.Colors
 import failgood.internal.ContextTreeReporter
 import failgood.internal.FailedRootContext
 import failgood.internal.Junit4Reporter
-import failgood.util.getenv
+import failgood.internal.util.getenv
+import failgood.internal.util.pluralize
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.system.exitProcess

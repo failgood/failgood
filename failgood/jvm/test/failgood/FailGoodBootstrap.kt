@@ -1,6 +1,6 @@
 package failgood
 
-import failgood.util.getenv
+import failgood.internal.util.getenv
 import kotlinx.coroutines.CompletableDeferred
 import strikt.api.expectThat
 import strikt.assertions.all

@@ -63,5 +63,16 @@ class SuiteTest {
                     )
                 }
             }
+            describe("timeout parsing") {
+                it("returns timeout when it is a number") {
+                    assert(Suite.parseTimeout("123") == 123L)
+                }
+                it("throws when it is not a number") {
+                    assertNotNull(runCatching { Suite.parseTimeout("BLAH") }.exceptionOrNull())
+                }
+                it("returns DEFAULT_TIMEOUT when no timeout is set") {
+                    assert(Suite.parseTimeout(null) == DEFAULT_TIMEOUT)
+                }
+            }
         }
 }

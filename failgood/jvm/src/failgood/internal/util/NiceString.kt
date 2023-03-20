@@ -1,9 +1,9 @@
-package failgood.util
+package failgood.internal.util
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
-fun KType.niceString(): String {
+internal fun KType.niceString(): String {
     val kt = this
     return try {
         buildString {

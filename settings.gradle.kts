@@ -7,6 +7,10 @@ dependencyResolutionManagement {
 //    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS) // kover does not work with this
 }
 rootProject.name = "failgood-root"
-include("failgood", "failgood-examples", "failgood-gradle-test"
-    , "experiments:failgood-debugger"
-    )
+include(
+    "failgood",
+    "failgood-examples",
+    "failgood-gradle-test",
+    "experiments:failgood-debugger",
+    "experiments:failgood-logging"
+)

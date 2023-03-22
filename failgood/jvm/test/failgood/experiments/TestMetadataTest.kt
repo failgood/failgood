@@ -9,10 +9,10 @@ import kotlin.test.assertNotNull
 object TestMetadataTest {
     val tests = describe("accessing the test metadata") {
         it("is possible for the test") {
-            this._test_event("debug_log", "log body")
+            this.log("log body")
             assert(
                 assertNotNull(this.testInfo.context.events.singleOrNull()) == TestExecutionContext.Event(
-                    "debug_log",
+                    "stdout",
                     "log body"
                 )
             )

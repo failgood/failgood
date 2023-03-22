@@ -25,7 +25,7 @@ internal interface ResourcesCloser : ResourcesDSL {
     suspend fun callAfterEach(testDSL: TestDSL, testResult: TestResult)
 }
 
-internal class OnlyResourcesCloser(private val scope: CoroutineScope) : ResourcesCloser {
+internal class ResourcesCloserImpl(private val scope: CoroutineScope) : ResourcesCloser {
     override fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T {
         addClosable(SuspendAutoCloseable(wrapped, closeFunction))
         return wrapped

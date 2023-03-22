@@ -2,6 +2,7 @@ package failgood
 
 @FailGoodDSL
 interface TestDSL : ResourcesDSL {
+
     /**
      * returns information about the running test. Currently only the name of the test.
      */
@@ -17,4 +18,4 @@ interface TestDSL : ResourcesDSL {
     suspend fun _test_event(type: String, body: String)
 }
 
-data class TestInfo(val name: String)
+data class TestInfo(val name: String, val context: TestExecutionContext)

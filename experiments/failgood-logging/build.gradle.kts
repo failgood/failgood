@@ -14,6 +14,8 @@ plugins {
 dependencies {
     testImplementation(kotlin("test"))
     testImplementation(project(":failgood"))
+    implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
+    implementation("org.slf4j:slf4j-api:2.0.7")
 }
 sourceSets.main {
     java.srcDirs("src")

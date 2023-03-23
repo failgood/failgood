@@ -1,5 +1,3 @@
-package failgood.examples
-
 import mu.KLogger
 import mu.KotlinLogging
 

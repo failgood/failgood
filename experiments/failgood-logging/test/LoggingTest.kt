@@ -1,5 +1,3 @@
-package failgood.examples
-
 import failgood.Test
 import failgood.TestDSL
 import failgood.describe

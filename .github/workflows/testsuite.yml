@@ -15,10 +15,12 @@ jobs:
         os: [ ubuntu-latest ]
         java: [ 11, 17 ]
         experimental: [ false ]
-        include:
-          - os: windows-latest
-            java: 17
-            experimental: true
+# Failgood works and builds great on windows, but CI is very flaky
+# feel free to submit a PR that fixes CI on windows if you need this
+#        include:
+#          - os: windows-latest
+#            java: 17
+#            experimental: true
 
     name: Tests on ${{ matrix.os }} with JDK ${{ matrix.java }}
     runs-on: ${{ matrix.os }}

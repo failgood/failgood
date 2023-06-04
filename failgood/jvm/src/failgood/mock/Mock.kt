@@ -191,17 +191,17 @@ internal class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
         private val recordingHandler: RecordingHandler
     ) :
         MockReplyRecorder<Type> {
-        override fun returns(parameter: Type) {
-            val call = recordingHandler.call!!
-            if (parameter != null)
-                mockHandler.defineResult(call.method) { parameter }
-        }
+            override fun returns(parameter: Type) {
+                val call = recordingHandler.call!!
+                if (parameter != null)
+                    mockHandler.defineResult(call.method) { parameter }
+            }
 
-        override fun will(result: (MethodWithArguments) -> Type) {
-            val call = recordingHandler.call!!
-            mockHandler.defineResult(call.method, result)
+            override fun will(result: (MethodWithArguments) -> Type) {
+                val call = recordingHandler.call!!
+                mockHandler.defineResult(call.method, result)
+            }
         }
-    }
 
     class RecordingHandler : InvocationHandler {
         var call: MethodWithArguments? = null

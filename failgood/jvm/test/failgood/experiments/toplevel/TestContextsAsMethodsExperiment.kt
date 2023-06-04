@@ -19,6 +19,5 @@ class TestContextsAsMethodsExperiment {
         order: Int = 0,
         isolation: Boolean = true,
         function: ContextLambda
-    ):
-        RootContext = RootContext("todo", ignored, order, isolation, function = function)
+    ): RootContext = RootContext("todo", ignored, order, isolation, function = function)
 }

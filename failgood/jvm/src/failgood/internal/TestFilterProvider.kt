@@ -14,8 +14,8 @@ internal class StaticTestFilterProvider(val filter: TestFilter) : TestFilterProv
 
 internal class ClassTestFilterProvider(private val filterConfig: Map<String, List<String>>) :
     TestFilterProvider {
-    override fun forClass(className: String): TestFilter {
-        return filterConfig[className]?.let { StringListTestFilter(it) }
-            ?: ExecuteAllTests
+        override fun forClass(className: String): TestFilter {
+            return filterConfig[className]?.let { StringListTestFilter(it) }
+                ?: ExecuteAllTests
+        }
     }
-}

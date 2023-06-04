@@ -30,31 +30,39 @@ object ContextExecutorTest {
                     throw assertionError!!
                 }
                 context("context 1") {
-                    context("context 2") { test("test 3") {
-                        delay(1)
-                    } }
+                    context("context 2") {
+                        test("test 3") {
+                            delay(1)
+                        }
+                    }
                 }
-                context("context 4") { test("test 4") {
-                    delay(1)
-                } }
+                context("context 4") {
+                    test("test 4") {
+                        delay(1)
+                    }
+                }
             }
             describe("executing all the tests") {
                 val contextInfo = assertNotNull(execute(ctx) as? ContextInfo)
                 it("returns tests in the same order as they are declared in the file") {
-                    assert(contextInfo.tests.keys.map { it.testName }
-                        == listOf("test 1", "test 2", "ignored test", "failed test", "test 3", "test 4"))
+                    assert(
+                        contextInfo.tests.keys.map { it.testName }
+                            == listOf("test 1", "test 2", "ignored test", "failed test", "test 3", "test 4")
+                    )
                 }
                 it("returns deferred test results") {
                     val testResults = contextInfo.tests.values.awaitAll()
                     val successful = testResults.filter { it.isSuccess }
                     val failed = assertNotNull(testResults.filter { it.isFailure }.singleOrNull())
                     val skipped = assertNotNull(testResults.filter { it.isSkipped }.singleOrNull())
-                    assert(successful.map { it.test.testName } == listOf(
-                        "test 1",
-                        "test 2",
-                        "test 3",
-                        "test 4"
-                    ))
+                    assert(
+                        successful.map { it.test.testName } == listOf(
+                            "test 1",
+                            "test 2",
+                            "test 3",
+                            "test 4"
+                        )
+                    )
                     assert(failed.test.testName == "failed test")
                     assert(skipped.test.testName == "ignored test")
                 }
@@ -160,10 +168,12 @@ object ContextExecutorTest {
         }
         describe("ignored tests") {
             it("are reported") {
-                val result = execute(RootContext("root context") {
-                    it("contains a single ignored test", ignored = Because("testing ignoring")) {
+                val result = execute(
+                    RootContext("root context") {
+                        it("contains a single ignored test", ignored = Because("testing ignoring")) {
+                        }
                     }
-                })
+                )
                 val contextInfo = assertNotNull(result as? ContextInfo)
                 val test = assertNotNull(contextInfo.tests.keys.singleOrNull())
                 assert(test.testName == "contains a single ignored test")
@@ -383,9 +393,12 @@ object ContextExecutorTest {
                 )
             }
             it(
-                "can filter tests in a subcontext", ignored =
-                Because("This can currently not work " +
-                    "because we don't find the tests in the subcontext without executing the context")
+                "can filter tests in a subcontext",
+                ignored =
+                    Because(
+                        "This can currently not work " +
+                            "because we don't find the tests in the subcontext without executing the context"
+                    )
             ) {
                 val context = RootContext {
                     describe("context without the tag") {

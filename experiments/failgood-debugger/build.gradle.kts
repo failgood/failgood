@@ -7,7 +7,7 @@ plugins {
 //    id("failgood.publishing")
     id("com.bnorm.power.kotlin-power-assert") version "0.13.0"
     id("org.jetbrains.kotlinx.kover") version "0.7.1"
-    id("org.jetbrains.dokka") version "1.8.10"
+    id("org.jetbrains.dokka") version "1.8.20"
     id("org.jmailen.kotlinter")
 }
 

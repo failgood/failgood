@@ -8,7 +8,11 @@ plugins {
     id("com.adarshr.test-logger")
 }
 
-
+tasks.withType<KotlinCompile>().all {
+    compilerOptions {
+        languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+    }
+}
 tasks {
     test {
         useJUnitPlatform {

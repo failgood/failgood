@@ -144,21 +144,26 @@ object FailGood {
         matchLambda: (String) -> Boolean = { true }
     ): MutableList<KClass<*>> {
         val results = mutableListOf<KClass<*>>()
-        Files.walkFileTree(root, object : SimpleFileVisitor<Path>() {
-            override fun visitFile(file: Path?, attrs: BasicFileAttributes?): FileVisitResult {
-                val path = root.relativize(file!!).toString()
-                if (path.matches(classIncludeRegex) && (newerThan == null || attrs!!.lastModifiedTime() > newerThan)) {
-                    val className = path.substringBefore(".class").replace(File.separatorChar, '.')
-                    if (matchLambda(className)) {
-                        val clazz = classloader.loadClass(className)
-                        if (clazz.isAnnotationPresent(Test::class.java) ||
-                            (runTestFixtures && clazz.isAnnotationPresent(TestFixture::class.java))
-                        ) results.add(clazz.kotlin)
+        Files.walkFileTree(
+            root,
+            object : SimpleFileVisitor<Path>() {
+                override fun visitFile(file: Path?, attrs: BasicFileAttributes?): FileVisitResult {
+                    val path = root.relativize(file!!).toString()
+                    if (path.matches(classIncludeRegex) &&
+                        (newerThan == null || attrs!!.lastModifiedTime() > newerThan)
+                    ) {
+                        val className = path.substringBefore(".class").replace(File.separatorChar, '.')
+                        if (matchLambda(className)) {
+                            val clazz = classloader.loadClass(className)
+                            if (clazz.isAnnotationPresent(Test::class.java) ||
+                                (runTestFixtures && clazz.isAnnotationPresent(TestFixture::class.java))
+                            ) results.add(clazz.kotlin)
+                        }
                     }
+                    return FileVisitResult.CONTINUE
                 }
-                return FileVisitResult.CONTINUE
             }
-        })
+        )
         return results
     }
 

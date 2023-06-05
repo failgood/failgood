@@ -47,19 +47,19 @@ internal class SingleTestExecutor(
 
     private inner class ContextFinder<GivenType>(private val contexts: List<String>) : ContextDSL<GivenType>,
         Base<GivenType>() {
-        override suspend fun <ContextDependency> describe(
-            name: String,
-            tags: Set<String>,
-            isolation: Boolean?,
-            ignored: Ignored?,
-            given: suspend () -> ContextDependency,
-            contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
-        ) {
-            if (contexts.first() != name) return
+            override suspend fun <ContextDependency> describe(
+                name: String,
+                tags: Set<String>,
+                isolation: Boolean?,
+                ignored: Ignored?,
+                given: suspend () -> ContextDependency,
+                contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
+            ) {
+                if (contexts.first() != name) return
 
-            contextDSL(given, contexts.drop(1)).contextLambda()
+                contextDSL(given, contexts.drop(1)).contextLambda()
+            }
         }
-    }
 
     private fun <ContextDependency> contextDSL(
         given: suspend () -> ContextDependency,

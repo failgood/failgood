@@ -24,7 +24,8 @@ suspend fun execute(selectors: List<DiscoverySelector>) {
             LauncherDiscoveryRequestBuilder.request()
                 .configurationParameters(mapOf(FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES to "true"))
                 .selectors(selectors)
-                .build(), listener, printingListener()
+                .build(),
+            listener, printingListener()
         )
     // await with timeout to make sure the test does not hang
     val rootResult = withTimeout(5000) { listener.rootResult.await() }

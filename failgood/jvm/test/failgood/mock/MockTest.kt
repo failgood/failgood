@@ -56,8 +56,10 @@ class MockTest {
                 }
                 it("mocks can throw") {
                     the(mock) { method { stringReturningFunction() }.will { throw RuntimeException("message") } }
-                    expectThat(kotlin.runCatching { mock.stringReturningFunction() }
-                        .exceptionOrNull()).isA<RuntimeException>().message.isEqualTo("message")
+                    expectThat(
+                        kotlin.runCatching { mock.stringReturningFunction() }
+                            .exceptionOrNull()
+                    ).isA<RuntimeException>().message.isEqualTo("message")
                 }
                 it("defines results via calling the mock even works for nullable functions") {
                     the(mock) { method { functionThatReturnsNullableString() }.will { "resultString" } }

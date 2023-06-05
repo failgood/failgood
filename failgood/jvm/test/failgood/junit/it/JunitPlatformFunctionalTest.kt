@@ -75,7 +75,8 @@ object JunitPlatformFunctionalTest {
             assert(
                 r.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
                     .map { it.key.displayName }
-                    .containsExactlyInAnyOrder("Failing Root Context", "error in context"))
+                    .containsExactlyInAnyOrder("Failing Root Context", "error in context")
+            )
         }
         it(
             "works with Blockhound installed",

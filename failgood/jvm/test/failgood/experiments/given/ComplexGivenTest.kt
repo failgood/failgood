@@ -18,7 +18,7 @@ class ComplexGivenTest {
             val context = RootContext("TestContext for dependency Injection") {
                 given2(
                     "context with dependency lambda",
-                    { "StringDependency" } /* optional teardown*/
+                    { "StringDependency" } // optional teardown
                 ) {
                     test2("test that takes a string dependency") { string ->
                         expectThat(string).isEqualTo("StringDependency")

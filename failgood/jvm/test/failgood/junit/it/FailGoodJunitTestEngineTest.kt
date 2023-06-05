@@ -53,7 +53,8 @@ class FailGoodJunitTestEngineTest {
                 val testDescriptor = engine.discover(
                     launcherDiscoveryRequest(
                         listOf(DiscoverySelectors.selectClass(TestWithNestedContextsFixture::class.qualifiedName))
-                    ), UniqueId.forEngine(engine.id)
+                    ),
+                    UniqueId.forEngine(engine.id)
                 )
                 val listener = RememberingExecutionListener()
                 engine.execute(ExecutionRequest(testDescriptor, listener, null))
@@ -62,7 +63,8 @@ class FailGoodJunitTestEngineTest {
                         // we don't know in what order the tests will run
                         setOf(
                             "start-$TEST_NAME", "stop-$TEST_NAME", "start-$TEST2_NAME", "stop-$TEST2_NAME"
-                        ), "some-test-event"
+                        ),
+                        "some-test-event"
                     )
                 ).isEqualTo(
                     listOf(
@@ -85,7 +87,8 @@ class FailGoodJunitTestEngineTest {
                 val testDescriptor = engine.discover(
                     launcherDiscoveryRequest(
                         listOf(DiscoverySelectors.selectClass(IgnoredTestFixture::class.qualifiedName))
-                    ), UniqueId.forEngine(engine.id)
+                    ),
+                    UniqueId.forEngine(engine.id)
                 )
                 val listener = RememberingExecutionListener()
                 engine.execute(ExecutionRequest(testDescriptor, listener, null))

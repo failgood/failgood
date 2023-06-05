@@ -32,7 +32,8 @@ class ErrorHandlingTest {
                 // in the next line the `ContextDSL.` receiver is missing, so it adds the test to the outer context,
                 // not the context that it is called from. this is now detected by treating only the current context as mutable,
                 // and throw when tests are added to other contexts
-                suspend fun /*ContextDSL.*/testCreator() {
+// correct:     suspend fun ContextDSL.testCreator() {
+                suspend fun testCreator() {
                     it("test1") {}
                     it("test2") {}
                 }

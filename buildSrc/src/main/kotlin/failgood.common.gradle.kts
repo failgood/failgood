@@ -1,14 +1,15 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.adarshr.gradle.testlogger.TestLoggerExtension
 import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA_PARALLEL
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     java
     kotlin("jvm")
     id("com.adarshr.test-logger")
+    id("com.diffplug.spotless")
 }
 
-
+spotless { kotlin { ktfmt("0.44").kotlinlangStyle() } }
 tasks {
     test {
         useJUnitPlatform {

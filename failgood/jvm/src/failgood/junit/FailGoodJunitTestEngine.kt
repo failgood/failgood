@@ -25,6 +25,8 @@ const val TEST_SEGMENT_TYPE = "method"
 
 private val watchdogMillis = getenv("FAILGOOD_WATCHDOG_MILLIS")?.toLong()
 
+private const val DEBUG_TXT_FILENAME = "failgood.debug.txt"
+
 class FailGoodJunitTestEngine : TestEngine {
     private var debug: Boolean = false
     override fun getId(): String = FailGoodJunitTestEngineConstants.id
@@ -38,6 +40,9 @@ class FailGoodJunitTestEngine : TestEngine {
 
         val discoveryRequestToString = discoveryRequestToString(discoveryRequest)
         failureLogger.add("discovery request", discoveryRequestToString)
+        if (debug) {
+            File(DEBUG_TXT_FILENAME).writeText(failureLogger.envString())
+        }
 
         val executionListener = JunitExecutionListener()
         val runTestFixtures = discoveryRequest.configurationParameters.getBoolean(RUN_TEST_FIXTURES).orElse(false)
@@ -68,6 +73,9 @@ class FailGoodJunitTestEngine : TestEngine {
         ).also {
             val allDescendants = it.allDescendants()
             failureLogger.add("nodes returned", allDescendants)
+            if (debug) {
+                File(DEBUG_TXT_FILENAME).writeText(failureLogger.envString())
+            }
         }
     }
 
@@ -195,7 +203,7 @@ class FailGoodJunitTestEngine : TestEngine {
         }
         if (debug) {
             failureLogger.add("events", loggingEngineExecutionListener.events.toString())
-            File("failgood.debug.txt").writeText(failureLogger.envString())
+            File(DEBUG_TXT_FILENAME).writeText(failureLogger.envString())
         }
         println("finished after ${uptime()}")
     }

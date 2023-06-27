@@ -65,7 +65,6 @@ class FailGoodJunitTestEngine : TestEngine {
                     println("start: $startedAt tests collected at $testsCollectedAt, discover finished at ${upt()}")
                 testResult
             }
-            watchdog?.close()
             return createResponse(
                 uniqueId,
                 testResult,
@@ -75,6 +74,7 @@ class FailGoodJunitTestEngine : TestEngine {
                 failureLogger.add("nodes returned", allDescendants)
             }
         } finally {
+            watchdog?.close()
             if (debug) {
                 File(DEBUG_TXT_FILENAME).writeText(failureLogger.envString())
             }

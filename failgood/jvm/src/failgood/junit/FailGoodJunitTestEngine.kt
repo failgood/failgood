@@ -23,7 +23,7 @@ import kotlin.system.exitProcess
 const val CONTEXT_SEGMENT_TYPE = "class"
 const val TEST_SEGMENT_TYPE = "method"
 
-private val watchdog = getenv("FAILGOOD_WATCHDOG_MILLIS")?.toLong()
+private val watchdogMillis = getenv("FAILGOOD_WATCHDOG_MILLIS")?.toLong()
 
 class FailGoodJunitTestEngine : TestEngine {
     private var debug: Boolean = false
@@ -31,7 +31,7 @@ class FailGoodJunitTestEngine : TestEngine {
     private val failureLogger = FailureLogger()
 
     override fun discover(discoveryRequest: EngineDiscoveryRequest, uniqueId: UniqueId): TestDescriptor {
-        val watchdog = watchdog?.let { Watchdog(it) }
+        val watchdog = watchdogMillis?.let { Watchdog(it) }
         val startedAt = upt()
 
         debug = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_DEBUG).orElse(false)
@@ -74,7 +74,7 @@ class FailGoodJunitTestEngine : TestEngine {
     override fun execute(request: ExecutionRequest) {
         val root = request.rootTestDescriptor
         if (root !is FailGoodEngineDescriptor) return
-        val watchdog = watchdog?.let { Watchdog(it) }
+        val watchdog = watchdogMillis?.let { Watchdog(it) }
         val suiteExecutionContext = root.suiteExecutionContext
         val loggingEngineExecutionListener = LoggingEngineExecutionListener(request.engineExecutionListener)
         try {

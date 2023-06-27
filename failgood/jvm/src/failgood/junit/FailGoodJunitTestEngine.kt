@@ -41,39 +41,40 @@ class FailGoodJunitTestEngine : TestEngine {
 
         val discoveryRequestToString = discoveryRequestToString(discoveryRequest)
         failureLogger.add("discovery request", discoveryRequestToString)
-        if (debug) {
-            File(DEBUG_TXT_FILENAME).writeText(failureLogger.envString())
-        }
 
-        val executionListener = JunitExecutionListener()
-        val runTestFixtures = discoveryRequest.configurationParameters.getBoolean(RUN_TEST_FIXTURES).orElse(false)
-        val suiteAndFilters = ContextFinder(runTestFixtures).findContexts(discoveryRequest)
-            ?: // if we did not find any tests just return an empty descriptor, maybe other engines have tests to run
-            return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.displayName)
-        val suite = suiteAndFilters.suite
-        val suiteExecutionContext = SuiteExecutionContext()
-        val filterProvider = suiteAndFilters.filter ?: getenv("FAILGOOD_FILTER")
-            ?.let { StaticTestFilterProvider(StringListTestFilter(parseFilterString(it))) }
-        val testResult = runBlocking(suiteExecutionContext.coroutineDispatcher) {
-            val testResult = suite.findTests(
-                suiteExecutionContext.scope,
-                true,
-                filterProvider ?: ExecuteAllTestFilterProvider,
-                executionListener
-            ).awaitAll()
-            val testsCollectedAt = upt()
-            if (debug)
-                println("start: $startedAt tests collected at $testsCollectedAt, discover finished at ${upt()}")
-            testResult
-        }
-        watchdog?.close()
-        return createResponse(
-            uniqueId,
-            testResult,
-            FailGoodEngineDescriptor(uniqueId, testResult, executionListener, suiteExecutionContext)
-        ).also {
-            val allDescendants = it.allDescendants()
-            failureLogger.add("nodes returned", allDescendants)
+        try {
+            val executionListener = JunitExecutionListener()
+            val runTestFixtures = discoveryRequest.configurationParameters.getBoolean(RUN_TEST_FIXTURES).orElse(false)
+            val suiteAndFilters = ContextFinder(runTestFixtures).findContexts(discoveryRequest)
+
+            // if we did not find any tests just return an empty descriptor, maybe other engines have tests to run
+            suiteAndFilters ?: return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.displayName)
+            val suite = suiteAndFilters.suite
+            val suiteExecutionContext = SuiteExecutionContext()
+            val filterProvider = suiteAndFilters.filter ?: getenv("FAILGOOD_FILTER")
+                ?.let { StaticTestFilterProvider(StringListTestFilter(parseFilterString(it))) }
+            val testResult = runBlocking(suiteExecutionContext.coroutineDispatcher) {
+                val testResult = suite.findTests(
+                    suiteExecutionContext.scope,
+                    true,
+                    filterProvider ?: ExecuteAllTestFilterProvider,
+                    executionListener
+                ).awaitAll()
+                val testsCollectedAt = upt()
+                if (debug)
+                    println("start: $startedAt tests collected at $testsCollectedAt, discover finished at ${upt()}")
+                testResult
+            }
+            watchdog?.close()
+            return createResponse(
+                uniqueId,
+                testResult,
+                FailGoodEngineDescriptor(uniqueId, testResult, executionListener, suiteExecutionContext)
+            ).also {
+                val allDescendants = it.allDescendants()
+                failureLogger.add("nodes returned", allDescendants)
+            }
+        } finally {
             if (debug) {
                 File(DEBUG_TXT_FILENAME).writeText(failureLogger.envString())
             }

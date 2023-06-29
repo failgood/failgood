@@ -2,8 +2,8 @@ package failgood.junit
 
 import failgood.FailGoodException
 
-internal class FailureLogger(initial: Map<String, String> = mapOf()) {
-    val map = initial.toMutableMap()
+internal class FailureLogger {
+    val map = mutableMapOf<String, String>()
     fun unsafe(function: () -> Unit) {
         try {
             function()

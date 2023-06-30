@@ -12,7 +12,7 @@ plugins {
 
 dependencies {
     testImplementation(project(":failgood"))
-    testImplementation("org.gradle:gradle-tooling-api:8.1.1")
+    testImplementation("org.gradle:gradle-tooling-api:8.2")
     testImplementation(kotlin("stdlib-jdk8"))
 }
 

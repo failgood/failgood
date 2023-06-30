@@ -45,7 +45,7 @@ private fun createFileSource(sourceInfo: SourceInfo, testOrContextName: String):
     else MethodSource.from(className, testOrContextName.replace(" ", "+"))
 }
 
-private fun createClassSource(sourceInfo: SourceInfo): TestSource? {
+internal fun createClassSource(sourceInfo: SourceInfo): TestSource? {
     val className = sourceInfo.className
     val filePosition = FilePosition.from(sourceInfo.lineNumber)
     return ClassSource.from(className, filePosition)
@@ -114,5 +114,5 @@ internal fun createResponse(
     return failGoodEngineDescriptor
 }
 
-private fun UniqueId.appendContext(path: String): UniqueId = append(CONTEXT_SEGMENT_TYPE, path)
+internal fun UniqueId.appendContext(path: String): UniqueId = append(CONTEXT_SEGMENT_TYPE, path)
 private fun UniqueId.appendTest(path: String): UniqueId = append(TEST_SEGMENT_TYPE, path)

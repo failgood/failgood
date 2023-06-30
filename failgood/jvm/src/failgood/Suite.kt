@@ -54,16 +54,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         listener: ExecutionListener = NullExecutionListener
     ): List<Deferred<ContextResult>> {
         val tag = getenv("FAILGOOD_TAG")
-        return contextProviders
-            .map {
-                coroutineScope.async {
-                    try {
-                        it.getContexts()
-                    } catch (e: ErrorLoadingContextsFromClass) {
-                        listOf(CouldNotLoadContext(e, e.jClass))
-                    }
-                }
-            }.flatMap { it.await() }.sortedBy { it.order }
+        return getRootContexts(coroutineScope)
             .map { context: LoadResult ->
                 when (context) {
                     is CouldNotLoadContext ->
@@ -90,6 +81,17 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                 }
             }
     }
+
+    internal suspend fun getRootContexts(coroutineScope: CoroutineScope): List<LoadResult> = contextProviders
+        .map {
+            coroutineScope.async {
+                try {
+                    it.getContexts()
+                } catch (e: ErrorLoadingContextsFromClass) {
+                    listOf(CouldNotLoadContext(e, e.jClass))
+                }
+            }
+        }.flatMap { it.await() }.sortedBy { it.order }
 }
 
 internal object NullExecutionListener : ExecutionListener {

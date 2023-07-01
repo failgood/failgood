@@ -36,7 +36,7 @@ class NewJunitEngine : TestEngine {
         val uniqueMaker = StringUniquer()
 
         val descriptors =
-            loadResults.map { context ->
+            loadResults.loadResults.map { context ->
                 when (context) {
                     is RootContext -> {
                         val path =

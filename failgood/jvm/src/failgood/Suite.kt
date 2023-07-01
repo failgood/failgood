@@ -5,8 +5,6 @@ import failgood.internal.ContextInfo
 import failgood.internal.ContextTreeReporter
 import failgood.internal.ExecuteAllTestFilterProvider
 import failgood.internal.TestFilterProvider
-import failgood.internal.execution.context.ContextExecutor
-import failgood.internal.util.getenv
 import failgood.internal.util.pluralize
 import kotlinx.coroutines.*
 import java.lang.management.ManagementFactory
@@ -34,9 +32,6 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         }
     }
 
-    // set timeout to the timeout in milliseconds, an empty string to turn it off
-    private val timeoutMillis: Long = parseTimeout(getenv("TIMEOUT"))
-
     companion object {
         internal fun parseTimeout(timeout: String?): Long {
             return when (timeout) {
@@ -53,45 +48,21 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         executionFilter: TestFilterProvider = ExecuteAllTestFilterProvider,
         listener: ExecutionListener = NullExecutionListener
     ): List<Deferred<ContextResult>> {
-        val tag = getenv("FAILGOOD_TAG")
-        return getRootContexts(coroutineScope)
-            .map { context: LoadResult ->
-                when (context) {
-                    is CouldNotLoadContext ->
-                        CompletableDeferred(
-                            FailedRootContext(Context(context.jClass.name ?: "unknown"), context.reason)
-                        )
-                    is RootContext -> {
-                        val testFilter = executionFilter.forClass(context.sourceInfo.className)
-                        coroutineScope.async {
-                            if (context.ignored?.isIgnored() == null) {
-                                ContextExecutor(
-                                    context,
-                                    coroutineScope,
-                                    !executeTests,
-                                    listener,
-                                    testFilter,
-                                    timeoutMillis,
-                                    runOnlyTag = tag
-                                ).execute()
-                            } else
-                                ContextInfo(emptyList(), mapOf(), setOf())
-                        }
-                    }
-                }
-            }
+        return getRootContexts(coroutineScope).investigate(coroutineScope, executeTests, executionFilter, listener)
     }
 
-    internal suspend fun getRootContexts(coroutineScope: CoroutineScope): List<LoadResult> = contextProviders
-        .map {
-            coroutineScope.async {
-                try {
-                    it.getContexts()
-                } catch (e: ErrorLoadingContextsFromClass) {
-                    listOf(CouldNotLoadContext(e, e.jClass))
+    internal suspend fun getRootContexts(coroutineScope: CoroutineScope): LoadResults = LoadResults(
+        contextProviders
+            .map {
+                coroutineScope.async {
+                    try {
+                        it.getContexts()
+                    } catch (e: ErrorLoadingContextsFromClass) {
+                        listOf(CouldNotLoadContext(e, e.jClass))
+                    }
                 }
-            }
-        }.flatMap { it.await() }.sortedBy { it.order }
+            }.flatMap { it.await() }.sortedBy { it.order }
+    )
 }
 
 internal object NullExecutionListener : ExecutionListener {

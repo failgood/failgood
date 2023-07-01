@@ -5,7 +5,7 @@ import failgood.TestDescription
 import failgood.TestPlusResult
 import kotlinx.coroutines.channels.Channel
 
-class JunitExecutionListener : ExecutionListener {
+class ChannelExecutionListener : ExecutionListener {
     sealed class TestExecutionEvent {
         abstract val testDescription: TestDescription
 

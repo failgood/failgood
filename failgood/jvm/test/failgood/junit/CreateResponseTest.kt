@@ -21,7 +21,7 @@ class CreateResponseTest {
         val rootContext = Context("root context name", null, sourceInfo)
         val suiteExecutionContext = SuiteExecutionContext(1)
         describe("contexts") {
-            val failGoodEngineDescriptor = JunitExecutionListener()
+            val failGoodEngineDescriptor = ChannelExecutionListener()
             val rootContextDescriptor = createResponse(
                 UniqueId.forEngine("failgood"),
                 listOf(ContextInfo(listOf(rootContext, Context("sub context name", rootContext)), mapOf(), setOf())),
@@ -53,7 +53,7 @@ class CreateResponseTest {
             }
         }
         describe("failed contexts") {
-            val failGoodEngineDescriptor = JunitExecutionListener()
+            val failGoodEngineDescriptor = ChannelExecutionListener()
             val rootContextDescriptor = createResponse(
                 UniqueId.forEngine("failgood"),
                 listOf(FailedRootContext(rootContext, RuntimeException())),
@@ -79,7 +79,7 @@ class CreateResponseTest {
         }
         it("creates friendly uuids for tests") {
             val test = TestDescription(rootContext, "test", sourceInfo)
-            val failGoodEngineDescriptor = JunitExecutionListener()
+            val failGoodEngineDescriptor = ChannelExecutionListener()
             val rootContextDescriptor = createResponse(
                 UniqueId.forEngine("failgood"),
                 listOf(

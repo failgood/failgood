@@ -1,9 +1,15 @@
-package failgood.junit
+package failgood.junit.next
 
 import failgood.CouldNotLoadContext
 import failgood.RootContext
+import failgood.internal.LoadResults
 import failgood.internal.SuiteExecutionContext
 import failgood.internal.util.StringUniquer
+import failgood.junit.ContextFinder
+import failgood.junit.FailGoodJunitTestEngineConstants
+import failgood.junit.FailGoodTestDescriptor
+import failgood.junit.appendContext
+import failgood.junit.createClassSource
 import kotlinx.coroutines.runBlocking
 import org.junit.platform.engine.EngineDiscoveryRequest
 import org.junit.platform.engine.ExecutionRequest
@@ -61,14 +67,22 @@ class NewJunitEngine : TestEngine {
                         )
                 }
             }
-        return FailgoodTestDescriptor(uniqueId, id).apply {
+        return FailGoodEngineDescriptor(uniqueId, id, loadResults, suiteExecutionContext).apply {
             descriptors.forEach { this.addChild(it) }
         }
     }
 
-    override fun execute(request: ExecutionRequest?) {
+    override fun execute(request: ExecutionRequest) {
+        val root = request.rootTestDescriptor
+        if (root !is FailGoodEngineDescriptor) return
+        root.loadResults.investigate(root.suiteExecutionContext.scope)
         TODO("Not yet implemented")
     }
-    class FailgoodTestDescriptor(uniqueId: UniqueId?, displayName: String?) :
+    internal class FailGoodEngineDescriptor(
+        uniqueId: UniqueId?,
+        displayName: String?,
+        val loadResults: LoadResults,
+        val suiteExecutionContext: SuiteExecutionContext
+    ) :
         EngineDescriptor(uniqueId, displayName)
 }

@@ -6,9 +6,9 @@ import failgood.internal.StaticTestFilterProvider
 import failgood.internal.StringListTestFilter
 import failgood.internal.SuiteExecutionContext
 import failgood.internal.util.getenv
+import failgood.junit.ChannelExecutionListener.TestExecutionEvent
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES
-import failgood.junit.JunitExecutionListener.TestExecutionEvent
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import org.junit.platform.engine.*
@@ -43,7 +43,7 @@ class FailGoodJunitTestEngine : TestEngine {
         failureLogger.add("discovery request", discoveryRequestToString)
 
         try {
-            val executionListener = JunitExecutionListener()
+            val executionListener = ChannelExecutionListener()
             val runTestFixtures = discoveryRequest.configurationParameters.getBoolean(RUN_TEST_FIXTURES).orElse(false)
             val suiteAndFilters = ContextFinder(runTestFixtures).findContexts(discoveryRequest)
 

@@ -2,7 +2,7 @@ package failgood.junit.delegate
 
 import failgood.junit.FailGoodJunitTestEngine
 import failgood.junit.FailGoodJunitTestEngineConstants
-import failgood.junit.NewJunitEngine
+import failgood.junit.next.NewJunitEngine
 import org.junit.platform.engine.EngineDiscoveryRequest
 import org.junit.platform.engine.ExecutionRequest
 import org.junit.platform.engine.TestDescriptor

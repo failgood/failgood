@@ -1,7 +1,11 @@
 package failgood.junit.next
 
 import failgood.CouldNotLoadContext
+import failgood.ExecutionListener
+import failgood.LoadResult
 import failgood.RootContext
+import failgood.TestDescription
+import failgood.TestPlusResult
 import failgood.internal.LoadResults
 import failgood.internal.SuiteExecutionContext
 import failgood.internal.util.StringUniquer
@@ -40,6 +44,7 @@ class NewJunitEngine : TestEngine {
             }
 
         val uniqueMaker = StringUniquer()
+        val mapper = mutableMapOf<LoadResult, FailGoodTestDescriptor>()
 
         val descriptors =
             loadResults.loadResults.map { context ->
@@ -65,9 +70,11 @@ class NewJunitEngine : TestEngine {
                             context.jClass.name,
                             null
                         )
+                }.also {
+                    mapper[context] = it
                 }
             }
-        return FailGoodEngineDescriptor(uniqueId, id, loadResults, suiteExecutionContext).apply {
+        return FailGoodEngineDescriptor(uniqueId, id, loadResults, suiteExecutionContext, mapper).apply {
             descriptors.forEach { this.addChild(it) }
         }
     }
@@ -75,14 +82,30 @@ class NewJunitEngine : TestEngine {
     override fun execute(request: ExecutionRequest) {
         val root = request.rootTestDescriptor
         if (root !is FailGoodEngineDescriptor) return
-        root.loadResults.investigate(root.suiteExecutionContext.scope)
+        root.loadResults.investigate(root.suiteExecutionContext.scope, listener = NewExecutionListener(root.mapper))
         TODO("Not yet implemented")
     }
     internal class FailGoodEngineDescriptor(
         uniqueId: UniqueId?,
         displayName: String?,
         val loadResults: LoadResults,
-        val suiteExecutionContext: SuiteExecutionContext
+        val suiteExecutionContext: SuiteExecutionContext,
+        val mapper: MutableMap<LoadResult, FailGoodTestDescriptor>
     ) :
         EngineDescriptor(uniqueId, displayName)
 }
+
+internal class NewExecutionListener(val mapper: MutableMap<LoadResult, FailGoodTestDescriptor>) :
+    ExecutionListener {
+        override suspend fun testStarted(testDescription: TestDescription) {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun testFinished(testPlusResult: TestPlusResult) {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun testEvent(testDescription: TestDescription, type: String, payload: String) {
+            TODO("Not yet implemented")
+        }
+    }

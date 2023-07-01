@@ -67,6 +67,7 @@ internal class ContextVisitor<GivenType>(
             return
         }
         val testDescription = TestDescription(context, name, sourceInfo())
+        staticConfig.listener.testDiscovered(testDescription)
         if (!ranATest || !isolation) {
             // if we don't need isolation we run all tests here.
             // if we do:
@@ -116,6 +117,7 @@ internal class ContextVisitor<GivenType>(
         val sourceInfo = sourceInfo()
         val context = Context(name, context, sourceInfo, subContextShouldHaveIsolation)
         val ignoreReason = ignored?.isIgnored()
+        staticConfig.listener.contextDiscovered(context)
         if (ignoreReason != null) {
             val testDescriptor = TestDescription(context, "context ignored because $ignoreReason", sourceInfo)
             val testPlusResult = TestPlusResult(testDescriptor, Skipped(ignoreReason))

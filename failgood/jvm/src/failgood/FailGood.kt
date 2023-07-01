@@ -173,7 +173,7 @@ object FailGood {
      * @param randomTestClass usually not needed, but you can pass any test class here,
      *        and it will be used to find the classloader and source root
      */
-    @Suppress("BlockingMethodInNonBlockingContext", "RedundantSuspendModifier")
+    @Suppress("RedundantSuspendModifier")
     suspend fun autoTest(randomTestClass: KClass<*> = findCaller()) {
         createAutoTestSuite(randomTestClass)?.run()?.check(false)
     }

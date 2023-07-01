@@ -24,18 +24,18 @@ internal class LoadResults(internal val loadResults: List<LoadResult>) {
         executionFilter: TestFilterProvider = ExecuteAllTestFilterProvider,
         listener: ExecutionListener = NullExecutionListener
     ): List<Deferred<ContextResult>> {
-        return loadResults.map { context: LoadResult ->
-            when (context) {
+        return loadResults.map { loadResult: LoadResult ->
+            when (loadResult) {
                 is CouldNotLoadContext ->
                     CompletableDeferred(
-                        FailedRootContext(Context(context.jClass.name ?: "unknown"), context.reason)
+                        FailedRootContext(Context(loadResult.jClass.name ?: "unknown"), loadResult.reason)
                     )
                 is RootContext -> {
-                    val testFilter = executionFilter.forClass(context.sourceInfo.className)
+                    val testFilter = executionFilter.forClass(loadResult.sourceInfo.className)
                     coroutineScope.async {
-                        if (context.ignored?.isIgnored() == null) {
+                        if (loadResult.ignored?.isIgnored() == null) {
                             ContextExecutor(
-                                context,
+                                loadResult,
                                 coroutineScope,
                                 !executeTests,
                                 listener,

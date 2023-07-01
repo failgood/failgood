@@ -1,5 +1,6 @@
 package failgood.junit.next
 
+import failgood.Context
 import failgood.CouldNotLoadContext
 import failgood.ExecutionListener
 import failgood.LoadResult
@@ -70,19 +71,19 @@ class NewJunitEngine : TestEngine {
                             context.jClass.name,
                             null
                         )
-                }.also {
-                    mapper[context] = it
-                }
+                }.also { mapper[context] = it }
             }
-        return FailGoodEngineDescriptor(uniqueId, id, loadResults, suiteExecutionContext, mapper).apply {
-            descriptors.forEach { this.addChild(it) }
-        }
+        return FailGoodEngineDescriptor(uniqueId, id, loadResults, suiteExecutionContext, mapper)
+            .apply { descriptors.forEach { this.addChild(it) } }
     }
 
     override fun execute(request: ExecutionRequest) {
         val root = request.rootTestDescriptor
         if (root !is FailGoodEngineDescriptor) return
-        root.loadResults.investigate(root.suiteExecutionContext.scope, listener = NewExecutionListener(root.mapper))
+        root.loadResults.investigate(
+            root.suiteExecutionContext.scope,
+            listener = NewExecutionListener(root.mapper)
+        )
         TODO("Not yet implemented")
     }
     internal class FailGoodEngineDescriptor(
@@ -91,12 +92,19 @@ class NewJunitEngine : TestEngine {
         val loadResults: LoadResults,
         val suiteExecutionContext: SuiteExecutionContext,
         val mapper: MutableMap<LoadResult, FailGoodTestDescriptor>
-    ) :
-        EngineDescriptor(uniqueId, displayName)
+    ) : EngineDescriptor(uniqueId, displayName)
 }
 
 internal class NewExecutionListener(val mapper: MutableMap<LoadResult, FailGoodTestDescriptor>) :
     ExecutionListener {
+        override suspend fun testDiscovered(testDescription: TestDescription) {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun contextDiscovered(context: Context) {
+            TODO("Not yet implemented")
+        }
+
         override suspend fun testStarted(testDescription: TestDescription) {
             TODO("Not yet implemented")
         }
@@ -105,7 +113,11 @@ internal class NewExecutionListener(val mapper: MutableMap<LoadResult, FailGoodT
             TODO("Not yet implemented")
         }
 
-        override suspend fun testEvent(testDescription: TestDescription, type: String, payload: String) {
+        override suspend fun testEvent(
+            testDescription: TestDescription,
+            type: String,
+            payload: String
+        ) {
             TODO("Not yet implemented")
         }
     }

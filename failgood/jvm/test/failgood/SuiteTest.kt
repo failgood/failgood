@@ -14,7 +14,7 @@ class SuiteTest {
         describe(Suite::class) {
             test("Empty Suite fails") { expectThrows<RuntimeException> { Suite(listOf<ContextProvider>()) } }
             test("Suite {} creates a root context") {
-                expectThat(Suite { test("test") {} }.contextProviders.single().getContexts().single().name)
+                expectThat(Suite { test("test") {} }.contextProviders.single().getContexts().single().context.name)
                     .isEqualTo("root")
             }
             describe("coroutine scope") {

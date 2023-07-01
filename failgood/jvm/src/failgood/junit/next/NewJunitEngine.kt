@@ -53,14 +53,14 @@ class NewJunitEngine : TestEngine {
                     is RootContext -> {
                         val path =
                             uniqueMaker.makeUnique(
-                                "${context.name}(${(context.sourceInfo.className)})"
+                                "${context.context.name}(${(context.context.sourceInfo!!.className)})"
                             )
                         val contextUniqueId = uniqueId.appendContext(path)
 
                         FailGoodTestDescriptor(
                             TestDescriptor.Type.CONTAINER,
                             contextUniqueId,
-                            context.name,
+                            context.context.name,
                             createClassSource(context.sourceInfo)
                         )
                     }

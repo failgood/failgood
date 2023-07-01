@@ -13,6 +13,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
+
 // set timeout to the timeout in milliseconds, an empty string to turn it off
 private val timeoutMillis: Long = Suite.parseTimeout(getenv("TIMEOUT"))
 private val tag = getenv("FAILGOOD_TAG")
@@ -28,10 +29,17 @@ internal class LoadResults(internal val loadResults: List<LoadResult>) {
             when (loadResult) {
                 is CouldNotLoadContext ->
                     CompletableDeferred(
-                        FailedRootContext(Context(loadResult.jClass.name ?: "unknown"), loadResult.reason)
+                        FailedRootContext(
+                            Context(loadResult.jClass.name ?: "unknown"),
+                            loadResult.reason
+                        )
                     )
                 is RootContext -> {
-                    val testFilter = executionFilter.forClass(loadResult.sourceInfo.className)
+                    val testFilter =
+                        loadResult.context.sourceInfo?.className?.let {
+                            executionFilter.forClass(it)
+                        }
+                            ?: ExecuteAllTests
                     coroutineScope.async {
                         if (loadResult.ignored?.isIgnored() == null) {
                             ContextExecutor(
@@ -42,9 +50,9 @@ internal class LoadResults(internal val loadResults: List<LoadResult>) {
                                 testFilter,
                                 timeoutMillis,
                                 runOnlyTag = tag
-                            ).execute()
-                        } else
-                            ContextInfo(emptyList(), mapOf(), setOf())
+                            )
+                                .execute()
+                        } else ContextInfo(emptyList(), mapOf(), setOf())
                     }
                 }
             }

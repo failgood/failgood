@@ -51,7 +51,7 @@ suspend inline fun <reified Class> ContextDSL<*>.describe(
 ) = this.describe(Class::class.simpleName!!, tags, isolation, ignored, contextLambda)
 
 data class TestDescription(
-    val container: TestContainer,
+    val container: Context,
     val testName: String,
     val sourceInfo: SourceInfo
 ) {

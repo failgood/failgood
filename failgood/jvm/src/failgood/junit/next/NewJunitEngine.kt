@@ -3,7 +3,6 @@ package failgood.junit.next
 import failgood.Context
 import failgood.CouldNotLoadContext
 import failgood.ExecutionListener
-import failgood.LoadResult
 import failgood.RootContext
 import failgood.TestDescription
 import failgood.TestPlusResult
@@ -49,31 +48,31 @@ class NewJunitEngine : TestEngine {
         val mapper = ContextMapper()
 
         val descriptors =
-            loadResults.loadResults.map { context ->
-                when (context) {
+            loadResults.loadResults.map { rootContext ->
+                when (rootContext) {
                     is RootContext -> {
                         val path =
                             uniqueMaker.makeUnique(
-                                "${context.context.name}(${(context.context.sourceInfo!!.className)})"
+                                "${rootContext.context.name}(${(rootContext.context.sourceInfo!!.className)})"
                             )
                         val contextUniqueId = uniqueId.appendContext(path)
 
                         FailGoodTestDescriptor(
                             TestDescriptor.Type.CONTAINER,
                             contextUniqueId,
-                            context.context.name,
-                            createClassSource(context.sourceInfo)
-                        )
+                            rootContext.context.name,
+                            createClassSource(rootContext.sourceInfo)
+                        ).also { mapper[rootContext.context] = it }
                     }
 
                     is CouldNotLoadContext ->
                         FailGoodTestDescriptor(
                             TestDescriptor.Type.CONTAINER,
-                            uniqueId.appendContext(context.jClass.name),
-                            context.jClass.name,
+                            uniqueId.appendContext(rootContext.jClass.name),
+                            rootContext.jClass.name,
                             null
                         )
-                }.also { mapper[context] = it }
+                }
             }
         return FailGoodEngineDescriptor(uniqueId, id, loadResults, suiteExecutionContext, mapper)
             .apply { descriptors.forEach { this.addChild(it) } }
@@ -100,36 +99,32 @@ class NewJunitEngine : TestEngine {
 }
 
 internal class ContextMapper {
-    val map = mutableMapOf<LoadResult, FailGoodTestDescriptor>()
-    operator fun set(context: LoadResult, value: FailGoodTestDescriptor) {
+    val map = mutableMapOf<Context, FailGoodTestDescriptor>()
+    operator fun set(context: Context, value: FailGoodTestDescriptor) {
         map[context] = value
     }
-
 }
 
 internal class NewExecutionListener(val mapper: ContextMapper) :
     ExecutionListener {
-    override suspend fun testDiscovered(testDescription: TestDescription) {
-        TODO("Not yet implemented")
-    }
+        override suspend fun testDiscovered(testDescription: TestDescription) {
+//            mapper[testDescription.container]
+        }
 
-    override suspend fun contextDiscovered(context: Context) {
-        TODO("Not yet implemented")
-    }
+        override suspend fun contextDiscovered(context: Context) {
+        }
 
-    override suspend fun testStarted(testDescription: TestDescription) {
-        TODO("Not yet implemented")
-    }
+        override suspend fun testStarted(testDescription: TestDescription) {
+        }
 
-    override suspend fun testFinished(testPlusResult: TestPlusResult) {
-        TODO("Not yet implemented")
-    }
+        override suspend fun testFinished(testPlusResult: TestPlusResult) {
+        }
 
-    override suspend fun testEvent(
-        testDescription: TestDescription,
-        type: String,
-        payload: String
-    ) {
-        TODO("Not yet implemented")
+        override suspend fun testEvent(
+            testDescription: TestDescription,
+            type: String,
+            payload: String
+        ) {
+            TODO("Not yet implemented")
+        }
     }
-}

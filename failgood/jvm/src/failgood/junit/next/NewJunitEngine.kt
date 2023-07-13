@@ -3,6 +3,7 @@ package failgood.junit.next
 import failgood.Context
 import failgood.CouldNotLoadContext
 import failgood.ExecutionListener
+import failgood.FailGoodException
 import failgood.RootContext
 import failgood.TestDescription
 import failgood.TestPlusResult
@@ -17,6 +18,7 @@ import failgood.junit.createClassSource
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.junit.platform.engine.EngineDiscoveryRequest
+import org.junit.platform.engine.EngineExecutionListener
 import org.junit.platform.engine.ExecutionRequest
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestEngine
@@ -81,11 +83,15 @@ class NewJunitEngine : TestEngine {
     override fun execute(request: ExecutionRequest) {
         val root = request.rootTestDescriptor
         if (root !is FailGoodEngineDescriptor) return
-        runBlocking(root.suiteExecutionContext.coroutineDispatcher) {
-            root.loadResults.investigate(
-                root.suiteExecutionContext.scope,
-                listener = NewExecutionListener(root.mapper)
-            ).awaitAll()
+        try {
+            runBlocking(root.suiteExecutionContext.coroutineDispatcher) {
+                root.loadResults.investigate(
+                    root.suiteExecutionContext.scope,
+                    listener = NewExecutionListener(root.mapper, request.engineExecutionListener)
+                ).awaitAll()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -103,15 +109,36 @@ internal class ContextMapper {
     operator fun set(context: Context, value: FailGoodTestDescriptor) {
         map[context] = value
     }
+
+    operator fun get(context: Context) = map[context] ?: throw FailGoodException("no mapping for context $context")
 }
 
-internal class NewExecutionListener(val mapper: ContextMapper) :
+internal class NewExecutionListener(
+    private val mapper: ContextMapper,
+    private val engineExecutionListener: EngineExecutionListener
+) :
     ExecutionListener {
         override suspend fun testDiscovered(testDescription: TestDescription) {
-//            mapper[testDescription.container]
+            val failGoodTestDescriptor = mapper[testDescription.container]
+            val testDescriptor = FailGoodTestDescriptor(
+                TestDescriptor.Type.TEST,
+                failGoodTestDescriptor.uniqueId.appendContext(testDescription.testName),
+                testDescription.testName,
+                null
+            ).apply { setParent(failGoodTestDescriptor) }
+            engineExecutionListener.dynamicTestRegistered(testDescriptor)
         }
 
         override suspend fun contextDiscovered(context: Context) {
+            val failGoodTestDescriptor = mapper[context]
+
+            val testDescriptor = FailGoodTestDescriptor(
+                TestDescriptor.Type.CONTAINER,
+                failGoodTestDescriptor.uniqueId.appendContext(context.name),
+                context.name,
+                null
+            ).apply { setParent(failGoodTestDescriptor) }
+            engineExecutionListener.dynamicTestRegistered(testDescriptor)
         }
 
         override suspend fun testStarted(testDescription: TestDescription) {
@@ -120,11 +147,6 @@ internal class NewExecutionListener(val mapper: ContextMapper) :
         override suspend fun testFinished(testPlusResult: TestPlusResult) {
         }
 
-        override suspend fun testEvent(
-            testDescription: TestDescription,
-            type: String,
-            payload: String
-        ) {
-            TODO("Not yet implemented")
+        override suspend fun testEvent(testDescription: TestDescription, type: String, payload: String) {
         }
     }

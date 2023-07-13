@@ -15,6 +15,7 @@ import failgood.junit.FailGoodJunitTestEngineConstants
 import failgood.junit.FailGoodTestDescriptor
 import failgood.junit.appendContext
 import failgood.junit.createClassSource
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.junit.platform.engine.EngineDiscoveryRequest
 import org.junit.platform.engine.ExecutionRequest
@@ -45,7 +46,7 @@ class NewJunitEngine : TestEngine {
             }
 
         val uniqueMaker = StringUniquer()
-        val mapper = mutableMapOf<LoadResult, FailGoodTestDescriptor>()
+        val mapper = ContextMapper()
 
         val descriptors =
             loadResults.loadResults.map { context ->
@@ -64,6 +65,7 @@ class NewJunitEngine : TestEngine {
                             createClassSource(context.sourceInfo)
                         )
                     }
+
                     is CouldNotLoadContext ->
                         FailGoodTestDescriptor(
                             TestDescriptor.Type.CONTAINER,
@@ -80,44 +82,54 @@ class NewJunitEngine : TestEngine {
     override fun execute(request: ExecutionRequest) {
         val root = request.rootTestDescriptor
         if (root !is FailGoodEngineDescriptor) return
-        root.loadResults.investigate(
-            root.suiteExecutionContext.scope,
-            listener = NewExecutionListener(root.mapper)
-        )
-        TODO("Not yet implemented")
+        runBlocking(root.suiteExecutionContext.coroutineDispatcher) {
+            root.loadResults.investigate(
+                root.suiteExecutionContext.scope,
+                listener = NewExecutionListener(root.mapper)
+            ).awaitAll()
+        }
     }
+
     internal class FailGoodEngineDescriptor(
         uniqueId: UniqueId?,
         displayName: String?,
         val loadResults: LoadResults,
         val suiteExecutionContext: SuiteExecutionContext,
-        val mapper: MutableMap<LoadResult, FailGoodTestDescriptor>
+        val mapper: ContextMapper
     ) : EngineDescriptor(uniqueId, displayName)
 }
 
-internal class NewExecutionListener(val mapper: MutableMap<LoadResult, FailGoodTestDescriptor>) :
-    ExecutionListener {
-        override suspend fun testDiscovered(testDescription: TestDescription) {
-            TODO("Not yet implemented")
-        }
-
-        override suspend fun contextDiscovered(context: Context) {
-            TODO("Not yet implemented")
-        }
-
-        override suspend fun testStarted(testDescription: TestDescription) {
-            TODO("Not yet implemented")
-        }
-
-        override suspend fun testFinished(testPlusResult: TestPlusResult) {
-            TODO("Not yet implemented")
-        }
-
-        override suspend fun testEvent(
-            testDescription: TestDescription,
-            type: String,
-            payload: String
-        ) {
-            TODO("Not yet implemented")
-        }
+internal class ContextMapper {
+    val map = mutableMapOf<LoadResult, FailGoodTestDescriptor>()
+    operator fun set(context: LoadResult, value: FailGoodTestDescriptor) {
+        map[context] = value
     }
+
+}
+
+internal class NewExecutionListener(val mapper: ContextMapper) :
+    ExecutionListener {
+    override suspend fun testDiscovered(testDescription: TestDescription) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun contextDiscovered(context: Context) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun testStarted(testDescription: TestDescription) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun testFinished(testPlusResult: TestPlusResult) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun testEvent(
+        testDescription: TestDescription,
+        type: String,
+        payload: String
+    ) {
+        TODO("Not yet implemented")
+    }
+}

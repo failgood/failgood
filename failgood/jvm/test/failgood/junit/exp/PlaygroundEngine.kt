@@ -27,63 +27,85 @@ class PlaygroundEngine : TestEngine {
         ).resolve()
     }
 
-    override fun execute(request: ExecutionRequest?) {
-        TODO("Not yet implemented")
+    override fun execute(request: ExecutionRequest) {
+        val root = request.rootTestDescriptor
+        if (root !is MyTestDescriptor)
+            return
+        val container = root.descendants.first { it.displayName == "container1" }
+        val dynamicTestDescriptor =
+            DynamicTestDescriptor(container.uniqueId, TestPlanNode.Container("container2"), container)
+        dynamicTestDescriptor.addChild(
+            DynamicTestDescriptor(
+                dynamicTestDescriptor.uniqueId,
+                TestPlanNode.Test("Test2"),
+                dynamicTestDescriptor
+            )
+        )
+        request.engineExecutionListener.dynamicTestRegistered(dynamicTestDescriptor)
     }
 }
 
-class ContainerNode(
-    val name: String,
-    private val children: Set<TestDescriptor>,
-    var _parent: TestDescriptor? = null,
-    var _uniqueId: UniqueId? = null
+class DynamicTestDescriptor(parentUniqueId: UniqueId, private val node: TestPlanNode, val parent: TestDescriptor) :
+    TestDescriptor {
+        private val uniqueId = parentUniqueId.appendContext(node.name)
+        private val children = mutableSetOf<TestDescriptor>()
+        override fun getUniqueId(): UniqueId = uniqueId
 
-) : TestDescriptor {
-    override fun getUniqueId(): UniqueId = _uniqueId ?: throw RuntimeException("uniqueid not yet set")
+        override fun getDisplayName(): String = node.name
 
-    override fun getDisplayName(): String = name
+        override fun getTags(): MutableSet<TestTag> = mutableSetOf()
 
-    override fun getTags(): MutableSet<TestTag> = mutableSetOf()
+        override fun getSource(): Optional<TestSource> = Optional.empty()
 
-    override fun getSource(): Optional<TestSource> = Optional.empty()
+        override fun getParent(): Optional<TestDescriptor> = Optional.ofNullable(parent)
 
-    override fun getParent(): Optional<TestDescriptor> = Optional.ofNullable(_parent)
+        override fun setParent(parent: TestDescriptor?) {
+            TODO("Not yet implemented")
+        }
 
-    override fun setParent(parent: TestDescriptor?) {
-        TODO("Not yet implemented")
+        override fun getChildren(): MutableSet<out TestDescriptor> = children
+
+        override fun addChild(descriptor: TestDescriptor) {
+            children.add(descriptor)
+        }
+
+        override fun removeChild(descriptor: TestDescriptor?) {
+            TODO("Not yet implemented")
+        }
+
+        override fun removeFromHierarchy() {
+            TODO("Not yet implemented")
+        }
+
+        override fun getType(): TestDescriptor.Type {
+            return when (node) {
+                is TestPlanNode.Container -> TestDescriptor.Type.CONTAINER
+                is TestPlanNode.Test -> TestDescriptor.Type.TEST
+            }
+        }
+
+        override fun findByUniqueId(uniqueId: UniqueId?): Optional<out TestDescriptor> {
+            TODO("Not yet implemented")
+        }
     }
-
-    override fun getChildren(): MutableSet<out TestDescriptor> = children.toMutableSet()
-
-    override fun addChild(descriptor: TestDescriptor?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun removeChild(descriptor: TestDescriptor?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun removeFromHierarchy() {
-        TODO("Not yet implemented")
-    }
-
-    override fun getType(): TestDescriptor.Type = TestDescriptor.Type.CONTAINER
-
-    override fun findByUniqueId(uniqueId: UniqueId?): Optional<out TestDescriptor> {
-        TODO("Not yet implemented")
-    }
-}
 
 class MyEngineDescriptor(private val uniqueId: UniqueId, private val children: Set<TestPlanNode>) {
 
     fun resolve(): TestDescriptor {
         var uniqueId = this.uniqueId
         val root = MyTestDescriptor(TestPlanNode.Container("root", children), uniqueId, null)
-        var parent: TestDescriptor = root
-        val children = this.children.map {
-            MyTestDescriptor(it, uniqueId.appendContext(it.name), parent)
+        fun addChildren(parent: TestDescriptor, children: Set<TestPlanNode>) {
+            children.forEach {
+                val descriptor = MyTestDescriptor(it, uniqueId.appendContext(it.name), parent)
+                parent.addChild(descriptor)
+                when (it) {
+                    is TestPlanNode.Container -> addChildren(descriptor, it.children)
+                    is TestPlanNode.Test -> {}
+                }
+            }
         }
-        children.forEach { parent.addChild(it) }
+
+        addChildren(root, children)
         return root
     }
 }
@@ -92,7 +114,7 @@ sealed interface TestPlanNode {
     val name: String
 
     data class Test(override val name: String) : TestPlanNode
-    data class Container(override val name: String, val children: Set<TestPlanNode>) : TestPlanNode
+    data class Container(override val name: String, val children: Set<TestPlanNode> = setOf()) : TestPlanNode
 }
 
 class MyTestDescriptor(val test: TestPlanNode, private val uniqueId: UniqueId, private var parent: TestDescriptor?) :

@@ -115,4 +115,4 @@ internal fun createResponse(
 }
 
 internal fun UniqueId.appendContext(path: String): UniqueId = append(CONTEXT_SEGMENT_TYPE, path)
-private fun UniqueId.appendTest(path: String): UniqueId = append(TEST_SEGMENT_TYPE, path)
+internal fun UniqueId.appendTest(path: String): UniqueId = append(TEST_SEGMENT_TYPE, path)

@@ -78,11 +78,13 @@ class MyEngineDescriptor(private val uniqueId: UniqueId, private val children: S
 
     fun resolve(): TestDescriptor {
         var uniqueId = this.uniqueId
-        var parent: TestDescriptor = MyTestDescriptor(TestPlanNode.Container("root", children), uniqueId, null)
+        val root = MyTestDescriptor(TestPlanNode.Container("root", children), uniqueId, null)
+        var parent: TestDescriptor = root
         val children = this.children.map {
             MyTestDescriptor(it, uniqueId.appendContext(it.name), parent)
         }
-        TODO("Not yet implemented")
+        children.forEach { parent.addChild(it) }
+        return root
     }
 }
 
@@ -93,7 +95,7 @@ sealed interface TestPlanNode {
     data class Container(override val name: String, val children: Set<TestPlanNode>) : TestPlanNode
 }
 
-class MyTestDescriptor(val test: TestPlanNode, private val uniqueId: UniqueId, val parent: TestDescriptor?) :
+class MyTestDescriptor(val test: TestPlanNode, private val uniqueId: UniqueId, private var parent: TestDescriptor?) :
     TestDescriptor {
         private val children = mutableSetOf<TestDescriptor>()
         override fun getUniqueId(): UniqueId = uniqueId
@@ -121,7 +123,7 @@ class MyTestDescriptor(val test: TestPlanNode, private val uniqueId: UniqueId, v
         }
 
         override fun removeFromHierarchy() {
-            TODO("Not yet implemented")
+            parent = null
         }
 
         override fun getType(): TestDescriptor.Type {

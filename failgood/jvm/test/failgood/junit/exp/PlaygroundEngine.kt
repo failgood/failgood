@@ -5,10 +5,15 @@ import org.junit.platform.engine.EngineDiscoveryRequest
 import org.junit.platform.engine.ExecutionRequest
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestEngine
+import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.TestSource
 import org.junit.platform.engine.TestTag
 import org.junit.platform.engine.UniqueId
 import java.util.Optional
+
+/**
+ * this is just to play around with the junit engines api to see how dynamic tests work
+ */
 
 class PlaygroundEngine : TestEngine {
     override fun getId(): String {
@@ -32,16 +37,23 @@ class PlaygroundEngine : TestEngine {
         if (root !is MyTestDescriptor)
             return
         val container = root.descendants.first { it.displayName == "container1" }
-        val dynamicTestDescriptor =
+        val contextDescriptor =
             DynamicTestDescriptor(container.uniqueId, TestPlanNode.Container("container2"), container)
-        dynamicTestDescriptor.addChild(
-            DynamicTestDescriptor(
-                dynamicTestDescriptor.uniqueId,
-                TestPlanNode.Test("Test2"),
-                dynamicTestDescriptor
-            )
+        val testDescriptor = DynamicTestDescriptor(
+            contextDescriptor.uniqueId,
+            TestPlanNode.Test("Test2"),
+            contextDescriptor
         )
-        request.engineExecutionListener.dynamicTestRegistered(dynamicTestDescriptor)
+        contextDescriptor.addChild(
+            testDescriptor
+        )
+        val engineExecutionListener = request.engineExecutionListener
+        engineExecutionListener.dynamicTestRegistered(contextDescriptor)
+        engineExecutionListener.dynamicTestRegistered(testDescriptor)
+        engineExecutionListener.executionStarted(contextDescriptor)
+        engineExecutionListener.executionStarted(testDescriptor)
+        engineExecutionListener.executionFinished(contextDescriptor, TestExecutionResult.successful())
+        engineExecutionListener.executionFinished(testDescriptor, TestExecutionResult.successful())
     }
 }
 

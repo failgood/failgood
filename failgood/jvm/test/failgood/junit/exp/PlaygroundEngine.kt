@@ -36,24 +36,32 @@ class PlaygroundEngine : TestEngine {
         val root = request.rootTestDescriptor
         if (root !is MyTestDescriptor)
             return
-        val container = root.descendants.first { it.displayName == "container1" }
-        val contextDescriptor =
-            DynamicTestDescriptor(container.uniqueId, TestPlanNode.Container("container2"), container)
-        val testDescriptor = DynamicTestDescriptor(
-            contextDescriptor.uniqueId,
-            TestPlanNode.Test("Test2"),
-            contextDescriptor
-        )
-        contextDescriptor.addChild(
-            testDescriptor
-        )
-        val engineExecutionListener = request.engineExecutionListener
-        engineExecutionListener.dynamicTestRegistered(contextDescriptor)
-        engineExecutionListener.dynamicTestRegistered(testDescriptor)
-        engineExecutionListener.executionStarted(contextDescriptor)
-        engineExecutionListener.executionStarted(testDescriptor)
-        engineExecutionListener.executionFinished(contextDescriptor, TestExecutionResult.successful())
-        engineExecutionListener.executionFinished(testDescriptor, TestExecutionResult.successful())
+        val allNodes = root.descendants
+        fun findNode(name: String): TestDescriptor =
+            allNodes.first { it.displayName == name }
+        val containerDescriptor = findNode("container")
+
+        val container1Descriptor = findNode("container1")
+        val container2Descriptor =
+            DynamicTestDescriptor(container1Descriptor.uniqueId, TestPlanNode.Container("container2"), container1Descriptor)
+        val test2Descriptor = DynamicTestDescriptor(container2Descriptor.uniqueId, TestPlanNode.Test("Test2"), container2Descriptor)
+        container2Descriptor.addChild(test2Descriptor)
+        val l = request.engineExecutionListener
+        l.executionStarted(root)
+        l.executionStarted(container1Descriptor)
+        l.dynamicTestRegistered(container2Descriptor)
+        l.dynamicTestRegistered(test2Descriptor)
+        l.executionStarted(container2Descriptor)
+        l.executionStarted(test2Descriptor)
+        l.executionFinished(container2Descriptor, TestExecutionResult.successful())
+        l.executionFinished(test2Descriptor, TestExecutionResult.successful())
+        val test1 = findNode("test1")
+        l.executionStarted(test1)
+        l.executionFinished(test1, TestExecutionResult.successful())
+        l.executionStarted(container1Descriptor)
+        l.executionFinished(container1Descriptor, TestExecutionResult.successful())
+        l.executionFinished(containerDescriptor, TestExecutionResult.successful())
+        l.executionFinished(root, TestExecutionResult.successful())
     }
 }
 

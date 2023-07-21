@@ -59,8 +59,9 @@ class PlaygroundEngine : TestEngine {
         l.dynamicTestRegistered(test2Descriptor)
         l.executionStarted(container2Descriptor)
         l.executionStarted(test2Descriptor)
-        l.executionFinished(container2Descriptor, TestExecutionResult.successful())
         l.executionFinished(test2Descriptor, TestExecutionResult.successful())
+        l.executionFinished(container2Descriptor, TestExecutionResult.successful())
+
         val test1 = findNode("test1")
         l.executionStarted(test1)
         l.executionFinished(test1, TestExecutionResult.successful())

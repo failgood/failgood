@@ -1,1 +1,2 @@
 failgood.junit.delegate.DelegatingJunitEngine
+#failgood.junit.exp.PlaygroundEngine

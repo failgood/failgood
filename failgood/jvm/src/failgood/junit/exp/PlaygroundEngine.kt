@@ -39,12 +39,18 @@ class PlaygroundEngine : TestEngine {
         val allNodes = root.descendants
         fun findNode(name: String): TestDescriptor =
             allNodes.first { it.displayName == name }
+
         val containerDescriptor = findNode("container")
 
         val container1Descriptor = findNode("container1")
         val container2Descriptor =
-            DynamicTestDescriptor(container1Descriptor.uniqueId, TestPlanNode.Container("container2"), container1Descriptor)
-        val test2Descriptor = DynamicTestDescriptor(container2Descriptor.uniqueId, TestPlanNode.Test("Test2"), container2Descriptor)
+            DynamicTestDescriptor(
+                container1Descriptor.uniqueId,
+                TestPlanNode.Container("container2"),
+                container1Descriptor
+            )
+        val test2Descriptor =
+            DynamicTestDescriptor(container2Descriptor.uniqueId, TestPlanNode.Test("Test2"), container2Descriptor)
         container2Descriptor.addChild(test2Descriptor)
         val l = request.engineExecutionListener
         l.executionStarted(root)

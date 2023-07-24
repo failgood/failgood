@@ -23,12 +23,7 @@ class PlaygroundEngine : TestEngine {
     override fun discover(discoveryRequest: EngineDiscoveryRequest?, uniqueId: UniqueId): TestDescriptor {
         return MyEngineDescriptor(
             uniqueId,
-            setOf(
-                TestPlanNode.Container(
-                    "container",
-                    setOf(TestPlanNode.Container("container1", setOf(TestPlanNode.Test("test1"))))
-                )
-            )
+            setOf()
         ).resolve()
     }
 
@@ -36,13 +31,16 @@ class PlaygroundEngine : TestEngine {
         val root = request.rootTestDescriptor
         if (root !is MyTestDescriptor)
             return
-        val allNodes = root.descendants
-        fun findNode(name: String): TestDescriptor =
-            allNodes.first { it.displayName == name }
 
-        val containerDescriptor = findNode("container")
+        val l = request.engineExecutionListener
+        l.executionStarted(root)
+        val container = TestPlanNode.Container("container")
+        val containerDescriptor = DynamicTestDescriptor(root.uniqueId, container, root)
+        l.dynamicTestRegistered(containerDescriptor)
+        val container1 = TestPlanNode.Container("container1")
+        val container1Descriptor = DynamicTestDescriptor(containerDescriptor.uniqueId, container1, containerDescriptor)
+        l.dynamicTestRegistered(container1Descriptor)
 
-        val container1Descriptor = findNode("container1")
         val container2Descriptor =
             DynamicTestDescriptor(
                 container1Descriptor.uniqueId,
@@ -52,8 +50,7 @@ class PlaygroundEngine : TestEngine {
         val test2Descriptor =
             DynamicTestDescriptor(container2Descriptor.uniqueId, TestPlanNode.Test("Test2"), container2Descriptor)
         container2Descriptor.addChild(test2Descriptor)
-        val l = request.engineExecutionListener
-        l.executionStarted(root)
+        l.executionStarted(containerDescriptor)
         l.executionStarted(container1Descriptor)
         l.dynamicTestRegistered(container2Descriptor)
         l.dynamicTestRegistered(test2Descriptor)
@@ -62,9 +59,6 @@ class PlaygroundEngine : TestEngine {
         l.executionFinished(test2Descriptor, TestExecutionResult.successful())
         l.executionFinished(container2Descriptor, TestExecutionResult.successful())
 
-        val test1 = findNode("test1")
-        l.executionStarted(test1)
-        l.executionFinished(test1, TestExecutionResult.successful())
         l.executionStarted(container1Descriptor)
         l.executionFinished(container1Descriptor, TestExecutionResult.successful())
         l.executionFinished(containerDescriptor, TestExecutionResult.successful())

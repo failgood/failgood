@@ -9,6 +9,7 @@ import failgood.Success
 import failgood.TestContainer
 import failgood.TestDescription
 import failgood.TestPlusResult
+import failgood.awaitTestResults
 import failgood.internal.LoadResults
 import failgood.internal.SuiteExecutionContext
 import failgood.junit.ContextFinder
@@ -59,7 +60,7 @@ class NewJunitEngine : TestEngine {
         try {
             val testMapper = TestMapper()
             runBlocking(root.suiteExecutionContext.coroutineDispatcher) {
-                root.loadResults.investigate(
+                val r = root.loadResults.investigate(
                     root.suiteExecutionContext.scope,
                     listener = NewExecutionListener(
                         root,
@@ -68,6 +69,7 @@ class NewJunitEngine : TestEngine {
                         testMapper
                     )
                 ).awaitAll()
+                awaitTestResults(r)
             }
             val leafToRootContexts = startedContexts.sortedBy { -it.parents.size }
             leafToRootContexts.forEach { context ->
@@ -114,7 +116,6 @@ internal class NewExecutionListener(
             mapper.addMapping(context, descriptor)
 
             listener.dynamicTestRegistered(descriptor)
-            listener.executionStarted(descriptor)
         }
 
         override suspend fun testStarted(testDescription: TestDescription) {

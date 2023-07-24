@@ -27,7 +27,7 @@ class FailGoodJunitTestEngineTest {
         val engine = FailGoodJunitTestEngine()
         describe("can discover tests", given = {
             autoClose(
-                // if we only call discover on the engine without calling execute afterwards,
+                // if we only call discover on the engine but not execute,
                 // we have to close the execution context manually
                 engine.discover(
                     launcherDiscoveryRequest(

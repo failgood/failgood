@@ -51,7 +51,7 @@ suspend inline fun <reified Class> ContextDSL<*>.describe(
 ) = this.describe(Class::class.simpleName!!, tags, isolation, ignored, contextLambda)
 
 data class TestDescription(
-    val container: TestContainer,
+    val container: Context,
     val testName: String,
     val sourceInfo: SourceInfo
 ) {
@@ -73,16 +73,25 @@ internal data class CouldNotLoadContext(val reason: Throwable, val jClass: Class
         get() = 0
 }
 
+fun RootContext(
+    name: String = "root",
+    ignored: Ignored? = null,
+    order: Int = 0,
+    isolation: Boolean = true,
+    sourceInfo: SourceInfo = SourceInfo(findCallerSTE()),
+    function: ContextLambda
+) = RootContext(Context(name, null, sourceInfo, isolation), order, ignored, function)
+
 data class RootContext(
-    val name: String = "root",
-    val ignored: Ignored? = null,
+    val context: Context,
     override val order: Int = 0,
-    val isolation: Boolean = true,
-    val sourceInfo: SourceInfo = SourceInfo(findCallerSTE()),
+    val ignored: Ignored?,
     val function: ContextLambda
 ) : LoadResult, failgood.internal.Path {
+    val sourceInfo: SourceInfo
+        get() = context.sourceInfo!! // in the root context we are sure that we always have a sourceInfo
     override val path: List<String>
-        get() = listOf(name)
+        get() = listOf(context.name)
 }
 
 /* something that contains tests */
@@ -173,7 +182,7 @@ object FailGood {
      * @param randomTestClass usually not needed, but you can pass any test class here,
      *        and it will be used to find the classloader and source root
      */
-    @Suppress("BlockingMethodInNonBlockingContext", "RedundantSuspendModifier")
+    @Suppress("RedundantSuspendModifier")
     suspend fun autoTest(randomTestClass: KClass<*> = findCaller()) {
         createAutoTestSuite(randomTestClass)?.run()?.check(false)
     }

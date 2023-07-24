@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 
 ## 0.9.0 - Unreleased
 
+### Added
+
+- New junit platform engine that is totally async
+  To try it out add -Dfailgood.new.junit=true to your test run or set it in junit-platform.properties.
+  It is unfinished and buggy but it basically works.
+
 ### Changed
 
 - Remove all deprecated methods

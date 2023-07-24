@@ -1,0 +1,2 @@
+./gradlew formatKotlin
+./gradlew check

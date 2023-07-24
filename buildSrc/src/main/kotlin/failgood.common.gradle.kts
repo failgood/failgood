@@ -12,7 +12,8 @@ plugins {
 tasks {
     test {
         useJUnitPlatform {
-            includeEngines = setOf("failgood")
+// use all engine for now because we want to see the playground engines output
+        //            includeEngines = setOf("failgood")
         }
         outputs.upToDateWhen { false }
     }

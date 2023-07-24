@@ -21,7 +21,12 @@ import org.junit.platform.launcher.LauncherDiscoveryRequest
 import java.nio.file.Paths
 import java.util.LinkedList
 
-internal data class SuiteAndFilters(val suite: Suite, val filter: TestFilterProvider?)
+internal data class SuiteAndFilters(
+    val suite: Suite,
+
+    // this is currently only used for running single tests by unique id.
+    val filter: TestFilterProvider?
+)
 class ContextFinder(private val runTestFixtures: Boolean = false) {
     internal fun findContexts(discoveryRequest: EngineDiscoveryRequest): SuiteAndFilters? {
         val filterConfig = mutableMapOf<String, List<String>>()

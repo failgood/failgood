@@ -25,7 +25,7 @@ internal class ContextExecutor(
         runOnlyTag
     )
 
-    private val stateCollector = ContextStateCollector(staticExecutionConfig, !rootContext.isolation)
+    private val stateCollector = ContextStateCollector(staticExecutionConfig, !rootContext.context.isolation)
 
     /**
      * Execute the rootContext.
@@ -39,7 +39,8 @@ internal class ContextExecutor(
         if (!staticExecutionConfig.testFilter.shouldRun(rootContext))
             return ContextInfo(listOf(), mapOf(), setOf())
         val function = rootContext.function
-        val rootContext = Context(rootContext.name, null, rootContext.sourceInfo, rootContext.isolation)
+        val rootContext = rootContext.context
+        staticExecutionConfig.listener.contextDiscovered(rootContext)
         try {
             do {
                 val startTime = System.nanoTime()

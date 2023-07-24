@@ -11,7 +11,7 @@ import kotlin.test.assertNotNull
 class ObjectContextProviderTest {
     val context = describe(ObjectContextProvider::class) {
         it("provides a context from an class in a kotlin class (MyTest::class.java)") {
-            expectThat(ObjectContextProvider(ClassTestContextExample::class).getContexts()).map { it.name }
+            expectThat(ObjectContextProvider(ClassTestContextExample::class).getContexts()).map { it.context.name }
                 .containsExactlyInAnyOrder(
                     "test context defined in a kotlin class",
                     "another test context defined in a kotlin class",
@@ -20,11 +20,11 @@ class ObjectContextProviderTest {
         }
         it("provides a context from an object in a java class (MyTest::class.java)") {
             expectThat(ObjectContextProvider(TestFinderTest::class.java).getContexts()).single().isA<RootContext>()
-                .and { get(RootContext::name).isEqualTo("test finder") }
+                .and { get { context.name }.isEqualTo("test finder") }
         }
         it("provides a context from an object in a kotlin class (MyTest::class)") {
             expectThat(ObjectContextProvider(TestFinderTest::class).getContexts()).single().isA<RootContext>()
-                .and { get(RootContext::name).isEqualTo("test finder") }
+                .and { get { context.name }.isEqualTo("test finder") }
         }
         it("provides a list of contexts from an object in a kotlin class (MyTest::class)") {
             expectThat(ObjectContextProvider(ContextListExample::class).getContexts()).hasSize(2).all {
@@ -35,7 +35,7 @@ class ObjectContextProviderTest {
             val classLoader = ObjectContextProviderTest::class.java.classLoader
             val clazz = classLoader.loadClass(testContextsOnTopLevelExampleClassName)
             expectThat(ObjectContextProvider(clazz.kotlin).getContexts()).single().isA<RootContext>()
-                .and { get(RootContext::name).isEqualTo("test context declared on top level") }
+                .and { get { context.name }.isEqualTo("test context declared on top level") }
         }
         describe("correcting source info") {
             it("corrects the root context source info if its not coming from the loaded class") {

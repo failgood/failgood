@@ -12,7 +12,7 @@ import java.util.*
 internal class FailGoodEngineDescriptor(
     uniqueId: UniqueId,
     val testResult: List<ContextResult>,
-    val executionListener: JunitExecutionListener,
+    val executionListener: ChannelExecutionListener,
     val suiteExecutionContext: SuiteExecutionContext
 ) : EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.displayName) {
     val failedRootContexts = mutableListOf<FailedRootContext>()

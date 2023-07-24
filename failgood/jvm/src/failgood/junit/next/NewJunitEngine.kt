@@ -2,9 +2,11 @@ package failgood.junit.next
 
 import failgood.Context
 import failgood.ExecutionListener
+import failgood.FailGoodException
 import failgood.Failure
 import failgood.Skipped
 import failgood.Success
+import failgood.TestContainer
 import failgood.TestDescription
 import failgood.TestPlusResult
 import failgood.internal.LoadResults
@@ -46,48 +48,33 @@ class NewJunitEngine : TestEngine {
                 suiteAndFilters.suite.getRootContexts(suiteExecutionContext.scope)
             }
 
-//        val uniqueMaker = StringUniquer()
-        /*
-                val descriptors =
-                    loadResults.loadResults.map { rootContext ->
-                        when (rootContext) {
-                            is RootContext -> {
-                                val path =
-                                    uniqueMaker.makeUnique(
-                                        "${rootContext.context.name}(${(rootContext.context.sourceInfo!!.className)})"
-                                    )
-                                val contextUniqueId = uniqueId.appendContext(path)
-
-                                FailGoodTestDescriptor(
-                                    TestDescriptor.Type.CONTAINER,
-                                    contextUniqueId,
-                                    rootContext.context.name,
-                                    createClassSource(rootContext.sourceInfo)
-                                ).also { mapper[rootContext.context] = it }
-                            }
-
-                            is CouldNotLoadContext ->
-                                FailGoodTestDescriptor(
-                                    TestDescriptor.Type.CONTAINER,
-                                    uniqueId.appendContext(rootContext.jClass.name),
-                                    rootContext.jClass.name,
-                                    null
-                                )
-                        }
-                    }*/
         return FailGoodEngineDescriptor(uniqueId, id, loadResults, suiteExecutionContext)
-//            .apply { descriptors.forEach { this.addChild(it) } }
     }
 
     override fun execute(request: ExecutionRequest) {
+        val startedContexts = mutableSetOf<TestContainer>()
+
         val root = request.rootTestDescriptor
         if (root !is FailGoodEngineDescriptor) return
         try {
+            val testMapper = TestMapper()
             runBlocking(root.suiteExecutionContext.coroutineDispatcher) {
                 root.loadResults.investigate(
                     root.suiteExecutionContext.scope,
-                    listener = NewExecutionListener(root, request.engineExecutionListener)
+                    listener = NewExecutionListener(
+                        root,
+                        request.engineExecutionListener,
+                        startedContexts,
+                        testMapper
+                    )
                 ).awaitAll()
+            }
+            val leafToRootContexts = startedContexts.sortedBy { -it.parents.size }
+            leafToRootContexts.forEach { context ->
+                request.engineExecutionListener.executionFinished(
+                    testMapper.getMapping(context),
+                    TestExecutionResult.successful()
+                )
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -104,17 +91,19 @@ class NewJunitEngine : TestEngine {
 
 internal class NewExecutionListener(
     private val root: NewJunitEngine.FailGoodEngineDescriptor,
-    private val engineExecutionListener: EngineExecutionListener
+    private val listener: EngineExecutionListener,
+    private val startedContexts: MutableSet<TestContainer>,
+    testMapper: TestMapper
 ) :
     ExecutionListener {
-        val mapper = TestMapper()
+        val mapper = testMapper
         override suspend fun testDiscovered(testDescription: TestDescription) {
             val parent = mapper.getMapping(testDescription.container)
             val node = TestPlanNode.Test(testDescription.testName)
             val descriptor = DynamicTestDescriptor(node, parent)
             mapper.addMapping(testDescription, descriptor)
 
-            engineExecutionListener.dynamicTestRegistered(descriptor)
+            listener.dynamicTestRegistered(descriptor)
         }
 
         override suspend fun contextDiscovered(context: Context) {
@@ -124,25 +113,34 @@ internal class NewExecutionListener(
             val descriptor = DynamicTestDescriptor(node, parent)
             mapper.addMapping(context, descriptor)
 
-            engineExecutionListener.dynamicTestRegistered(descriptor)
-            engineExecutionListener.executionStarted(descriptor)
+            listener.dynamicTestRegistered(descriptor)
+            listener.executionStarted(descriptor)
         }
 
         override suspend fun testStarted(testDescription: TestDescription) {
             val descriptor = mapper.getMappingOrNull(testDescription)!!
-            engineExecutionListener.executionStarted(descriptor)
+            startParentContexts(testDescription)
+            listener.executionStarted(descriptor)
+        }
+
+        private fun startParentContexts(testDescription: TestDescription) {
+            val context = testDescription.container
+            (context.parents + context).forEach {
+                if (startedContexts.add(it)) listener.executionStarted(mapper.getMapping(it))
+            }
         }
 
         override suspend fun testFinished(testPlusResult: TestPlusResult) {
-            val descriptor = mapper.getMappingOrNull(testPlusResult.test)!!
+            val descriptor = mapper.getMappingOrNull(testPlusResult.test)
+                ?: throw FailGoodException("mapping for $testPlusResult not found")
             when (testPlusResult.result) {
-                is Failure -> engineExecutionListener.executionFinished(
+                is Failure -> listener.executionFinished(
                     descriptor,
                     TestExecutionResult.failed(testPlusResult.result.failure)
                 )
 
-                is Skipped -> engineExecutionListener.executionSkipped(descriptor, testPlusResult.result.reason)
-                is Success -> engineExecutionListener.executionFinished(descriptor, TestExecutionResult.successful())
+                is Skipped -> listener.executionSkipped(descriptor, testPlusResult.result.reason)
+                is Success -> listener.executionFinished(descriptor, TestExecutionResult.successful())
             }
         }
 

@@ -32,20 +32,19 @@ class PlaygroundEngine : TestEngine {
         val l = request.engineExecutionListener
         l.executionStarted(root)
         val container = TestPlanNode.Container("container")
-        val containerDescriptor = DynamicTestDescriptor(root.uniqueId, container, root)
+        val containerDescriptor = DynamicTestDescriptor(container, root)
         l.dynamicTestRegistered(containerDescriptor)
         val container1 = TestPlanNode.Container("container1")
-        val container1Descriptor = DynamicTestDescriptor(containerDescriptor.uniqueId, container1, containerDescriptor)
+        val container1Descriptor = DynamicTestDescriptor(container1, containerDescriptor)
         l.dynamicTestRegistered(container1Descriptor)
 
         val container2Descriptor =
             DynamicTestDescriptor(
-                container1Descriptor.uniqueId,
                 TestPlanNode.Container("container2"),
                 container1Descriptor
             )
         val test2Descriptor =
-            DynamicTestDescriptor(container2Descriptor.uniqueId, TestPlanNode.Test("Test2"), container2Descriptor)
+            DynamicTestDescriptor(TestPlanNode.Test("Test2"), container2Descriptor)
         container2Descriptor.addChild(test2Descriptor)
         l.executionStarted(containerDescriptor)
         l.executionStarted(container1Descriptor)
@@ -63,9 +62,10 @@ class PlaygroundEngine : TestEngine {
     }
 }
 
-class DynamicTestDescriptor(parentUniqueId: UniqueId, private val node: TestPlanNode, val parent: TestDescriptor) :
+class DynamicTestDescriptor(private val node: TestPlanNode, val parent: TestDescriptor) :
     TestDescriptor {
-        private val uniqueId = parentUniqueId.appendContext(node.name)
+        private val p = parent.uniqueId
+        private val uniqueId = p.appendContext(node.name)
         private val children = mutableSetOf<TestDescriptor>()
         override fun getUniqueId(): UniqueId = uniqueId
 

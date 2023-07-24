@@ -40,6 +40,7 @@ internal class ContextExecutor(
             return ContextInfo(listOf(), mapOf(), setOf())
         val function = rootContext.function
         val rootContext = rootContext.context
+        staticExecutionConfig.listener.contextDiscovered(rootContext)
         try {
             do {
                 val startTime = System.nanoTime()

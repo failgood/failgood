@@ -21,10 +21,7 @@ class PlaygroundEngine : TestEngine {
     }
 
     override fun discover(discoveryRequest: EngineDiscoveryRequest?, uniqueId: UniqueId): TestDescriptor {
-        return MyEngineDescriptor(
-            uniqueId,
-            setOf()
-        ).resolve()
+        return MyTestDescriptor(TestPlanNode.Container("root"), uniqueId, null)
     }
 
     override fun execute(request: ExecutionRequest) {

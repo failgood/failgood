@@ -20,6 +20,7 @@ import failgood.junit.it.fixtures.TestFixtureWithFailingTestAndAfterEach
 import failgood.junit.it.fixtures.TestOrderFixture
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
 import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.engine.TestExecutionResult
@@ -28,6 +29,7 @@ import org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestIdentifier
 import org.junit.platform.launcher.core.LauncherFactory
+import java.lang.AssertionError
 import kotlin.reflect.KClass
 import kotlin.test.assertNotNull
 
@@ -39,6 +41,7 @@ object JunitPlatformFunctionalTest {
     )
 
     val context = describe("The Junit Platform Engine") {
+
         it("can execute a simple test defined in an object") {
             assertSuccess(executeSingleTest(SimpleTestFixture::class))
         }
@@ -149,8 +152,13 @@ object JunitPlatformFunctionalTest {
         val listener = TEListener()
 
         LauncherFactory.create().execute(launcherDiscoveryRequest(discoverySelectors), listener)
+
         // await with timeout to make sure the test does not hang
-        val rootResult = withTimeout(5000) { listener.rootResult.await() }
+        val rootResult = try {
+            withTimeout(2000) { listener.rootResult.await() }
+        } catch (e: TimeoutCancellationException) {
+            throw AssertionError("Test execution timed out. received results:${listener.results}")
+        }
         return Results(rootResult, listener.results)
     }
 
@@ -164,6 +172,7 @@ object JunitPlatformFunctionalTest {
         val rootResult = CompletableDeferred<TestExecutionResult>()
         val results = mutableMapOf<TestIdentifier, TestExecutionResult>()
         override fun executionFinished(testIdentifier: TestIdentifier, testExecutionResult: TestExecutionResult) {
+            println("finished:$testIdentifier")
             results[testIdentifier] = testExecutionResult
             val parentId = testIdentifier.parentId
             if (!parentId.isPresent) {

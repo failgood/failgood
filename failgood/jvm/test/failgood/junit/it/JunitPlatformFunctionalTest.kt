@@ -30,7 +30,6 @@ import org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestIdentifier
 import org.junit.platform.launcher.core.LauncherFactory
-import java.lang.AssertionError
 import kotlin.reflect.KClass
 import kotlin.test.assertNotNull
 
@@ -118,6 +117,7 @@ object JunitPlatformFunctionalTest {
                 )
             }
         }
+
         it("returns uniqueIds that it understands (uniqueid round-trip test)") {
             // run a test by className
             val result = executeSingleTest(SimpleTestFixture::class)
@@ -127,6 +127,9 @@ object JunitPlatformFunctionalTest {
                 result.results.keys.singleOrNull { it.displayName == testName }
             )
             val uniqueId = descriptor.uniqueId
+            assert(
+                uniqueId.toString().contains(SimpleTestFixture::class.simpleName!!)
+            ) { "our unique ids contain the class name" }
             // now use the uniqueid that we just returned to run the same test again
             val newResult = execute(listOf(selectUniqueId(uniqueId)))
             val tests = newResult.results.keys.filter { it.isTest }.map {

@@ -88,17 +88,19 @@ object JunitPlatformFunctionalTest {
                 assertSuccess(executeSingleTest(DeeplyNestedDuplicateTestFixture::class))
             }
         }
-        if (!newEngine) // currently broken on the new engine
-            describe("failing contexts") {
-                it("reports failing contexts") {
-                    val selectors = listOf(
-                        FailingContext::class
-                    ).map { selectClass(it.qualifiedName) }
-                    val r = execute(selectors)
-                    assertSuccess(r)
-                    val failedTests = r.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
-                    assert(failedTests.map { it.key.displayName }.containsExactlyInAnyOrder("error in context"))
-                }
+        describe("failing contexts") {
+            it("reports failing contexts") {
+                val selectors = listOf(
+                    FailingContext::class
+                ).map { selectClass(it.qualifiedName) }
+                val r = execute(selectors)
+                assertSuccess(r)
+                assert(
+                    r.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
+                        .map { it.key.displayName }.containsExactlyInAnyOrder("error in context")
+                )
+            }
+            if (!newEngine) {
                 it("reports failing root contexts") {
                     val selectors = listOf(
                         FailingRootContext::class
@@ -133,6 +135,7 @@ object JunitPlatformFunctionalTest {
                     }
                 }
             }
+        }
         it(
             "works with Blockhound installed",
             ignored = Ignored.Because("this needs more work and I stopped using blockhound")

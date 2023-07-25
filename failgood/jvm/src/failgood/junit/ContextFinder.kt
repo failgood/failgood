@@ -27,6 +27,7 @@ internal data class SuiteAndFilters(
     // this is currently only used for running single tests by unique id.
     val filter: TestFilterProvider?
 )
+
 class ContextFinder(private val runTestFixtures: Boolean = false) {
     internal fun findContexts(discoveryRequest: EngineDiscoveryRequest): SuiteAndFilters? {
         val filterConfig = mutableMapOf<String, List<String>>()
@@ -62,7 +63,12 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
                 is UniqueIdSelector -> {
                     val (className, filterString) = selector.toClassFilter()
                     filterConfig[className] = filterString
-                    listOf(ObjectContextProvider(loadClass(className).kotlin))
+                    val classFromUniqueId = try {
+                        Thread.currentThread().contextClassLoader.loadClass(className)
+                    } catch (e: ClassNotFoundException) {
+                        throw FailGoodException("could not load class for uniqueId $selector", e)
+                    }
+                    listOf(ObjectContextProvider(classFromUniqueId.kotlin))
                 }
 
                 is MethodSelector -> {
@@ -91,11 +97,6 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
             )
     }
 
-    private fun loadClass(className: String): Class<*> = try {
-        Thread.currentThread().contextClassLoader.loadClass(className)
-    } catch (e: ClassNotFoundException) {
-        throw FailGoodException("error loading class $className", e)
-    }
 }
 
 data class ClassFilter(val className: String, val filterStringList: List<String>)
@@ -116,6 +117,6 @@ internal fun discoveryRequestToString(discoveryRequest: EngineDiscoveryRequest):
         discoveryRequest.postDiscoveryFilters.joinToString()
     else "UNKNOWN (${discoveryRequest::class.java.name})"
     return "selectors:${allSelectors.joinToString()}\n" +
-        "filters:${allFilters.joinToString()}\n" +
-        "postDiscoveryFilters:$allPostDiscoveryFilters"
+            "filters:${allFilters.joinToString()}\n" +
+            "postDiscoveryFilters:$allPostDiscoveryFilters"
 }

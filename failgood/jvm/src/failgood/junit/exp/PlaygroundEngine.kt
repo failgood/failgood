@@ -62,10 +62,14 @@ class PlaygroundEngine : TestEngine {
     }
 }
 
-class DynamicTestDescriptor(private val node: TestPlanNode, val parent: TestDescriptor) :
+class DynamicTestDescriptor(
+    private val node: TestPlanNode,
+    private val parent: TestDescriptor,
+    val path: String = node.name
+) :
     TestDescriptor {
         private val p = parent.uniqueId
-        private val uniqueId = p.appendContext(node.name)
+        private val uniqueId = p.appendContext(path)
         private val children = mutableSetOf<TestDescriptor>()
         override fun getUniqueId(): UniqueId = uniqueId
 

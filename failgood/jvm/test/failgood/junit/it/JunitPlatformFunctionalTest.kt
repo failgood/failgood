@@ -1,5 +1,6 @@
 package failgood.junit.it
 
+import failgood.ContextDSL
 import failgood.Ignored
 import failgood.Test
 import failgood.assert.containsExactlyInAnyOrder
@@ -19,7 +20,9 @@ import failgood.junit.it.fixtures.TestFixtureThatFailsAfterFirstPass
 import failgood.junit.it.fixtures.TestFixtureWithFailingTestAndAfterEach
 import failgood.junit.it.fixtures.TestOrderFixture
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture
+import failgood.softly.softly
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
 import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.engine.TestExecutionResult
@@ -38,7 +41,33 @@ object JunitPlatformFunctionalTest {
         val results: MutableMap<TestIdentifier, TestExecutionResult>
     )
 
-    val context = describe("The Junit Platform Engine") {
+    val context = listOf(
+        describe("The Junit Platform Engine") {
+            tests(false)
+        },
+        describe("The New Junit Platform Engine") {
+            tests(true)
+        }
+    )
+
+    private suspend fun ContextDSL<Unit>.tests(newEngine: Boolean) {
+        suspend fun execute(discoverySelectors: List<DiscoverySelector>): Results {
+            val listener = TEListener()
+
+            LauncherFactory.create().execute(launcherDiscoveryRequest(discoverySelectors, newEngine), listener)
+
+            // await with timeout to make sure the test does not hang
+            val rootResult = try {
+                withTimeout(2000) { listener.rootResult.await() }
+            } catch (e: TimeoutCancellationException) {
+                throw AssertionError("Test execution timed out. received results:${listener.results}")
+            }
+            return Results(rootResult, listener.results)
+        }
+
+        suspend fun executeSingleTest(singleTest: KClass<*>): Results =
+            execute(listOf(selectClass(singleTest.qualifiedName)))
+
         it("can execute a simple test defined in an object") {
             assertSuccess(executeSingleTest(SimpleTestFixture::class))
         }
@@ -59,24 +88,53 @@ object JunitPlatformFunctionalTest {
                 assertSuccess(executeSingleTest(DeeplyNestedDuplicateTestFixture::class))
             }
         }
-        it("works for a failing context or root context") {
-            val selectors = listOf(
-                DuplicateRootWithOneTestFixture::class,
-                DuplicateTestNameTest::class,
-                FailingContext::class,
-                FailingRootContext::class,
-                IgnoredTestFixture::class,
-                SimpleTestFixture::class,
-                TestWithNestedContextsFixture::class
-            ).map { selectClass(it.qualifiedName) }
-            val r = execute(selectors)
-            assertSuccess(r)
-            assert(r.results.size > 20) // just assert that a lot of tests were running. this test is a bit unfocused
-            assert(
-                r.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
-                    .map { it.key.displayName }
-                    .containsExactlyInAnyOrder("Failing Root Context", "error in context")
-            )
+        describe("failing contexts") {
+            it("reports failing contexts") {
+                val selectors = listOf(
+                    FailingContext::class
+                ).map { selectClass(it.qualifiedName) }
+                val r = execute(selectors)
+                assertSuccess(r)
+                assert(
+                    r.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
+                        .map { it.key.displayName }.containsExactlyInAnyOrder("error in context")
+                )
+            }
+            if (!newEngine) {
+                it("reports failing root contexts") {
+                    val selectors = listOf(
+                        FailingRootContext::class
+                    ).map { selectClass(it.qualifiedName) }
+                    val r = execute(selectors)
+                    assertSuccess(r)
+                    val failedTests = r.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
+                    assert(failedTests.map { it.key.displayName }.containsExactlyInAnyOrder("Failing Root Context"))
+                }
+
+                // todo: remove this test when we are sure that it does not test anything useful by mistake
+                it("works for a failing context or root context") {
+                    val selectors = listOf(
+                        DuplicateRootWithOneTestFixture::class,
+                        DuplicateTestNameTest::class,
+                        FailingContext::class,
+                        FailingRootContext::class,
+                        IgnoredTestFixture::class,
+                        SimpleTestFixture::class,
+                        TestWithNestedContextsFixture::class
+                    ).map { selectClass(it.qualifiedName) }
+                    val r = execute(selectors)
+                    assertSuccess(r)
+                    softly {
+                        // just assert that a lot of tests were running. this test is a bit unfocused
+                        assert(r.results.size > 20)
+                        assert(
+                            r.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
+                                .map { it.key.displayName }
+                                .containsExactlyInAnyOrder("Failing Root Context", "error in context")
+                        )
+                    }
+                }
+            }
         }
         it(
             "works with Blockhound installed",
@@ -94,6 +152,7 @@ object JunitPlatformFunctionalTest {
             )
             assert(throwable.get().message?.contains("blocking") == true)
         }
+        // this test will not work with the new engine because the new engine does not return tests at discover time
         it("returns tests in the order that they are declared in the file") {
             val testPlan = LauncherFactory.create().discover(
                 launcherDiscoveryRequest(
@@ -112,15 +171,18 @@ object JunitPlatformFunctionalTest {
                 )
             }
         }
+
         it("returns uniqueIds that it understands (uniqueid round-trip test)") {
             // run a test by className
             val result = executeSingleTest(SimpleTestFixture::class)
             assertSuccess(result)
             val testName = SimpleTestFixture.testName
-            val descriptor: TestIdentifier = assertNotNull(
-                result.results.keys.singleOrNull { it.displayName == testName }
-            )
+            val descriptor: TestIdentifier =
+                assertNotNull(result.results.keys.singleOrNull { it.displayName == testName })
             val uniqueId = descriptor.uniqueId
+            assert(
+                uniqueId.toString().contains(SimpleTestFixture::class.simpleName!!)
+            ) { "our unique ids contain the class name" }
             // now use the uniqueid that we just returned to run the same test again
             val newResult = execute(listOf(selectUniqueId(uniqueId)))
             val tests = newResult.results.keys.filter { it.isTest }.map {
@@ -140,18 +202,6 @@ object JunitPlatformFunctionalTest {
                 assertSuccess(executeSingleTest(TestFixtureThatFailsAfterFirstPass::class))
             }
         }
-    }
-
-    private suspend fun executeSingleTest(singleTest: KClass<*>): Results =
-        execute(listOf(selectClass(singleTest.qualifiedName)))
-
-    private suspend fun execute(discoverySelectors: List<DiscoverySelector>): Results {
-        val listener = TEListener()
-
-        LauncherFactory.create().execute(launcherDiscoveryRequest(discoverySelectors), listener)
-        // await with timeout to make sure the test does not hang
-        val rootResult = withTimeout(5000) { listener.rootResult.await() }
-        return Results(rootResult, listener.results)
     }
 
     private fun assertSuccess(result: Results) {

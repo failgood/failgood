@@ -22,12 +22,15 @@ class Asserter : AssertDSL {
     }
 
     override fun assert(b: Boolean, errorMessage: () -> String) {
-        if (!b)
-            errors.add(AssertionError(errorMessage()))
+        if (!b) errors.add(AssertionError(errorMessage()))
     }
 
     fun check() {
-        if (errors.isNotEmpty())
-            throw MultipleFailuresError("assertions failed", errors)
+        if (errors.isNotEmpty()) {
+            errors.singleOrNull()?.let { throw (it) } ?: throw MultipleFailuresError(
+                "multiple assertions failed",
+                errors
+            )
+        }
     }
 }

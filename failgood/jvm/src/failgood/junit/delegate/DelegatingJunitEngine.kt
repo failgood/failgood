@@ -2,6 +2,7 @@ package failgood.junit.delegate
 
 import failgood.junit.FailGoodJunitTestEngine
 import failgood.junit.FailGoodJunitTestEngineConstants
+import failgood.junit.FailGoodJunitTestEngineConstants.FAILGOOD_NEW_JUNIT
 import failgood.junit.next.NewJunitEngine
 import org.junit.platform.engine.EngineDiscoveryRequest
 import org.junit.platform.engine.ExecutionRequest
@@ -18,7 +19,7 @@ class DelegatingJunitEngine : TestEngine {
         uniqueId: UniqueId
     ): TestDescriptor {
         val useNew =
-            discoveryRequest.configurationParameters.getBoolean("failgood.new.junit").orElse(false)
+            discoveryRequest.configurationParameters.getBoolean(FAILGOOD_NEW_JUNIT).orElse(false)
         currentEngine = if (useNew) NewJunitEngine() else FailGoodJunitTestEngine()
         return currentEngine.discover(discoveryRequest, uniqueId)
     }

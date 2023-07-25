@@ -10,7 +10,12 @@ import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 fun launcherDiscoveryRequest(selectors: List<DiscoverySelector>): LauncherDiscoveryRequest {
     return LauncherDiscoveryRequestBuilder.request()
         .filters(EngineFilter.includeEngines(FailGoodJunitTestEngine().id))
-        .configurationParameters(mapOf(FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES to "true"))
+        .configurationParameters(
+            mapOf(
+                FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES to "true",
+                FailGoodJunitTestEngineConstants.FAILGOOD_NEW_JUNIT to "true"
+            )
+        )
         .selectors(selectors)
         .build()
 }

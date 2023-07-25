@@ -96,7 +96,6 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
                 Suite(contexts), if (filterConfig.isEmpty()) null else ClassTestFilterProvider(filterConfig)
             )
     }
-
 }
 
 data class ClassFilter(val className: String, val filterStringList: List<String>)
@@ -117,6 +116,6 @@ internal fun discoveryRequestToString(discoveryRequest: EngineDiscoveryRequest):
         discoveryRequest.postDiscoveryFilters.joinToString()
     else "UNKNOWN (${discoveryRequest::class.java.name})"
     return "selectors:${allSelectors.joinToString()}\n" +
-            "filters:${allFilters.joinToString()}\n" +
-            "postDiscoveryFilters:$allPostDiscoveryFilters"
+        "filters:${allFilters.joinToString()}\n" +
+        "postDiscoveryFilters:$allPostDiscoveryFilters"
 }

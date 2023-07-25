@@ -112,9 +112,11 @@ internal class NewExecutionListener(
 
         override suspend fun contextDiscovered(context: Context) {
             val node = TestPlanNode.Container(context.name)
-            val parent =
-                if (context.parent == null) root else testMapper.getMapping(context.parent)
-            val descriptor = DynamicTestDescriptor(node, parent)
+            val descriptor = if (context.parent == null) {
+                DynamicTestDescriptor(node, root, "${context.name}(${(context.sourceInfo?.className) ?: ""})")
+            } else {
+                DynamicTestDescriptor(node, testMapper.getMapping(context.parent))
+            }
             testMapper.addMapping(context, descriptor)
             listener.dynamicTestRegistered(descriptor)
         }

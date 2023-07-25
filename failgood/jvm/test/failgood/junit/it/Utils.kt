@@ -12,8 +12,8 @@ fun launcherDiscoveryRequest(selectors: List<DiscoverySelector>): LauncherDiscov
         .filters(EngineFilter.includeEngines(FailGoodJunitTestEngine().id))
         .configurationParameters(
             mapOf(
-                FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES to "true",
-                FailGoodJunitTestEngineConstants.FAILGOOD_NEW_JUNIT to "true"
+                FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES to "true"
+//                FailGoodJunitTestEngineConstants.FAILGOOD_NEW_JUNIT to "true"
             )
         )
         .selectors(selectors)

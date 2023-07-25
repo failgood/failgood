@@ -27,7 +27,10 @@ class Asserter : AssertDSL {
 
     fun check() {
         if (errors.isNotEmpty()) {
-            errors.singleOrNull()?.let { throw (it) } ?: throw MultipleFailuresError("multiple assertions failed", errors)
+            errors.singleOrNull()?.let { throw (it) } ?: throw MultipleFailuresError(
+                "multiple assertions failed",
+                errors
+            )
         }
     }
 }

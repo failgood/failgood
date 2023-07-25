@@ -10,7 +10,6 @@ import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestEngine
 import org.junit.platform.engine.UniqueId
 
-
 class DelegatingJunitEngine : TestEngine {
     override fun getId(): String = FailGoodJunitTestEngineConstants.id
 

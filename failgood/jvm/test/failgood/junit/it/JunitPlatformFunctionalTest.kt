@@ -75,7 +75,8 @@ object JunitPlatformFunctionalTest {
             val r = execute(selectors)
             assertSuccess(r)
             softly {
-                assert(r.results.size > 20) // just assert that a lot of tests were running. this test is a bit unfocused
+                // just assert that a lot of tests were running. this test is a bit unfocused
+                assert(r.results.size > 20)
                 assert(
                     r.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
                         .map { it.key.displayName }
@@ -99,6 +100,7 @@ object JunitPlatformFunctionalTest {
             )
             assert(throwable.get().message?.contains("blocking") == true)
         }
+        // this test will not work with the new engine because the new engine does not return tests at discover time
         it("returns tests in the order that they are declared in the file") {
             val testPlan = LauncherFactory.create().discover(
                 launcherDiscoveryRequest(
@@ -123,9 +125,8 @@ object JunitPlatformFunctionalTest {
             val result = executeSingleTest(SimpleTestFixture::class)
             assertSuccess(result)
             val testName = SimpleTestFixture.testName
-            val descriptor: TestIdentifier = assertNotNull(
-                result.results.keys.singleOrNull { it.displayName == testName }
-            )
+            val descriptor: TestIdentifier =
+                assertNotNull(result.results.keys.singleOrNull { it.displayName == testName })
             val uniqueId = descriptor.uniqueId
             assert(
                 uniqueId.toString().contains(SimpleTestFixture::class.simpleName!!)

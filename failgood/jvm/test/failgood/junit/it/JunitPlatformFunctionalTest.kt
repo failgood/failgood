@@ -62,26 +62,48 @@ object JunitPlatformFunctionalTest {
                 assertSuccess(executeSingleTest(DeeplyNestedDuplicateTestFixture::class))
             }
         }
-        it("works for a failing context or root context") {
-            val selectors = listOf(
-                DuplicateRootWithOneTestFixture::class,
-                DuplicateTestNameTest::class,
-                FailingContext::class,
-                FailingRootContext::class,
-                IgnoredTestFixture::class,
-                SimpleTestFixture::class,
-                TestWithNestedContextsFixture::class
-            ).map { selectClass(it.qualifiedName) }
-            val r = execute(selectors)
-            assertSuccess(r)
-            softly {
-                // just assert that a lot of tests were running. this test is a bit unfocused
-                assert(r.results.size > 20)
-                assert(
-                    r.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
-                        .map { it.key.displayName }
-                        .containsExactlyInAnyOrder("Failing Root Context", "error in context")
-                )
+        describe("failing contexts") {
+            it("reports failing contexts") {
+                val selectors = listOf(
+                    FailingContext::class
+                ).map { selectClass(it.qualifiedName) }
+                val r = execute(selectors)
+                assertSuccess(r)
+                val failedTests = r.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
+                assert(failedTests.map { it.key.displayName }.containsExactlyInAnyOrder("error in context"))
+            }
+            it("reports failing root contexts") {
+                val selectors = listOf(
+                    FailingRootContext::class
+                ).map { selectClass(it.qualifiedName) }
+                val r = execute(selectors)
+                assertSuccess(r)
+                val failedTests = r.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
+                assert(failedTests.map { it.key.displayName }.containsExactlyInAnyOrder("Failing Root Context"))
+            }
+
+            // todo: remove this test when we are sure that it does not test anything useful by mistake
+            it("works for a failing context or root context") {
+                val selectors = listOf(
+                    DuplicateRootWithOneTestFixture::class,
+                    DuplicateTestNameTest::class,
+                    FailingContext::class,
+                    FailingRootContext::class,
+                    IgnoredTestFixture::class,
+                    SimpleTestFixture::class,
+                    TestWithNestedContextsFixture::class
+                ).map { selectClass(it.qualifiedName) }
+                val r = execute(selectors)
+                assertSuccess(r)
+                softly {
+                    // just assert that a lot of tests were running. this test is a bit unfocused
+                    assert(r.results.size > 20)
+                    assert(
+                        r.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
+                            .map { it.key.displayName }
+                            .containsExactlyInAnyOrder("Failing Root Context", "error in context")
+                    )
+                }
             }
         }
         it(

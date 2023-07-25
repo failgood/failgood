@@ -172,7 +172,6 @@ object JunitPlatformFunctionalTest {
         val rootResult = CompletableDeferred<TestExecutionResult>()
         val results = mutableMapOf<TestIdentifier, TestExecutionResult>()
         override fun executionFinished(testIdentifier: TestIdentifier, testExecutionResult: TestExecutionResult) {
-            println("finished:$testIdentifier")
             results[testIdentifier] = testExecutionResult
             val parentId = testIdentifier.parentId
             if (!parentId.isPresent) {

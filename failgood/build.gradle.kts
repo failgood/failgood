@@ -1,6 +1,9 @@
 @file:Suppress("GradlePackageUpdate")
 
-import failgood.versions.*
+import failgood.versions.coroutinesVersion
+import failgood.versions.junitPlatformVersion
+import failgood.versions.pitestVersion
+import failgood.versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
 plugins {
@@ -29,7 +32,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     compileOnly("org.pitest:pitest:$pitestVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
-    implementation("org.opentest4j:opentest4j:1.2.0")
+    implementation("org.opentest4j:opentest4j:1.3.0")
     testImplementation("io.strikt:strikt-core:$striktVersion")
     testImplementation("org.pitest:pitest:$pitestVersion")
     testImplementation("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
@@ -85,7 +88,12 @@ plugins.withId("info.solidsoft.pitest") {
 }
 
 configure<com.bnorm.power.PowerAssertGradleExtension> {
-    functions = listOf("kotlin.assert", "kotlin.test.assertTrue", "kotlin.test.assertNotNull")
+    functions = listOf(
+        "kotlin.assert",
+        "kotlin.test.assertTrue",
+        "kotlin.test.assertNotNull",
+        "failgood.softly.AssertDSL.assert"
+    )
 }
 
 // reproduce https://github.com/fagiilgood/failgood/issues/93

@@ -19,6 +19,7 @@ import failgood.junit.it.fixtures.TestFixtureThatFailsAfterFirstPass
 import failgood.junit.it.fixtures.TestFixtureWithFailingTestAndAfterEach
 import failgood.junit.it.fixtures.TestOrderFixture
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture
+import failgood.softly.softly
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
@@ -74,12 +75,14 @@ object JunitPlatformFunctionalTest {
             ).map { selectClass(it.qualifiedName) }
             val r = execute(selectors)
             assertSuccess(r)
-            assert(r.results.size > 20) // just assert that a lot of tests were running. this test is a bit unfocused
-            assert(
-                r.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
-                    .map { it.key.displayName }
-                    .containsExactlyInAnyOrder("Failing Root Context", "error in context")
-            )
+            softly {
+                assert(r.results.size > 20) // just assert that a lot of tests were running. this test is a bit unfocused
+                assert(
+                    r.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
+                        .map { it.key.displayName }
+                        .containsExactlyInAnyOrder("Failing Root Context", "error in context")
+                )
+            }
         }
         it(
             "works with Blockhound installed",

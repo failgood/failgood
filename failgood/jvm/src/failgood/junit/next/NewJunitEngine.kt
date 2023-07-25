@@ -80,6 +80,7 @@ class NewJunitEngine : TestEngine {
                     TestExecutionResult.successful()
                 )
             }
+            request.engineExecutionListener.executionFinished(root, TestExecutionResult.successful())
         } catch (e: Exception) {
             e.printStackTrace()
         }

@@ -22,9 +22,9 @@ class MyFirstFailgoodTest {
 ```
 [Failgood in 5 minutes](docs/failgood%20in%205%20minutes.md)
 
-## Whats so cool about it?
+## What's so cool about it?
 
-### Its Fast
+### It's Fast
 While other test-runners are still busy scanning your classpath for tests, failgood is already running them in parallel, and if your test suite is lightweight and well written maybe its already finished.
 This is failgood running its own test suite on a Macbook Air:
 

@@ -111,27 +111,6 @@ class DynamicTestDescriptor(
         }
     }
 
-class MyEngineDescriptor(private val uniqueId: UniqueId, private val children: Set<TestPlanNode>) {
-
-    fun resolve(): TestDescriptor {
-        var uniqueId = this.uniqueId
-        val root = MyTestDescriptor(TestPlanNode.Container("root", children), uniqueId, null)
-        fun addChildren(parent: TestDescriptor, children: Set<TestPlanNode>) {
-            children.forEach {
-                val descriptor = MyTestDescriptor(it, uniqueId.appendContext(it.name), parent)
-                parent.addChild(descriptor)
-                when (it) {
-                    is TestPlanNode.Container -> addChildren(descriptor, it.children)
-                    is TestPlanNode.Test -> {}
-                }
-            }
-        }
-
-        addChildren(root, children)
-        return root
-    }
-}
-
 sealed interface TestPlanNode {
     val name: String
 

@@ -38,10 +38,9 @@ describe("string reversing", isolation=false) {
 }
 ```
 
-This is a totally made up example, in this example you would could argue that turning off isolation is a premature optimisation, but you get the idea.
+This is a totally made up example, and in this example you could argue that turning off isolation is a premature optimisation, but you get the idea.
 
-You can turn off isolation for a whole top level contexts, or also for subcontexts. If you don't specify an isolation parameter your context keeps the isolation level of its parent. Also you can not turn on isolation once it is turned off
-because that would make no sense.
+You can turn off isolation for a whole top level contexts, or also for subcontexts. If you don't specify an isolation parameter your context keeps the isolation level of its parent. Also, you can not turn on isolation once it is turned off because that would make no sense.
 
 
 ### If you really want shared state in your tests

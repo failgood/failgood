@@ -49,6 +49,7 @@ internal class ContextVisitor<GivenType>(
                         TestDescription(context, name, sourceInfo())
                     val result = Skipped(ignoreReason)
 
+                    staticConfig.listener.testDiscovered(testDescriptor)
                     val testPlusResult = TestPlusResult(testDescriptor, result)
                     contextStateCollector.deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
                     staticConfig.listener.testFinished(testPlusResult)

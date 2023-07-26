@@ -58,7 +58,7 @@ object JunitPlatformFunctionalTest {
 
             // await with timeout to make sure the test does not hang
             val rootResult = try {
-                withTimeout(2000) { listener.rootResult.await() }
+                withTimeout(5000) { listener.rootResult.await() }
             } catch (e: TimeoutCancellationException) {
                 throw AssertionError("Test execution timed out. received results:${listener.results}")
             }
@@ -68,6 +68,14 @@ object JunitPlatformFunctionalTest {
         suspend fun executeSingleTest(singleTest: KClass<*>): Results =
             execute(listOf(selectClass(singleTest.qualifiedName)))
 
+        it("can execute ignored tests") {
+            val result = executeSingleTest(IgnoredTestFixture::class)
+            assertSuccess(result)
+            assert(getFailedTests(result).isEmpty())
+        }
+        it("can execute duplicate root") {
+            assertSuccess(executeSingleTest(DuplicateRootWithOneTestFixture::class))
+        }
         it("can execute a simple test defined in an object") {
             assertSuccess(executeSingleTest(SimpleTestFixture::class))
         }
@@ -75,7 +83,9 @@ object JunitPlatformFunctionalTest {
             assertSuccess(executeSingleTest(SimpleClassTestFixture::class))
         }
         it("executes contexts that contain tests with the same names") {
-            assertSuccess(executeSingleTest(DuplicateTestNameTest::class))
+            val result = executeSingleTest(DuplicateTestNameTest::class)
+            assertSuccess(result)
+            assert(getFailedTests(result).isEmpty())
         }
         describe("duplicate test names") {
             it("are correctly handled in root contexts") {
@@ -96,44 +106,41 @@ object JunitPlatformFunctionalTest {
                 val r = execute(selectors)
                 assertSuccess(r)
                 assert(
-                    r.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
+                    getFailedTests(r)
                         .map { it.key.displayName }.containsExactlyInAnyOrder("error in context")
                 )
             }
-            if (!newEngine) {
-                it("reports failing root contexts") {
-                    val selectors = listOf(
-                        FailingRootContext::class
-                    ).map { selectClass(it.qualifiedName) }
-                    val r = execute(selectors)
-                    assertSuccess(r)
-                    val failedTests = r.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
-                    assert(failedTests.map { it.key.displayName }.containsExactlyInAnyOrder("Failing Root Context"))
-                }
-
-                // todo: remove this test when we are sure that it does not test anything useful by mistake
-                it("works for a failing context or root context") {
-                    val selectors = listOf(
-                        DuplicateRootWithOneTestFixture::class,
-                        DuplicateTestNameTest::class,
-                        FailingContext::class,
-                        FailingRootContext::class,
-                        IgnoredTestFixture::class,
-                        SimpleTestFixture::class,
-                        TestWithNestedContextsFixture::class
-                    ).map { selectClass(it.qualifiedName) }
-                    val r = execute(selectors)
-                    assertSuccess(r)
-                    softly {
-                        // just assert that a lot of tests were running. this test is a bit unfocused
-                        assert(r.results.size > 20)
-                        assert(
-                            r.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
-                                .map { it.key.displayName }
-                                .containsExactlyInAnyOrder("Failing Root Context", "error in context")
-                        )
-                    }
-                }
+            it("reports failing root contexts") {
+                val selectors = listOf(
+                    FailingRootContext::class
+                ).map { selectClass(it.qualifiedName) }
+                val r = execute(selectors)
+                assertSuccess(r)
+                val failedTests = getFailedTests(r)
+                assert(failedTests.map { it.key.displayName }.containsExactlyInAnyOrder("Failing Root Context"))
+            }
+        }
+        // todo: remove this test when we are sure that it does not test anything useful by mistake
+        it("works for a failing context or root context") {
+            val selectors = listOf(
+                DuplicateRootWithOneTestFixture::class,
+                DuplicateTestNameTest::class,
+                FailingContext::class,
+                FailingRootContext::class,
+                IgnoredTestFixture::class,
+                SimpleTestFixture::class,
+                TestWithNestedContextsFixture::class
+            ).map { selectClass(it.qualifiedName) }
+            val r = execute(selectors)
+            assertSuccess(r)
+            softly {
+                // just assert that a lot of tests were running. this test is a bit unfocused
+                assert(r.results.size > 20)
+                assert(
+                    getFailedTests(r)
+                        .map { it.key.displayName }
+                        .containsExactlyInAnyOrder("Failing Root Context", "error in context")
+                )
             }
         }
         it(
@@ -203,6 +210,9 @@ object JunitPlatformFunctionalTest {
             }
         }
     }
+
+    private fun getFailedTests(r: Results) =
+        r.results.entries.filter { it.value.status == TestExecutionResult.Status.FAILED }
 
     private fun assertSuccess(result: Results) {
         assert(result.rootResult.status == TestExecutionResult.Status.SUCCESSFUL) {

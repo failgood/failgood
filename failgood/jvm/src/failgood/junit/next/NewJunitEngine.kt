@@ -58,29 +58,40 @@ class NewJunitEngine : TestEngine {
 
         val root = request.rootTestDescriptor
         if (root !is FailGoodEngineDescriptor) return
-        request.engineExecutionListener.executionStarted(root)
+        val listener = request.engineExecutionListener
+        listener.executionStarted(root)
         try {
             val testMapper = TestMapper()
-            runBlocking(root.suiteExecutionContext.coroutineDispatcher) {
+            val results = runBlocking(root.suiteExecutionContext.coroutineDispatcher) {
                 val r = root.loadResults.investigate(
                     root.suiteExecutionContext.scope,
                     listener = NewExecutionListener(
                         root,
-                        request.engineExecutionListener,
+                        listener,
                         startedContexts,
                         testMapper
                     )
                 ).awaitAll()
                 awaitTestResults(r)
             }
+            // report the failing root contexts
+            results.failedRootContexts.forEach {
+                val node = TestPlanNode.Container(it.context.name)
+                val testDescriptor = DynamicTestDescriptor(node, root)
+
+                listener.dynamicTestRegistered(testDescriptor)
+                listener.executionStarted(testDescriptor)
+                listener.executionFinished(testDescriptor, TestExecutionResult.failed(it.failure))
+            }
+            // close all open contexts.
             val leafToRootContexts = startedContexts.sortedBy { -it.parents.size }
             leafToRootContexts.forEach { context ->
-                request.engineExecutionListener.executionFinished(
+                listener.executionFinished(
                     testMapper.getMapping(context),
                     TestExecutionResult.successful()
                 )
             }
-            request.engineExecutionListener.executionFinished(root, TestExecutionResult.successful())
+            listener.executionFinished(root, TestExecutionResult.successful())
         } catch (e: Exception) {
             e.printStackTrace()
         }

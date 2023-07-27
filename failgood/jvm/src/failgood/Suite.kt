@@ -1,12 +1,20 @@
 package failgood
 
-import failgood.internal.*
 import failgood.internal.ContextInfo
+import failgood.internal.ContextResult
 import failgood.internal.ContextTreeReporter
 import failgood.internal.ExecuteAllTestFilterProvider
+import failgood.internal.FailedRootContext
+import failgood.internal.LoadResults
+import failgood.internal.SuiteExecutionContext
 import failgood.internal.TestFilterProvider
 import failgood.internal.util.pluralize
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.lang.management.ManagementFactory
 import kotlin.reflect.KClass
 
@@ -17,12 +25,16 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
         if (contextProviders.isEmpty()) throw EmptySuiteException()
     }
 
-    fun run(parallelism: Int = cpus(), silent: Boolean = false): SuiteResult {
+    fun run(
+        parallelism: Int = cpus(),
+        silent: Boolean = false,
+        listener: ExecutionListener = NullExecutionListener
+    ): SuiteResult {
         return SuiteExecutionContext(parallelism).use { suiteExecutionContext ->
             suiteExecutionContext.coroutineDispatcher
                 .use { dispatcher ->
                     runBlocking(dispatcher) {
-                        val contextInfos = findTests(this)
+                        val contextInfos = findTests(this, listener = listener)
                         if (!silent) {
                             printResults(this, contextInfos)
                         }
@@ -108,6 +120,7 @@ internal suspend fun awaitTestResults(resolvedContexts: List<ContextResult>): Su
 
     )
 }
+
 internal fun printResults(coroutineScope: CoroutineScope, contextInfos: List<Deferred<ContextResult>>) {
     contextInfos.forEach {
         coroutineScope.launch {
@@ -123,6 +136,7 @@ internal fun printResults(coroutineScope: CoroutineScope, contextInfos: List<Def
                             .joinToString("\n")
                     )
                 }
+
                 is FailedRootContext -> {
                     println("context ${context.context} failed: ${context.failure.stackTraceToString()}")
                 }

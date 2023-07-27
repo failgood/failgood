@@ -1,6 +1,18 @@
 package failgood.mock
 
-import kotlin.reflect.*
+import kotlin.reflect.KCallable
+import kotlin.reflect.KFunction1
+import kotlin.reflect.KFunction2
+import kotlin.reflect.KFunction3
+import kotlin.reflect.KFunction4
+import kotlin.reflect.KFunction5
+import kotlin.reflect.KFunction6
+import kotlin.reflect.KSuspendFunction1
+import kotlin.reflect.KSuspendFunction2
+import kotlin.reflect.KSuspendFunction3
+import kotlin.reflect.KSuspendFunction4
+import kotlin.reflect.KSuspendFunction5
+import kotlin.reflect.KSuspendFunction6
 
 /*
  * these are necessary to work with classes that have overloaded methods
@@ -57,3 +69,15 @@ fun <A, B, C, D, E, F, G> call(
     e: E,
     f: F
 ): FunctionCall = FunctionCall((kFunction6 as KCallable<*>).name, listOf(b, c, d, e, f))
+
+@Suppress("UNCHECKED_CAST")
+@JvmName("getCalls3")
+fun <A, B, C, D> List<FunctionCall>.getCalls(function: KFunction3<A, B, C, D>): List<Pair<B, C>> {
+    return this.filter { it.function == function.name }
+        .map { Pair(it.arguments[0], it.arguments[1]) } as List<Pair<B, C>>
+}
+
+@JvmName("getCalls2")
+@Suppress("UNCHECKED_CAST")
+fun <A, B, C> List<FunctionCall>.getCalls(function: KFunction2<A, B, C>): List<B> =
+    this.filter { it.function == function.name }.map { it.arguments.single() } as List<B>

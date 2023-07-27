@@ -9,6 +9,7 @@ import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import strikt.assertions.isNotEqualTo
 import strikt.assertions.message
+import kotlin.reflect.*
 import kotlin.test.assertNotNull
 
 @Test
@@ -97,6 +98,21 @@ class MockTest {
                 call(UserManager::overloadedFunction, "string"),
                 call(UserManager::overloadedFunction, 10)
             )
+        }
+        describe("function calls") {
+            it("can get parameter value of function with one parameter") {
+                mock.functionWithOneParameter(1)
+                val calls = getCalls(mock)
+                val intVal = calls.getCalls(UserManager::functionWithOneParameter).single()
+                assert(intVal == 1)
+            }
+            it("can destructure parameters for function with 2 parameters") {
+                mock.functionWithParameters(1, "string")
+                val calls = getCalls(mock)
+                val (a: Int, b: String) = calls.getCalls(UserManager::functionWithParameters).single()
+                assert(a == 1)
+                assert(b == "string")
+            }
         }
         it("has call helpers for up to 5 parameters") {
             call(InterfaceWithOverloadedMethods::function)

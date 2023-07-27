@@ -10,6 +10,7 @@ interface UserManager {
     fun functionThatHasLambdaParameter(f: () -> Unit)
     fun function()
     fun function2()
+    fun functionWithOneParameter(number: Int): String
     fun functionWithParameters(number: Int, name: String): String
     fun functionWithDataClassParameters(user: User): String
     suspend fun suspendFunction(number: Int, name: String): String

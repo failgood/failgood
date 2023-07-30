@@ -4,10 +4,11 @@ import failgood.FailGoodException
 import failgood.TestContainer
 import failgood.TestDescription
 import org.junit.platform.engine.TestDescriptor
+import java.util.concurrent.ConcurrentHashMap
 
 class TestMapper {
-    private val testDescription2JunitTestDescriptor = mutableMapOf<TestDescription, TestDescriptor>()
-    private val context2JunitTestDescriptor = mutableMapOf<TestContainer, TestDescriptor>()
+    private val testDescription2JunitTestDescriptor = ConcurrentHashMap<TestDescription, TestDescriptor>()
+    private val context2JunitTestDescriptor = ConcurrentHashMap<TestContainer, TestDescriptor>()
     fun addMapping(testDescription: TestDescription, testDescriptor: TestDescriptor) {
         testDescription2JunitTestDescriptor[testDescription] = testDescriptor
     }

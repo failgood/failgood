@@ -159,8 +159,10 @@ object JunitPlatformFunctionalTest {
             )
             assert(throwable.get().message?.contains("blocking") == true)
         }
-        // this test will not work with the new engine because the new engine does not return tests at discover time
-        it("returns tests in the order that they are declared in the file") {
+        it(
+            "returns tests in the order that they are declared in the file",
+            ignored = Ignored.Because("it does not work with the new engine")
+        ) {
             val testPlan = LauncherFactory.create().discover(
                 launcherDiscoveryRequest(
                     listOf(selectClass(TestOrderFixture::class.qualifiedName))

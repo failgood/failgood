@@ -81,3 +81,15 @@ fun <A, B, C, D> List<FunctionCall>.getCalls(function: KFunction3<A, B, C, D>): 
 @Suppress("UNCHECKED_CAST")
 fun <A, B, C> List<FunctionCall>.getCalls(function: KFunction2<A, B, C>): List<B> =
     this.filter { it.function == function.name }.map { it.arguments.single() } as List<B>
+
+@Suppress("UNCHECKED_CAST")
+@JvmName("suspendGetCalls3")
+fun <A, B, C, D> List<FunctionCall>.getCalls(function: KSuspendFunction3<A, B, C, D>): List<Pair<B, C>> {
+    return this.filter { it.function == function.name }
+        .map { Pair(it.arguments[0], it.arguments[1]) } as List<Pair<B, C>>
+}
+
+@JvmName("suspendGetCalls2")
+@Suppress("UNCHECKED_CAST")
+fun <A, B, C> List<FunctionCall>.getCalls(function: KSuspendFunction2<A, B, C>): List<B> =
+    this.filter { it.function == function.name }.map { it.arguments.single() } as List<B>

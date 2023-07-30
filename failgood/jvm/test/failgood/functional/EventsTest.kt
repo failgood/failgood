@@ -1,11 +1,11 @@
 package failgood.functional
 
-import failgood.Context
 import failgood.ExecutionListener
 import failgood.Suite
 import failgood.Test
-import failgood.TestDescription
 import failgood.describe
+import failgood.experiments.assertsuccess.assert
+import failgood.experiments.assertsuccess.isCallTo
 import failgood.mock.getCalls
 import failgood.mock.mock
 
@@ -25,22 +25,16 @@ object EventsTest {
             suite.run(silent = true, listener = listener)
             val calls = getCalls(listener)
             it("first event is context discovered event for root context") {
-                val first = calls.first()
-                assert(first.function == ExecutionListener::contextDiscovered.name)
-                val context = first.arguments.singleOrNull()
-                assert(context is Context && context.name == "rootContext")
+                val context = assert(calls.first().isCallTo(ExecutionListener::contextDiscovered))
+                assert(context.name == "rootContext")
             }
             it("reports context discovered for every subcontext") {
-                val second = calls[1]
-                assert(second.function == ExecutionListener::contextDiscovered.name)
-                val context = second.arguments.singleOrNull()
-                assert(context is Context && context.name == "child")
+                val context = assert(calls[1].isCallTo(ExecutionListener::contextDiscovered))
+                assert(context.name == "child")
             }
             it("reports test discovered for every test") {
-                val third = calls[2]
-                assert(third.function == ExecutionListener::testDiscovered.name)
-                val test = third.arguments.singleOrNull()
-                assert(test is TestDescription && test.testName == "test1")
+                val context = assert(calls[2].isCallTo(ExecutionListener::testDiscovered))
+                assert(context.testName == "test1")
             }
         }
     }

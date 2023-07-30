@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file.
 
 - New junit platform engine that is totally async
   To try it out add -Dfailgood.new.junit=true to your test run or set it in junit-platform.properties.
-  It is unfinished and buggy but it basically works.
+  It works pretty well and will become the default before 1.0
 
 ### Changed
 

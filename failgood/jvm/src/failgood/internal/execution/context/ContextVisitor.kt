@@ -118,7 +118,6 @@ internal class ContextVisitor<GivenType>(
         val sourceInfo = sourceInfo()
         val context = Context(name, context, sourceInfo, subContextShouldHaveIsolation)
         val ignoreReason = ignored?.isIgnored()
-        staticConfig.listener.contextDiscovered(context)
         if (ignoreReason != null) {
             val testDescriptor = TestDescription(context, "context ignored because $ignoreReason", sourceInfo)
             val testPlusResult = TestPlusResult(testDescriptor, Skipped(ignoreReason))
@@ -139,6 +138,7 @@ internal class ContextVisitor<GivenType>(
             )
             return
         }
+        staticConfig.listener.contextDiscovered(context)
         val visitor =
             ContextVisitor(
                 staticConfig,

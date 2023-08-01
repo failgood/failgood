@@ -91,7 +91,6 @@ class NewJunitEngine : TestEngine {
                 )
             }
             listener.executionFinished(root, TestExecutionResult.successful())
-            println(listener.events.toString())
         } catch (e: Exception) {
             e.printStackTrace()
         }

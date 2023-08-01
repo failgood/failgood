@@ -25,16 +25,22 @@ object EventsTest {
             suite.run(silent = true, listener = listener)
             val calls = getCalls(listener)
             it("first event is context discovered event for root context") {
-                val context = assert(calls.first().isCallTo(ExecutionListener::contextDiscovered))
-                assert(context.name == "rootContext")
+                with(assert(calls.first().isCallTo(ExecutionListener::contextDiscovered))) {
+                    assert(name == "rootContext")
+                }
             }
             it("reports context discovered for every subcontext") {
-                val context = assert(calls[1].isCallTo(ExecutionListener::contextDiscovered))
-                assert(context.name == "child")
+                with(assert(calls[1].isCallTo(ExecutionListener::contextDiscovered))) {
+                    assert(name == "child")
+                }
             }
             it("reports test discovered for every test") {
-                val context = assert(calls[2].isCallTo(ExecutionListener::testDiscovered))
-                assert(context.testName == "test1")
+                assert(
+                    calls.getCalls(ExecutionListener::testDiscovered).map { it.testName } == listOf(
+                        "test1",
+                        "test2"
+                    )
+                )
             }
         }
     }

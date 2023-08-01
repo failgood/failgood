@@ -1,6 +1,7 @@
 package failgood.junit.exp
 
-import failgood.junit.appendContext
+import failgood.junit.next.DynamicTestDescriptor
+import failgood.junit.next.TestPlanNode
 import org.junit.platform.engine.EngineDiscoveryRequest
 import org.junit.platform.engine.ExecutionRequest
 import org.junit.platform.engine.TestDescriptor
@@ -60,62 +61,6 @@ class PlaygroundEngine : TestEngine {
         l.executionFinished(containerDescriptor, TestExecutionResult.successful())
         l.executionFinished(root, TestExecutionResult.successful())
     }
-}
-
-class DynamicTestDescriptor(
-    private val node: TestPlanNode,
-    private val parent: TestDescriptor,
-    val path: String = node.name
-) :
-    TestDescriptor {
-        private val p = parent.uniqueId
-        private val uniqueId = p.appendContext(path)
-        private val children = mutableSetOf<TestDescriptor>()
-        override fun getUniqueId(): UniqueId = uniqueId
-
-        override fun getDisplayName(): String = node.name
-
-        override fun getTags(): MutableSet<TestTag> = mutableSetOf()
-
-        override fun getSource(): Optional<TestSource> = Optional.empty()
-
-        override fun getParent(): Optional<TestDescriptor> = Optional.ofNullable(parent)
-
-        override fun setParent(parent: TestDescriptor?) {
-            TODO("Not yet implemented")
-        }
-
-        override fun getChildren(): MutableSet<out TestDescriptor> = children
-
-        override fun addChild(descriptor: TestDescriptor) {
-            children.add(descriptor)
-        }
-
-        override fun removeChild(descriptor: TestDescriptor?) {
-            TODO("Not yet implemented")
-        }
-
-        override fun removeFromHierarchy() {
-            TODO("Not yet implemented")
-        }
-
-        override fun getType(): TestDescriptor.Type {
-            return when (node) {
-                is TestPlanNode.Container -> TestDescriptor.Type.CONTAINER
-                is TestPlanNode.Test -> TestDescriptor.Type.TEST
-            }
-        }
-
-        override fun findByUniqueId(uniqueId: UniqueId?): Optional<out TestDescriptor> {
-            TODO("Not yet implemented")
-        }
-    }
-
-sealed interface TestPlanNode {
-    val name: String
-
-    data class Test(override val name: String) : TestPlanNode
-    data class Container(override val name: String, val children: Set<TestPlanNode> = setOf()) : TestPlanNode
 }
 
 class MyTestDescriptor(val test: TestPlanNode, private val uniqueId: UniqueId, private var parent: TestDescriptor?) :

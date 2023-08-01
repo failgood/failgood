@@ -14,9 +14,8 @@ import failgood.internal.LoadResults
 import failgood.internal.SuiteExecutionContext
 import failgood.junit.ContextFinder
 import failgood.junit.FailGoodJunitTestEngineConstants
+import failgood.junit.LoggingEngineExecutionListener
 import failgood.junit.TestMapper
-import failgood.junit.exp.DynamicTestDescriptor
-import failgood.junit.exp.TestPlanNode
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.junit.platform.engine.EngineDiscoveryRequest
@@ -58,7 +57,7 @@ class NewJunitEngine : TestEngine {
 
         val root = request.rootTestDescriptor
         if (root !is FailGoodEngineDescriptor) return
-        val listener = request.engineExecutionListener
+        val listener = LoggingEngineExecutionListener(request.engineExecutionListener)
         listener.executionStarted(root)
         try {
             val testMapper = TestMapper()
@@ -92,6 +91,7 @@ class NewJunitEngine : TestEngine {
                 )
             }
             listener.executionFinished(root, TestExecutionResult.successful())
+            println(listener.events.toString())
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -142,7 +142,9 @@ internal class NewExecutionListener(
         private fun startParentContexts(testDescription: TestDescription) {
             val context = testDescription.container
             (context.parents + context).forEach {
-                if (startedContexts.add(it)) listener.executionStarted(testMapper.getMapping(it))
+                if (startedContexts.add(it)) {
+                    listener.executionStarted(testMapper.getMapping(it))
+                }
             }
         }
 

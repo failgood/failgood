@@ -7,12 +7,12 @@ import strikt.assertions.containsExactly
 
 @Test
 class Junit4ReporterTest {
-    val context = describe(Junit4Reporter::class) {
+    val context = @Suppress("ktlint")
+    describe(Junit4Reporter::class) {
         it("reports test results") {
             val control = Junit4Reporter(TestResultFixtures.testResults).stringReport()
 
             expectThat(control).containsExactly(
-                /* ktlint-disable */
                 listOf(
                     """<testsuite tests="3">""",
                     """<testcase classname="the test runner" name="supports describe/it syntax"/>""",
@@ -24,6 +24,7 @@ class Junit4ReporterTest {
                     """</testcase>""",
                     """</testsuite>"""
                 )
+
             )
         }
     }

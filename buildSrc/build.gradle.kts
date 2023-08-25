@@ -14,6 +14,7 @@ dependencies {
     implementation(kotlin("gradle-plugin", "1.9.10"))
     implementation("com.adarshr:gradle-test-logger-plugin:3.2.0")
 }
+// to make idea ignore gradle generated classes in analyze code. (idea bug)
 idea {
     module {
         generatedSourceDirs.add(File(layout.buildDirectory.get().asFile, "generated-sources/kotlin-dsl-accessors/kotlin"))

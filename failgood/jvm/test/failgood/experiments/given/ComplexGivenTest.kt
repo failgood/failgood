@@ -11,6 +11,7 @@ import strikt.assertions.isEqualTo
  the original given spike, with too many features for now.
  */
 
+@Suppress("EmptyMethod")
 @Test
 class ComplexGivenTest {
     val context = describe("Injecting Test Dependencies") {

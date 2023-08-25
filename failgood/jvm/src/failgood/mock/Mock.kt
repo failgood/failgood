@@ -75,6 +75,8 @@ fun getCalls(mock: Any) = getHandler(mock).calls.map { FunctionCall(it.method.na
 data class FunctionCall(val function: String, val arguments: List<Any?>)
 
 class MockException internal constructor(msg: String) : AssertionError(msg)
+
+@Suppress("SameReturnValue")
 interface MockConfigureDSL<Mock> {
     suspend fun <Result> method(lambda: suspend Mock.() -> Result): MockReplyRecorder<Result>
 

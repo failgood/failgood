@@ -14,7 +14,7 @@ plugins {
 dependencies {
     testImplementation(kotlin("test"))
     testImplementation(project(":failgood"))
-    implementation(files("${System.getenv("java.home")}/../lib/tools.jar"))
+    compileOnly(files("${System.getenv("java.home")}/../lib/tools.jar"))
 }
 sourceSets.main {
     java.srcDirs("src")

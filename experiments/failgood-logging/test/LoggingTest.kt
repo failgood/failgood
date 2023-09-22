@@ -1,5 +1,3 @@
-package failgood.examples
-
 import failgood.Test
 import failgood.TestDSL
 import failgood.describe
@@ -49,7 +47,7 @@ class LoggingHandler(private val resourcesDSL: TestDSL) : InvocationHandler {
             }
         }
         runBlocking {
-            resourcesDSL._test_event(methodName.uppercase(Locale.getDefault()), message)
+            resourcesDSL.testInfo.context.event(methodName.uppercase(Locale.getDefault()), message)
         }
         return Unit
     }

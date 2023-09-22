@@ -5,6 +5,7 @@ package failgood
  * This is a separate interface because it is available in the ContextDSL and in the TestDSL
  */
 interface ResourcesDSL {
+
     /**
      * Create a test dependency that should be closed after the test runs.
      * use this instead of beforeEach/afterEach

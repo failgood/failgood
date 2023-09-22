@@ -22,9 +22,9 @@ class TestContextTest {
         }
         it("replaces an empty test event to make junit happy") {
             // junit throws when an empty event is published
-            testContext._test_event("type", "")
+            testContext.log("")
             expectThat(getCalls(listener)).single()
-                .isEqualTo(call(ExecutionListener::testEvent, testDescription, "type", "<empty>"))
+                .isEqualTo(call(ExecutionListener::testEvent, testDescription, "stdout", "<empty>"))
         }
         val testName = "tells the name of the test"
         it(testName) {

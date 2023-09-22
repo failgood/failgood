@@ -12,7 +12,7 @@ import kotlin.test.assertNotNull
 @Test
 class ResourcesCloserTest {
     val context = describe(ResourcesCloser::class) {
-        val subject = coroutineScope { OnlyResourcesCloser(this) }
+        val subject = coroutineScope { ResourcesCloserImpl(this) }
         describe(ResourcesCloser::closeAutoCloseables.name) {
             it("closes autoclosables") {
                 val autoCloseable = mock<AutoCloseable>()
@@ -60,7 +60,7 @@ class ResourcesCloserTest {
         it("handles errors in dependency block") {
             coroutineScope {
                 @Suppress("ConstantConditionIf")
-                val failedDep by OnlyResourcesCloser(this).dependency({
+                val failedDep by ResourcesCloserImpl(this).dependency({
                     if (true) throw RuntimeException()
                     "blah"
                 })

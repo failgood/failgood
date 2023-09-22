@@ -4,20 +4,18 @@ import failgood.ExecutionListener
 import failgood.ResourcesDSL
 import failgood.TestDSL
 import failgood.TestDescription
+import failgood.TestExecutionContext
 import failgood.TestInfo
 
 internal class TestContext(
     resourcesDSL: ResourcesDSL,
-    private val listener: ExecutionListener,
-    private val testDescription: TestDescription
+    listener: ExecutionListener,
+    testDescription: TestDescription
 ) : TestDSL, ResourcesDSL by resourcesDSL {
-    override val testInfo: TestInfo = TestInfo(testDescription.testName)
+    private val testExecutionContext = TestExecutionContext(listener, testDescription)
+    override val testInfo: TestInfo = TestInfo(testDescription.testName, testExecutionContext)
 
     override suspend fun log(body: String) {
-        _test_event("stdout", body)
-    }
-
-    override suspend fun _test_event(type: String, body: String) {
-        listener.testEvent(testDescription, type, body.ifBlank { "<empty>" })
+        testExecutionContext.event("stdout", body)
     }
 }

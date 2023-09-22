@@ -14,7 +14,9 @@ plugins {
 dependencies {
     testImplementation(kotlin("test"))
     testImplementation(project(":failgood"))
-    compileOnly(files("${System.getenv("java.home")}/../lib/tools.jar"))
+    // it seems tools.jar is currently not necessary to compile this. I'm pretty sure that  was necessary at some point
+    // I'm keeping it here because this is an experiment anyway.
+//    compileOnly(files("${System.getenv("java.home")}/../lib/tools.jar"))
 }
 sourceSets.main {
     java.srcDirs("src")

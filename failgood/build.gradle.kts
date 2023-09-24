@@ -96,7 +96,7 @@ configure<com.bnorm.power.PowerAssertGradleExtension> {
     )
 }
 
-// reproduce https://github.com/fagiilgood/failgood/issues/93
+// reproduce https://github.com/failgood/failgood/issues/93
 tasks.register<Test>("runSingleNonFailgoodTest") {
     outputs.upToDateWhen { false }
     include("**/NonFailgoodTest.class")

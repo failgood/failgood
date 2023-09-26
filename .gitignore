@@ -14,3 +14,4 @@ out/
 .failgood.autotest.timestamp
 junit-platform.properties
 failgood.debug*
+/kotlin-js-store/yarn.lock

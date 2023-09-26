@@ -8,6 +8,9 @@ import failgood.versions.pitestVersion
 import failgood.versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
+// failgood does not yet work on js. we build on js only to check that the common sources have no jvm dependencies
+val enableJs = System.getenv("JS") != null
+
 plugins {
     kotlin("multiplatform")
     java
@@ -23,39 +26,15 @@ spotless { kotlin { ktfmt("0.44").kotlinlangStyle() } }
 // to release:
 // ./gradlew publishAllPublicationsToSonatypeRepository closeSonatypeStagingRepository (or ./gradlew publishAllPublicationsToSonatypeRepository closeAndReleaseSonatypeStagingRepository)
 
-dependencies {
-/*    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
-    api("org.junit.platform:junit-platform-commons:$junitPlatformVersion")
-    runtimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-debug:$coroutinesVersion")
-    // to enable running test in idea without having to add the dependency manually
-    api("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
-    compileOnly("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
-
-    implementation(kotlin("stdlib-jdk8"))
-    compileOnly("org.pitest:pitest:$pitestVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
-    implementation("org.opentest4j:opentest4j:1.3.0")
-    testImplementation("io.strikt:strikt-core:$striktVersion")
-    testImplementation("org.pitest:pitest:$pitestVersion")
-    testImplementation("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
-    testImplementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
-    testImplementation("io.projectreactor.tools:blockhound:1.0.8.RELEASE")
-
-    testImplementation(kotlin("test"))
-
-    // for the tools that analyze what events jupiter tests generate.
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.10.0")
-
- */
-}
 kotlin {
     /* we cannot support wasm until coroutines are available
     wasmWasi {
         nodejs()
     }*/
-    js {
-        nodejs {}
+    if (enableJs) {
+        js {
+            nodejs {}
+        }
     }
     jvm {
         compilations.all {
@@ -93,9 +72,16 @@ kotlin {
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
             }
         }
-        val commonTest by getting { kotlin.srcDir("common/test") }
-        val jsMain by getting { kotlin.srcDir("js/src") }
-        val jsTest by getting { kotlin.srcDir("js/test") }
+        val commonTest by getting {
+            kotlin.srcDir("common/test")
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
+        if (enableJs) {
+            val jsMain by getting { kotlin.srcDir("js/src") }
+            val jsTest by getting { kotlin.srcDir("js/test") }
+        }
 
         val jvmMain by getting {
             kotlin.srcDir("jvm/src")

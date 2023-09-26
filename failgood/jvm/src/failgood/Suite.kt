@@ -70,7 +70,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                     try {
                         it.getContexts()
                     } catch (e: ErrorLoadingContextsFromClass) {
-                        listOf(CouldNotLoadContext(e, e.jClass))
+                        listOf(CouldNotLoadContext(e, e.jClass.kotlin))
                     }
                 }
             }.flatMap { it.await() }.sortedBy { it.order }

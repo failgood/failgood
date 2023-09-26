@@ -8,3 +8,5 @@ fun <T> Iterable<T>.containsExactlyInAnyOrder(vararg elements: T) =
 
 fun <T> List<T>.endsWith(elements: List<T>) = this.takeLast(elements.size) == elements
 fun <T> List<T>.endsWith(vararg elements: T) = this.endsWith(elements.asList())
+
+expect fun assert(b: Boolean)

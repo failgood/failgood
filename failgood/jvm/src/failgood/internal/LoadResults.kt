@@ -30,7 +30,7 @@ internal class LoadResults(private val loadResults: List<LoadResult>) {
                 is CouldNotLoadContext ->
                     CompletableDeferred(
                         FailedRootContext(
-                            Context(loadResult.jClass.name ?: "unknown"),
+                            Context(loadResult.jClass.simpleName ?: "unknown"),
                             loadResult.reason
                         )
                     )

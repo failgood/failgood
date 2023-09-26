@@ -2,7 +2,6 @@ package failgood
 
 import failgood.internal.ContextPath
 import failgood.internal.util.niceString
-import java.nio.file.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
@@ -63,7 +62,7 @@ internal sealed interface LoadResult {
     val order: Int
 }
 
-internal data class CouldNotLoadContext(val reason: Throwable, val jClass: Class<out Any>) : LoadResult {
+internal data class CouldNotLoadContext(val reason: Throwable, val jClass: KClass<out Any>) : LoadResult {
     override val order: Int
         get() = 0
 }

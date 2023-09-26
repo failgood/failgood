@@ -60,7 +60,7 @@ class SuiteTest {
                     assert(
                         contextResult is FailedRootContext && (
                             contextResult.failure.message == "the error" &&
-                                contextResult.context.name == MyErrorTest::class.java.name
+                                contextResult.context.name == MyErrorTest::class.simpleName
                             )
                     )
                 }

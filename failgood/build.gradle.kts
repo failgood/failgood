@@ -94,7 +94,12 @@ kotlin {
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
             }
         }
-        val commonTest by getting { kotlin.srcDir("common/test") }
+        val commonTest by getting {
+            kotlin.srcDir("common/test")
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
         val jsMain by getting { kotlin.srcDir("js/src") }
         val jsTest by getting { kotlin.srcDir("js/test") }
 

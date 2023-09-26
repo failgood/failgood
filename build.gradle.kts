@@ -38,5 +38,5 @@ nexusPublishing {
     }
 }
 
-
-tasks.register("compileTestKotlin") {}
+// no idea why i put this here, so commenting it out for now.
+//tasks.register("compileTestKotlin") {}

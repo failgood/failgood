@@ -10,11 +10,11 @@ import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA_PARALLEL
 
 plugins {
     kotlin("multiplatform")
+    java
     `maven-publish`
     id("info.solidsoft.pitest")
     signing
 //    id("failgood.common")
-//    id("failgood.publishing")
     id("com.bnorm.power.kotlin-power-assert") version "0.13.0"
     id("org.jetbrains.kotlinx.kover") version "0.7.4"
     id("org.jetbrains.dokka") version "1.9.10"
@@ -51,6 +51,9 @@ dependencies {
 }
 kotlin {
     jvm {
+        compilations.all {
+            kotlinOptions.jvmTarget = "1.8"
+        }
         withJava()
         testRuns["test"].executionTask.configure {
             useJUnitPlatform {}
@@ -149,4 +152,73 @@ configure<TestLoggerExtension> {
     theme = MOCHA_PARALLEL
     showSimpleNames = true
     showFullStackTraces = true
+}
+
+tasks.withType<JavaCompile> {
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
+}
+
+val javadocJar by tasks.registering(Jar::class) {
+    archiveClassifier.set("javadoc")
+}
+publishing {
+
+    repositories {
+        maven {
+            setUrl("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            credentials {
+                username = project.properties["ossrhUsername"] as String?
+                password = project.properties["ossrhPassword"] as String?
+            }
+        }
+    }
+
+    publications {
+        withType<MavenPublication> {
+            artifact(javadocJar.get())
+            pom {
+                name.set("FailGood")
+                description.set("a fast test runner for kotlin")
+                url.set("https://github.com/failgood/failgood")
+                licenses {
+                    license {
+                        name.set("The MIT License")
+                        url.set("https://opensource.org/licenses/MIT")
+                        distribution.set("repo")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("christophsturm")
+                        name.set("Christoph Sturm")
+                        email.set("me@christophsturm.com")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:https://github.com/failgood/failgood.git")
+                    developerConnection.set("scm:git:git@github.com:failgood/failgood.git")
+                    url.set("https://github.com/failgood/failgood/")
+                }
+            }
+        }
+    }
+}
+java {
+    @Suppress("UnstableApiUsage")
+    withJavadocJar()
+//    withSourcesJar()
+}
+
+signing {
+    sign(publishing.publications)
+}
+
+tasks.named("publishJvmPublicationToSonatypeRepository") {
+    dependsOn(tasks.named("signKotlinMultiplatformPublication"))
+    dependsOn(tasks.named("signJvmPublication"))
+}
+tasks.named("publishKotlinMultiplatformPublicationToSonatypeRepository") {
+    dependsOn(tasks.named("signKotlinMultiplatformPublication"))
+    dependsOn(tasks.named("signJvmPublication"))
 }

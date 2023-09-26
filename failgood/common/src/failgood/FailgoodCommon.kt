@@ -73,7 +73,6 @@ fun RootContext(
     ignored: Ignored? = null,
     order: Int = 0,
     isolation: Boolean = true,
-//    sourceInfo: SourceInfo = SourceInfo("unknown", "unknown", 1),
     sourceInfo: SourceInfo = getSourceInfo(),
     function: ContextLambda
 ) = RootContext(Context(name, null, sourceInfo, isolation), order, ignored, function)

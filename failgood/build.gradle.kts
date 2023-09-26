@@ -1,12 +1,12 @@
 @file:Suppress("GradlePackageUpdate")
 
 import com.adarshr.gradle.testlogger.TestLoggerExtension
+import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA_PARALLEL
 import failgood.versions.coroutinesVersion
 import failgood.versions.junitPlatformVersion
 import failgood.versions.pitestVersion
 import failgood.versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
-import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA_PARALLEL
 
 plugins {
     kotlin("multiplatform")
@@ -51,6 +51,13 @@ dependencies {
  */
 }
 kotlin {
+    /* we cannot support wasm until coroutines are available
+    wasmWasi {
+        nodejs()
+    }*/
+    js {
+        nodejs {}
+    }
     jvm {
         compilations.all {
             kotlinOptions.jvmTarget = "1.8"
@@ -81,8 +88,16 @@ kotlin {
         }
     }
     sourceSets {
-        val commonMain by getting { kotlin.srcDir("common/src") }
+        val commonMain by getting {
+            kotlin.srcDir("common/src")
+            dependencies {
+                api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+            }
+        }
         val commonTest by getting { kotlin.srcDir("common/test") }
+        val jsMain by getting { kotlin.srcDir("js/src") }
+        val jsTest by getting { kotlin.srcDir("js/test") }
+
         val jvmMain by getting {
             kotlin.srcDir("jvm/src")
             resources.srcDir("jvm/resources")

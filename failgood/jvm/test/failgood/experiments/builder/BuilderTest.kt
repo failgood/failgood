@@ -5,6 +5,7 @@ package failgood.experiments.builder
 import failgood.ContextDSL
 import failgood.SourceInfo
 import failgood.findCallerSTE
+import failgood.internal.execution.context.fromSTE
 
 /*
  * just playing around with a builder like syntax for contexts and tests.
@@ -52,7 +53,7 @@ data class RootContext(
     val disabled: Boolean = false,
     val order: Int = 0,
     val isolation: Boolean = true,
-    val sourceInfo: SourceInfo = SourceInfo(findCallerSTE()),
+    val sourceInfo: SourceInfo = SourceInfo.fromSTE(findCallerSTE()),
     val tags: List<String>,
     val function: suspend XContextDSL.() -> Unit
 ) : failgood.internal.Path {

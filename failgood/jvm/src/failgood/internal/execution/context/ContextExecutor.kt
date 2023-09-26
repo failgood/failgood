@@ -82,18 +82,23 @@ fun sourceInfo(): SourceInfo {
     val runtimeException = RuntimeException()
     // find the first stack trace element that is not in this class or ContextDSL
     // (ContextDSL because of default parameters defined there)
-    return SourceInfo(
+    return SourceInfo.fromSTE(
         runtimeException.stackTrace.first {
             !(
                 it.fileName?.let { fileName ->
                     fileName.endsWith("ContextVisitor.kt") ||
                         fileName.endsWith("ContextExecutor.kt") ||
+                        fileName.endsWith("Failgood.jvm.kt") ||
+                        fileName.endsWith("FailgoodCommon.kt") ||
                         fileName.endsWith("ContextDSL.kt")
                 } ?: true
                 )
         }!!
     )
 }
+
+fun SourceInfo.Companion.fromSTE(ste: StackTraceElement): SourceInfo =
+    SourceInfo(ste.className, ste.fileName!!, ste.lineNumber)
 
 internal class DuplicateNameInContextException(s: String) : FailGoodException(s)
 internal class ImmutableContextException(s: String) : FailGoodException(s)

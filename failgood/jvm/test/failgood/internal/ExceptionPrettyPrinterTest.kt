@@ -5,6 +5,7 @@ package failgood.internal
 import failgood.SourceInfo
 import failgood.Test
 import failgood.describe
+import failgood.internal.execution.context.fromSTE
 import strikt.api.expectThat
 import strikt.assertions.allIndexed
 import strikt.assertions.contains
@@ -30,7 +31,7 @@ class ExceptionPrettyPrinterTest {
                 val prefix =
                     ExceptionPrettyPrinterTest::class.qualifiedName!!
                 val sourceInfo =
-                    SourceInfo(
+                    SourceInfo.fromSTE(
                         assertionError.stackTrace.first {
                             it.className.startsWith(prefix)
                         }

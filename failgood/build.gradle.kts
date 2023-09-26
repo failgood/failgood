@@ -21,7 +21,7 @@ plugins {
 }
 spotless { kotlin { ktfmt("0.44").kotlinlangStyle() } }
 // to release:
-// ./gradlew publishToSonatype closeSonatypeStagingRepository (or ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository)
+// ./gradlew publishAllPublicationsToSonatypeRepository closeSonatypeStagingRepository (or ./gradlew publishAllPublicationsToSonatypeRepository closeAndReleaseSonatypeStagingRepository)
 
 dependencies {
 /*    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")

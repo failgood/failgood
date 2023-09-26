@@ -17,7 +17,7 @@ plugins {
 //    id("failgood.common")
     id("com.bnorm.power.kotlin-power-assert") version "0.13.0"
     id("org.jetbrains.kotlinx.kover") version "0.7.3"
-    id("org.jetbrains.dokka") version "1.8.20"
+    id("org.jetbrains.dokka") version "1.9.0"
     id("org.jmailen.kotlinter")
     id("com.adarshr.test-logger")
 }
@@ -162,6 +162,7 @@ tasks.withType<JavaCompile> {
 
 val javadocJar by tasks.registering(Jar::class) {
     archiveClassifier.set("javadoc")
+    from(tasks.dokkaHtml)
 }
 publishing {
 
@@ -222,4 +223,8 @@ tasks.named("publishJvmPublicationToSonatypeRepository") {
 tasks.named("publishKotlinMultiplatformPublicationToSonatypeRepository") {
     dependsOn(tasks.named("signKotlinMultiplatformPublication"))
     dependsOn(tasks.named("signJvmPublication"))
+}
+
+tasks.dokkaHtml.configure {
+    outputDirectory.set(layout.buildDirectory.get().asFile.resolve("dokka"))
 }

@@ -5,19 +5,16 @@ import failgood.TestDSL
 import failgood.TestDependency
 import failgood.TestResult
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.ConcurrentLinkedQueue
+import kotlin.reflect.KProperty
 
 internal interface ResourcesCloser : ResourcesDSL {
-    override fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T
-
-    override fun afterEach(function: suspend TestDSL.(TestResult) -> Unit)
     fun addAfterEach(function: suspend TestDSL.(TestResult) -> Unit)
 
-    override suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit): TestDependency<T>
-
-    override fun <T : AutoCloseable> autoClose(wrapped: T): T
     fun <T> addClosable(autoCloseable: SuspendAutoCloseable<T>)
 
     suspend fun closeAutoCloseables()
@@ -42,7 +39,7 @@ internal class OnlyResourcesCloser(private val scope: CoroutineScope) : Resource
     override suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit): TestDependency<T> {
         val result = scope.async(Dispatchers.IO) { kotlin.runCatching { creator() } }
         addClosable(SuspendAutoCloseable(result) { closer(result.await().getOrThrow()) })
-        return TestDependency(result)
+        return JVMTestDependency(result)
     }
 
     override fun <T : AutoCloseable> autoClose(wrapped: T): T = autoClose(wrapped) { it.close() }
@@ -69,4 +66,9 @@ internal class OnlyResourcesCloser(private val scope: CoroutineScope) : Resource
 
     private val closeables = ConcurrentLinkedQueue<SuspendAutoCloseable<*>>()
     private val afterEachCallbacks = ConcurrentLinkedQueue<suspend TestDSL.(TestResult) -> Unit>()
+}
+class JVMTestDependency<T>(private val dependency: Deferred<Result<T>>) : TestDependency<T> {
+    override operator fun getValue(owner: Any?, property: KProperty<*>): T {
+        return runBlocking { dependency.await().getOrThrow() }
+    }
 }

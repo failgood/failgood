@@ -206,16 +206,11 @@ publishing {
         }
     }
 }
-java {
-    @Suppress("UnstableApiUsage")
-    withJavadocJar()
-//    withSourcesJar()
-}
-
 signing {
     sign(publishing.publications)
 }
-
+// fix gradle complaining about implicit dependencies. https://docs.gradle.org/8.3/userguide/validation_problems.html#implicit_dependency
+// this is probably not the best way to do it, so please submit a PR :)
 tasks.named("publishJvmPublicationToSonatypeRepository") {
     dependsOn(tasks.named("signKotlinMultiplatformPublication"))
     dependsOn(tasks.named("signJvmPublication"))

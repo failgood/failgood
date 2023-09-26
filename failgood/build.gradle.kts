@@ -161,6 +161,7 @@ tasks.withType<JavaCompile> {
 
 val javadocJar by tasks.registering(Jar::class) {
     archiveClassifier.set("javadoc")
+    from(tasks.dokkaHtml)
 }
 publishing {
 
@@ -221,4 +222,8 @@ tasks.named("publishJvmPublicationToSonatypeRepository") {
 tasks.named("publishKotlinMultiplatformPublicationToSonatypeRepository") {
     dependsOn(tasks.named("signKotlinMultiplatformPublication"))
     dependsOn(tasks.named("signJvmPublication"))
+}
+
+tasks.dokkaHtml.configure {
+    outputDirectory.set(layout.buildDirectory.get().asFile.resolve("dokka"))
 }

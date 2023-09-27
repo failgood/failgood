@@ -14,14 +14,14 @@ internal class ContextStateCollector(
     // here we build a list of all the sub-contexts in this root context to later return it
     val foundContexts = mutableListOf<Context>()
 
-    val deferredTestResults = LinkedHashMap<TestDescription, Deferred<TestPlusResult>>()
+    val deferredTestResults = mutableMapOf<TestDescription, Deferred<TestPlusResult>>()
     val afterSuiteCallbacks = mutableSetOf<suspend () -> Unit>()
 
     // a context is investigated when we have executed it once. we still need to execute it again to get into its sub-contexts
     val investigatedContexts = mutableSetOf<Context>()
 
     // tests or contexts that we don't have to execute again.
-    val finishedPaths = LinkedHashSet<ContextPath>()
+    val finishedPaths = mutableSetOf<ContextPath>()
 
     /*
      * A context is reported as failure by reporting it as a context with a single failed test as child.

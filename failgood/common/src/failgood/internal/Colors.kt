@@ -1,7 +1,8 @@
 package failgood.internal
 
-internal object Colors {
-    private val isWindows = System.getProperty("os.name").startsWith("Windows")
+object Colors {
+    private val isWindows = detectWindows()
+
 
     @Suppress("MemberVisibilityCanBePrivate")
     internal const val GREEN = "\u001B[32m"
@@ -12,3 +13,4 @@ internal object Colors {
     internal val FAILED = RED + (if (isWindows) "X" else "✘") + RESET
     internal const val PENDING = "$YELLOW-$RESET"
 }
+expect fun detectWindows(): Boolean

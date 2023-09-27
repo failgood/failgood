@@ -1,6 +1,5 @@
 package failgood.internal
 
-import failgood.ResourcesDSL
 import failgood.TestDSL
 import failgood.TestDependency
 import failgood.TestResult
@@ -11,16 +10,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.reflect.KProperty
-
-internal interface ResourcesCloser : ResourcesDSL {
-    fun addAfterEach(function: suspend TestDSL.(TestResult) -> Unit)
-
-    fun <T> addClosable(autoCloseable: SuspendAutoCloseable<T>)
-
-    suspend fun closeAutoCloseables()
-
-    suspend fun callAfterEach(testDSL: TestDSL, testResult: TestResult)
-}
 
 internal class OnlyResourcesCloser(private val scope: CoroutineScope) : ResourcesCloser {
     override fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T {

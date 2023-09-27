@@ -9,7 +9,7 @@ import failgood.versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
 // failgood does not yet work on js. we build on js only to check that the common sources have no jvm dependencies
-val enableJs = System.getenv("JS") != null
+val enableJs = System.getenv("NOJS") == null
 
 plugins {
     kotlin("multiplatform")

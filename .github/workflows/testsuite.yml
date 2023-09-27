@@ -40,7 +40,6 @@ jobs:
       - name: Build with Gradle
         env:
           CI: true
-          JS: true # check that it builds for js too
           SLOW_CI: true
           FAILGOOD_WATCHDOG_MILLIS: 100000
         run: ./gradlew check build koverXmlReport

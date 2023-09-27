@@ -3,7 +3,7 @@ package failgood
 import failgood.internal.Colors
 import failgood.internal.ContextTreeReporter
 import failgood.internal.Junit4Reporter
-import failgood.internal.util.getenv
+import failgood.internal.util.getEnv
 import failgood.internal.util.pluralize
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -30,7 +30,7 @@ fun SuiteResult.check(throwException: Boolean = false, writeReport: Boolean = fa
     }
     val totalTests = allTests.size
     if (allOk) {
-        if (getenv("PRINT_SLOWEST") != null)
+        if (getEnv("PRINT_SLOWEST") != null)
             printSlowestTests()
         val pendingTests = allTests.filter { it.isSkipped }
         if (pendingTests.isNotEmpty()) {

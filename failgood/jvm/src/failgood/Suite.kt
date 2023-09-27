@@ -77,12 +77,6 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     )
 }
 
-internal object NullExecutionListener : ExecutionListener {
-    override suspend fun testStarted(testDescription: TestDescription) {}
-    override suspend fun testFinished(testPlusResult: TestPlusResult) {}
-    override suspend fun testEvent(testDescription: TestDescription, type: String, payload: String) {}
-}
-
 private val operatingSystemMXBean =
     ManagementFactory.getOperatingSystemMXBean() as com.sun.management.OperatingSystemMXBean
 private val runtimeMXBean = ManagementFactory.getRuntimeMXBean()

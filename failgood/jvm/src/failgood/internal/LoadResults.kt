@@ -8,15 +8,15 @@ import failgood.NullExecutionListener
 import failgood.RootContext
 import failgood.Suite
 import failgood.internal.execution.context.ContextExecutor
-import failgood.internal.util.getenv
+import failgood.internal.util.getEnv
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 
 // set timeout to the timeout in milliseconds, an empty string to turn it off
-private val timeoutMillis: Long = Suite.parseTimeout(getenv("TIMEOUT"))
-private val tag = getenv("FAILGOOD_TAG")
+private val timeoutMillis: Long = Suite.parseTimeout(getEnv("TIMEOUT"))
+private val tag = getEnv("FAILGOOD_TAG")
 
 internal class LoadResults(private val loadResults: List<LoadResult>) {
     fun investigate(

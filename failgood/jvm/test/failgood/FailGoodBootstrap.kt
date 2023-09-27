@@ -1,6 +1,6 @@
 package failgood
 
-import failgood.internal.util.getenv
+import failgood.internal.util.getEnv
 import kotlinx.coroutines.CompletableDeferred
 import strikt.api.expectThat
 import strikt.assertions.all
@@ -57,6 +57,6 @@ suspend fun main() {
     // let's see how far we can get with one second.
     // on CI everything is much slower, especially on windows
     // and we don't want to randomly fail ci so lets use 20000 for now
-    val limit: Long = if (getenv("SLOW_CI") != null) 20000 else 1000
+    val limit: Long = if (getEnv("SLOW_CI") != null) 20000 else 1000
     expectThat(ManagementFactory.getRuntimeMXBean().uptime).isLessThan(limit)
 }

@@ -5,7 +5,7 @@ import failgood.internal.ExecuteAllTestFilterProvider
 import failgood.internal.StaticTestFilterProvider
 import failgood.internal.StringListTestFilter
 import failgood.internal.SuiteExecutionContext
-import failgood.internal.util.getenv
+import failgood.internal.util.getEnv
 import failgood.junit.ChannelExecutionListener.TestExecutionEvent
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES
@@ -24,7 +24,7 @@ const val CONTEXT_SEGMENT_TYPE = "class"
 const val TEST_SEGMENT_TYPE = "method"
 
 // an optional watchdog that throws an exception when failgood hangs or takes too long
-private val watchdogMillis = getenv("FAILGOOD_WATCHDOG_MILLIS")?.toLong()
+private val watchdogMillis = getEnv("FAILGOOD_WATCHDOG_MILLIS")?.toLong()
 
 private const val DEBUG_TXT_FILENAME = "failgood.debug.txt"
 
@@ -51,7 +51,7 @@ class FailGoodJunitTestEngine : TestEngine {
             suiteAndFilters ?: return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.displayName)
             val suite = suiteAndFilters.suite
             val suiteExecutionContext = SuiteExecutionContext()
-            val filterProvider = suiteAndFilters.filter ?: getenv("FAILGOOD_FILTER")
+            val filterProvider = suiteAndFilters.filter ?: getEnv("FAILGOOD_FILTER")
                 ?.let { StaticTestFilterProvider(StringListTestFilter(parseFilterString(it))) }
             val testResult = runBlocking(suiteExecutionContext.coroutineDispatcher) {
                 val testResult = suite.findTests(
@@ -196,7 +196,7 @@ class FailGoodJunitTestEngine : TestEngine {
 
             junitListener.executionFinished(root, TestExecutionResult.successful())
 
-            if (getenv("PRINT_SLOWEST") != null) results.printSlowestTests()
+            if (getEnv("PRINT_SLOWEST") != null) results.printSlowestTests()
             suiteExecutionContext.close()
         } catch (e: Throwable) {
             failureLogger.fail(e)

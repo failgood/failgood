@@ -3,7 +3,6 @@ package failgood.internal
 object Colors {
     private val isWindows = detectWindows()
 
-
     @Suppress("MemberVisibilityCanBePrivate")
     internal const val GREEN = "\u001B[32m"
     internal const val RED = "\u001B[31m"

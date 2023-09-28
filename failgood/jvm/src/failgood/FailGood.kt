@@ -68,7 +68,7 @@ internal sealed interface LoadResult {
     val order: Int
 }
 
-internal data class CouldNotLoadContext(val reason: Throwable, val jClass: Class<out Any>) : LoadResult {
+internal data class CouldNotLoadContext(val reason: Throwable, val kClass: KClass<out Any>) : LoadResult {
     override val order: Int
         get() = 0
 }

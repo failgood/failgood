@@ -47,7 +47,7 @@ class SuiteTest {
                         method { getContexts() }.will {
                             throw ErrorLoadingContextsFromClass(
                                 "the error",
-                                MyErrorTest::class.java,
+                                MyErrorTest::class,
                                 RuntimeException("exception error")
                             )
                         }
@@ -60,7 +60,7 @@ class SuiteTest {
                     assert(
                         contextResult is FailedRootContext && (
                             contextResult.failure.message == "the error" &&
-                                contextResult.context.name == MyErrorTest::class.java.name
+                                contextResult.context.name == MyErrorTest::class.simpleName
                             )
                     )
                 }

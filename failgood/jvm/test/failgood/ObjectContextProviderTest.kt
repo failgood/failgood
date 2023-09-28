@@ -69,7 +69,7 @@ class ObjectContextProviderTest {
                 ).isFailure().isA<ErrorLoadingContextsFromClass>().and {
                     message.isEqualTo("no contexts found in class")
                     get { cause }.isNull()
-                    get { jClass }.isEqualTo(ContainsNoTests::class.java)
+                    get { kClass }.isEqualTo(ContainsNoTests::class)
                 }
             }
             listOf(ClassThatThrowsAtCreationTime::class, ClassThatThrowsAtContextGetter::class).forEach { kClass1 ->
@@ -81,7 +81,7 @@ class ObjectContextProviderTest {
                     ).isFailure().isA<ErrorLoadingContextsFromClass>().and {
                         message.isEqualTo("Could not load contexts from class")
                         get { cause }.isNotNull().message.isEqualTo("boo i failed")
-                        get { jClass }.isEqualTo(kClass1.java)
+                        get { kClass }.isEqualTo(kClass1)
                     }
                 }
             }

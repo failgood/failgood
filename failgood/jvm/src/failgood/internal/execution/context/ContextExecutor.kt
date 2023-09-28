@@ -44,7 +44,7 @@ internal class ContextExecutor(
         try {
             do {
                 val startTime = System.nanoTime()
-                val resourcesCloser = OnlyResourcesCloser(staticExecutionConfig.scope)
+                val resourcesCloser = ResourceCloserImpl(staticExecutionConfig.scope)
                 val visitor = ContextVisitor(
                     staticExecutionConfig,
                     stateCollector,

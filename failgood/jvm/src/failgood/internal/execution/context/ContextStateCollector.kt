@@ -102,7 +102,7 @@ internal class ContextStateCollector(
             }
     }
     fun executeTestLater(testDescription: TestDescription, testPath: ContextPath) {
-        val resourcesCloser = OnlyResourcesCloser(staticConfig.scope)
+        val resourcesCloser = ResourceCloserImpl(staticConfig.scope)
         val deferred = staticConfig.scope.async(start = staticConfig.coroutineStart) {
             staticConfig.listener.testStarted(testDescription)
             val testPlusResult = try {

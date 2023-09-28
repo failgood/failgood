@@ -13,7 +13,7 @@ class SingleTestExecutorTest {
     val context =
         describe(SingleTestExecutor::class) {
             val testDSL = mock<TestDSL>()
-            val resourceCloser = coroutineScope { OnlyResourcesCloser(this) }
+            val resourceCloser = coroutineScope { ResourcesCloserImpl(this) }
             describe("test execution") {
                 val events = mutableListOf<String>()
                 val ctx: ContextLambda = {

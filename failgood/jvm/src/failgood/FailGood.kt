@@ -2,6 +2,7 @@ package failgood
 
 import failgood.internal.ContextPath
 import failgood.internal.TestFixture
+import failgood.internal.sysinfo.cpus
 import failgood.internal.util.niceString
 import java.io.File
 import java.nio.file.*

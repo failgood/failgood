@@ -5,6 +5,8 @@ import failgood.internal.ExecuteAllTestFilterProvider
 import failgood.internal.StaticTestFilterProvider
 import failgood.internal.StringListTestFilter
 import failgood.internal.SuiteExecutionContext
+import failgood.internal.sysinfo.upt
+import failgood.internal.sysinfo.uptime
 import failgood.internal.util.getenv
 import failgood.junit.ChannelExecutionListener.TestExecutionEvent
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG

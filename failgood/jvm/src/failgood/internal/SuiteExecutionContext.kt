@@ -1,6 +1,6 @@
 package failgood.internal
 
-import failgood.cpus
+import failgood.internal.sysinfo.cpus
 import failgood.internal.util.getenv
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher

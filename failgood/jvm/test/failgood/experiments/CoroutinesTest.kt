@@ -1,6 +1,6 @@
 package failgood.experiments
 
-import failgood.uptime
+import failgood.internal.sysinfo.uptime
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll

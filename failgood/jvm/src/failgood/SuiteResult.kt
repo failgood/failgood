@@ -3,6 +3,7 @@ package failgood
 import failgood.internal.Colors
 import failgood.internal.ContextTreeReporter
 import failgood.internal.Junit4Reporter
+import failgood.internal.SysInfo.uptime
 import failgood.internal.util.getEnv
 import failgood.internal.util.pluralize
 import java.nio.file.Files

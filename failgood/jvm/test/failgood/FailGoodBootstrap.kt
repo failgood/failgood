@@ -1,5 +1,6 @@
 package failgood
 
+import failgood.internal.SysInfo.uptime
 import failgood.internal.util.getEnv
 import kotlinx.coroutines.CompletableDeferred
 import strikt.api.expectThat

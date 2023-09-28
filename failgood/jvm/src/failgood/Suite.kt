@@ -7,15 +7,14 @@ import failgood.internal.ExecuteAllTestFilterProvider
 import failgood.internal.FailedRootContext
 import failgood.internal.LoadResults
 import failgood.internal.SuiteExecutionContext
+import failgood.internal.SysInfo.cpus
 import failgood.internal.TestFilterProvider
-import failgood.internal.util.pluralize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.lang.management.ManagementFactory
 import kotlin.reflect.KClass
 
 const val DEFAULT_TIMEOUT: Long = 40000
@@ -77,21 +76,6 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     )
 }
 
-private val operatingSystemMXBean =
-    ManagementFactory.getOperatingSystemMXBean() as com.sun.management.OperatingSystemMXBean
-private val runtimeMXBean = ManagementFactory.getRuntimeMXBean()
-internal fun upt(): Long = runtimeMXBean.uptime
-
-internal fun uptime(totalTests: Int? = null): String {
-    val uptime = upt()
-    val cpuTime = operatingSystemMXBean.processCpuTime / 1000000
-    val percentage = cpuTime * 100 / uptime
-    return "${uptime}ms. load:$percentage%." + if (totalTests != null) {
-        " " + pluralize(totalTests * 1000 / uptime.toInt(), "test") + "/sec"
-    } else
-        ""
-}
-
 internal suspend fun awaitTestResults(resolvedContexts: List<ContextResult>): SuiteResult {
     val successfulContexts = resolvedContexts.filterIsInstance<ContextInfo>()
     val failedRootContexts: List<FailedRootContext> = resolvedContexts.filterIsInstance<FailedRootContext>()
@@ -147,4 +131,3 @@ fun Suite(kClasses: List<KClass<*>>) =
 
 fun Suite(rootContext: RootContext) = Suite(listOf(ContextProvider { listOf(rootContext) }))
 fun Suite(lambda: ContextLambda) = Suite(RootContext("root", order = 0, function = lambda))
-fun cpus() = Runtime.getRuntime().availableProcessors()

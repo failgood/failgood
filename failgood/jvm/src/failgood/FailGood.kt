@@ -1,4 +1,5 @@
 package failgood
+import failgood.internal.SysInfo
 import failgood.internal.TestFixture
 import java.io.File
 import java.nio.file.FileVisitResult
@@ -96,7 +97,7 @@ object FailGood {
     }
 
     @Suppress("RedundantSuspendModifier")
-    suspend fun runAllTests(writeReport: Boolean = false, paralellism: Int = cpus()) {
+    suspend fun runAllTests(writeReport: Boolean = false, paralellism: Int = SysInfo.cpus()) {
         Suite(findTestClasses()).run(parallelism = paralellism).check(writeReport = writeReport)
         printThreads { !it.isDaemon && it.name != "main" }
     }

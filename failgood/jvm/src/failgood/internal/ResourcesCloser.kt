@@ -10,14 +10,8 @@ import kotlinx.coroutines.async
 import java.util.concurrent.ConcurrentLinkedQueue
 
 internal interface ResourcesCloser : ResourcesDSL {
-    override fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T
-
-    override fun afterEach(function: suspend TestDSL.(TestResult) -> Unit)
     fun addAfterEach(function: suspend TestDSL.(TestResult) -> Unit)
 
-    override suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit): TestDependency<T>
-
-    override fun <T : AutoCloseable> autoClose(wrapped: T): T
     fun <T> addClosable(autoCloseable: SuspendAutoCloseable<T>)
 
     suspend fun closeAutoCloseables()

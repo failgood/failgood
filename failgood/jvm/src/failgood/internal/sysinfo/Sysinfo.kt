@@ -18,3 +18,4 @@ internal fun uptime(totalTests: Int? = null): String {
 }
 
 internal fun cpus() = Runtime.getRuntime().availableProcessors()
+internal fun isRunningOnWindows() = System.getProperty("os.name").startsWith("Windows")

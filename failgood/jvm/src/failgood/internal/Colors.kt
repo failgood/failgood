@@ -1,7 +1,9 @@
 package failgood.internal
 
+import failgood.internal.sysinfo.isRunningOnWindows
+
 internal object Colors {
-    private val isWindows = System.getProperty("os.name").startsWith("Windows")
+    private val isWindows = isRunningOnWindows()
 
     @Suppress("MemberVisibilityCanBePrivate")
     internal const val GREEN = "\u001B[32m"

@@ -36,7 +36,7 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
             } catch (e: InvocationTargetException) {
                 throw ErrorLoadingContextsFromClass(
                     "Could not load contexts from class",
-                    jClass,
+                    jClass.kotlin,
                     e.targetException
                 )
             } catch (e: IllegalArgumentException) {
@@ -44,7 +44,7 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
                 // constructor?
                 throw ErrorLoadingContextsFromClass(
                     "No suitable constructor found for class ${jClass.name}",
-                    jClass,
+                    jClass.kotlin,
                     e
                 )
             } catch (e: IllegalAccessException) { // just ignore private classes
@@ -64,7 +64,7 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
                         }
                 }
                 .ifEmpty {
-                    throw ErrorLoadingContextsFromClass("no contexts found in class", jClass)
+                    throw ErrorLoadingContextsFromClass("no contexts found in class", jClass.kotlin)
                 }
         return methodsReturningRootContext.flatMap {
             val contexts = it.invoke(obj)

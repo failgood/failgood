@@ -13,6 +13,7 @@ interface ResourcesDSL {
      * beforeEach/afterEach In contexts with isolation the AutoClosable is closed after the test, in
      * contexts without isolation after the suite
      */
+    @OptIn(ExperimentalStdlibApi::class)
     fun <T : AutoCloseable> autoClose(wrapped: T): T
 
     /**

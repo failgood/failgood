@@ -29,12 +29,9 @@ class ExceptionPrettyPrinterTest {
                 val assertionError = AssertionError("message")
                 val prefix =
                     ExceptionPrettyPrinterTest::class.qualifiedName!!
-                val sourceInfo =
-                    SourceInfo(
-                        assertionError.stackTrace.first {
-                            it.className.startsWith(prefix)
-                        }
-                    )
+                val sourceInfo = assertionError.stackTrace.first {
+                    it.className.startsWith(prefix)
+                }.let { SourceInfo(it.className, it.fileName, it.lineNumber) }
                 expectThat(
                     ExceptionPrettyPrinter(assertionError, sourceInfo).prettyPrint().split("\n")
                 ).allIndexed { idx ->

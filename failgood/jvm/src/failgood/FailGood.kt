@@ -131,3 +131,7 @@ internal fun findCallerSTE(): StackTraceElement = Throwable().stackTrace.first {
         !(it.endsWith("FailGood.kt") || it.endsWith("SourceInfo.kt") || it.endsWith("Types.kt"))
     } ?: true
 }
+//    constructor(ste: StackTraceElement) : this(ste.className, ste.fileName!!, ste.lineNumber)
+
+internal fun callerSourceInfo(): SourceInfo =
+    findCallerSTE().let { SourceInfo(it.className, it.fileName!!, it.lineNumber) }

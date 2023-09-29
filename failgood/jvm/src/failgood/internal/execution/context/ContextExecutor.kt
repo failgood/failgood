@@ -79,20 +79,18 @@ internal class ContextExecutor(
 class ContextFinished : DSLGotoException()
 
 fun sourceInfo(): SourceInfo {
-    val runtimeException = RuntimeException()
     // find the first stack trace element that is not in this class or ContextDSL
     // (ContextDSL because of default parameters defined there)
-    return SourceInfo(
-        runtimeException.stackTrace.first {
-            !(
-                it.fileName?.let { fileName ->
-                    fileName.endsWith("ContextVisitor.kt") ||
-                        fileName.endsWith("ContextExecutor.kt") ||
-                        fileName.endsWith("ContextDSL.kt")
-                } ?: true
-                )
-        }!!
-    )
+    val first = RuntimeException().stackTrace.first {
+        !(
+            it.fileName?.let { fileName ->
+                fileName.endsWith("ContextVisitor.kt") ||
+                    fileName.endsWith("ContextExecutor.kt") ||
+                    fileName.endsWith("ContextDSL.kt")
+            } ?: true
+            )
+    }
+    return first.let { SourceInfo(it.className, it.fileName!!, it.lineNumber) }
 }
 
 internal class DuplicateNameInContextException(s: String) : FailGoodException(s)

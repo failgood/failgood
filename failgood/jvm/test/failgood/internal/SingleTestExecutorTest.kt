@@ -1,6 +1,8 @@
 package failgood.internal
 
 import failgood.*
+import failgood.dsl.ContextLambda
+import failgood.dsl.TestDSL
 import failgood.mock.mock
 import kotlinx.coroutines.coroutineScope
 import strikt.api.expectThat

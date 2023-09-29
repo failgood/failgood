@@ -1,5 +1,7 @@
 package failgood
 
+import failgood.dsl.ContextDSL
+import failgood.dsl.ContextLambda
 import failgood.internal.ContextPath
 import failgood.internal.TestFixture
 import failgood.internal.sysinfo.cpus

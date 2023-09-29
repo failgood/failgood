@@ -1,14 +1,14 @@
 package failgood.internal.execution.context
 
 import failgood.Context
-import failgood.ContextDSL
 import failgood.FailGoodException
 import failgood.Ignored
-import failgood.ResourcesDSL
 import failgood.Skipped
 import failgood.TestDescription
-import failgood.TestLambda
 import failgood.TestPlusResult
+import failgood.dsl.ContextDSL
+import failgood.dsl.ResourcesDSL
+import failgood.dsl.TestLambda
 import failgood.internal.ContextPath
 import failgood.internal.ResourcesCloser
 import kotlinx.coroutines.CompletableDeferred

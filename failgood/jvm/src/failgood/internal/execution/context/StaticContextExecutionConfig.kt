@@ -1,8 +1,8 @@
 package failgood.internal.execution.context
 
-import failgood.ContextLambda
 import failgood.ExecutionListener
 import failgood.NullExecutionListener
+import failgood.dsl.ContextLambda
 import failgood.internal.ExecuteAllTests
 import failgood.internal.TestFilter
 import kotlinx.coroutines.CoroutineScope

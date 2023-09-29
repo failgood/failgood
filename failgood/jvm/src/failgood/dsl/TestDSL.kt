@@ -1,4 +1,4 @@
-package failgood
+package failgood.dsl
 
 @FailGoodDSL
 interface TestDSL : ResourcesDSL {

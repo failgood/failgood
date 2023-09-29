@@ -1,8 +1,8 @@
 package failgood.internal
 
-import failgood.ResourcesDSL
-import failgood.TestDSL
 import failgood.TestResult
+import failgood.dsl.ResourcesDSL
+import failgood.dsl.TestDSL
 
 internal interface ResourcesCloser : ResourcesDSL {
     fun addAfterEach(function: suspend TestDSL.(TestResult) -> Unit)

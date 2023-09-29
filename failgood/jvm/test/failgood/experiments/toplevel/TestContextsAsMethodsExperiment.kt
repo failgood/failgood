@@ -1,9 +1,9 @@
 package failgood.experiments.toplevel
 
-import failgood.ContextLambda
 import failgood.Ignored
 import failgood.RootContext
 import failgood.Test
+import failgood.dsl.ContextLambda
 
 /*
 this already works, but it's not yet possible to run via the icon on the method. it is possible to run via the class

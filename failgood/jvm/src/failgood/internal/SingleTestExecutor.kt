@@ -1,6 +1,11 @@
 package failgood.internal
 
 import failgood.*
+import failgood.dsl.ContextDSL
+import failgood.dsl.ContextLambda
+import failgood.dsl.ResourcesDSL
+import failgood.dsl.TestDSL
+import failgood.dsl.TestLambda
 
 /**
  * Executes a single test with all its parent contexts

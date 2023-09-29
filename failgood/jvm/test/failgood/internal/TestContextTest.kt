@@ -2,6 +2,7 @@ package failgood.internal
 
 import failgood.*
 import failgood.ExecutionListener
+import failgood.dsl.TestDSL
 import failgood.mock.call
 import failgood.mock.getCalls
 import failgood.mock.mock

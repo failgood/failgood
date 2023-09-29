@@ -1,6 +1,7 @@
 package failgood.internal.execution.context
 
 import failgood.*
+import failgood.dsl.TestLambda
 import failgood.internal.*
 import kotlinx.coroutines.*
 

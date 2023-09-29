@@ -1,9 +1,9 @@
 package failgood.internal
 
-import failgood.jvm.JVMTestDependency
-import failgood.TestDSL
 import failgood.TestDependency
 import failgood.TestResult
+import failgood.dsl.TestDSL
+import failgood.jvm.JVMTestDependency
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async

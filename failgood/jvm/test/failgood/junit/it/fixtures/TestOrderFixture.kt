@@ -1,7 +1,7 @@
 package failgood.junit.it.fixtures
 
-import failgood.ContextDSL
 import failgood.describe
+import failgood.dsl.ContextDSL
 import failgood.internal.TestFixture
 
 @TestFixture

@@ -1,10 +1,10 @@
 package failgood.junit.it
 
-import failgood.ContextDSL
 import failgood.Ignored
 import failgood.Test
 import failgood.assert.containsExactlyInAnyOrder
 import failgood.describe
+import failgood.dsl.ContextDSL
 import failgood.junit.it.fixtures.BlockhoundTestFixture
 import failgood.junit.it.fixtures.DeeplyNestedDuplicateTestFixture
 import failgood.junit.it.fixtures.DoubleTestNamesInRootContextTestFixture

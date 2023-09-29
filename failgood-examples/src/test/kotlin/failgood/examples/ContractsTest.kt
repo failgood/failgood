@@ -1,8 +1,8 @@
 package failgood.examples
 
-import failgood.ContextDSL
 import failgood.Test
 import failgood.describe
+import failgood.dsl.ContextDSL
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 import java.util.LinkedList

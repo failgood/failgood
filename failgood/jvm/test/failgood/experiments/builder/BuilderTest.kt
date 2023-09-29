@@ -2,8 +2,8 @@
 
 package failgood.experiments.builder
 
-import failgood.ContextDSL
 import failgood.SourceInfo
+import failgood.dsl.ContextDSL
 import failgood.findCallerSTE
 
 /*

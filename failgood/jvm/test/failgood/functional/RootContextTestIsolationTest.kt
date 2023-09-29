@@ -1,6 +1,8 @@
 package failgood.functional
 
 import failgood.*
+import failgood.dsl.ContextDSL
+import failgood.dsl.TestDSL
 import strikt.api.Assertion
 import strikt.api.expectThat
 import strikt.assertions.containsExactly

@@ -1,5 +1,6 @@
 package failgood
 
+import failgood.dsl.ContextLambda
 import failgood.internal.ContextInfo
 import failgood.internal.ContextResult
 import failgood.internal.ContextTreeReporter

@@ -1,8 +1,8 @@
 package failgood.examples
 
 import failgood.Test
-import failgood.TestDSL
 import failgood.describe
+import failgood.dsl.TestDSL
 import kotlinx.coroutines.runBlocking
 import mu.KLogger
 import mu.KotlinLogging

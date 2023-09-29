@@ -4,6 +4,7 @@ package failgood.experiments.given
 
 import failgood.*
 import failgood.RootContext
+import failgood.dsl.ContextDSL
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 

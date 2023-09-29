@@ -1,5 +1,6 @@
 package failgood.internal
 
+import failgood.jvm.JVMTestDependency
 import failgood.TestDSL
 import failgood.TestDependency
 import failgood.TestResult
@@ -25,7 +26,7 @@ internal class ResourceCloserImpl(private val scope: CoroutineScope) : Resources
     override suspend fun <T> dependency(creator: suspend () -> T, closer: suspend (T) -> Unit): TestDependency<T> {
         val result = scope.async(Dispatchers.IO) { kotlin.runCatching { creator() } }
         addClosable(SuspendAutoCloseable(result) { closer(result.await().getOrThrow()) })
-        return TestDependency(result)
+        return JVMTestDependency(result)
     }
 
     override fun <T : AutoCloseable> autoClose(wrapped: T): T = autoClose(wrapped) { it.close() }

@@ -31,6 +31,7 @@ import org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestIdentifier
 import org.junit.platform.launcher.core.LauncherFactory
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.test.assertNotNull
 
@@ -135,7 +136,9 @@ object JunitPlatformFunctionalTest {
             assertSuccess(r)
             softly {
                 // just assert that a lot of tests were running. this test is a bit unfocused
-                assert(r.results.size > 20)
+                assert(r.results.size > 20) {
+                    r.results.entries.sortedBy { it.key.uniqueId }.joinToString("\n") { it.key.uniqueId }
+                }
                 assert(
                     getFailedTests(r)
                         .map { it.key.displayName }
@@ -224,7 +227,7 @@ object JunitPlatformFunctionalTest {
 
     class TEListener : TestExecutionListener {
         val rootResult = CompletableDeferred<TestExecutionResult>()
-        val results = mutableMapOf<TestIdentifier, TestExecutionResult>()
+        val results = ConcurrentHashMap<TestIdentifier, TestExecutionResult>()
         override fun executionFinished(testIdentifier: TestIdentifier, testExecutionResult: TestExecutionResult) {
             results[testIdentifier] = testExecutionResult
             val parentId = testIdentifier.parentId

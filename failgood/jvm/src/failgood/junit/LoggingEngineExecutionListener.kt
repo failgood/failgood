@@ -13,29 +13,39 @@ class LoggingEngineExecutionListener(private val delegate: EngineExecutionListen
     }
 
     override fun executionSkipped(testDescriptor: TestDescriptor?, reason: String?) {
-        event("executionSkipped " + name(testDescriptor))
-        delegate.executionSkipped(testDescriptor, reason)
+        synchronized(this) {
+            event("executionSkipped " + name(testDescriptor))
+            delegate.executionSkipped(testDescriptor, reason)
+        }
     }
 
     override fun executionStarted(testDescriptor: TestDescriptor?) {
-        event("executionStarted " + name(testDescriptor))
-        delegate.executionStarted(testDescriptor)
+        synchronized(this) {
+            event("executionStarted " + name(testDescriptor))
+            delegate.executionStarted(testDescriptor)
+        }
     }
 
     override fun executionFinished(testDescriptor: TestDescriptor?, testExecutionResult: TestExecutionResult?) {
-        event("executionFinished " + name(testDescriptor) + ": " + testExecutionResult)
-        delegate.executionFinished(testDescriptor, testExecutionResult)
+        synchronized(this) {
+            event("executionFinished " + name(testDescriptor) + ": " + testExecutionResult)
+            delegate.executionFinished(testDescriptor, testExecutionResult)
+        }
     }
 
     override fun dynamicTestRegistered(testDescriptor: TestDescriptor?) {
-        event("dynamicTestRegistered " + name(testDescriptor))
-        delegate.dynamicTestRegistered(testDescriptor)
+        synchronized(this) {
+            event("dynamicTestRegistered " + name(testDescriptor))
+            delegate.dynamicTestRegistered(testDescriptor)
+        }
     }
 
     override fun reportingEntryPublished(testDescriptor: TestDescriptor?, entry: ReportEntry?) {
-        event("reportingEntryPublished" + name(testDescriptor) + entry)
-        delegate.reportingEntryPublished(testDescriptor, entry)
-    }
+        synchronized(this) {
 
+            event("reportingEntryPublished" + name(testDescriptor) + entry)
+            delegate.reportingEntryPublished(testDescriptor, entry)
+        }
+    }
     private fun name(testDescriptor: TestDescriptor?) = "${testDescriptor!!.displayName}(${testDescriptor.uniqueId})"
 }

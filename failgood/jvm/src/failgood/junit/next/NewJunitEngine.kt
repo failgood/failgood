@@ -148,7 +148,8 @@ internal class NewExecutionListener(
         }
 
         override suspend fun testFinished(testPlusResult: TestPlusResult) {
-            val descriptor = testMapper.getMappingOrNull(testPlusResult.test)
+            val testDescription = testPlusResult.test
+            val descriptor = testMapper.getMappingOrNull(testDescription)
                 ?: throw FailGoodException("mapping for $testPlusResult not found")
             when (testPlusResult.result) {
                 is Failure -> listener.executionFinished(
@@ -156,7 +157,11 @@ internal class NewExecutionListener(
                     TestExecutionResult.failed(testPlusResult.result.failure)
                 )
 
-                is Skipped -> listener.executionSkipped(descriptor, testPlusResult.result.reason)
+                is Skipped -> {
+                    // for skipped tests testStarted is not called, so we have to start parent contexts here.
+                    startParentContexts(testDescription)
+                    listener.executionSkipped(descriptor, testPlusResult.result.reason)
+                }
                 is Success -> listener.executionFinished(descriptor, TestExecutionResult.successful())
             }
         }

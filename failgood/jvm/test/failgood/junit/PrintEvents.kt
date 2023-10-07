@@ -29,7 +29,7 @@ suspend fun execute(selectors: List<DiscoverySelector>) {
         )
     // await with timeout to make sure the test does not hang
     val rootResult = withTimeout(5000) { listener.rootResult.await() }
-    Results(rootResult, listener.results)
+    Results(rootResult, listener.results, listener.testEvents)
 }
 
 fun printingListener(): LoggingListener = LoggingListener.forBiConsumer(Printer())

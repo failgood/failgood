@@ -42,7 +42,6 @@ class LoggingEngineExecutionListener(private val delegate: EngineExecutionListen
 
     override fun reportingEntryPublished(testDescriptor: TestDescriptor?, entry: ReportEntry?) {
         synchronized(this) {
-
             event("reportingEntryPublished" + name(testDescriptor) + entry)
             delegate.reportingEntryPublished(testDescriptor, entry)
         }

@@ -1,5 +1,6 @@
-package failgood.junit
+package failgood.junit.exp.events
 
+import failgood.junit.FailGoodJunitTestEngineConstants
 import failgood.junit.it.JunitPlatformFunctionalTest.Results
 import failgood.junit.it.JunitPlatformFunctionalTest.TEListener
 import failgood.junit.it.fixtures.SimpleClassTestFixture
@@ -32,9 +33,9 @@ suspend fun execute(selectors: List<DiscoverySelector>) {
     Results(rootResult, listener.results, listener.testEvents)
 }
 
-fun printingListener(): LoggingListener = LoggingListener.forBiConsumer(Printer())
+fun printingListener(): LoggingListener = LoggingListener.forBiConsumer(TestEventsPrinter())
 
-class Printer : BiConsumer<Throwable?, Supplier<String>> {
+class TestEventsPrinter : BiConsumer<Throwable?, Supplier<String>> {
     private val counter = AtomicInteger()
     override fun accept(t: Throwable?, u: Supplier<String>) {
         println("${counter.incrementAndGet()}-${u.get()}")

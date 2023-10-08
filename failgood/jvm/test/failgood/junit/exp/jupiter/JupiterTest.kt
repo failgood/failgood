@@ -1,7 +1,7 @@
-package failgood.junit.jupiter
+package failgood.junit.exp.jupiter
 
-import failgood.junit.execute
-import failgood.junit.jupiter.fixtures.JunitTest
+import failgood.junit.exp.events.execute
+import failgood.junit.exp.jupiter.fixtures.JunitTest
 import org.junit.platform.engine.discovery.DiscoverySelectors
 
 /*

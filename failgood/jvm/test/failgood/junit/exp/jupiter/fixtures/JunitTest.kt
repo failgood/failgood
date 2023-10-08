@@ -1,5 +1,5 @@
 
-package failgood.junit.jupiter.fixtures
+package failgood.junit.exp.jupiter.fixtures
 
 import org.junit.jupiter.api.Test
 

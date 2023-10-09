@@ -116,11 +116,11 @@ object JunitPlatformFunctionalTest {
                     assertEquals(
                         listOf(
                             Pair(STARTED, "failgood-new"),
-                            Pair(REGISTERED, "the root context"),
+                            Pair(REGISTERED, "root context"),
                             Pair(REGISTERED, "pending test"),
-                            Pair(STARTED, "the root context"),
+                            Pair(STARTED, "root context"),
                             Pair(SKIPPED, "pending test"),
-                            Pair(FINISHED, "the root context"),
+                            Pair(FINISHED, "root context"),
                             Pair(FINISHED, "failgood-new")
                         ),
                         result.testEvents.map { Pair(it.type, it.test.displayName) }

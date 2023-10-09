@@ -95,9 +95,9 @@ class FailGoodJunitTestEngineTest {
                 expectThat(listener.list.toList()).isEqualTo(
                     listOf(
                         "start-FailGood",
-                        "start-the root context",
+                        "start-root context",
                         "skip-pending test-ignore-reason",
-                        "stop-the root context",
+                        "stop-root context",
                         "stop-FailGood"
                     )
                 )

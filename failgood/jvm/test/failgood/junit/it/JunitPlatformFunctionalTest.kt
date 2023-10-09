@@ -215,7 +215,7 @@ object JunitPlatformFunctionalTest {
             // run a test by className
             val result = executeSingleTest(SimpleTestFixture::class)
             assertSuccess(result)
-            val testName = SimpleTestFixture.testName
+            val testName = SimpleTestFixture.TEST_NAME
             val descriptor: TestIdentifier =
                 assertNotNull(result.results.keys.singleOrNull { it.displayName == testName })
             val uniqueId = descriptor.uniqueId

@@ -6,8 +6,8 @@ import failgood.internal.TestFixture
 @TestFixture
 object SimpleTestFixture {
     const val ROOT_CONTEXT_NAME = "the root context (with brackets)"
-    const val testName = "the test name"
+    const val TEST_NAME = "the test name"
     val context = describe(ROOT_CONTEXT_NAME) {
-        it(testName) {}
+        it(TEST_NAME) {}
     }
 }

@@ -11,7 +11,7 @@ import org.junit.platform.engine.TestEngine
 import org.junit.platform.engine.UniqueId
 
 class DelegatingJunitEngine : TestEngine {
-    override fun getId(): String = FailGoodJunitTestEngineConstants.id
+    override fun getId(): String = FailGoodJunitTestEngineConstants.ID
 
     private lateinit var currentEngine: TestEngine
     override fun discover(

@@ -32,7 +32,7 @@ private const val DEBUG_TXT_FILENAME = "failgood.debug.txt"
 
 class FailGoodJunitTestEngine : TestEngine {
     private var debug: Boolean = false
-    override fun getId(): String = FailGoodJunitTestEngineConstants.id
+    override fun getId(): String = FailGoodJunitTestEngineConstants.ID
     private val failureLogger = FailureLogger()
 
     override fun discover(discoveryRequest: EngineDiscoveryRequest, uniqueId: UniqueId): TestDescriptor {
@@ -50,7 +50,7 @@ class FailGoodJunitTestEngine : TestEngine {
             val suiteAndFilters = ContextFinder(runTestFixtures).findContexts(discoveryRequest)
 
             // if we did not find any tests just return an empty descriptor, maybe other engines have tests to run
-            suiteAndFilters ?: return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.displayName)
+            suiteAndFilters ?: return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.DISPLAY_NAME)
             val suite = suiteAndFilters.suite
             val suiteExecutionContext = SuiteExecutionContext()
             val filterProvider = suiteAndFilters.filter ?: getenv("FAILGOOD_FILTER")

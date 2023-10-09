@@ -14,7 +14,7 @@ internal class FailGoodEngineDescriptor(
     val testResult: List<ContextResult>,
     val executionListener: ChannelExecutionListener,
     val suiteExecutionContext: SuiteExecutionContext
-) : EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.displayName) {
+) : EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.DISPLAY_NAME) {
     val failedRootContexts = mutableListOf<FailedRootContext>()
     val mapper = TestMapper()
     fun allDescendants(): String {

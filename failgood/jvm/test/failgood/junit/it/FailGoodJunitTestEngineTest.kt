@@ -68,7 +68,7 @@ class FailGoodJunitTestEngineTest {
                     )
                 ).isEqualTo(
                     listOf(
-                        "start-${FailGoodJunitTestEngineConstants.displayName}",
+                        "start-${FailGoodJunitTestEngineConstants.DISPLAY_NAME}",
                         "start-$ROOT_CONTEXT_NAME",
                         "start-$CHILD_CONTEXT_1_NAME",
                         "start-$CHILD_CONTEXT_2_NAME",
@@ -79,7 +79,7 @@ class FailGoodJunitTestEngineTest {
                         "stop-$CHILD_CONTEXT_2_NAME",
                         "stop-$CHILD_CONTEXT_1_NAME",
                         "stop-$ROOT_CONTEXT_NAME",
-                        "stop-${FailGoodJunitTestEngineConstants.displayName}"
+                        "stop-${FailGoodJunitTestEngineConstants.DISPLAY_NAME}"
                     )
                 )
             }

@@ -48,7 +48,7 @@ data class RootContext(
         get() = listOf(context.name)
 }
 
-/* something that contains tests */
+/** something that contains tests */
 interface TestContainer {
     val parents: List<TestContainer>
     val name: String

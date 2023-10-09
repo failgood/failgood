@@ -43,7 +43,7 @@ class NewJunitEngine : TestEngine {
                 .orElse(false)
         val suiteAndFilters = ContextFinder(runTestFixtures).findContexts(discoveryRequest)
         suiteAndFilters
-            ?: return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.displayName)
+            ?: return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.DISPLAY_NAME)
         val loadResults =
             runBlocking(suiteExecutionContext.coroutineDispatcher) {
                 suiteAndFilters.suite.getRootContexts(suiteExecutionContext.scope)

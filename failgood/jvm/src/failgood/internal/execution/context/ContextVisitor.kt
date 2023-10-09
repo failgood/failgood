@@ -118,10 +118,13 @@ internal class ContextVisitor<GivenType>(
         val sourceInfo = sourceInfo()
         val context = Context(name, context, sourceInfo, subContextShouldHaveIsolation)
         val ignoreReason = ignored?.isIgnored()
+        staticConfig.listener.contextDiscovered(context)
         if (ignoreReason != null) {
+            // we report an ignored context as a context with one ignored test.
             val testDescriptor = TestDescription(context, "context ignored because $ignoreReason", sourceInfo)
             val testPlusResult = TestPlusResult(testDescriptor, Skipped(ignoreReason))
             contextStateCollector.deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
+            staticConfig.listener.testDiscovered(testDescriptor)
             staticConfig.listener.testFinished(testPlusResult)
 
             contextStateCollector.finishedPaths.add(contextPath)
@@ -138,7 +141,6 @@ internal class ContextVisitor<GivenType>(
             )
             return
         }
-        staticConfig.listener.contextDiscovered(context)
         val visitor =
             ContextVisitor(
                 staticConfig,

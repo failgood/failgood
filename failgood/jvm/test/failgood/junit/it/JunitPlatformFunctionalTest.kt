@@ -76,9 +76,10 @@ object JunitPlatformFunctionalTest {
             it("can execute tests with ignored contexts") {
                 val result = executeSingleTest(IgnoredContextFixture::class)
                 assertSuccess(result)
-                assert(getFailedTests(result).isEmpty()) { getFailedTests(result).single().value.throwable.get().stackTraceToString() }
+                assert(getFailedTests(result).isEmpty()) {
+                    getFailedTests(result).joinToString("\n") { it.value.throwable.get().stackTraceToString() }
+                }
             }
-
         }
         describe("ignored tests", isolation = false) {
             val result = executeSingleTest(IgnoredTestFixture::class)

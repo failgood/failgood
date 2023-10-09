@@ -150,7 +150,7 @@ internal class NewExecutionListener(
         override suspend fun testFinished(testPlusResult: TestPlusResult) {
             val testDescription = testPlusResult.test
             val descriptor = testMapper.getMappingOrNull(testDescription)
-                ?: throw FailGoodException("mapping for $testPlusResult not found")
+                ?: throw FailGoodException("mapping for $testDescription not found")
             when (testPlusResult.result) {
                 is Failure -> listener.executionFinished(
                     descriptor,

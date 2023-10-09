@@ -5,6 +5,7 @@ import failgood.Test
 import failgood.assert.containsExactlyInAnyOrder
 import failgood.describe
 import failgood.dsl.ContextDSL
+import failgood.junit.it.JunitPlatformFunctionalTest.TEListener.Event.Type.*
 import failgood.junit.it.fixtures.BlockhoundTestFixture
 import failgood.junit.it.fixtures.DeeplyNestedDuplicateTestFixture
 import failgood.junit.it.fixtures.DoubleTestNamesInRootContextTestFixture
@@ -35,6 +36,7 @@ import org.junit.platform.launcher.core.LauncherFactory
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.reflect.KClass
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 @Test
@@ -90,25 +92,19 @@ object JunitPlatformFunctionalTest {
             if (newEngine)
                 it("correctly reports context started event for ignored tests") {
                     assertSuccess(result)
-                    result.testEvents[0].let {
-                        assert(it is TEListener.Event.TestStarted && it.test.uniqueId.toString() == "[engine:failgood]")
-                    }
-                    result.testEvents[1].let {
-                        assert(it is TEListener.Event.TestRegistered && it.test.displayName == "the root context")
-                    }
-                    result.testEvents[2].let {
-                        assert(it is TEListener.Event.TestRegistered && it.test.displayName == "pending test")
-                    }
-                    result.testEvents[3].let {
-                        assert(it is TEListener.Event.TestStarted && it.test.displayName == "the root context")
-                    }
-                    result.testEvents[4].let {
-                        assert(it is TEListener.Event.TestSkipped && it.test.displayName == "pending test")
-                    }
-                    result.testEvents[5].let {
-                        assert(it is TEListener.Event.TestFinished && it.test.displayName == "the root context")
-                    }
                     assert(getFailedTests(result).isEmpty())
+                    assertEquals(
+                        listOf(
+                            Pair(STARTED, "failgood-new"),
+                            Pair(REGISTERED, "the root context"),
+                            Pair(REGISTERED, "pending test"),
+                            Pair(STARTED, "the root context"),
+                            Pair(SKIPPED, "pending test"),
+                            Pair(FINISHED, "the root context"),
+                            Pair(FINISHED, "failgood-new")
+                        ),
+                        result.testEvents.map { Pair(it.type, it.test.displayName) }
+                    )
                 }
         }
         it("can execute duplicate root") {
@@ -263,13 +259,13 @@ object JunitPlatformFunctionalTest {
     }
 
     class TEListener : TestExecutionListener {
-        sealed interface Event {
-            val test: TestIdentifier
-
-            data class TestStarted(override val test: TestIdentifier) : Event
-            data class TestFinished(override val test: TestIdentifier) : Event
-            data class TestRegistered(override val test: TestIdentifier) : Event
-            data class TestSkipped(override val test: TestIdentifier) : Event
+        data class Event(val type: Type, val test: TestIdentifier) {
+            enum class Type {
+                STARTED,
+                FINISHED,
+                REGISTERED,
+                SKIPPED
+            }
         }
 
         val testEvents = CopyOnWriteArrayList<Event>()
@@ -277,21 +273,21 @@ object JunitPlatformFunctionalTest {
         val results = ConcurrentHashMap<TestIdentifier, TestExecutionResult>()
         override fun dynamicTestRegistered(testIdentifier: TestIdentifier) {
             super.dynamicTestRegistered(testIdentifier)
-            testEvents.add(Event.TestRegistered(testIdentifier))
+            testEvents.add(Event(REGISTERED, testIdentifier))
         }
 
         override fun executionStarted(testIdentifier: TestIdentifier) {
             super.executionStarted(testIdentifier)
-            testEvents.add(Event.TestStarted(testIdentifier))
+            testEvents.add(Event(STARTED, testIdentifier))
         }
 
         override fun executionSkipped(testIdentifier: TestIdentifier, reason: String?) {
             super.executionSkipped(testIdentifier, reason)
-            testEvents.add(Event.TestSkipped(testIdentifier))
+            testEvents.add(Event(SKIPPED, testIdentifier))
         }
 
         override fun executionFinished(testIdentifier: TestIdentifier, testExecutionResult: TestExecutionResult) {
-            testEvents.add(Event.TestFinished(testIdentifier))
+            testEvents.add(Event(FINISHED, testIdentifier))
             results[testIdentifier] = testExecutionResult
             val parentId = testIdentifier.parentId
             if (!parentId.isPresent) {

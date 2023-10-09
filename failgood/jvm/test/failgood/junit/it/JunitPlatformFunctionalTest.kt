@@ -74,14 +74,34 @@ object JunitPlatformFunctionalTest {
         suspend fun executeSingleTest(singleTest: KClass<*>): Results =
             execute(listOf(selectClass(singleTest.qualifiedName)))
 
-        describe("ignored contexts") {
+        describe("ignored contexts", isolation = false) {
+            val result = executeSingleTest(IgnoredContextFixture::class)
             it("can execute tests with ignored contexts") {
-                val result = executeSingleTest(IgnoredContextFixture::class)
                 assertSuccess(result)
                 assert(getFailedTests(result).isEmpty()) {
                     getFailedTests(result).joinToString("\n") { it.value.throwable.get().stackTraceToString() }
                 }
             }
+            if (newEngine)
+                it("correctly reports events for ignored tests") {
+                    assertSuccess(result)
+                    assert(getFailedTests(result).isEmpty())
+                    assertEquals(
+                        listOf(
+                            Pair(STARTED, "failgood-new"),
+                            Pair(REGISTERED, "root context"),
+                            Pair(REGISTERED, "ignored context"),
+                            Pair(REGISTERED, "context ignored because we are testing subcontext ignoring"),
+                            Pair(STARTED, "root context"),
+                            Pair(STARTED, "ignored context"),
+                            Pair(SKIPPED, "context ignored because we are testing subcontext ignoring"),
+                            Pair(FINISHED, "ignored context"),
+                            Pair(FINISHED, "root context"),
+                            Pair(FINISHED, "failgood-new")
+                        ),
+                        result.testEvents.map { Pair(it.type, it.test.displayName) }
+                    )
+                }
         }
         describe("ignored tests", isolation = false) {
             val result = executeSingleTest(IgnoredTestFixture::class)
@@ -90,7 +110,7 @@ object JunitPlatformFunctionalTest {
                 assert(getFailedTests(result).isEmpty())
             }
             if (newEngine)
-                it("correctly reports context started event for ignored tests") {
+                it("correctly reports events for ignored tests") {
                     assertSuccess(result)
                     assert(getFailedTests(result).isEmpty())
                     assertEquals(

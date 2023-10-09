@@ -13,6 +13,7 @@ import failgood.junit.it.fixtures.DuplicateRootWithOneTestFixture
 import failgood.junit.it.fixtures.DuplicateTestNameTest
 import failgood.junit.it.fixtures.FailingContext
 import failgood.junit.it.fixtures.FailingRootContext
+import failgood.junit.it.fixtures.IgnoredContextFixture
 import failgood.junit.it.fixtures.IgnoredTestFixture
 import failgood.junit.it.fixtures.SimpleClassTestFixture
 import failgood.junit.it.fixtures.SimpleTestFixture
@@ -71,6 +72,14 @@ object JunitPlatformFunctionalTest {
         suspend fun executeSingleTest(singleTest: KClass<*>): Results =
             execute(listOf(selectClass(singleTest.qualifiedName)))
 
+        describe("ignored contexts") {
+            it("can execute tests with ignored contexts") {
+                val result = executeSingleTest(IgnoredContextFixture::class)
+                assertSuccess(result)
+                assert(getFailedTests(result).isEmpty()) { getFailedTests(result).single().value.throwable.get().stackTraceToString() }
+            }
+
+        }
         describe("ignored tests", isolation = false) {
             val result = executeSingleTest(IgnoredTestFixture::class)
             it("can execute ignored tests") {
@@ -78,7 +87,7 @@ object JunitPlatformFunctionalTest {
                 assert(getFailedTests(result).isEmpty())
             }
             if (newEngine)
-                it("reports context started event for ignored tests") {
+                it("correctly reports context started event for ignored tests") {
                     assertSuccess(result)
                     result.testEvents[0].let {
                         assert(it is TEListener.Event.TestStarted && it.test.uniqueId.toString() == "[engine:failgood]")

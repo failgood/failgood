@@ -7,7 +7,6 @@ repositories {
 plugins {
     id("failgood.common")
     kotlin("jvm")
-    id("org.jmailen.kotlinter")
 }
 
 dependencies {

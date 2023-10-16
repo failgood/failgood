@@ -21,6 +21,8 @@ plugins {
     id("com.bnorm.power.kotlin-power-assert") version "0.13.0"
     id("org.jetbrains.kotlinx.kover") version "0.7.4"
     id("org.jetbrains.dokka") version "1.9.10"
+    id("com.diffplug.spotless")
+    id("com.adarshr.test-logger")
 }
 spotless { kotlin { ktfmt("0.44").kotlinlangStyle() } }
 // to release:

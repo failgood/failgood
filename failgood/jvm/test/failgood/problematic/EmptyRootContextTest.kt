@@ -5,6 +5,5 @@ import failgood.describe
 
 @Test
 class EmptyRootContextTest {
-    val context = describe("empty root context") {
-    }
+    val context = describe("empty root context") {}
 }

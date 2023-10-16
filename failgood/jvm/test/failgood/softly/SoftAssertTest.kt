@@ -8,16 +8,17 @@ import failgood.describe
 
 @Test
 object SoftAssertTest {
-    val tests = describe("soft assert syntax") {
-        it("could look like this") {
-            val name = "klausi"
-            softly {
-                // standard boolean
-                assert(name == "klausi")
-                assert(name == "klausi") { "assert error message" }
+    val tests =
+        describe("soft assert syntax") {
+            it("could look like this") {
+                val name = "klausi"
+                softly {
+                    // standard boolean
+                    assert(name == "klausi")
+                    assert(name == "klausi") { "assert error message" }
 
-                assert(!listOf("a", "b", "c").containsExactlyInAnyOrder("b", "a"))
+                    assert(!listOf("a", "b", "c").containsExactlyInAnyOrder("b", "a"))
+                }
             }
         }
-    }
 }

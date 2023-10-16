@@ -5,7 +5,5 @@ import failgood.internal.TestFixture
 
 @TestFixture
 class SimpleClassTestFixture {
-    val context = describe("the root context (with brackets)") {
-        it("the test name") {}
-    }
+    val context = describe("the root context (with brackets)") { it("the test name") {} }
 }

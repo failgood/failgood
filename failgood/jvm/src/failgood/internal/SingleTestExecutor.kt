@@ -8,8 +8,8 @@ import failgood.dsl.TestDSL
 import failgood.dsl.TestLambda
 
 /**
- * Executes a single test with all its parent contexts
- * Async Called by ContextExecutor to execute all tests that it does not have to execute itself
+ * Executes a single test with all its parent contexts Async Called by ContextExecutor to execute
+ * all tests that it does not have to execute itself
  */
 internal class SingleTestExecutor(
     private val test: ContextPath,
@@ -34,7 +34,29 @@ internal class SingleTestExecutor(
         }
     }
 
-    private open inner class Base<GivenType> : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
+    private open inner class Base<GivenType> :
+        ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
+        override suspend fun <ContextDependency> describe(
+            name: String,
+            tags: Set<String>,
+            isolation: Boolean?,
+            ignored: Ignored?,
+            given: suspend () -> ContextDependency,
+            contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
+        ) {}
+
+        override suspend fun it(
+            name: String,
+            tags: Set<String>,
+            ignored: Ignored?,
+            function: TestLambda<GivenType>
+        ) {}
+
+        override fun afterSuite(function: suspend () -> Unit) {}
+    }
+
+    private inner class ContextFinder<GivenType>(private val contexts: List<String>) :
+        ContextDSL<GivenType>, Base<GivenType>() {
         override suspend fun <ContextDependency> describe(
             name: String,
             tags: Set<String>,
@@ -43,28 +65,11 @@ internal class SingleTestExecutor(
             given: suspend () -> ContextDependency,
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
+            if (contexts.first() != name) return
+
+            contextDSL(given, contexts.drop(1)).contextLambda()
         }
-
-        override suspend fun it(name: String, tags: Set<String>, ignored: Ignored?, function: TestLambda<GivenType>) {}
-
-        override fun afterSuite(function: suspend () -> Unit) {}
     }
-
-    private inner class ContextFinder<GivenType>(private val contexts: List<String>) : ContextDSL<GivenType>,
-        Base<GivenType>() {
-            override suspend fun <ContextDependency> describe(
-                name: String,
-                tags: Set<String>,
-                isolation: Boolean?,
-                ignored: Ignored?,
-                given: suspend () -> ContextDependency,
-                contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
-            ) {
-                if (contexts.first() != name) return
-
-                contextDSL(given, contexts.drop(1)).contextLambda()
-            }
-        }
 
     private fun <ContextDependency> contextDSL(
         given: suspend () -> ContextDependency,
@@ -72,8 +77,14 @@ internal class SingleTestExecutor(
     ): ContextDSL<ContextDependency> =
         if (parentContexts.isEmpty()) TestFinder(given) else ContextFinder(parentContexts)
 
-    private inner class TestFinder<GivenType>(val given: suspend () -> GivenType) : Base<GivenType>() {
-        override suspend fun it(name: String, tags: Set<String>, ignored: Ignored?, function: TestLambda<GivenType>) {
+    private inner class TestFinder<GivenType>(val given: suspend () -> GivenType) :
+        Base<GivenType>() {
+        override suspend fun it(
+            name: String,
+            tags: Set<String>,
+            ignored: Ignored?,
+            function: TestLambda<GivenType>
+        ) {
             if (test.name == name) {
                 throw TestResultAvailable(executeTest(function))
             }
@@ -86,21 +97,20 @@ internal class SingleTestExecutor(
                 val failure = Failure(e)
                 try {
                     resourcesCloser.callAfterEach(testDSL, failure)
-                } catch (_: Throwable) {
-                }
+                } catch (_: Throwable) {}
                 try {
                     resourcesCloser.closeAutoCloseables()
-                } catch (_: Throwable) {
-                }
+                } catch (_: Throwable) {}
                 return failure
             }
-            val success = try {
-                val success = Success((System.nanoTime() - startTime) / 1000)
-                resourcesCloser.callAfterEach(testDSL, success)
-                success
-            } catch (e: Throwable) {
-                Failure(e)
-            }
+            val success =
+                try {
+                    val success = Success((System.nanoTime() - startTime) / 1000)
+                    resourcesCloser.callAfterEach(testDSL, success)
+                    success
+                } catch (e: Throwable) {
+                    Failure(e)
+                }
             resourcesCloser.closeAutoCloseables()
             return success
         }

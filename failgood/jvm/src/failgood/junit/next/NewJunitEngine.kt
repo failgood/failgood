@@ -16,6 +16,7 @@ import failgood.junit.ContextFinder
 import failgood.junit.FailGoodJunitTestEngineConstants
 import failgood.junit.LoggingEngineExecutionListener
 import failgood.junit.TestMapper
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.junit.platform.engine.EngineDiscoveryRequest
@@ -26,7 +27,6 @@ import org.junit.platform.engine.TestEngine
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
-import java.util.concurrent.ConcurrentHashMap
 
 class NewJunitEngine : TestEngine {
     override fun getId(): String = "failgood-new"
@@ -61,18 +61,23 @@ class NewJunitEngine : TestEngine {
         listener.executionStarted(root)
         try {
             val testMapper = TestMapper()
-            val results = runBlocking(root.suiteExecutionContext.coroutineDispatcher) {
-                val r = root.loadResults.investigate(
-                    root.suiteExecutionContext.scope,
-                    listener = NewExecutionListener(
-                        root,
-                        listener,
-                        startedContexts,
-                        testMapper
-                    )
-                ).awaitAll()
-                awaitTestResults(r)
-            }
+            val results =
+                runBlocking(root.suiteExecutionContext.coroutineDispatcher) {
+                    val r =
+                        root.loadResults
+                            .investigate(
+                                root.suiteExecutionContext.scope,
+                                listener =
+                                    NewExecutionListener(
+                                        root,
+                                        listener,
+                                        startedContexts,
+                                        testMapper
+                                    )
+                            )
+                            .awaitAll()
+                    awaitTestResults(r)
+                }
             // report the failing root contexts
             results.failedRootContexts.forEach {
                 val node = TestPlanNode.Container(it.context.name)
@@ -109,63 +114,73 @@ internal class NewExecutionListener(
     private val listener: EngineExecutionListener,
     private val startedContexts: MutableSet<TestContainer>,
     private val testMapper: TestMapper
-) :
-    ExecutionListener {
-        override suspend fun testDiscovered(testDescription: TestDescription) {
-            val parent = testMapper.getMapping(testDescription.container)
-            val node = TestPlanNode.Test(testDescription.testName)
-            val descriptor = DynamicTestDescriptor(node, parent)
-            testMapper.addMapping(testDescription, descriptor)
+) : ExecutionListener {
+    override suspend fun testDiscovered(testDescription: TestDescription) {
+        val parent = testMapper.getMapping(testDescription.container)
+        val node = TestPlanNode.Test(testDescription.testName)
+        val descriptor = DynamicTestDescriptor(node, parent)
+        testMapper.addMapping(testDescription, descriptor)
 
-            listener.dynamicTestRegistered(descriptor)
-        }
+        listener.dynamicTestRegistered(descriptor)
+    }
 
-        override suspend fun contextDiscovered(context: Context) {
-            val node = TestPlanNode.Container(context.name)
-            val descriptor = if (context.parent == null) {
-                DynamicTestDescriptor(node, root, "${context.name}(${(context.sourceInfo?.className) ?: ""})")
+    override suspend fun contextDiscovered(context: Context) {
+        val node = TestPlanNode.Container(context.name)
+        val descriptor =
+            if (context.parent == null) {
+                DynamicTestDescriptor(
+                    node,
+                    root,
+                    "${context.name}(${(context.sourceInfo?.className) ?: ""})"
+                )
             } else {
                 DynamicTestDescriptor(node, testMapper.getMapping(context.parent))
             }
-            testMapper.addMapping(context, descriptor)
-            listener.dynamicTestRegistered(descriptor)
-        }
+        testMapper.addMapping(context, descriptor)
+        listener.dynamicTestRegistered(descriptor)
+    }
 
-        override suspend fun testStarted(testDescription: TestDescription) {
-            val descriptor = testMapper.getMappingOrNull(testDescription)
+    override suspend fun testStarted(testDescription: TestDescription) {
+        val descriptor =
+            testMapper.getMappingOrNull(testDescription)
                 ?: throw FailGoodException("mapping for $testDescription not found")
-            startParentContexts(testDescription)
-            listener.executionStarted(descriptor)
-        }
+        startParentContexts(testDescription)
+        listener.executionStarted(descriptor)
+    }
 
-        private fun startParentContexts(testDescription: TestDescription) {
-            val context = testDescription.container
-            (context.parents + context).forEach {
-                if (startedContexts.add(it)) {
-                    listener.executionStarted(testMapper.getMapping(it))
-                }
+    private fun startParentContexts(testDescription: TestDescription) {
+        val context = testDescription.container
+        (context.parents + context).forEach {
+            if (startedContexts.add(it)) {
+                listener.executionStarted(testMapper.getMapping(it))
             }
         }
+    }
 
-        override suspend fun testFinished(testPlusResult: TestPlusResult) {
-            val testDescription = testPlusResult.test
-            val descriptor = testMapper.getMappingOrNull(testDescription)
+    override suspend fun testFinished(testPlusResult: TestPlusResult) {
+        val testDescription = testPlusResult.test
+        val descriptor =
+            testMapper.getMappingOrNull(testDescription)
                 ?: throw FailGoodException("mapping for $testDescription not found")
-            when (testPlusResult.result) {
-                is Failure -> listener.executionFinished(
+        when (testPlusResult.result) {
+            is Failure ->
+                listener.executionFinished(
                     descriptor,
                     TestExecutionResult.failed(testPlusResult.result.failure)
                 )
-
-                is Skipped -> {
-                    // for skipped tests testStarted is not called, so we have to start parent contexts here.
-                    startParentContexts(testDescription)
-                    listener.executionSkipped(descriptor, testPlusResult.result.reason)
-                }
-                is Success -> listener.executionFinished(descriptor, TestExecutionResult.successful())
+            is Skipped -> {
+                // for skipped tests testStarted is not called, so we have to start parent contexts
+                // here.
+                startParentContexts(testDescription)
+                listener.executionSkipped(descriptor, testPlusResult.result.reason)
             }
-        }
-
-        override suspend fun testEvent(testDescription: TestDescription, type: String, payload: String) {
+            is Success -> listener.executionFinished(descriptor, TestExecutionResult.successful())
         }
     }
+
+    override suspend fun testEvent(
+        testDescription: TestDescription,
+        type: String,
+        payload: String
+    ) {}
+}

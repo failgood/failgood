@@ -2,6 +2,8 @@ package failgood
 
 import failgood.internal.sysinfo.uptime
 import failgood.internal.util.getenv
+import java.lang.management.ManagementFactory
+import java.util.concurrent.CompletableFuture
 import kotlinx.coroutines.CompletableDeferred
 import strikt.api.expectThat
 import strikt.assertions.all
@@ -11,34 +13,31 @@ import strikt.assertions.isEqualTo
 import strikt.assertions.isFalse
 import strikt.assertions.isLessThan
 import strikt.assertions.isTrue
-import java.lang.management.ManagementFactory
-import java.util.concurrent.CompletableFuture
 
 suspend fun main() {
     val testFinished = CompletableDeferred<Unit>()
     val failingTestFinished = CompletableFuture<Throwable>()
     val results =
         Suite {
-            test("firstTest") {
-                expectThat(true).isTrue()
-                testFinished.complete(Unit)
-            }
-            test("failing test") {
-                try {
-                    expectThat(true).isFalse()
-                } catch (e: AssertionError) {
-                    failingTestFinished.complete(e)
-                    throw e
+                test("firstTest") {
+                    expectThat(true).isTrue()
+                    testFinished.complete(Unit)
                 }
-            }
-            context("child context") {
-                context("grandchild context") {
-                    test("failing test") {
+                test("failing test") {
+                    try {
                         expectThat(true).isFalse()
+                    } catch (e: AssertionError) {
+                        failingTestFinished.complete(e)
+                        throw e
+                    }
+                }
+                context("child context") {
+                    context("grandchild context") {
+                        test("failing test") { expectThat(true).isFalse() }
                     }
                 }
             }
-        }.run(silent = true)
+            .run(silent = true)
     expectThat(results) {
         get(SuiteResult::allOk).isFalse()
         get(SuiteResult::failedTests).and {

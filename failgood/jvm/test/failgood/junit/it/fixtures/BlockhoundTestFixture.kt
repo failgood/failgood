@@ -11,15 +11,13 @@ class BlockhoundTestFixture {
         BlockHound.install(StriktIntegration())
     }
 
-    val context = describe("interop with blockhound") {
-        describe("context that blocks") {
-            @Suppress("BlockingMethodInNonBlockingContext")
-            Thread.sleep(10)
+    val context =
+        describe("interop with blockhound") {
+            describe("context that blocks") {
+                @Suppress("BlockingMethodInNonBlockingContext") Thread.sleep(10)
+            }
+            describe("other context") { test("with test") {} }
         }
-        describe("other context") {
-            test("with test") {}
-        }
-    }
 }
 
 class StriktIntegration : BlockHoundIntegration {

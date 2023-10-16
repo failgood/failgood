@@ -22,36 +22,39 @@ class ContextTreeReporterTest {
             val reporter = ContextTreeReporter()
             it("outputs test results in tree form") {
                 expectThat(
-                    reporter.stringReport(testResults, listOf(rootContext, subContext)).joinToString("\n")
-                ).isEqualTo(
-                    listOf(
-                        "* the test runner",
-                        "  $SUCCESS supports describe/it syntax (0.01ms)",
-                        "  * contexts can be nested",
-                        "    $SUCCESS sub-contexts also contain tests (0.02ms)",
-                        "    $FAILED failed test ${RED}FAILED$RESET",
-                        "      failure message\\nwith newline",
-                        "      ClassName.failed-test(file:123)"
-                    ).joinToString("\n")
-                )
+                        reporter
+                            .stringReport(testResults, listOf(rootContext, subContext))
+                            .joinToString("\n")
+                    )
+                    .isEqualTo(
+                        listOf(
+                                "* the test runner",
+                                "  $SUCCESS supports describe/it syntax (0.01ms)",
+                                "  * contexts can be nested",
+                                "    $SUCCESS sub-contexts also contain tests (0.02ms)",
+                                "    $FAILED failed test ${RED}FAILED$RESET",
+                                "      failure message\\nwith newline",
+                                "      ClassName.failed-test(file:123)"
+                            )
+                            .joinToString("\n")
+                    )
             }
             it("outputs empty root context") {
                 expectThat(
-                    reporter.stringReport(
-                        listOf(
-                            TestPlusResult(
-                                TestDescription(
-                                    subContext,
-                                    "sub-contexts also contain tests", sourceInfo
-                                ),
-                                Success(
-                                    10
+                        reporter.stringReport(
+                            listOf(
+                                TestPlusResult(
+                                    TestDescription(
+                                        subContext,
+                                        "sub-contexts also contain tests",
+                                        sourceInfo
+                                    ),
+                                    Success(10)
                                 )
-                            )
-                        ),
-                        listOf(rootContext, subContext)
+                            ),
+                            listOf(rootContext, subContext)
+                        )
                     )
-                )
                     .containsExactly(
                         listOf(
                             "* the test runner",
@@ -62,18 +65,20 @@ class ContextTreeReporterTest {
             }
             it("outputs empty context") {
                 expectThat(
-                    reporter.stringReport(
-                        listOf(
-                            TestPlusResult(
-                                TestDescription(subSubContext, "sub-contexts also contain tests", sourceInfo),
-                                Success(
-                                    10
+                        reporter.stringReport(
+                            listOf(
+                                TestPlusResult(
+                                    TestDescription(
+                                        subSubContext,
+                                        "sub-contexts also contain tests",
+                                        sourceInfo
+                                    ),
+                                    Success(10)
                                 )
-                            )
-                        ),
-                        listOf(rootContext, subContext, subSubContext)
+                            ),
+                            listOf(rootContext, subContext, subSubContext)
+                        )
                     )
-                )
                     .containsExactly(
                         listOf(
                             "* the test runner",
@@ -85,20 +90,20 @@ class ContextTreeReporterTest {
             }
             it("outputs time") {
                 expectThat(
-                    reporter.stringReport(
-                        listOf(
-                            TestPlusResult(
-                                TestDescription(rootContext, "test", sourceInfo),
-                                Success(10)
+                        reporter.stringReport(
+                            listOf(
+                                TestPlusResult(
+                                    TestDescription(rootContext, "test", sourceInfo),
+                                    Success(10)
+                                ),
+                                TestPlusResult(
+                                    TestDescription(rootContext, "slow test", sourceInfo),
+                                    Success(1010001)
+                                )
                             ),
-                            TestPlusResult(
-                                TestDescription(rootContext, "slow test", sourceInfo),
-                                Success(1010001)
-                            )
-                        ),
-                        listOf(rootContext)
+                            listOf(rootContext)
+                        )
                     )
-                )
                     .containsExactly(
                         listOf(
                             "* the test runner",

@@ -6,21 +6,14 @@ import failgood.internal.TestFixture
 
 @TestFixture
 class TestOrderFixture {
-    val context = describe("test order fixture") {
-        fourTests()
-        context("context 1") {
+    val context =
+        describe("test order fixture") {
             fourTests()
+            context("context 1") { fourTests() }
+            context("context 2") { fourTests() }
+            context("context 3") { fourTests() }
+            context("context 4") { fourTests() }
         }
-        context("context 2") {
-            fourTests()
-        }
-        context("context 3") {
-            fourTests()
-        }
-        context("context 4") {
-            fourTests()
-        }
-    }
 
     private suspend fun ContextDSL<Unit>.fourTests() {
         test("test 1") {}

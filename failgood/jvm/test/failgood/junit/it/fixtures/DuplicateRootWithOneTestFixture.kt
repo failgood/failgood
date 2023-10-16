@@ -6,12 +6,5 @@ import failgood.internal.TestFixture
 // this used to return a cyclic graph
 @TestFixture
 class DuplicateRootWithOneTestFixture {
-    val context = listOf(
-        describe("name") {
-            it("test") {}
-        },
-        describe("name") {
-            it("test") {}
-        }
-    )
+    val context = listOf(describe("name") { it("test") {} }, describe("name") { it("test") {} })
 }

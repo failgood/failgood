@@ -10,8 +10,7 @@ class TestFinderTest {
         describe("test finder") {
             it("can find Test classes") {
                 val cl = TestFinderTest::class.java.classLoader
-                val topLevelClass =
-                    cl.loadClass(testContextsOnTopLevelExampleClassName).kotlin
+                val topLevelClass = cl.loadClass(testContextsOnTopLevelExampleClassName).kotlin
                 expectThat(FailGood.findTestClasses(classIncludeRegex = Regex(".*docs.*.class\$")))
                     .containsExactlyInAnyOrder(
                         ClassTestContextExample::class,

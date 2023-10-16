@@ -6,7 +6,8 @@ import failgood.internal.TestFixture
 
 @TestFixture
 object IgnoredTestFixture {
-    val context = describe("root context") {
-        it("pending test", ignored = Ignored.Because("ignore-reason")) {}
-    }
+    val context =
+        describe("root context") {
+            it("pending test", ignored = Ignored.Because("ignore-reason")) {}
+        }
 }

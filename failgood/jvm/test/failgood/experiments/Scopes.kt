@@ -12,6 +12,7 @@ val start = System.currentTimeMillis()
 fun println(s: String) {
     kotlin.io.println("" + (System.currentTimeMillis() - start) + " " + s)
 }
+
 suspend fun main() {
     runBlocking(Dispatchers.Default) {
         val outerScope = this

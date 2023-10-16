@@ -23,6 +23,11 @@ import failgood.junit.it.fixtures.TestFixtureWithFailingTestAndAfterEach
 import failgood.junit.it.fixtures.TestOrderFixture
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture
 import failgood.softly.softly
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.reflect.KClass
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
@@ -33,11 +38,6 @@ import org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestIdentifier
 import org.junit.platform.launcher.core.LauncherFactory
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.reflect.KClass
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 @Test
 object JunitPlatformFunctionalTest {
@@ -47,27 +47,28 @@ object JunitPlatformFunctionalTest {
         val testEvents: List<TEListener.Event>
     )
 
-    val context = listOf(
-        describe("The Junit Platform Engine") {
-            tests(false)
-        },
-        describe("The New Junit Platform Engine") {
-            tests(true)
-        }
-    )
+    val context =
+        listOf(
+            describe("The Junit Platform Engine") { tests(false) },
+            describe("The New Junit Platform Engine") { tests(true) }
+        )
 
     private suspend fun ContextDSL<Unit>.tests(newEngine: Boolean) {
         suspend fun execute(discoverySelectors: List<DiscoverySelector>): Results {
             val listener = TEListener()
 
-            LauncherFactory.create().execute(launcherDiscoveryRequest(discoverySelectors, newEngine), listener)
+            LauncherFactory.create()
+                .execute(launcherDiscoveryRequest(discoverySelectors, newEngine), listener)
 
             // await with timeout to make sure the test does not hang
-            val rootResult = try {
-                withTimeout(5000) { listener.rootResult.await() }
-            } catch (e: TimeoutCancellationException) {
-                throw AssertionError("Test execution timed out. received results:${listener.results}")
-            }
+            val rootResult =
+                try {
+                    withTimeout(5000) { listener.rootResult.await() }
+                } catch (e: TimeoutCancellationException) {
+                    throw AssertionError(
+                        "Test execution timed out. received results:${listener.results}"
+                    )
+                }
             return Results(rootResult, listener.results, listener.testEvents)
         }
 
@@ -79,7 +80,9 @@ object JunitPlatformFunctionalTest {
             it("can execute tests with ignored contexts") {
                 assertSuccess(result)
                 assert(getFailedTests(result).isEmpty()) {
-                    getFailedTests(result).joinToString("\n") { it.value.throwable.get().stackTraceToString() }
+                    getFailedTests(result).joinToString("\n") {
+                        it.value.throwable.get().stackTraceToString()
+                    }
                 }
             }
             if (newEngine)
@@ -91,10 +94,16 @@ object JunitPlatformFunctionalTest {
                             Pair(STARTED, "failgood-new"),
                             Pair(REGISTERED, "root context"),
                             Pair(REGISTERED, "ignored context"),
-                            Pair(REGISTERED, "context ignored because we are testing subcontext ignoring"),
+                            Pair(
+                                REGISTERED,
+                                "context ignored because we are testing subcontext ignoring"
+                            ),
                             Pair(STARTED, "root context"),
                             Pair(STARTED, "ignored context"),
-                            Pair(SKIPPED, "context ignored because we are testing subcontext ignoring"),
+                            Pair(
+                                SKIPPED,
+                                "context ignored because we are testing subcontext ignoring"
+                            ),
                             Pair(FINISHED, "ignored context"),
                             Pair(FINISHED, "root context"),
                             Pair(FINISHED, "failgood-new")
@@ -154,43 +163,49 @@ object JunitPlatformFunctionalTest {
         }
         describe("failing contexts") {
             it("reports failing contexts") {
-                val selectors = listOf(
-                    FailingContext::class
-                ).map { selectClass(it.qualifiedName) }
+                val selectors = listOf(FailingContext::class).map { selectClass(it.qualifiedName) }
                 val r = execute(selectors)
                 assertSuccess(r)
                 assert(
                     getFailedTests(r)
-                        .map { it.key.displayName }.containsExactlyInAnyOrder("error in context")
+                        .map { it.key.displayName }
+                        .containsExactlyInAnyOrder("error in context")
                 )
             }
             it("reports failing root contexts") {
-                val selectors = listOf(
-                    FailingRootContext::class
-                ).map { selectClass(it.qualifiedName) }
+                val selectors =
+                    listOf(FailingRootContext::class).map { selectClass(it.qualifiedName) }
                 val r = execute(selectors)
                 assertSuccess(r)
                 val failedTests = getFailedTests(r)
-                assert(failedTests.map { it.key.displayName }.containsExactlyInAnyOrder("Failing Root Context"))
+                assert(
+                    failedTests
+                        .map { it.key.displayName }
+                        .containsExactlyInAnyOrder("Failing Root Context")
+                )
             }
         }
         // todo: remove this test when we are sure that it does not test anything useful by mistake
         it("works for a failing context or root context") {
-            val selectors = listOf(
-                DuplicateRootWithOneTestFixture::class,
-                DuplicateTestNameTest::class,
-                FailingContext::class,
-                FailingRootContext::class,
-                IgnoredTestFixture::class,
-                SimpleTestFixture::class,
-                TestWithNestedContextsFixture::class
-            ).map { selectClass(it.qualifiedName) }
+            val selectors =
+                listOf(
+                        DuplicateRootWithOneTestFixture::class,
+                        DuplicateTestNameTest::class,
+                        FailingContext::class,
+                        FailingRootContext::class,
+                        IgnoredTestFixture::class,
+                        SimpleTestFixture::class,
+                        TestWithNestedContextsFixture::class
+                    )
+                    .map { selectClass(it.qualifiedName) }
             val r = execute(selectors)
             assertSuccess(r)
             softly {
                 // just assert that a lot of tests were running. this test is a bit unfocused
                 assert(r.results.size > 20) {
-                    r.results.entries.sortedBy { it.key.uniqueId }.joinToString("\n") { it.key.uniqueId }
+                    r.results.entries
+                        .sortedBy { it.key.uniqueId }
+                        .joinToString("\n") { it.key.uniqueId }
                 }
                 assert(
                     getFailedTests(r)
@@ -208,31 +223,34 @@ object JunitPlatformFunctionalTest {
             val entries = result.results.entries
 
             assert(entries.size > 1)
-            val throwable = assertNotNull(
-                entries.singleOrNull { (key, _) ->
-                    key.displayName == "interop with blockhound"
-                }?.value?.throwable
-            )
+            val throwable =
+                assertNotNull(
+                    entries
+                        .singleOrNull { (key, _) -> key.displayName == "interop with blockhound" }
+                        ?.value
+                        ?.throwable
+                )
             assert(throwable.get().message?.contains("blocking") == true)
         }
         it(
             "returns tests in the order that they are declared in the file",
             ignored = Ignored.Because("it does not work with the new engine")
         ) {
-            val testPlan = LauncherFactory.create().discover(
-                launcherDiscoveryRequest(
-                    listOf(selectClass(TestOrderFixture::class.qualifiedName))
-                )
-            )
+            val testPlan =
+                LauncherFactory.create()
+                    .discover(
+                        launcherDiscoveryRequest(
+                            listOf(selectClass(TestOrderFixture::class.qualifiedName))
+                        )
+                    )
             val root: TestIdentifier = assertNotNull(testPlan.roots.singleOrNull())
             val rootContext = assertNotNull(testPlan.getChildren(root).singleOrNull())
             val (tests, subcontexts) = testPlan.getChildren(rootContext).partition { it.isTest }
             assert(tests.map { it.displayName } == listOf("test 1", "test 2", "test 3", "test 4"))
             subcontexts.forEach { testIdentifier ->
                 assert(
-                    testPlan.getChildren(testIdentifier).map { it.displayName } == listOf(
-                        "test 1", "test 2", "test 3", "test 4"
-                    )
+                    testPlan.getChildren(testIdentifier).map { it.displayName } ==
+                        listOf("test 1", "test 2", "test 3", "test 4")
                 )
             }
         }
@@ -245,14 +263,12 @@ object JunitPlatformFunctionalTest {
             val descriptor: TestIdentifier =
                 assertNotNull(result.results.keys.singleOrNull { it.displayName == testName })
             val uniqueId = descriptor.uniqueId
-            assert(
-                uniqueId.toString().contains(SimpleTestFixture::class.simpleName!!)
-            ) { "our unique ids contain the class name" }
+            assert(uniqueId.toString().contains(SimpleTestFixture::class.simpleName!!)) {
+                "our unique ids contain the class name"
+            }
             // now use the uniqueid that we just returned to run the same test again
             val newResult = execute(listOf(selectUniqueId(uniqueId)))
-            val tests = newResult.results.keys.filter { it.isTest }.map {
-                it.displayName
-            }
+            val tests = newResult.results.keys.filter { it.isTest }.map { it.displayName }
             assert(tests.singleOrNull() == testName)
         }
         describe("error handling") {
@@ -260,7 +276,12 @@ object JunitPlatformFunctionalTest {
                 val result = executeSingleTest(TestFixtureWithFailingTestAndAfterEach::class)
                 assertSuccess(result)
                 val testResult =
-                    assertNotNull(result.results.entries.singleOrNull { it.key.displayName == "the test name" }).value
+                    assertNotNull(
+                            result.results.entries.singleOrNull {
+                                it.key.displayName == "the test name"
+                            }
+                        )
+                        .value
                 assert(testResult.throwable.get().message == "fail")
             }
             it("correctly handles test that fail in their second pass") {
@@ -291,6 +312,7 @@ object JunitPlatformFunctionalTest {
         val testEvents = CopyOnWriteArrayList<Event>()
         val rootResult = CompletableDeferred<TestExecutionResult>()
         val results = ConcurrentHashMap<TestIdentifier, TestExecutionResult>()
+
         override fun dynamicTestRegistered(testIdentifier: TestIdentifier) {
             super.dynamicTestRegistered(testIdentifier)
             testEvents.add(Event(REGISTERED, testIdentifier))
@@ -306,7 +328,10 @@ object JunitPlatformFunctionalTest {
             testEvents.add(Event(SKIPPED, testIdentifier))
         }
 
-        override fun executionFinished(testIdentifier: TestIdentifier, testExecutionResult: TestExecutionResult) {
+        override fun executionFinished(
+            testIdentifier: TestIdentifier,
+            testExecutionResult: TestExecutionResult
+        ) {
             testEvents.add(Event(FINISHED, testIdentifier))
             results[testIdentifier] = testExecutionResult
             val parentId = testIdentifier.parentId

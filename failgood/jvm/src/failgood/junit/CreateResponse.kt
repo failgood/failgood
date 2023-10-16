@@ -7,6 +7,7 @@ import failgood.internal.ContextInfo
 import failgood.internal.ContextResult
 import failgood.internal.FailedRootContext
 import failgood.internal.util.StringUniquer
+import java.io.File
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestSource
 import org.junit.platform.engine.UniqueId
@@ -14,7 +15,6 @@ import org.junit.platform.engine.support.descriptor.ClassSource
 import org.junit.platform.engine.support.descriptor.FilePosition
 import org.junit.platform.engine.support.descriptor.FileSource
 import org.junit.platform.engine.support.descriptor.MethodSource
-import java.io.File
 
 private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor {
     val testSource = createFileSource(this.sourceInfo, this.testName)
@@ -25,6 +25,7 @@ private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor
         testSource
     )
 }
+
 private val fs = File.separator
 
 // roots for guessing source files. It's ok if this fails.
@@ -37,11 +38,7 @@ private fun createFileSource(sourceInfo: SourceInfo, testOrContextName: String):
     val filePosition = FilePosition.from(sourceInfo.lineNumber)
     val classFilePath = "${className.substringBefore("$").replace(".", "/")}.kt"
     val file = sourceRoots.asSequence().map { File("$it/$classFilePath") }.firstOrNull(File::exists)
-    return if (file != null)
-        FileSource.from(
-            file,
-            filePosition
-        )
+    return if (file != null) FileSource.from(file, filePosition)
     else MethodSource.from(className, testOrContextName.replace(" ", "+"))
 }
 
@@ -62,23 +59,29 @@ internal fun createResponse(
         when (contextInfo) {
             is ContextInfo -> {
                 val tests = contextInfo.tests.entries
-                fun addChildren(node: TestDescriptor, context: Context, isRootContext: Boolean, uniqueId: UniqueId) {
-                    val path = if (isRootContext)
-                        uniqueMaker.makeUnique("${context.name}(${(context.sourceInfo?.className) ?: ""})")
-                    else
-                        context.name
+                fun addChildren(
+                    node: TestDescriptor,
+                    context: Context,
+                    isRootContext: Boolean,
+                    uniqueId: UniqueId
+                ) {
+                    val path =
+                        if (isRootContext)
+                            uniqueMaker.makeUnique(
+                                "${context.name}(${(context.sourceInfo?.className) ?: ""})"
+                            )
+                        else context.name
                     val contextUniqueId = uniqueId.appendContext(path)
-                    val contextNode = FailGoodTestDescriptor(
-                        TestDescriptor.Type.CONTAINER,
-                        contextUniqueId,
-                        context.name,
-                        context.sourceInfo?.let {
-                            if (isRootContext)
-                                createClassSource(it)
-                            else
-                                createFileSource(it, context.name)
-                        }
-                    )
+                    val contextNode =
+                        FailGoodTestDescriptor(
+                            TestDescriptor.Type.CONTAINER,
+                            contextUniqueId,
+                            context.name,
+                            context.sourceInfo?.let {
+                                if (isRootContext) createClassSource(it)
+                                else createFileSource(it, context.name)
+                            }
+                        )
                     mapper.addMapping(context, contextNode)
                     val testsInThisContext = tests.filter { it.key.container == context }
                     testsInThisContext.forEach {
@@ -88,7 +91,9 @@ internal fun createResponse(
                         mapper.addMapping(testDescription, testDescriptor)
                     }
                     val contextsInThisContext = contextInfo.contexts.filter { it.parent == context }
-                    contextsInThisContext.forEach { addChildren(contextNode, it, false, contextUniqueId) }
+                    contextsInThisContext.forEach {
+                        addChildren(contextNode, it, false, contextUniqueId)
+                    }
                     node.addChild(contextNode)
                 }
 
@@ -96,15 +101,16 @@ internal fun createResponse(
                 if (rootContext != null)
                     addChildren(failGoodEngineDescriptor, rootContext, true, uniqueId)
             }
-
             is FailedRootContext -> {
                 val context = contextInfo.context
                 val path = "${context.name}(${(context.sourceInfo?.className) ?: ""})"
-                val testDescriptor = FailGoodTestDescriptor(
-                    TestDescriptor.Type.TEST,
-                    uniqueId.appendContext(uniqueMaker.makeUnique(path)),
-                    context.name, context.sourceInfo?.let { createClassSource(it) }
-                )
+                val testDescriptor =
+                    FailGoodTestDescriptor(
+                        TestDescriptor.Type.TEST,
+                        uniqueId.appendContext(uniqueMaker.makeUnique(path)),
+                        context.name,
+                        context.sourceInfo?.let { createClassSource(it) }
+                    )
                 failGoodEngineDescriptor.addChild(testDescriptor)
                 mapper.addMapping(context, testDescriptor)
                 failGoodEngineDescriptor.failedRootContexts.add(contextInfo)
@@ -115,4 +121,5 @@ internal fun createResponse(
 }
 
 internal fun UniqueId.appendContext(path: String): UniqueId = append(CONTEXT_SEGMENT_TYPE, path)
+
 internal fun UniqueId.appendTest(path: String): UniqueId = append(TEST_SEGMENT_TYPE, path)

@@ -1,9 +1,9 @@
 package failgood.pitest
 
+import java.util.*
 import org.pitest.classinfo.ClassByteArraySource
 import org.pitest.help.PitHelpError
 import org.pitest.testapi.*
-import java.util.*
 
 class FailGoodTestPluginFactory : TestPluginFactory {
     override fun description(): String = "FailGood pitest plugin"

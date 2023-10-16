@@ -15,13 +15,10 @@ fun main() {
 }
 
 class StringProvider {
-    @Suppress("RedundantSuspendModifier")
-    suspend fun world() = "world"
+    @Suppress("RedundantSuspendModifier") suspend fun world() = "world"
 }
 
-class Example(
-    private val stringProvider: StringProvider
-) {
+class Example(private val stringProvider: StringProvider) {
 
     suspend fun hello(): String {
         delay(250)
@@ -31,21 +28,17 @@ class Example(
 
 @Test
 class MultiThreadingCoroutinesInteropTest {
-    val context = describe("multi threading issue from spek") {
-        val stringProvider = mockk<StringProvider> {
-            coEvery { world() } returns "world 2"
-        }
-        val example = Example(stringProvider)
+    val context =
+        describe("multi threading issue from spek") {
+            val stringProvider = mockk<StringProvider> { coEvery { world() } returns "world 2" }
+            val example = Example(stringProvider)
 
-        describe("ExampleTest") {
+            describe("ExampleTest") {
+                it("should work ;)") {
+                    expectThat(example.hello()).isEqualTo("world 2")
 
-            it("should work ;)") {
-                expectThat(example.hello()).isEqualTo("world 2")
-
-                coVerify {
-                    stringProvider.world()
+                    coVerify { stringProvider.world() }
                 }
             }
         }
-    }
 }

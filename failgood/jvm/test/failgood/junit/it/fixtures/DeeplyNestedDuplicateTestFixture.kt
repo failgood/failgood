@@ -5,19 +5,15 @@ import failgood.internal.TestFixture
 
 @TestFixture
 class DeeplyNestedDuplicateTestFixture {
-    val context = describe("1") {
-        describe("2") {
-            describe("3") {
-                describe("4") {
-                    it("5") {
-                    }
-                }
+    val context =
+        describe("1") {
+            describe("2") {
+                describe("3") {
+                    describe("4") { it("5") {} }
 
-                it("duplicate") {
-                }
-                it("duplicate") {
+                    it("duplicate") {}
+                    it("duplicate") {}
                 }
             }
         }
-    }
 }

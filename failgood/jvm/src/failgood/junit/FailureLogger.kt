@@ -4,6 +4,7 @@ import failgood.FailGoodException
 
 internal class FailureLogger {
     val map = mutableMapOf<String, String>()
+
     fun unsafe(function: () -> Unit) {
         try {
             function()

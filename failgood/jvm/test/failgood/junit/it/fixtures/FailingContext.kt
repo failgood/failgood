@@ -6,12 +6,9 @@ import failgood.internal.TestFixture
 // to reproduce https://github.com/failgood/failgood/issues/10 ( manually :(( )
 @TestFixture
 class FailingContext {
-    val context = describe("root") {
-        describe("failing context") {
-            throw RuntimeException()
+    val context =
+        describe("root") {
+            describe("failing context") { throw RuntimeException() }
+            describe("context") { test("test") {} }
         }
-        describe("context") {
-            test("test") {}
-        }
-    }
 }

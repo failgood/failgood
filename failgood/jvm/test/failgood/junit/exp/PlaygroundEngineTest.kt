@@ -7,15 +7,14 @@ import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 
 @Test
 class PlaygroundEngineTest {
-    val context = describe<PlaygroundEngine> {
-        it("returns a valid test plan") {
-            val orchestrator = EngineDiscoveryOrchestrator(listOf(PlaygroundEngine()), listOf())
-            orchestrator.discover(
-                LauncherDiscoveryRequestBuilder.request()
-                    .selectors(listOf())
-                    .build(),
-                EngineDiscoveryOrchestrator.Phase.DISCOVERY
-            )
+    val context =
+        describe<PlaygroundEngine> {
+            it("returns a valid test plan") {
+                val orchestrator = EngineDiscoveryOrchestrator(listOf(PlaygroundEngine()), listOf())
+                orchestrator.discover(
+                    LauncherDiscoveryRequestBuilder.request().selectors(listOf()).build(),
+                    EngineDiscoveryOrchestrator.Phase.DISCOVERY
+                )
+            }
         }
-    }
 }

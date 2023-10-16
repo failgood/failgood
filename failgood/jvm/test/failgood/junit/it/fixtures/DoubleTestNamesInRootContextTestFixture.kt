@@ -5,10 +5,9 @@ import failgood.internal.TestFixture
 
 @TestFixture
 class DoubleTestNamesInRootContextTestFixture {
-    val context = describe("failing tests") {
-        it("test") {
+    val context =
+        describe("failing tests") {
+            it("test") {}
+            it("test") {}
         }
-        it("test") {
-        }
-    }
 }

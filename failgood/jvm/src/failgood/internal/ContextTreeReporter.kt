@@ -18,7 +18,8 @@ import java.util.Locale
 
 internal class ContextTreeReporter {
     fun stringReport(results: List<TestPlusResult>, allContexts: List<Context>): List<String> {
-        val contextMap: Map<TestContainer, List<TestPlusResult>> = results.groupBy { it.test.container }
+        val contextMap: Map<TestContainer, List<TestPlusResult>> =
+            results.groupBy { it.test.container }
         val result = mutableListOf<String>()
         val rootContexts = allContexts.filter { it.parent == null }
         printContext(rootContexts, allContexts, result, contextMap, 0)
@@ -41,20 +42,25 @@ internal class ContextTreeReporter {
                     when (testResult.result) {
                         is Success -> {
                             val timeMicro = testResult.result.timeMicro
-                            listOf("$indentString  $SUCCESS ${testResult.test.testName} (${time(timeMicro)}ms)")
+                            listOf(
+                                "$indentString  $SUCCESS ${testResult.test.testName} (${time(timeMicro)}ms)"
+                            )
                         }
-                        is Failure -> listOf(
-                            "$indentString  $FAILED ${testResult.test.testName} ${RED}FAILED$RESET",
-                            "$indentString    ${
+                        is Failure ->
+                            listOf(
+                                "$indentString  $FAILED ${testResult.test.testName} ${RED}FAILED$RESET",
+                                "$indentString    ${
                                 testResult.result.failure.message?.replace(
                                     "\n",
                                     "\\n"
                                 )
                             }",
-                            "$indentString    ${testResult.test.sourceInfo.likeStackTrace(testResult.test.testName)}"
-                        )
+                                "$indentString    ${testResult.test.sourceInfo.likeStackTrace(testResult.test.testName)}"
+                            )
                         is Skipped -> {
-                            listOf("$indentString  $PENDING ${testResult.test.testName} ${YELLOW}PENDING$RESET")
+                            listOf(
+                                "$indentString  $PENDING ${testResult.test.testName} ${YELLOW}PENDING$RESET"
+                            )
                         }
                     }
 
@@ -67,5 +73,6 @@ internal class ContextTreeReporter {
     }
 
     fun time(timeMicro: Long): String = timeFormat.format(timeMicro.toDouble() / 1000)!!
+
     private val timeFormat = DecimalFormat("#,##0.0#", DecimalFormatSymbols(Locale.US))
 }

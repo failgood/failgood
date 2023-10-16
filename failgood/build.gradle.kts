@@ -24,7 +24,7 @@ plugins {
     id("com.diffplug.spotless")
     id("com.adarshr.test-logger")
 }
-spotless { kotlin { ktfmt("0.44").kotlinlangStyle() } }
+spotless { kotlin { ktfmt("0.46").kotlinlangStyle() } }
 // to release:
 // ./gradlew publishAllPublicationsToSonatypeRepository closeSonatypeStagingRepository (or ./gradlew publishAllPublicationsToSonatypeRepository closeAndReleaseSonatypeStagingRepository)
 

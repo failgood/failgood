@@ -2,6 +2,7 @@ package failgood.junit.exp
 
 import failgood.junit.next.DynamicTestDescriptor
 import failgood.junit.next.TestPlanNode
+import java.util.Optional
 import org.junit.platform.engine.EngineDiscoveryRequest
 import org.junit.platform.engine.ExecutionRequest
 import org.junit.platform.engine.TestDescriptor
@@ -10,25 +11,23 @@ import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.TestSource
 import org.junit.platform.engine.TestTag
 import org.junit.platform.engine.UniqueId
-import java.util.Optional
 
-/**
- * this is just to play around with the junit engines api to see how dynamic tests work
- */
-
+/** this is just to play around with the junit engines api to see how dynamic tests work */
 class PlaygroundEngine : TestEngine {
     override fun getId(): String {
         return "failgood-playground"
     }
 
-    override fun discover(discoveryRequest: EngineDiscoveryRequest?, uniqueId: UniqueId): TestDescriptor {
+    override fun discover(
+        discoveryRequest: EngineDiscoveryRequest?,
+        uniqueId: UniqueId
+    ): TestDescriptor {
         return MyTestDescriptor(TestPlanNode.Container("root"), uniqueId, null)
     }
 
     override fun execute(request: ExecutionRequest) {
         val root = request.rootTestDescriptor
-        if (root !is MyTestDescriptor)
-            return
+        if (root !is MyTestDescriptor) return
 
         val l = request.engineExecutionListener
         l.executionStarted(root)
@@ -40,10 +39,7 @@ class PlaygroundEngine : TestEngine {
         l.dynamicTestRegistered(container1Descriptor)
 
         val container2Descriptor =
-            DynamicTestDescriptor(
-                TestPlanNode.Container("container2"),
-                container1Descriptor
-            )
+            DynamicTestDescriptor(TestPlanNode.Container("container2"), container1Descriptor)
         val test2Descriptor =
             DynamicTestDescriptor(TestPlanNode.Test("Test2"), container2Descriptor)
         container2Descriptor.addChild(test2Descriptor)
@@ -63,45 +59,49 @@ class PlaygroundEngine : TestEngine {
     }
 }
 
-class MyTestDescriptor(val test: TestPlanNode, private val uniqueId: UniqueId, private var parent: TestDescriptor?) :
-    TestDescriptor {
-        private val children = mutableSetOf<TestDescriptor>()
-        override fun getUniqueId(): UniqueId = uniqueId
+class MyTestDescriptor(
+    val test: TestPlanNode,
+    private val uniqueId: UniqueId,
+    private var parent: TestDescriptor?
+) : TestDescriptor {
+    private val children = mutableSetOf<TestDescriptor>()
 
-        override fun getDisplayName(): String = test.name
+    override fun getUniqueId(): UniqueId = uniqueId
 
-        override fun getTags(): MutableSet<TestTag> = mutableSetOf()
+    override fun getDisplayName(): String = test.name
 
-        override fun getSource(): Optional<TestSource> = Optional.empty()
+    override fun getTags(): MutableSet<TestTag> = mutableSetOf()
 
-        override fun getParent(): Optional<TestDescriptor> = Optional.ofNullable(parent)
+    override fun getSource(): Optional<TestSource> = Optional.empty()
 
-        override fun setParent(parent: TestDescriptor?) {
-            TODO("Not yet implemented")
-        }
+    override fun getParent(): Optional<TestDescriptor> = Optional.ofNullable(parent)
 
-        override fun getChildren(): MutableSet<out TestDescriptor> = children
+    override fun setParent(parent: TestDescriptor?) {
+        TODO("Not yet implemented")
+    }
 
-        override fun addChild(descriptor: TestDescriptor) {
-            children.add(descriptor)
-        }
+    override fun getChildren(): MutableSet<out TestDescriptor> = children
 
-        override fun removeChild(descriptor: TestDescriptor?) {
-            TODO("Not yet implemented")
-        }
+    override fun addChild(descriptor: TestDescriptor) {
+        children.add(descriptor)
+    }
 
-        override fun removeFromHierarchy() {
-            parent = null
-        }
+    override fun removeChild(descriptor: TestDescriptor?) {
+        TODO("Not yet implemented")
+    }
 
-        override fun getType(): TestDescriptor.Type {
-            return when (test) {
-                is TestPlanNode.Container -> TestDescriptor.Type.CONTAINER
-                is TestPlanNode.Test -> TestDescriptor.Type.TEST
-            }
-        }
+    override fun removeFromHierarchy() {
+        parent = null
+    }
 
-        override fun findByUniqueId(uniqueId: UniqueId?): Optional<out TestDescriptor> {
-            TODO("Not yet implemented")
+    override fun getType(): TestDescriptor.Type {
+        return when (test) {
+            is TestPlanNode.Container -> TestDescriptor.Type.CONTAINER
+            is TestPlanNode.Test -> TestDescriptor.Type.TEST
         }
     }
+
+    override fun findByUniqueId(uniqueId: UniqueId?): Optional<out TestDescriptor> {
+        TODO("Not yet implemented")
+    }
+}

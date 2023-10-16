@@ -12,6 +12,7 @@ object MetaPlayground {
     // SuiteBuilder().createAutoTestSuite()
     // SuiteBuilder().addTestClasses("**Test").addTestClasses("...")
     fun runAutoTest(): Suite? = FailGood.createAutoTestSuite()
+
     fun runAllTests(): Suite = Suite(FailGood.findTestClasses())
 }
 /*

@@ -43,14 +43,14 @@ internal class LoadResults(private val loadResults: List<LoadResult>) {
                     coroutineScope.async {
                         if (loadResult.ignored?.isIgnored() == null) {
                             ContextExecutor(
-                                loadResult,
-                                coroutineScope,
-                                !executeTests,
-                                listener,
-                                testFilter,
-                                timeoutMillis,
-                                runOnlyTag = tag
-                            )
+                                    loadResult,
+                                    coroutineScope,
+                                    !executeTests,
+                                    listener,
+                                    testFilter,
+                                    timeoutMillis,
+                                    runOnlyTag = tag
+                                )
                                 .execute()
                         } else ContextInfo(emptyList(), mapOf(), setOf())
                     }

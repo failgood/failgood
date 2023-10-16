@@ -1,4 +1,3 @@
 package failgood.dsl
 
-@DslMarker
-annotation class FailGoodDSL
+@DslMarker annotation class FailGoodDSL

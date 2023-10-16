@@ -13,12 +13,13 @@ class TestWithNestedContextsFixture {
         const val TEST2_NAME = "another test"
     }
 
-    val context = describe(ROOT_CONTEXT_NAME) {
-        describe(CHILD_CONTEXT_1_NAME) {
-            describe(CHILD_CONTEXT_2_NAME) {
-                test(TEST_NAME) {}
-                test(TEST2_NAME) {}
+    val context =
+        describe(ROOT_CONTEXT_NAME) {
+            describe(CHILD_CONTEXT_1_NAME) {
+                describe(CHILD_CONTEXT_2_NAME) {
+                    test(TEST_NAME) {}
+                    test(TEST2_NAME) {}
+                }
             }
         }
-    }
 }

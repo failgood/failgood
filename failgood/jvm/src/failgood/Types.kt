@@ -9,9 +9,10 @@ data class TestDescription(
     val testName: String,
     val sourceInfo: SourceInfo
 ) {
-    internal constructor(testPath: ContextPath, sourceInfo: SourceInfo) : this(
-        testPath.container, testPath.name, sourceInfo
-    )
+    internal constructor(
+        testPath: ContextPath,
+        sourceInfo: SourceInfo
+    ) : this(testPath.container, testPath.name, sourceInfo)
 
     override fun toString(): String {
         return "${container.stringPath()} > $testName"
@@ -22,7 +23,8 @@ internal sealed interface LoadResult {
     val order: Int
 }
 
-internal data class CouldNotLoadContext(val reason: Throwable, val kClass: KClass<out Any>) : LoadResult {
+internal data class CouldNotLoadContext(val reason: Throwable, val kClass: KClass<out Any>) :
+    LoadResult {
     override val order: Int
         get() = 0
 }
@@ -43,7 +45,9 @@ data class RootContext(
     val function: ContextLambda
 ) : LoadResult, failgood.internal.Path {
     val sourceInfo: SourceInfo
-        get() = context.sourceInfo!! // in the root context we are sure that we always have a sourceInfo
+        get() =
+            context.sourceInfo!! // in the root context we are sure that we always have a sourceInfo
+
     override val path: List<String>
         get() = listOf(context.name)
 }
@@ -52,6 +56,7 @@ data class RootContext(
 interface TestContainer {
     val parents: List<TestContainer>
     val name: String
+
     fun stringPath(): String
 }
 
@@ -69,5 +74,6 @@ data class Context(
 
     override val parents: List<TestContainer> = parent?.parents?.plus(parent) ?: listOf()
     val path: List<String> = parent?.path?.plus(name) ?: listOf(name)
+
     override fun stringPath(): String = path.joinToString(" > ")
 }

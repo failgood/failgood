@@ -28,7 +28,8 @@ fun describe(
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextLambda
-): RootContext = RootContext(subjectType.niceString(), ignored, order, isolation, function = function)
+): RootContext =
+    RootContext(subjectType.niceString(), ignored, order, isolation, function = function)
 
 fun describe(
     subjectType: KClass<*>,
@@ -36,7 +37,8 @@ fun describe(
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextLambda
-): RootContext = RootContext("${subjectType.simpleName}", ignored, order, isolation, function = function)
+): RootContext =
+    RootContext("${subjectType.simpleName}", ignored, order, isolation, function = function)
 
 suspend inline fun <reified Class> ContextDSL<*>.describe(
     tags: Set<String> = setOf(),

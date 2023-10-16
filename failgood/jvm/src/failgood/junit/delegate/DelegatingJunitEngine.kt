@@ -14,6 +14,7 @@ class DelegatingJunitEngine : TestEngine {
     override fun getId(): String = FailGoodJunitTestEngineConstants.ID
 
     private lateinit var currentEngine: TestEngine
+
     override fun discover(
         discoveryRequest: EngineDiscoveryRequest,
         uniqueId: UniqueId

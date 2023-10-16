@@ -10,8 +10,5 @@ class FailingRootContext {
     }
 
     // when the root context fails the other contexts should still work
-    @Suppress("unused")
-    val context = describe("Failing Root Context") {
-        throw thrownException
-    }
+    @Suppress("unused") val context = describe("Failing Root Context") { throw thrownException }
 }

@@ -32,14 +32,14 @@ data class SuiteResult(
         }
         val totalTests = allTests.size
         if (allOk) {
-            if (getenv("PRINT_SLOWEST") != null)
-                printSlowestTests()
+            if (getenv("PRINT_SLOWEST") != null) printSlowestTests()
             val pendingTests = allTests.filter { it.isSkipped }
             if (pendingTests.isNotEmpty()) {
                 // printPendingTests(ignoredTests)
                 val pending = pendingTests.size
                 println(
-                    pluralize(totalTests, "test") + ". ${totalTests - pending} ok, $pending pending. time: ${
+                    pluralize(totalTests, "test") +
+                        ". ${totalTests - pending} ok, $pending pending. time: ${
                         uptime(
                             totalTests
                         )
@@ -50,14 +50,13 @@ data class SuiteResult(
             println(pluralize(totalTests, "test") + ". time: ${uptime(totalTests)}")
             return
         }
-        if (throwException) throw SuiteFailedException("test failed") else {
-            val message =
-                failedTests.joinToString(separator = "\n") {
-                    it.prettyPrint()
-                }
-            @Suppress("unused")
-            println("${Colors.RED}FAILED:${Colors.RESET}\n$message")
-            println("$totalTests tests. ${failedTests.size} failed. total time: ${uptime(totalTests)}")
+        if (throwException) throw SuiteFailedException("test failed")
+        else {
+            val message = failedTests.joinToString(separator = "\n") { it.prettyPrint() }
+            @Suppress("unused") println("${Colors.RED}FAILED:${Colors.RESET}\n$message")
+            println(
+                "$totalTests tests. ${failedTests.size} failed. total time: ${uptime(totalTests)}"
+            )
             exitProcess(-1)
         }
         @Suppress("unused")
@@ -70,8 +69,13 @@ data class SuiteResult(
     fun printSlowestTests() {
         val contextTreeReporter = ContextTreeReporter()
         val slowTests =
-            allTests.filter { it.isSuccess }.sortedBy { 0 - (it.result as Success).timeMicro }.take(5)
+            allTests
+                .filter { it.isSuccess }
+                .sortedBy { 0 - (it.result as Success).timeMicro }
+                .take(5)
         println("Slowest tests:")
-        slowTests.forEach { println("${contextTreeReporter.time((it.result as Success).timeMicro)}ms ${it.test}") }
+        slowTests.forEach {
+            println("${contextTreeReporter.time((it.result as Success).timeMicro)}ms ${it.test}")
+        }
     }
 }

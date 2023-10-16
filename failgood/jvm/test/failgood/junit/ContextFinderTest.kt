@@ -5,14 +5,14 @@ import failgood.describe
 import failgood.internal.StringListTestFilter
 import failgood.junit.it.fixtures.packagewith1test.SimpleTestFixture
 import failgood.problematic.NonFailgoodTest
+import java.nio.file.Paths
+import kotlin.test.assertNotNull
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.discovery.DiscoverySelectors
 import org.junit.platform.engine.discovery.PackageNameFilter
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
-import java.nio.file.Paths
-import kotlin.test.assertNotNull
 
 @Test
 class ContextFinderTest {
@@ -81,10 +81,10 @@ class ContextFinderTest {
                 it("works when the root contexts contains brackets") {
                     val (className, filterStringList) =
                         DiscoverySelectors.selectUniqueId(
-                            UniqueId.parse(
-                                "[engine:failgood]/[class:Root Context (with brackets)(className)]/[method:test name]"
+                                UniqueId.parse(
+                                    "[engine:failgood]/[class:Root Context (with brackets)(className)]/[method:test name]"
+                                )
                             )
-                        )
                             .toClassFilter()
                     assert(filterStringList == listOf("Root Context (with brackets)", "test name"))
                     assert(className == "className")

@@ -8,6 +8,8 @@ import failgood.Test
 import failgood.internal.ClassTestFilterProvider
 import failgood.internal.TestFilterProvider
 import failgood.internal.TestFixture
+import java.nio.file.Paths
+import java.util.LinkedList
 import org.junit.platform.engine.DiscoveryFilter
 import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.engine.EngineDiscoveryRequest
@@ -18,8 +20,6 @@ import org.junit.platform.engine.discovery.MethodSelector
 import org.junit.platform.engine.discovery.PackageNameFilter
 import org.junit.platform.engine.discovery.UniqueIdSelector
 import org.junit.platform.launcher.LauncherDiscoveryRequest
-import java.nio.file.Paths
-import java.util.LinkedList
 
 internal data class SuiteAndFilters(
     val suite: Suite,
@@ -35,65 +35,72 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
         val classNamePredicates =
             discoveryRequest.getFiltersByType(ClassNameFilter::class.java).map { it.toPredicate() }
         val packageNamePredicates =
-            discoveryRequest.getFiltersByType(PackageNameFilter::class.java).map { it.toPredicate() }
+            discoveryRequest.getFiltersByType(PackageNameFilter::class.java).map {
+                it.toPredicate()
+            }
         val allPredicates = classNamePredicates + packageNamePredicates
-        val contexts = allSelectors.flatMapTo(LinkedList()) { selector ->
-            when (selector) {
-                is ClasspathRootSelector -> {
-                    val uri = selector.classpathRoot
-                    FailGood.findClassesInPath(
-                        Paths.get(uri),
-                        Thread.currentThread().contextClassLoader,
-                        runTestFixtures = runTestFixtures
-
-                    ) { className -> allPredicates.all { it.test(className) } }.map {
-                        ObjectContextProvider(it)
+        val contexts =
+            allSelectors.flatMapTo(LinkedList()) { selector ->
+                when (selector) {
+                    is ClasspathRootSelector -> {
+                        val uri = selector.classpathRoot
+                        FailGood.findClassesInPath(
+                                Paths.get(uri),
+                                Thread.currentThread().contextClassLoader,
+                                runTestFixtures = runTestFixtures
+                            ) { className ->
+                                allPredicates.all { it.test(className) }
+                            }
+                            .map { ObjectContextProvider(it) }
                     }
-                }
-
-                is ClassSelector -> {
-                    if (selector.javaClass.isAnnotationPresent(Test::class.java) ||
-                        (runTestFixtures && selector.javaClass.isAnnotationPresent(TestFixture::class.java))
-                    )
-                        listOf(ObjectContextProvider(selector.javaClass.kotlin))
-                    else
+                    is ClassSelector -> {
+                        if (
+                            selector.javaClass.isAnnotationPresent(Test::class.java) ||
+                                (runTestFixtures &&
+                                    selector.javaClass.isAnnotationPresent(TestFixture::class.java))
+                        )
+                            listOf(ObjectContextProvider(selector.javaClass.kotlin))
+                        else listOf()
+                    }
+                    is UniqueIdSelector -> {
+                        val (className, filterString) = selector.toClassFilter()
+                        filterConfig[className] = filterString
+                        val classFromUniqueId =
+                            try {
+                                Thread.currentThread().contextClassLoader.loadClass(className)
+                            } catch (e: ClassNotFoundException) {
+                                throw FailGoodException(
+                                    "could not load class for uniqueId $selector",
+                                    e
+                                )
+                            }
+                        listOf(ObjectContextProvider(classFromUniqueId.kotlin))
+                    }
+                    is MethodSelector -> {
+                        val result =
+                            selector.javaMethod.invoke(
+                                ObjectContextProvider.instantiateClassOrObject(selector.javaClass)
+                            )
+                        if (result is Suite) {
+                            return SuiteAndFilters(result, null)
+                        }
                         listOf()
-                }
-
-                is UniqueIdSelector -> {
-                    val (className, filterString) = selector.toClassFilter()
-                    filterConfig[className] = filterString
-                    val classFromUniqueId = try {
-                        Thread.currentThread().contextClassLoader.loadClass(className)
-                    } catch (e: ClassNotFoundException) {
-                        throw FailGoodException("could not load class for uniqueId $selector", e)
                     }
-                    listOf(ObjectContextProvider(classFromUniqueId.kotlin))
-                }
-
-                is MethodSelector -> {
-                    val result =
-                        selector.javaMethod.invoke(ObjectContextProvider.instantiateClassOrObject(selector.javaClass))
-                    if (result is Suite) {
-                        return SuiteAndFilters(result, null)
-                    }
-                    listOf()
-                }
-
-                else -> {
-                    val message = "unknown selector in discovery request: ${
+                    else -> {
+                        val message =
+                            "unknown selector in discovery request: ${
                         discoveryRequestToString(discoveryRequest)
                     }"
-                    System.err.println(message)
-                    throw FailGoodException(message)
+                        System.err.println(message)
+                        throw FailGoodException(message)
+                    }
                 }
             }
-        }
-        return if (contexts.isEmpty())
-            null
+        return if (contexts.isEmpty()) null
         else
             SuiteAndFilters(
-                Suite(contexts), if (filterConfig.isEmpty()) null else ClassTestFilterProvider(filterConfig)
+                Suite(contexts),
+                if (filterConfig.isEmpty()) null else ClassTestFilterProvider(filterConfig)
             )
     }
 }
@@ -112,9 +119,10 @@ internal fun UniqueIdSelector.toClassFilter(): ClassFilter {
 internal fun discoveryRequestToString(discoveryRequest: EngineDiscoveryRequest): String {
     val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)
     val allFilters = discoveryRequest.getFiltersByType(DiscoveryFilter::class.java)
-    val allPostDiscoveryFilters = if (discoveryRequest is LauncherDiscoveryRequest)
-        discoveryRequest.postDiscoveryFilters.joinToString()
-    else "UNKNOWN (${discoveryRequest::class.java.name})"
+    val allPostDiscoveryFilters =
+        if (discoveryRequest is LauncherDiscoveryRequest)
+            discoveryRequest.postDiscoveryFilters.joinToString()
+        else "UNKNOWN (${discoveryRequest::class.java.name})"
     return "selectors:${allSelectors.joinToString()}\n" +
         "filters:${allFilters.joinToString()}\n" +
         "postDiscoveryFilters:$allPostDiscoveryFilters"

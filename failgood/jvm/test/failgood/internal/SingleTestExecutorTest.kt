@@ -38,22 +38,24 @@ class SingleTestExecutorTest {
                 it("executes a single test") {
                     val result =
                         SingleTestExecutor(
-                            ContextPath(rootContext, "test 1"),
-                            testDSL,
-                            resourceCloser,
-                            ctx
-                        ).execute()
+                                ContextPath(rootContext, "test 1"),
+                                testDSL,
+                                resourceCloser,
+                                ctx
+                            )
+                            .execute()
                     expectThat(events).containsExactly("root context", "test 1")
                     expectThat(result).isA<Success>()
                 }
                 it("executes a nested single test") {
                     val result =
                         SingleTestExecutor(
-                            ContextPath(context2, "test 3"),
-                            testDSL,
-                            resourceCloser,
-                            ctx
-                        ).execute()
+                                ContextPath(context2, "test 3"),
+                                testDSL,
+                                resourceCloser,
+                                ctx
+                            )
+                            .execute()
                     expectThat(events)
                         .containsExactly("root context", "context 1", "context 2", "test 3")
                     expectThat(result).isA<Success>()
@@ -77,27 +79,32 @@ class SingleTestExecutorTest {
             describe("error handling") {
                 it("reports exceptions in the context as test failures") {
                     val runtimeException = RuntimeException()
-                    val contextThatThrows = RootContext("root context") {
-                        throw runtimeException
-                    }
-                    val result = SingleTestExecutor(
-                        ContextPath(Context("root context", null), "test"),
-                        testDSL,
-                        resourceCloser, contextThatThrows.function
-                    ).execute()
+                    val contextThatThrows = RootContext("root context") { throw runtimeException }
+                    val result =
+                        SingleTestExecutor(
+                                ContextPath(Context("root context", null), "test"),
+                                testDSL,
+                                resourceCloser,
+                                contextThatThrows.function
+                            )
+                            .execute()
                     expectThat(result).isA<Failure>().get { failure }.isEqualTo(runtimeException)
                 }
                 it("reports exceptions in the autoclose lambda as test failures") {
                     val runtimeException = RuntimeException()
-                    val contextThatThrows = RootContext("root context") {
-                        autoClose("String") { throw runtimeException }
-                        it("test") {}
-                    }
-                    val result = SingleTestExecutor(
-                        ContextPath(Context("root context", null), "test"),
-                        testDSL,
-                        resourceCloser, contextThatThrows.function
-                    ).execute()
+                    val contextThatThrows =
+                        RootContext("root context") {
+                            autoClose("String") { throw runtimeException }
+                            it("test") {}
+                        }
+                    val result =
+                        SingleTestExecutor(
+                                ContextPath(Context("root context", null), "test"),
+                                testDSL,
+                                resourceCloser,
+                                contextThatThrows.function
+                            )
+                            .execute()
                     expectThat(result).isA<Failure>().get { failure }.isEqualTo(runtimeException)
                 }
             }

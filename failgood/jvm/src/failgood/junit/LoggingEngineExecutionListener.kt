@@ -5,9 +5,10 @@ import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.reporting.ReportEntry
 
-class LoggingEngineExecutionListener(private val delegate: EngineExecutionListener) : EngineExecutionListener {
-    @Suppress("MemberVisibilityCanBePrivate")
-    val events = mutableListOf<String>()
+class LoggingEngineExecutionListener(private val delegate: EngineExecutionListener) :
+    EngineExecutionListener {
+    @Suppress("MemberVisibilityCanBePrivate") val events = mutableListOf<String>()
+
     private fun event(s: String) {
         events.add(s)
     }
@@ -26,7 +27,10 @@ class LoggingEngineExecutionListener(private val delegate: EngineExecutionListen
         }
     }
 
-    override fun executionFinished(testDescriptor: TestDescriptor?, testExecutionResult: TestExecutionResult?) {
+    override fun executionFinished(
+        testDescriptor: TestDescriptor?,
+        testExecutionResult: TestExecutionResult?
+    ) {
         synchronized(this) {
             event("executionFinished " + name(testDescriptor) + ": " + testExecutionResult)
             delegate.executionFinished(testDescriptor, testExecutionResult)
@@ -46,5 +50,7 @@ class LoggingEngineExecutionListener(private val delegate: EngineExecutionListen
             delegate.reportingEntryPublished(testDescriptor, entry)
         }
     }
-    private fun name(testDescriptor: TestDescriptor?) = "${testDescriptor!!.displayName}(${testDescriptor.uniqueId})"
+
+    private fun name(testDescriptor: TestDescriptor?) =
+        "${testDescriptor!!.displayName}(${testDescriptor.uniqueId})"
 }

@@ -12,7 +12,8 @@ data class TestPlusResult(val test: TestDescription, val result: TestResult) {
         val testDescription = test.toString()
         return when (result) {
             is Failure -> {
-                val exceptionInfo = ExceptionPrettyPrinter(result.failure, test.sourceInfo).prettyPrint()
+                val exceptionInfo =
+                    ExceptionPrettyPrinter(result.failure, test.sourceInfo).prettyPrint()
 
                 "$testDescription:${Colors.RED} failed${Colors.RESET} with $exceptionInfo.\ntest: ${test.sourceInfo}"
             }

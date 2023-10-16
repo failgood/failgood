@@ -57,11 +57,11 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
                 .filter {
                     it.returnType == RootContext::class.java ||
                         it.returnType == List::class.java &&
-                        it.genericReturnType.let { genericReturnType ->
-                            genericReturnType is ParameterizedType &&
-                                genericReturnType.actualTypeArguments.singleOrNull() ==
-                                RootContext::class.java
-                        }
+                            it.genericReturnType.let { genericReturnType ->
+                                genericReturnType is ParameterizedType &&
+                                    genericReturnType.actualTypeArguments.singleOrNull() ==
+                                        RootContext::class.java
+                            }
                 }
                 .ifEmpty {
                     throw ErrorLoadingContextsFromClass("no contexts found in class", jClass.kotlin)
@@ -83,8 +83,8 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
                 }
             val obj =
                 if (instanceField != null)
-                    // its a kotlin object
-                    instanceField.get(null)
+                // its a kotlin object
+                instanceField.get(null)
                 else {
                     // it's a kotlin class or a top level context
                     clazz.constructors.singleOrNull()?.newInstance()

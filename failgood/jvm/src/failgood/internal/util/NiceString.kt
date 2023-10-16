@@ -10,15 +10,10 @@ internal fun KType.niceString(): String {
             append((kt.classifier as KClass<*>).simpleName)
             if (kt.arguments.isNotEmpty()) {
                 append(
-                    kt.arguments.joinToString(
-                        prefix = "<",
-                        postfix = ">"
-                    ) {
-                        (
-                            with(it.type) {
-                                if (this == null) "*" else (this.classifier as KClass<*>).simpleName!!
-                            }
-                            )
+                    kt.arguments.joinToString(prefix = "<", postfix = ">") {
+                        (with(it.type) {
+                            if (this == null) "*" else (this.classifier as KClass<*>).simpleName!!
+                        })
                     }
                 )
             }

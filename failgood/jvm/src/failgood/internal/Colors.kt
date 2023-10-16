@@ -5,8 +5,7 @@ import failgood.internal.sysinfo.isRunningOnWindows
 internal object Colors {
     private val isWindows = isRunningOnWindows()
 
-    @Suppress("MemberVisibilityCanBePrivate")
-    internal const val GREEN = "\u001B[32m"
+    @Suppress("MemberVisibilityCanBePrivate") internal const val GREEN = "\u001B[32m"
     internal const val RED = "\u001B[31m"
     internal const val YELLOW = "\u001B[33m"
     internal const val RESET = "\u001B[0m"

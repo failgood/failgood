@@ -21,23 +21,31 @@ internal class ContextVisitor<GivenType>(
     private val given: suspend () -> GivenType,
     private val resourcesCloser: ResourcesCloser,
     private val executeAll: Boolean = false,
-    // indicate that this context was already executed once, so we already know about all of its tests.
+    // indicate that this context was already executed once, so we already know about all of its
+    // tests.
     // there is no need to check tests, just go into sub contexts
     private val onlyRunSubcontexts: Boolean,
     private val rootContextStartTime: Long
 ) : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
     private val isolation = context.isolation
-    private val namesInThisContext = mutableSetOf<String>() // test and context names to detect duplicates
+    private val namesInThisContext =
+        mutableSetOf<String>() // test and context names to detect duplicates
 
     // we only run the first new test that we find here. the remaining tests of the context
     // run with the SingleTestExecutor.
     private var ranATest = false
     var contextsLeft = false // are there sub contexts left to run?
-    private var mutable = true // we allow changes only to the current context to catch errors in the context structure
+    private var mutable =
+        true // we allow changes only to the current context to catch errors in the context
+    // structure
 
-    override suspend fun it(name: String, tags: Set<String>, ignored: Ignored?, function: TestLambda<GivenType>) {
-        if (onlyRunSubcontexts)
-            return
+    override suspend fun it(
+        name: String,
+        tags: Set<String>,
+        ignored: Ignored?,
+        function: TestLambda<GivenType>
+    ) {
+        if (onlyRunSubcontexts) return
 
         val ignoreReason = ignored?.isIgnored()
         if (ignoreReason != null) {
@@ -45,24 +53,22 @@ internal class ContextVisitor<GivenType>(
             val testPath = ContextPath(context, name)
             if (staticConfig.testFilter.shouldRun(testPath)) {
                 if (contextStateCollector.finishedPaths.add(testPath)) {
-                    val testDescriptor =
-                        TestDescription(context, name, sourceInfo())
+                    val testDescriptor = TestDescription(context, name, sourceInfo())
                     val result = Skipped(ignoreReason)
 
                     staticConfig.listener.testDiscovered(testDescriptor)
                     val testPlusResult = TestPlusResult(testDescriptor, result)
-                    contextStateCollector.deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
+                    contextStateCollector.deferredTestResults[testDescriptor] =
+                        CompletableDeferred(testPlusResult)
                     staticConfig.listener.testFinished(testPlusResult)
                 }
             }
             return
         }
         checkForDuplicateName(name)
-        if (!shouldRun(tags))
-            return
+        if (!shouldRun(tags)) return
         val testPath = ContextPath(context, name)
-        if (!staticConfig.testFilter.shouldRun(testPath))
-            return
+        if (!staticConfig.testFilter.shouldRun(testPath)) return
         // we process each test only once
         if (!contextStateCollector.finishedPaths.add(testPath)) {
             return
@@ -97,19 +103,16 @@ internal class ContextVisitor<GivenType>(
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
     ) {
         checkForDuplicateName(name)
-        if (!shouldRun(tags))
-            return
+        if (!shouldRun(tags)) return
 
         val contextPath = ContextPath(context, name)
-        if (!staticConfig.testFilter.shouldRun(contextPath))
-            return
+        if (!staticConfig.testFilter.shouldRun(contextPath)) return
 
         // if we already ran a test in this context we don't need to visit the child context now
         if (this.isolation && ranATest) {
             // but we need to run the root context again to visit this child context
             contextsLeft = true
-            if (onlyRunSubcontexts)
-                throw ContextFinished()
+            if (onlyRunSubcontexts) throw ContextFinished()
             return
         }
 
@@ -121,9 +124,11 @@ internal class ContextVisitor<GivenType>(
         staticConfig.listener.contextDiscovered(context)
         if (ignoreReason != null) {
             // we report an ignored context as a context with one ignored test.
-            val testDescriptor = TestDescription(context, "context ignored because $ignoreReason", sourceInfo)
+            val testDescriptor =
+                TestDescription(context, "context ignored because $ignoreReason", sourceInfo)
             val testPlusResult = TestPlusResult(testDescriptor, Skipped(ignoreReason))
-            contextStateCollector.deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
+            contextStateCollector.deferredTestResults[testDescriptor] =
+                CompletableDeferred(testPlusResult)
             staticConfig.listener.testDiscovered(testDescriptor)
             staticConfig.listener.testFinished(testPlusResult)
 
@@ -132,11 +137,12 @@ internal class ContextVisitor<GivenType>(
             contextStateCollector.foundContexts.add(context)
             return
         }
-        if (isolation == false)
-            contextStateCollector.containsContextsWithoutIsolation = true
+        if (isolation == false) contextStateCollector.containsContextsWithoutIsolation = true
         if (isolation == true && !this.isolation) {
             contextStateCollector.recordContextAsFailed(
-                context, sourceInfo, contextPath,
+                context,
+                sourceInfo,
+                contextPath,
                 FailGoodException("in a context without isolation it can not be turned on again")
             )
             return
@@ -157,12 +163,16 @@ internal class ContextVisitor<GivenType>(
             visitor.mutable = true
             visitor.contextLambda()
             contextStateCollector.investigatedContexts.add(context)
-        } catch (_: ContextFinished) {
-        } catch (exceptionInContext: ImmutableContextException) {
+        } catch (_: ContextFinished) {} catch (exceptionInContext: ImmutableContextException) {
             // this is fatal, and we treat the whole root context as failed, so we just rethrow
             throw exceptionInContext
         } catch (exceptionInContext: Throwable) {
-            contextStateCollector.recordContextAsFailed(context, sourceInfo, contextPath, exceptionInContext)
+            contextStateCollector.recordContextAsFailed(
+                context,
+                sourceInfo,
+                contextPath,
+                exceptionInContext
+            )
             ranATest = true
             return
         } finally {
@@ -184,7 +194,9 @@ internal class ContextVisitor<GivenType>(
 
     private fun checkForDuplicateName(name: String) {
         if (!namesInThisContext.add(name))
-            throw DuplicateNameInContextException("duplicate name \"$name\" in context \"${context.name}\"")
+            throw DuplicateNameInContextException(
+                "duplicate name \"$name\" in context \"${context.name}\""
+            )
         if (!mutable) {
             throw ImmutableContextException(
                 "Trying to create a test in the wrong context. " +
@@ -194,7 +206,6 @@ internal class ContextVisitor<GivenType>(
     }
 
     override fun afterSuite(function: suspend () -> Unit) {
-        if (!onlyRunSubcontexts)
-            contextStateCollector.afterSuiteCallbacks.add(function)
+        if (!onlyRunSubcontexts) contextStateCollector.afterSuiteCallbacks.add(function)
     }
 }

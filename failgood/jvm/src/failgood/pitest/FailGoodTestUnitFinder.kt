@@ -18,17 +18,25 @@ import org.pitest.testapi.*
 
 object FailGoodTestUnitFinder : TestUnitFinder {
     @OptIn(DelicateCoroutinesApi::class)
-    override fun findTestUnits(clazz: Class<*>, listener: TestUnitExecutionListener?): List<TestUnit> {
-        val contexts = try {
-            ObjectContextProvider(clazz).getContexts()
-        } catch (e: ExceptionInInitializerError) {
-            return listOf()
-        } catch (e: Exception) {
-            return listOf()
-        }
-        val tests = runBlocking {
-            Suite(listOf(ContextProvider { contexts })).findTests(GlobalScope, false).awaitAll()
-        }.filterIsInstance<ContextInfo>()
+    override fun findTestUnits(
+        clazz: Class<*>,
+        listener: TestUnitExecutionListener?
+    ): List<TestUnit> {
+        val contexts =
+            try {
+                ObjectContextProvider(clazz).getContexts()
+            } catch (e: ExceptionInInitializerError) {
+                return listOf()
+            } catch (e: Exception) {
+                return listOf()
+            }
+        val tests =
+            runBlocking {
+                    Suite(listOf(ContextProvider { contexts }))
+                        .findTests(GlobalScope, false)
+                        .awaitAll()
+                }
+                .filterIsInstance<ContextInfo>()
         return tests.flatMap { it.tests.entries }.map { FailGoodTestUnit(it.key, it.value, clazz) }
     }
 

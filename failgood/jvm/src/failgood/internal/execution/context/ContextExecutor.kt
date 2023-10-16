@@ -93,8 +93,7 @@ fun sourceInfo(): SourceInfo {
                 fileName.endsWith("ContextVisitor.kt") ||
                     fileName.endsWith("ContextExecutor.kt") ||
                     fileName.endsWith("ContextDSL.kt")
-            }
-                ?: true)
+            } ?: true)
         }
     return first.let { SourceInfo(it.className, it.fileName!!, it.lineNumber) }
 }

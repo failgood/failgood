@@ -38,8 +38,7 @@ internal class LoadResults(private val loadResults: List<LoadResult>) {
                     val testFilter =
                         loadResult.context.sourceInfo?.className?.let {
                             executionFilter.forClass(it)
-                        }
-                            ?: ExecuteAllTests
+                        } ?: ExecuteAllTests
                     coroutineScope.async {
                         if (loadResult.ignored?.isIgnored() == null) {
                             ContextExecutor(

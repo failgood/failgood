@@ -12,7 +12,7 @@ plugins {
     id("com.diffplug.spotless")
 }
 
-spotless { kotlin { ktfmt("0.44").kotlinlangStyle() } }
+spotless { kotlin { ktfmt("0.46").kotlinlangStyle() } }
 
 dependencies {
     testImplementation(project(":failgood"))

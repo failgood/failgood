@@ -48,7 +48,8 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
             return when (timeout) {
                 null -> DEFAULT_TIMEOUT
                 "" -> Long.MAX_VALUE
-                else -> timeout.toLongOrNull()
+                else ->
+                    timeout.toLongOrNull()
                         ?: throw FailGoodException("TIMEOUT must be a number or an empty string")
             }
         }

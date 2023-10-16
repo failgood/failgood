@@ -9,8 +9,10 @@ import info.solidsoft.gradle.pitest.PitestPluginExtension
 plugins {
     kotlin("jvm")
     id("info.solidsoft.pitest")
-    id("org.jmailen.kotlinter")
+    id("com.diffplug.spotless")
 }
+
+spotless { kotlin { ktfmt("0.44").kotlinlangStyle() } }
 
 dependencies {
     testImplementation(project(":failgood"))

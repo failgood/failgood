@@ -14,8 +14,11 @@ import failgood.internal.LoadResults
 import failgood.internal.SuiteExecutionContext
 import failgood.junit.ContextFinder
 import failgood.junit.FailGoodJunitTestEngineConstants
+import failgood.junit.FailureLogger
+import failgood.junit.FailureLoggingEngineExecutionListener
 import failgood.junit.LoggingEngineExecutionListener
 import failgood.junit.TestMapper
+import failgood.junit.niceString
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
@@ -31,10 +34,13 @@ import org.junit.platform.engine.support.descriptor.EngineDescriptor
 class NewJunitEngine : TestEngine {
     override fun getId(): String = "failgood-new"
 
+    private val failureLogger = FailureLogger()
+
     override fun discover(
         discoveryRequest: EngineDiscoveryRequest,
         uniqueId: UniqueId
     ): TestDescriptor {
+        failureLogger.add("discoveryRequest", discoveryRequest.niceString())
         val suiteExecutionContext = SuiteExecutionContext()
 
         val runTestFixtures =
@@ -57,7 +63,11 @@ class NewJunitEngine : TestEngine {
 
         val root = request.rootTestDescriptor
         if (root !is FailGoodEngineDescriptor) return
-        val listener = LoggingEngineExecutionListener(request.engineExecutionListener)
+        val listener =
+            FailureLoggingEngineExecutionListener(
+                LoggingEngineExecutionListener(request.engineExecutionListener),
+                failureLogger
+            )
         listener.executionStarted(root)
         try {
             val testMapper = TestMapper()

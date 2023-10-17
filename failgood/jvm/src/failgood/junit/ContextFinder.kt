@@ -89,7 +89,7 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
                     else -> {
                         val message =
                             "unknown selector in discovery request: ${
-                        discoveryRequestToString(discoveryRequest)
+                                discoveryRequest.niceString()
                     }"
                         System.err.println(message)
                         throw FailGoodException(message)
@@ -116,13 +116,12 @@ internal fun UniqueIdSelector.toClassFilter(): ClassFilter {
     return ClassFilter(className, filterString)
 }
 
-internal fun discoveryRequestToString(discoveryRequest: EngineDiscoveryRequest): String {
-    val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)
-    val allFilters = discoveryRequest.getFiltersByType(DiscoveryFilter::class.java)
+internal fun EngineDiscoveryRequest.niceString(): String {
+    val allSelectors = getSelectorsByType(DiscoverySelector::class.java)
+    val allFilters = getFiltersByType(DiscoveryFilter::class.java)
     val allPostDiscoveryFilters =
-        if (discoveryRequest is LauncherDiscoveryRequest)
-            discoveryRequest.postDiscoveryFilters.joinToString()
-        else "UNKNOWN (${discoveryRequest::class.java.name})"
+        if (this is LauncherDiscoveryRequest) postDiscoveryFilters.joinToString()
+        else "UNKNOWN (${this::class.java.name})"
     return "selectors:${allSelectors.joinToString()}\n" +
         "filters:${allFilters.joinToString()}\n" +
         "postDiscoveryFilters:$allPostDiscoveryFilters"

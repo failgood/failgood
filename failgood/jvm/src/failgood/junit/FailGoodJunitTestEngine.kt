@@ -46,8 +46,7 @@ class FailGoodJunitTestEngine : TestEngine {
 
         debug = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_DEBUG).orElse(false)
 
-        val discoveryRequestToString = discoveryRequestToString(discoveryRequest)
-        failureLogger.add("discovery request", discoveryRequestToString)
+        failureLogger.add("discovery request", discoveryRequest.niceString())
 
         try {
             val executionListener = ChannelExecutionListener()

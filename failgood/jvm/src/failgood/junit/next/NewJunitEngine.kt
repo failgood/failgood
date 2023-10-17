@@ -13,12 +13,14 @@ import failgood.awaitTestResults
 import failgood.internal.LoadResults
 import failgood.internal.SuiteExecutionContext
 import failgood.junit.ContextFinder
+import failgood.junit.DEBUG_TXT_FILENAME
 import failgood.junit.FailGoodJunitTestEngineConstants
 import failgood.junit.FailureLogger
 import failgood.junit.FailureLoggingEngineExecutionListener
 import failgood.junit.LoggingEngineExecutionListener
 import failgood.junit.TestMapper
 import failgood.junit.niceString
+import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
@@ -34,12 +36,18 @@ import org.junit.platform.engine.support.descriptor.EngineDescriptor
 class NewJunitEngine : TestEngine {
     override fun getId(): String = "failgood-new"
 
+    private var debug: Boolean = false
     private val failureLogger = FailureLogger()
 
     override fun discover(
         discoveryRequest: EngineDiscoveryRequest,
         uniqueId: UniqueId
     ): TestDescriptor {
+        debug =
+            discoveryRequest.configurationParameters
+                .getBoolean(FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG)
+                .orElse(false)
+
         failureLogger.add("discoveryRequest", discoveryRequest.niceString())
         val suiteExecutionContext = SuiteExecutionContext()
 
@@ -63,11 +71,10 @@ class NewJunitEngine : TestEngine {
 
         val root = request.rootTestDescriptor
         if (root !is FailGoodEngineDescriptor) return
+        val loggingEngineExecutionListener =
+            LoggingEngineExecutionListener(request.engineExecutionListener)
         val listener =
-            FailureLoggingEngineExecutionListener(
-                LoggingEngineExecutionListener(request.engineExecutionListener),
-                failureLogger
-            )
+            FailureLoggingEngineExecutionListener(loggingEngineExecutionListener, failureLogger)
         listener.executionStarted(root)
         try {
             val testMapper = TestMapper()
@@ -106,8 +113,15 @@ class NewJunitEngine : TestEngine {
                 )
             }
             listener.executionFinished(root, TestExecutionResult.successful())
+            failureLogger
         } catch (e: Exception) {
-            e.printStackTrace()
+            failureLogger.add("events", loggingEngineExecutionListener.events.toString())
+            failureLogger.fail(e)
+        } finally {
+            if (debug) {
+                failureLogger.add("events", loggingEngineExecutionListener.events.toString())
+                File(DEBUG_TXT_FILENAME).writeText(failureLogger.envString())
+            }
         }
     }
 

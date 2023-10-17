@@ -28,7 +28,7 @@ const val TEST_SEGMENT_TYPE = "method"
 // an optional watchdog that throws an exception when failgood hangs or takes too long
 private val watchdogMillis = getenv("FAILGOOD_WATCHDOG_MILLIS")?.toLong()
 
-private const val DEBUG_TXT_FILENAME = "failgood.debug.txt"
+internal val DEBUG_TXT_FILENAME = "failgood.debug.txt"
 
 class FailGoodJunitTestEngine : TestEngine {
     private var debug: Boolean = false

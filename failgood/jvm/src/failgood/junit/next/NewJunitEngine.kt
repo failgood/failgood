@@ -10,7 +10,6 @@ import failgood.TestContainer
 import failgood.TestDescription
 import failgood.TestPlusResult
 import failgood.awaitTestResults
-import failgood.internal.LoadResults
 import failgood.internal.SuiteExecutionContext
 import failgood.junit.ContextFinder
 import failgood.junit.FailGoodJunitTestEngineConstants
@@ -18,6 +17,7 @@ import failgood.junit.FailGoodJunitTestEngineConstants.DEBUG_TXT_FILENAME
 import failgood.junit.FailureLogger
 import failgood.junit.FailureLoggingEngineExecutionListener
 import failgood.junit.LoggingEngineExecutionListener
+import failgood.junit.SuiteAndFilters
 import failgood.junit.TestMapper
 import failgood.junit.niceString
 import java.io.File
@@ -49,28 +49,28 @@ class NewJunitEngine : TestEngine {
                 .orElse(false)
 
         failureLogger.add("discoveryRequest", discoveryRequest.niceString())
-        val suiteExecutionContext = SuiteExecutionContext()
 
         val runTestFixtures =
             discoveryRequest.configurationParameters
                 .getBoolean(FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES)
                 .orElse(false)
-        val suiteAndFilters = ContextFinder(runTestFixtures).findContexts(discoveryRequest)
-        suiteAndFilters
-            ?: return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.DISPLAY_NAME)
-        val loadResults =
-            runBlocking(suiteExecutionContext.coroutineDispatcher) {
-                suiteAndFilters.suite.getRootContexts(suiteExecutionContext.scope)
-            }
+        val suiteAndFilters =
+            ContextFinder(runTestFixtures).findContexts(discoveryRequest)
+                ?: return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.DISPLAY_NAME)
 
-        return FailGoodEngineDescriptor(uniqueId, id, loadResults, suiteExecutionContext)
+        return FailGoodEngineDescriptor(uniqueId, id, suiteAndFilters)
     }
 
     override fun execute(request: ExecutionRequest) {
-        val startedContexts = ConcurrentHashMap.newKeySet<TestContainer>()
-
         val root = request.rootTestDescriptor
         if (root !is FailGoodEngineDescriptor) return
+        val startedContexts = ConcurrentHashMap.newKeySet<TestContainer>()
+        val suiteExecutionContext = SuiteExecutionContext()
+        val loadResults =
+            runBlocking(suiteExecutionContext.coroutineDispatcher) {
+                root.suiteAndFilters.suite.getRootContexts(suiteExecutionContext.scope)
+            }
+
         val loggingEngineExecutionListener =
             LoggingEngineExecutionListener(request.engineExecutionListener)
         val listener =
@@ -79,11 +79,11 @@ class NewJunitEngine : TestEngine {
         try {
             val testMapper = TestMapper()
             val results =
-                runBlocking(root.suiteExecutionContext.coroutineDispatcher) {
+                runBlocking(suiteExecutionContext.coroutineDispatcher) {
                     val r =
-                        root.loadResults
+                        loadResults
                             .investigate(
-                                root.suiteExecutionContext.scope,
+                                suiteExecutionContext.scope,
                                 listener =
                                     NewExecutionListener(
                                         root,
@@ -128,8 +128,7 @@ class NewJunitEngine : TestEngine {
     internal class FailGoodEngineDescriptor(
         uniqueId: UniqueId?,
         displayName: String?,
-        val loadResults: LoadResults,
-        val suiteExecutionContext: SuiteExecutionContext
+        val suiteAndFilters: SuiteAndFilters
     ) : EngineDescriptor(uniqueId, displayName)
 }
 

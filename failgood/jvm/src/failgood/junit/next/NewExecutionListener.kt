@@ -21,36 +21,46 @@ internal class NewExecutionListener(
     private val testMapper: TestMapper
 ) : ExecutionListener {
     override suspend fun testDiscovered(testDescription: TestDescription) {
-        val parent = testMapper.getMapping(testDescription.container)
-        val node = TestPlanNode.Test(testDescription.testName)
-        val descriptor = DynamicTestDescriptor(node, parent)
-        testMapper.addMapping(testDescription, descriptor)
-
-        listener.dynamicTestRegistered(descriptor)
+        /*
+        Every event handler in this class is synchronized for now because we must make sure that
+        events have the correct order.
+        When everything is feature complete and stable we can see if we should optimize this.
+        */
+        synchronized(this) {
+            val parent = testMapper.getMapping(testDescription.container)
+            val node = TestPlanNode.Test(testDescription.testName)
+            val descriptor = DynamicTestDescriptor(node, parent)
+            testMapper.addMapping(testDescription, descriptor)
+            listener.dynamicTestRegistered(descriptor)
+        }
     }
 
     override suspend fun contextDiscovered(context: Context) {
-        val node = TestPlanNode.Container(context.name)
-        val descriptor =
-            if (context.parent == null) {
-                DynamicTestDescriptor(
-                    node,
-                    root,
-                    "${context.name}(${(context.sourceInfo?.className) ?: ""})"
-                )
-            } else {
-                DynamicTestDescriptor(node, testMapper.getMapping(context.parent))
-            }
-        testMapper.addMapping(context, descriptor)
-        listener.dynamicTestRegistered(descriptor)
+        synchronized(this) {
+            val node = TestPlanNode.Container(context.name)
+            val descriptor =
+                if (context.parent == null) {
+                    DynamicTestDescriptor(
+                        node,
+                        root,
+                        "${context.name}(${(context.sourceInfo?.className) ?: ""})"
+                    )
+                } else {
+                    DynamicTestDescriptor(node, testMapper.getMapping(context.parent))
+                }
+            testMapper.addMapping(context, descriptor)
+            listener.dynamicTestRegistered(descriptor)
+        }
     }
 
     override suspend fun testStarted(testDescription: TestDescription) {
-        val descriptor =
-            testMapper.getMappingOrNull(testDescription)
-                ?: throw FailGoodException("mapping for $testDescription not found")
-        startParentContexts(testDescription)
-        listener.executionStarted(descriptor)
+        synchronized(this) {
+            val descriptor =
+                testMapper.getMappingOrNull(testDescription)
+                    ?: throw FailGoodException("mapping for $testDescription not found")
+            startParentContexts(testDescription)
+            listener.executionStarted(descriptor)
+        }
     }
 
     private fun startParentContexts(testDescription: TestDescription) {
@@ -63,23 +73,25 @@ internal class NewExecutionListener(
     }
 
     override suspend fun testFinished(testPlusResult: TestPlusResult) {
-        val testDescription = testPlusResult.test
-        val descriptor = testMapper.getMapping(testDescription)
-        when (testPlusResult.result) {
-            is Failure ->
-                listener.executionFinished(
-                    descriptor,
-                    TestExecutionResult.failed(testPlusResult.result.failure)
-                )
-
-            is Skipped -> {
-                // for skipped tests testStarted is not called, so we have to start parent contexts
-                // here.
-                startParentContexts(testDescription)
-                listener.executionSkipped(descriptor, testPlusResult.result.reason)
+        synchronized(this) {
+            val testDescription = testPlusResult.test
+            val descriptor = testMapper.getMapping(testDescription)
+            when (testPlusResult.result) {
+                is Failure ->
+                    listener.executionFinished(
+                        descriptor,
+                        TestExecutionResult.failed(testPlusResult.result.failure)
+                    )
+                is Skipped -> {
+                    // for skipped tests testStarted is not called, so we have to start parent
+                    // contexts
+                    // here.
+                    startParentContexts(testDescription)
+                    listener.executionSkipped(descriptor, testPlusResult.result.reason)
+                }
+                is Success ->
+                    listener.executionFinished(descriptor, TestExecutionResult.successful())
             }
-
-            is Success -> listener.executionFinished(descriptor, TestExecutionResult.successful())
         }
     }
 
@@ -88,6 +100,9 @@ internal class NewExecutionListener(
         type: String,
         payload: String
     ) {
-        listener.reportingEntryPublished(testMapper.getMapping(testDescription), ReportEntry.from(type, payload))
+        listener.reportingEntryPublished(
+            testMapper.getMapping(testDescription),
+            ReportEntry.from(type, payload)
+        )
     }
 }

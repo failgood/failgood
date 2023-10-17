@@ -12,6 +12,8 @@ import failgood.junit.LoggingEngineExecutionListener
 import failgood.junit.SuiteAndFilters
 import failgood.junit.TestMapper
 import failgood.junit.niceString
+import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.junit.platform.engine.EngineDiscoveryRequest
@@ -21,8 +23,6 @@ import org.junit.platform.engine.TestEngine
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
-import java.io.File
-import java.util.concurrent.ConcurrentHashMap
 
 class NewJunitEngine : TestEngine {
     override fun getId(): String = "failgood-new"
@@ -106,11 +106,11 @@ class NewJunitEngine : TestEngine {
             listener.executionFinished(root, TestExecutionResult.successful())
             failureLogger
         } catch (e: Exception) {
-            failureLogger.add("events", loggingEngineExecutionListener.events.toString())
+            failureLogger.add("events", loggingEngineExecutionListener.eventsString())
             failureLogger.fail(e)
         } finally {
             if (debug) {
-                failureLogger.add("events", loggingEngineExecutionListener.events.toString())
+                failureLogger.add("events", loggingEngineExecutionListener.eventsString())
                 File(DEBUG_TXT_FILENAME).writeText(failureLogger.envString())
             }
         }
@@ -122,4 +122,3 @@ class NewJunitEngine : TestEngine {
         val suiteAndFilters: SuiteAndFilters
     ) : EngineDescriptor(uniqueId, displayName)
 }
-

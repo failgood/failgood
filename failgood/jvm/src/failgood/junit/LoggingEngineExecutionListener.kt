@@ -9,20 +9,22 @@ class LoggingEngineExecutionListener(private val delegate: EngineExecutionListen
     EngineExecutionListener {
     @Suppress("MemberVisibilityCanBePrivate") val events = mutableListOf<String>()
 
+    fun eventsString() = events.joinToString("\n")
+
     private fun event(s: String) {
         events.add(s)
     }
 
     override fun executionSkipped(testDescriptor: TestDescriptor?, reason: String?) {
         synchronized(this) {
-            event("executionSkipped " + name(testDescriptor))
+            event("executionSkipped:" + name(testDescriptor))
             delegate.executionSkipped(testDescriptor, reason)
         }
     }
 
     override fun executionStarted(testDescriptor: TestDescriptor?) {
         synchronized(this) {
-            event("executionStarted " + name(testDescriptor))
+            event("executionStarted:" + name(testDescriptor))
             delegate.executionStarted(testDescriptor)
         }
     }
@@ -32,21 +34,21 @@ class LoggingEngineExecutionListener(private val delegate: EngineExecutionListen
         testExecutionResult: TestExecutionResult?
     ) {
         synchronized(this) {
-            event("executionFinished " + name(testDescriptor) + ": " + testExecutionResult)
+            event("executionFinished:" + name(testDescriptor) + ": " + testExecutionResult)
             delegate.executionFinished(testDescriptor, testExecutionResult)
         }
     }
 
     override fun dynamicTestRegistered(testDescriptor: TestDescriptor?) {
         synchronized(this) {
-            event("dynamicTestRegistered " + name(testDescriptor))
+            event("dynamicTestRegistered:" + name(testDescriptor))
             delegate.dynamicTestRegistered(testDescriptor)
         }
     }
 
     override fun reportingEntryPublished(testDescriptor: TestDescriptor?, entry: ReportEntry?) {
         synchronized(this) {
-            event("reportingEntryPublished" + name(testDescriptor) + entry)
+            event("reportingEntryPublished:" + name(testDescriptor) + entry)
             delegate.reportingEntryPublished(testDescriptor, entry)
         }
     }

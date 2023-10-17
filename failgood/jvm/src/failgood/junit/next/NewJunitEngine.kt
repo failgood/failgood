@@ -2,6 +2,7 @@ package failgood.junit.next
 
 import failgood.TestContainer
 import failgood.awaitTestResults
+import failgood.internal.ExecuteAllTestFilterProvider
 import failgood.internal.SuiteExecutionContext
 import failgood.junit.ContextFinder
 import failgood.junit.FailGoodJunitTestEngineConstants
@@ -75,13 +76,9 @@ class NewJunitEngine : TestEngine {
                         loadResults
                             .investigate(
                                 suiteExecutionContext.scope,
-                                listener =
-                                    NewExecutionListener(
-                                        root,
-                                        listener,
-                                        startedContexts,
-                                        testMapper
-                                    )
+                                true,
+                                root.suiteAndFilters.filter ?: ExecuteAllTestFilterProvider,
+                                NewExecutionListener(root, listener, startedContexts, testMapper)
                             )
                             .awaitAll()
                     awaitTestResults(r)

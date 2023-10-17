@@ -1,6 +1,12 @@
 package failgood.junit
 
-import failgood.*
+import failgood.FailGoodException
+import failgood.Failure
+import failgood.Skipped
+import failgood.Success
+import failgood.TestContainer
+import failgood.TestDescription
+import failgood.awaitTestResults
 import failgood.internal.ExecuteAllTestFilterProvider
 import failgood.internal.StaticTestFilterProvider
 import failgood.internal.StringListTestFilter
@@ -10,14 +16,25 @@ import failgood.internal.sysinfo.uptime
 import failgood.internal.util.getenv
 import failgood.junit.ChannelExecutionListener.TestExecutionEvent
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
+import failgood.junit.FailGoodJunitTestEngineConstants.DEBUG_TXT_FILENAME
 import failgood.junit.FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES
 import java.io.File
-import java.util.*
+import java.util.Timer
 import kotlin.concurrent.schedule
 import kotlin.system.exitProcess
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.consumeEach
-import org.junit.platform.engine.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import org.junit.platform.engine.EngineDiscoveryRequest
+import org.junit.platform.engine.ExecutionRequest
+import org.junit.platform.engine.TestDescriptor
+import org.junit.platform.engine.TestEngine
+import org.junit.platform.engine.TestExecutionResult
+import org.junit.platform.engine.TestSource
+import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.reporting.ReportEntry
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
@@ -27,8 +44,6 @@ const val TEST_SEGMENT_TYPE = "method"
 
 // an optional watchdog that throws an exception when failgood hangs or takes too long
 private val watchdogMillis = getenv("FAILGOOD_WATCHDOG_MILLIS")?.toLong()
-
-internal val DEBUG_TXT_FILENAME = "failgood.debug.txt"
 
 class FailGoodJunitTestEngine : TestEngine {
     private var debug: Boolean = false

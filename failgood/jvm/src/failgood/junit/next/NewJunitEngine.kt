@@ -13,8 +13,8 @@ import failgood.awaitTestResults
 import failgood.internal.LoadResults
 import failgood.internal.SuiteExecutionContext
 import failgood.junit.ContextFinder
-import failgood.junit.DEBUG_TXT_FILENAME
 import failgood.junit.FailGoodJunitTestEngineConstants
+import failgood.junit.FailGoodJunitTestEngineConstants.DEBUG_TXT_FILENAME
 import failgood.junit.FailureLogger
 import failgood.junit.FailureLoggingEngineExecutionListener
 import failgood.junit.LoggingEngineExecutionListener

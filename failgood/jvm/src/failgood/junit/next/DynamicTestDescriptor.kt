@@ -11,7 +11,8 @@ import org.junit.platform.engine.UniqueId
 class DynamicTestDescriptor(
     private val node: TestPlanNode,
     private val parent: TestDescriptor,
-    val path: String = node.name
+    path: String = node.name,
+    val source: TestSource? = null
 ) : TestDescriptor {
     private val p = parent.uniqueId
     private val uniqueId =
@@ -27,7 +28,7 @@ class DynamicTestDescriptor(
 
     override fun getTags(): MutableSet<TestTag> = mutableSetOf()
 
-    override fun getSource(): Optional<TestSource> = Optional.empty()
+    override fun getSource(): Optional<TestSource> = Optional.ofNullable(source)
 
     override fun getParent(): Optional<TestDescriptor> = Optional.ofNullable(parent)
 

@@ -10,6 +10,8 @@ import failgood.TestContainer
 import failgood.TestDescription
 import failgood.TestPlusResult
 import failgood.junit.TestMapper
+import failgood.junit.createClassSource
+import failgood.junit.createFileSource
 import org.junit.platform.engine.EngineExecutionListener
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.reporting.ReportEntry
@@ -29,7 +31,12 @@ internal class NewExecutionListener(
         synchronized(this) {
             val parent = testMapper.getMapping(testDescription.container)
             val node = TestPlanNode.Test(testDescription.testName)
-            val descriptor = DynamicTestDescriptor(node, parent)
+            val descriptor =
+                DynamicTestDescriptor(
+                    node,
+                    parent,
+                    source = createFileSource(testDescription.sourceInfo, testDescription.testName)
+                )
             testMapper.addMapping(testDescription, descriptor)
             listener.dynamicTestRegistered(descriptor)
         }
@@ -43,10 +50,15 @@ internal class NewExecutionListener(
                     DynamicTestDescriptor(
                         node,
                         root,
-                        "${context.name}(${(context.sourceInfo?.className) ?: ""})"
+                        "${context.name}(${(context.sourceInfo?.className) ?: ""})",
+                        context.sourceInfo?.let { createClassSource(it) }
                     )
                 } else {
-                    DynamicTestDescriptor(node, testMapper.getMapping(context.parent))
+                    DynamicTestDescriptor(
+                        node,
+                        testMapper.getMapping(context.parent),
+                        source = context.sourceInfo?.let { createFileSource(it, context.name) }
+                    )
                 }
             testMapper.addMapping(context, descriptor)
             listener.dynamicTestRegistered(descriptor)

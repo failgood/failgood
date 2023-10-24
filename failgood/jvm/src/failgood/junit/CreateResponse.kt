@@ -16,7 +16,7 @@ import org.junit.platform.engine.support.descriptor.FilePosition
 import org.junit.platform.engine.support.descriptor.FileSource
 import org.junit.platform.engine.support.descriptor.MethodSource
 
-private fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor {
+internal fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor {
     val testSource = createFileSource(this.sourceInfo, this.testName)
     return FailGoodTestDescriptor(
         TestDescriptor.Type.TEST,
@@ -33,7 +33,7 @@ private val fs = File.separator
 private val sourceRoots: List<String> =
     listOf("src${fs}test${fs}kotlin", "src${fs}test${fs}java", "test", "jvm${fs}test")
 
-private fun createFileSource(sourceInfo: SourceInfo, testOrContextName: String): TestSource? {
+internal fun createFileSource(sourceInfo: SourceInfo, testOrContextName: String): TestSource? {
     val className = sourceInfo.className
     val filePosition = FilePosition.from(sourceInfo.lineNumber)
     val classFilePath = "${className.substringBefore("$").replace(".", "/")}.kt"

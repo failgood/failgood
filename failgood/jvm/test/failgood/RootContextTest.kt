@@ -5,14 +5,15 @@ import strikt.assertions.isEqualTo
 
 @Test
 class RootContextTest {
+    val ste = Throwable().stackTrace.first()
+    val otherContext = describe("context fixture") {}
     val context: RootContext =
         describe(RootContext::class) {
-            val ste = Throwable().stackTrace.first()
-            val testContext = RootContext {}
-            it("knows its file and line number") {
+            val testContext = otherContext
+            it("knows its className and line number") {
                 expectThat(testContext.sourceInfo) {
                     get { lineNumber }.isEqualTo(ste.lineNumber + 1)
-                    get { className }.isEqualTo(ste.className)
+                    get { className }.isEqualTo("failgood.RootContextTest")
                 }
             }
         }

@@ -32,16 +32,22 @@ internal class ContextExecutor(
     /**
      * Execute the rootContext.
      *
-     * We keep executing the Context DSL until we know about all contexts and tests in this root
-     * context The first test in each context is directly executed (async via coroutines), and for
-     * all other tests in that context we create a SingleTestExecutor that executes the whole
-     * context path of that test together with the test.
+     * We keep executing the Context DSL until we know about all contexts and tests in this root context The first test
+     * in each context is directly executed (async via coroutines), and for all other tests in that context we create a
+     * SingleTestExecutor that executes the whole context path of that test together with the test.
      */
     suspend fun execute(): ContextResult {
-        if (!staticExecutionConfig.testFilter.shouldRun(rootContext))
+        val incomingRootContext = if (rootContext.addClassName) rootContext.copy(
+            context = rootContext.context.copy(
+                name = "${
+                    rootContext.sourceInfo.className.substringAfterLast(".")
+                }: ${rootContext.context.name}"
+            )
+        ) else rootContext
+        if (!staticExecutionConfig.testFilter.shouldRun(incomingRootContext))
             return ContextInfo(listOf(), mapOf(), setOf())
         val function = rootContext.function
-        val rootContext = rootContext.context
+        val rootContext = incomingRootContext.context
         staticExecutionConfig.listener.contextDiscovered(rootContext)
         try {
             do {
@@ -60,7 +66,8 @@ internal class ContextExecutor(
                     )
                 try {
                     withTimeout(staticExecutionConfig.timeoutMillis) { visitor.function() }
-                } catch (_: ContextFinished) {}
+                } catch (_: ContextFinished) {
+                }
                 stateCollector.investigatedContexts.add(rootContext)
                 if (stateCollector.containsContextsWithoutIsolation) {
                     stateCollector.afterSuiteCallbacks.add { resourcesCloser.closeAutoCloseables() }
@@ -72,7 +79,7 @@ internal class ContextExecutor(
         // context order: first root context, then sub-contexts ordered by line number
         val contexts =
             listOf(rootContext) +
-                stateCollector.foundContexts.sortedBy { it.sourceInfo!!.lineNumber }
+                    stateCollector.foundContexts.sortedBy { it.sourceInfo!!.lineNumber }
         return ContextInfo(
             contexts,
             stateCollector.deferredTestResults,
@@ -91,8 +98,8 @@ fun sourceInfo(): SourceInfo {
         RuntimeException().stackTrace.first {
             !(it.fileName?.let { fileName ->
                 fileName.endsWith("ContextVisitor.kt") ||
-                    fileName.endsWith("ContextExecutor.kt") ||
-                    fileName.endsWith("ContextDSL.kt")
+                        fileName.endsWith("ContextExecutor.kt") ||
+                        fileName.endsWith("ContextDSL.kt")
             } ?: true)
         }
     return first.let { SourceInfo(it.className, it.fileName!!, it.lineNumber) }

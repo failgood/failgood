@@ -35,13 +35,15 @@ fun RootContext(
     order: Int = 0,
     isolation: Boolean = true,
     sourceInfo: SourceInfo = callerSourceInfo(),
+    addClassName: Boolean = false,
     function: ContextLambda
-) = RootContext(Context(name, null, sourceInfo, isolation), order, ignored, function)
+) = RootContext(Context(name, null, sourceInfo, isolation), order, ignored, addClassName, function = function)
 
 data class RootContext(
     val context: Context,
     override val order: Int = 0,
     val ignored: Ignored?,
+    val addClassName: Boolean = false,
     val function: ContextLambda
 ) : LoadResult, failgood.internal.Path {
     val sourceInfo: SourceInfo

@@ -13,22 +13,19 @@ import failgood.mock.mock
 object EventsTest {
     val tests =
         describe("Events callbacks") {
-            val suite =
-                Suite(
-                    failgood.describe("rootContext") {
-                        describe("child") {
-                            it("test1") {}
-                            it("test2") {}
-                        }
-                    }
-                )
+            val suite = Suite {
+                describe("child") {
+                    it("test1") {}
+                    it("test2") {}
+                }
+            }
             describe("event order", isolation = false) {
                 val listener = mock<ExecutionListener>()
                 suite.run(silent = true, listener = listener)
                 val calls = getCalls(listener)
                 it("first event is context discovered event for root context") {
                     with(assert(calls.first().isCallTo(ExecutionListener::contextDiscovered))) {
-                        assert(name == "rootContext")
+                        assert(name == "root")
                     }
                 }
                 it("reports context discovered for every subcontext") {

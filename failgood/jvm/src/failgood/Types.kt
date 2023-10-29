@@ -37,7 +37,14 @@ fun RootContext(
     sourceInfo: SourceInfo = callerSourceInfo(),
     addClassName: Boolean = false,
     function: ContextLambda
-) = RootContext(Context(name, null, sourceInfo, isolation), order, ignored, addClassName, function = function)
+) =
+    RootContext(
+        Context(name, null, sourceInfo, isolation),
+        order,
+        ignored,
+        addClassName,
+        function = function
+    )
 
 data class RootContext(
     val context: Context,

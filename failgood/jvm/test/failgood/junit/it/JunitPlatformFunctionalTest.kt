@@ -86,26 +86,27 @@ object JunitPlatformFunctionalTest {
                 }
             }
             if (newEngine)
-                it("correctly reports events for ignored tests") {
+                it("correctly reports events for ignored contexts") {
                     assertSuccess(result)
                     assert(getFailedTests(result).isEmpty())
+                    val className = IgnoredContextFixture::class.simpleName
                     assertEquals(
                         listOf(
                             Pair(STARTED, "failgood-new"),
-                            Pair(REGISTERED, "root context"),
+                            Pair(REGISTERED, "$className: root context"),
                             Pair(REGISTERED, "ignored context"),
                             Pair(
                                 REGISTERED,
                                 "context ignored because we are testing subcontext ignoring"
                             ),
-                            Pair(STARTED, "root context"),
+                            Pair(STARTED, "$className: root context"),
                             Pair(STARTED, "ignored context"),
                             Pair(
                                 SKIPPED,
                                 "context ignored because we are testing subcontext ignoring"
                             ),
                             Pair(FINISHED, "ignored context"),
-                            Pair(FINISHED, "root context"),
+                            Pair(FINISHED, "$className: root context"),
                             Pair(FINISHED, "failgood-new")
                         ),
                         result.testEvents.map { Pair(it.type, it.test.displayName) }
@@ -125,11 +126,14 @@ object JunitPlatformFunctionalTest {
                     assertEquals(
                         listOf(
                             Pair(STARTED, "failgood-new"),
-                            Pair(REGISTERED, "root context"),
+                            Pair(
+                                REGISTERED,
+                                "${IgnoredTestFixture::class.simpleName}: root context"
+                            ),
                             Pair(REGISTERED, "pending test"),
-                            Pair(STARTED, "root context"),
+                            Pair(STARTED, "${IgnoredTestFixture::class.simpleName}: root context"),
                             Pair(SKIPPED, "pending test"),
-                            Pair(FINISHED, "root context"),
+                            Pair(FINISHED, "${IgnoredTestFixture::class.simpleName}: root context"),
                             Pair(FINISHED, "failgood-new")
                         ),
                         result.testEvents.map { Pair(it.type, it.test.displayName) }
@@ -181,7 +185,9 @@ object JunitPlatformFunctionalTest {
                 assert(
                     failedTests
                         .map { it.key.displayName }
-                        .containsExactlyInAnyOrder("Failing Root Context")
+                        .containsExactlyInAnyOrder(
+                            "${FailingRootContext::class.simpleName}: Failing Root Context"
+                        )
                 )
             }
         }
@@ -210,7 +216,10 @@ object JunitPlatformFunctionalTest {
                 assert(
                     getFailedTests(r)
                         .map { it.key.displayName }
-                        .containsExactlyInAnyOrder("Failing Root Context", "error in context")
+                        .containsExactlyInAnyOrder(
+                            "FailingRootContext: Failing Root Context",
+                            "error in context"
+                        )
                 )
             }
         }

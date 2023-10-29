@@ -54,7 +54,10 @@ class FailGoodJunitTestEngineTest {
                 it("returns all root contexts") { testDescriptor ->
                     expectThat(testDescriptor.children).single().and {
                         get { isContainer }.isTrue()
-                        get { displayName }.isEqualTo(SimpleTestFixture.ROOT_CONTEXT_NAME)
+                        get { displayName }
+                            .isEqualTo(
+                                "${SimpleTestFixture::class.simpleName}: ${SimpleTestFixture.ROOT_CONTEXT_NAME}"
+                            )
                     }
                 }
             }
@@ -90,7 +93,7 @@ class FailGoodJunitTestEngineTest {
                         .isEqualTo(
                             listOf(
                                 "start-${FailGoodJunitTestEngineConstants.DISPLAY_NAME}",
-                                "start-$ROOT_CONTEXT_NAME",
+                                "start-${TestWithNestedContextsFixture::class.simpleName}: $ROOT_CONTEXT_NAME",
                                 "start-$CHILD_CONTEXT_1_NAME",
                                 "start-$CHILD_CONTEXT_2_NAME",
                                 "some-test-event",
@@ -99,7 +102,7 @@ class FailGoodJunitTestEngineTest {
                                 "some-test-event",
                                 "stop-$CHILD_CONTEXT_2_NAME",
                                 "stop-$CHILD_CONTEXT_1_NAME",
-                                "stop-$ROOT_CONTEXT_NAME",
+                                "stop-${TestWithNestedContextsFixture::class.simpleName}: $ROOT_CONTEXT_NAME",
                                 "stop-${FailGoodJunitTestEngineConstants.DISPLAY_NAME}"
                             )
                         )
@@ -122,9 +125,9 @@ class FailGoodJunitTestEngineTest {
                         .isEqualTo(
                             listOf(
                                 "start-FailGood",
-                                "start-root context",
+                                "start-${IgnoredTestFixture::class.simpleName}: root context",
                                 "skip-pending test-ignore-reason",
-                                "stop-root context",
+                                "stop-${IgnoredTestFixture::class.simpleName}: root context",
                                 "stop-FailGood"
                             )
                         )

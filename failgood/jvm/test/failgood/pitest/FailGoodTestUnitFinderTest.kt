@@ -47,7 +47,7 @@ class FailGoodTestUnitFinderTest {
                 val failedEvent =
                     Event(
                         Description(
-                            "tests with different results > failing test",
+                            "Tests: tests with different results > failing test",
                             Tests::class.java
                         ),
                         Type.END,
@@ -66,7 +66,7 @@ class FailGoodTestUnitFinderTest {
                             failedEvent,
                             Event(
                                 Description(
-                                    "tests with different results > pending test",
+                                    "Tests: tests with different results > pending test",
                                     Tests::class.java
                                 ),
                                 Type.SKIPPED,
@@ -74,7 +74,7 @@ class FailGoodTestUnitFinderTest {
                             ),
                             Event(
                                 Description(
-                                    "tests with different results > successful test",
+                                    "Tests: tests with different results > successful test",
                                     Tests::class.java
                                 ),
                                 Type.END,

@@ -18,7 +18,8 @@ data class TestDescription(
         return "${container.stringPath()} > $testName"
     }
 }
-
+// https://youtrack.jetbrains.com/issue/KTIJ-27236/False-positive-Java-inspection-Method-always-returns-the-same-value-with-on-Kotlin-code
+@Suppress("SameReturnValue")
 internal sealed interface LoadResult {
     val order: Int
 }

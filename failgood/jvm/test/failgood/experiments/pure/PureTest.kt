@@ -25,7 +25,7 @@ class PureTest {
         )
 
     class UpperCaser {
-        fun toUpperCase(name: String): String = "not yet"
+        @Suppress("SameReturnValue") fun toUpperCase(name: String): String = "not yet"
     }
 
     class MongoDB
@@ -80,7 +80,7 @@ class PureTestVarargs {
     class MongoDB
 
     class UpperCaser {
-        fun toUpperCase(name: String): String = "not yet"
+        @Suppress("SameReturnValue") fun toUpperCase(name: String): String = "not yet"
     }
 
     private fun <GivenType> context(

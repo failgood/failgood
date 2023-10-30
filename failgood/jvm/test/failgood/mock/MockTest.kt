@@ -2,15 +2,10 @@ package failgood.mock
 
 import failgood.Test
 import failgood.describe
-import kotlin.reflect.*
 import kotlin.test.assertNotNull
 import strikt.api.expectThat
 import strikt.api.expectThrows
-import strikt.assertions.containsExactly
-import strikt.assertions.isA
-import strikt.assertions.isEqualTo
-import strikt.assertions.isNotEqualTo
-import strikt.assertions.message
+import strikt.assertions.*
 
 @Test
 class MockTest {

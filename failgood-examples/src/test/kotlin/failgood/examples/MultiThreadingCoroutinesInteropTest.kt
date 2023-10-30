@@ -15,7 +15,7 @@ fun main() {
 }
 
 class StringProvider {
-    @Suppress("RedundantSuspendModifier") suspend fun world() = "world"
+    @Suppress("RedundantSuspendModifier", "SameReturnValue") suspend fun world() = "world"
 }
 
 class Example(private val stringProvider: StringProvider) {

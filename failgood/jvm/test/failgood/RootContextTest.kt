@@ -5,8 +5,8 @@ import strikt.assertions.isEqualTo
 
 @Test
 class RootContextTest {
-    val ste = Throwable().stackTrace.first()
-    val otherContext = describe("context fixture") {}
+    private val ste = Throwable().stackTrace.first()!!
+    private val otherContext = describe("context fixture") {}
     val context: RootContext =
         describe(RootContext::class) {
             val testContext = otherContext

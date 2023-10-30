@@ -1,7 +1,7 @@
 @file:Suppress("GradlePackageUpdate")
 
 plugins {
-    kotlin("jvm") version("1.9.10")
+    kotlin("jvm") version("1.9.20")
 }
 
 dependencies {

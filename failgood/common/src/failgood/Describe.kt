@@ -3,6 +3,7 @@ package failgood
 import failgood.dsl.ContextDSL
 import failgood.dsl.ContextLambda
 import failgood.internal.util.niceString
+import kotlin.jvm.JvmName
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf

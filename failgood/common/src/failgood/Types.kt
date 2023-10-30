@@ -2,6 +2,7 @@ package failgood
 
 import failgood.dsl.ContextLambda
 import failgood.internal.ContextPath
+import failgood.internal.Path
 import kotlin.reflect.KClass
 
 data class TestDescription(
@@ -52,7 +53,7 @@ data class RootContext(
     val ignored: Ignored?,
     val addClassName: Boolean = false,
     val function: ContextLambda
-) : LoadResult, failgood.internal.Path {
+) : LoadResult, Path {
     val sourceInfo: SourceInfo
         get() =
             context.sourceInfo!! // in the root context we are sure that we always have a sourceInfo

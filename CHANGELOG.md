@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 
 ## 0.9.0 - Unreleased
 
+### Changed
+
+- The Root context name now contains the name of the test file when it makes sense
+
 ### Added
 
 - New junit platform engine that is totally async

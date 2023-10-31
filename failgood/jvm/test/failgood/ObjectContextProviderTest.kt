@@ -46,11 +46,13 @@ class ObjectContextProviderTest {
                     .isA<RootContext>()
                     .and { get { context.name }.isEqualTo("test context declared on top level") }
             }
-            it(
-                "handles weird contexts defined in private vals gracefully",
-                ignored = Ignored.Because("Bug")
-            ) {
-                ObjectContextProvider(PrivateContextFixture::class).getContexts()
+            it("handles weird contexts defined in private vals gracefully") {
+                assert(
+                    ObjectContextProvider(PrivateContextFixture::class)
+                        .getContexts()
+                        .map { it.context.name }
+                        .size == 2
+                )
             }
 
             describe("correcting source info") {

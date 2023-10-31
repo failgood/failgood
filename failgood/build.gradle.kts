@@ -103,4 +103,5 @@ tasks.register<Test>("runSingleNonFailgoodTest") {
     useJUnitPlatform()
 }
 
-tasks.withType<Jar> { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }
+// this seems to be no longer necessary, but keeping it here for now
+// tasks.withType<Jar> { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }

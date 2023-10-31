@@ -47,7 +47,10 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
                     e
                 )
             } catch (e: IllegalAccessException) { // just ignore private classes
-                return listOf()
+                throw ErrorLoadingContextsFromClass(
+                    "Test class ${jClass.name} is private. Just remove the @Test annotation if you don't want to run it, or make it public if you do.",
+                    jClass.kotlin
+                )
             }
 
         // get contexts from all methods returning RootContext or List<RootContext>

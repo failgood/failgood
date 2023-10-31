@@ -1,6 +1,7 @@
 package failgood
 
 import java.lang.reflect.InvocationTargetException
+import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 import kotlin.reflect.KClass
 
@@ -30,7 +31,7 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
     }
 
     private fun getContextsInternal(): List<RootContext> {
-        val obj =
+        val instance =
             try {
                 instantiateClassOrObject(jClass)
             } catch (e: InvocationTargetException) {
@@ -40,8 +41,6 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
                     e.targetException
                 )
             } catch (e: IllegalArgumentException) {
-                // should we just ignore classes that fit the pattern but have no suitable
-                // constructor?
                 throw ErrorLoadingContextsFromClass(
                     "No suitable constructor found for class ${jClass.name}",
                     jClass.kotlin,
@@ -69,12 +68,29 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
         return methodsReturningRootContext.flatMap {
             val contexts =
                 try {
-                    val type = it.parameters.singleOrNull()?.type
-                    if (type != null && obj != null && type == obj::class.java) it.invoke(obj, obj)
-                    else it.invoke(obj)
+                    // the most common case is that the getter has no parameters
+                    if (it.parameters.isEmpty()) it.invoke(instance)
+                    else {
+                        // for private properties the kotlin compiler seems to sometimes generate a
+                        // static getter that takes the instance as single parameter
+                        val typeOfSingleParameter = it.parameters.singleOrNull()?.type
+                        if (
+                            typeOfSingleParameter != null &&
+                                instance != null &&
+                                typeOfSingleParameter == instance::class.java
+                        )
+                            it.invoke(null, instance)
+                        else
+                            throw ErrorLoadingContextsFromClass(
+                                "context method ${it.niceString()} takes unexpected parameters",
+                                jClass.kotlin
+                            )
+                    }
+                } catch (e: ErrorLoadingContextsFromClass) {
+                    throw e
                 } catch (e: Exception) {
                     throw ErrorLoadingContextsFromClass(
-                        "error invoking ${jClass.name}.${it.name}(${it.parameters.joinToString { it.name+" "+it.type.simpleName }})",
+                        "error invoking ${it.niceString()}",
                         jClass.kotlin,
                         e
                     )
@@ -83,6 +99,9 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
             contexts as? List<RootContext> ?: listOf(contexts as RootContext)
         }
     }
+
+    private fun Method.niceString() =
+        "${jClass.name}.$name(${parameters.joinToString { it.name + " " + it.type.simpleName }})"
 
     companion object {
         fun instantiateClassOrObject(clazz: Class<out Any>): Any? {

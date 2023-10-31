@@ -133,6 +133,23 @@ class ObjectContextProviderTest {
                     val message = assertNotNull(exception.message)
                     assert(message.contains(kClass.simpleName!!)) { exception.stackTraceToString() }
                 }
+                it("gives a helpful error when a context method has parameters") {
+                    val kClass = ClassWithContextMethodWithParameter::class
+                    val exception =
+                        assertNotNull(
+                            kotlin
+                                .runCatching { ObjectContextProvider(kClass).getContexts() }
+                                .exceptionOrNull()
+                        )
+                    val message = assertNotNull(exception.message)
+                    assert(
+                        message.contains(
+                            "context method failgood.ObjectContextProviderTest\$ClassWithContextMethodWithParameter.context(arg0 String) takes unexpected parameters"
+                        )
+                    ) {
+                        exception.stackTraceToString()
+                    }
+                }
                 // this is maybe no longer needed because test containers have an annotation now
                 it("ignores private classes") {
                     val jClass =
@@ -148,6 +165,10 @@ class ObjectContextProviderTest {
         init {
             throw RuntimeException("boo i failed")
         }
+    }
+
+    class ClassWithContextMethodWithParameter {
+        fun context(@Suppress("UNUSED_PARAMETER") parameter: String): RootContext = describe {}
     }
 
     class ClassThatThrowsAtContextGetter {

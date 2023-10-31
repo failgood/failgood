@@ -1,2 +1,2 @@
-./gradlew clean spotlessApply
+./gradlew clean ktfmtFormat
 CI=true ./gradlew failgood:runSingleNonFailgoodTest check

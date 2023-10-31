@@ -1,8 +1,6 @@
 package failgood
 
 import failgood.internal.sysinfo.uptime
-import failgood.internal.util.getenv
-import java.lang.management.ManagementFactory
 import java.util.concurrent.CompletableFuture
 import kotlinx.coroutines.CompletableDeferred
 import strikt.api.expectThat
@@ -11,7 +9,6 @@ import strikt.assertions.hasSize
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import strikt.assertions.isFalse
-import strikt.assertions.isLessThan
 import strikt.assertions.isTrue
 
 suspend fun main() {
@@ -57,6 +54,8 @@ suspend fun main() {
     // let's see how far we can get with one second.
     // on CI everything is much slower, especially on windows,
     // and we don't want to randomly fail ci so lets use 20000 for now
-    val limit: Long = if (getenv("SLOW_CI") != null) 20000 else 1000
-    expectThat(ManagementFactory.getRuntimeMXBean().uptime).isLessThan(limit)
+    /* disabling for now because gradle runs this in parallel to other tasks,and then it fails.
+    also it will probably fail on slow computers
+     val limit: Long = if (getenv("SLOW_CI") != null) 20000 else 1000
+     expectThat(ManagementFactory.getRuntimeMXBean().uptime).isLessThan(limit)*/
 }

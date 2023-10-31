@@ -67,7 +67,16 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
                     throw ErrorLoadingContextsFromClass("no contexts found in class", jClass.kotlin)
                 }
         return methodsReturningRootContext.flatMap {
-            val contexts = it.invoke(obj)
+            val contexts =
+                try {
+                    it.invoke(obj)
+                } catch (e: Exception) {
+                    throw ErrorLoadingContextsFromClass(
+                        "error invoking ${jClass.name}.${it.name}(${it.parameters.joinToString { it.name+" "+it.type }}",
+                        jClass.kotlin,
+                        e
+                    )
+                }
             @Suppress("UNCHECKED_CAST")
             contexts as? List<RootContext> ?: listOf(contexts as RootContext)
         }

@@ -3,6 +3,7 @@ package failgood
 import failgood.docs.ClassTestContextExample
 import failgood.docs.ContextListExample
 import failgood.docs.testContextsOnTopLevelExampleClassName
+import failgood.fixtures.PrivateContextFixture
 import kotlin.test.assertNotNull
 import strikt.api.expectThat
 import strikt.assertions.*
@@ -45,6 +46,13 @@ class ObjectContextProviderTest {
                     .isA<RootContext>()
                     .and { get { context.name }.isEqualTo("test context declared on top level") }
             }
+            it(
+                "handles weird contexts defined in private vals gracefully",
+                ignored = Ignored.Because("Bug")
+            ) {
+                ObjectContextProvider(PrivateContextFixture::class).getContexts()
+            }
+
             describe("correcting source info") {
                 it(
                     "corrects the root context source info if its not coming from the loaded class"

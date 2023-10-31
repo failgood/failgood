@@ -6,10 +6,9 @@ plugins {
     java
     kotlin("jvm")
     id("com.adarshr.test-logger")
-    id("com.diffplug.spotless")
+    id("com.ncorti.ktfmt.gradle")
 }
 
-spotless { kotlin { ktfmt("0.46").kotlinlangStyle() } }
 tasks {
     test {
         useJUnitPlatform {
@@ -38,4 +37,8 @@ configure<TestLoggerExtension> {
     theme = MOCHA_PARALLEL
     showSimpleNames = true
     showFullStackTraces = true
+}
+tasks.getByName("check").dependsOn(tasks.getByName("ktfmtCheck"))
+ktfmt {
+    kotlinLangStyle()
 }

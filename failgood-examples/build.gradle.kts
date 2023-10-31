@@ -9,10 +9,8 @@ import info.solidsoft.gradle.pitest.PitestPluginExtension
 plugins {
     kotlin("jvm")
     id("info.solidsoft.pitest")
-    id("com.diffplug.spotless")
+    id("com.ncorti.ktfmt.gradle")
 }
-
-spotless { kotlin { ktfmt("0.46").kotlinlangStyle() } }
 
 dependencies {
     testImplementation(project(":failgood"))
@@ -59,3 +57,9 @@ task("autotest", JavaExec::class) {
     classpath = sourceSets["test"].runtimeClasspath
 }
 tasks.check { dependsOn(testMain) }
+
+tasks.getByName("check").dependsOn(tasks.getByName("ktfmtCheck"))
+ktfmt {
+    kotlinLangStyle()
+}
+

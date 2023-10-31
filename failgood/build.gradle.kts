@@ -51,17 +51,17 @@ sourceSets.test {
 }
 val testMain =
     task("testMain", JavaExec::class) {
-        mainClass.set("failgood.FailGoodBootstrapKt")
+        mainClass = "failgood.FailGoodBootstrapKt"
         classpath = sourceSets["test"].runtimeClasspath
     }
 val multiThreadedTest =
     task("multiThreadedTest", JavaExec::class) {
-        mainClass.set("failgood.MultiThreadingPerformanceTestKt")
+        mainClass = "failgood.MultiThreadingPerformanceTestKt"
         classpath = sourceSets["test"].runtimeClasspath
         systemProperties = mapOf("kotlinx.coroutines.scheduler.core.pool.size" to "1000")
     }
 task("autotest", JavaExec::class) {
-    mainClass.set("failgood.AutoTestMainKt")
+    mainClass = "failgood.AutoTestMainKt"
     classpath = sourceSets["test"].runtimeClasspath
 }
 
@@ -69,17 +69,18 @@ tasks.check { dependsOn(testMain, multiThreadedTest) }
 
 plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
-//                verbose.set(true)
-        jvmArgs.set(listOf("-Xmx512m")) // necessary on CI
-        avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))
-        excludedTestClasses.set(setOf("failgood.MultiThreadingPerformanceTest*"))
-        targetClasses.set(setOf("failgood.*")) // by default "${project.group}.*"
-        targetTests.set(setOf("failgood.*Test", "failgood.**.*Test"))
-        pitestVersion.set(failgood.versions.pitestVersion)
-        threads.set(
+// in case of problems:
+        //                verbose = true
+        jvmArgs = listOf("-Xmx512m") // necessary on CI
+        avoidCallsTo = setOf("kotlin.jvm.internal", "kotlin.Result")
+        excludedTestClasses = setOf("failgood.MultiThreadingPerformanceTest*")
+        targetClasses = setOf("failgood.*") // by default "${project.group}.*"
+        targetTests = setOf("failgood.*Test", "failgood.**.*Test")
+        pitestVersion = failgood.versions.pitestVersion
+        threads =
             System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()
-        )
-        outputFormats.set(setOf("XML", "HTML"))
+
+        outputFormats = setOf("XML", "HTML")
     }
 }
 

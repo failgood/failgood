@@ -143,18 +143,30 @@ class ObjectContextProviderTest {
                         )
                     val message = assertNotNull(exception.message)
                     assert(
-                        message.contains(
+                        message ==
                             "context method failgood.ObjectContextProviderTest\$ClassWithContextMethodWithParameter.context(arg0 String) takes unexpected parameters"
-                        )
                     ) {
                         exception.stackTraceToString()
                     }
                 }
                 // this is maybe no longer needed because test containers have an annotation now
-                it("ignores private classes") {
+                it("returns useful error message for private classes") {
                     val jClass =
                         javaClass.classLoader.loadClass("failgood.problematic.PrivateClass")
-                    assert(ObjectContextProvider(jClass).getContexts() == listOf<RootContext>())
+                    val exception =
+                        assertNotNull(
+                            kotlin
+                                .runCatching { ObjectContextProvider(jClass).getContexts() }
+                                .exceptionOrNull()
+                        )
+                    val message = assertNotNull(exception.message)
+                    assert(
+                        message ==
+                            "Test class failgood.problematic.PrivateClass is private. Just remove the @Test annotation if you don't want to run it, or make it public if you do."
+                    ) {
+                        exception.stackTraceToString()
+                    }
+                    //
                 }
             }
         }

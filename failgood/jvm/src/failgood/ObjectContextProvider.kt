@@ -69,10 +69,12 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
         return methodsReturningRootContext.flatMap {
             val contexts =
                 try {
-                    it.invoke(obj)
+                    val type = it.parameters.singleOrNull()?.type
+                    if (type != null && obj != null && type == obj::class.java) it.invoke(obj, obj)
+                    else it.invoke(obj)
                 } catch (e: Exception) {
                     throw ErrorLoadingContextsFromClass(
-                        "error invoking ${jClass.name}.${it.name}(${it.parameters.joinToString { it.name+" "+it.type }}",
+                        "error invoking ${jClass.name}.${it.name}(${it.parameters.joinToString { it.name+" "+it.type.simpleName }})",
                         jClass.kotlin,
                         e
                     )

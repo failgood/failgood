@@ -1,5 +1,8 @@
 @file:Suppress("GradlePackageUpdate")
 
+import info.solidsoft.gradle.pitest.PitestPluginExtension
+
+
 plugins {
     kotlin("jvm")
     id("info.solidsoft.pitest")
@@ -13,7 +16,7 @@ plugins {
 dependencies {
     testImplementation(kotlin("test"))
     testImplementation(project(":failgood"))
-    // it seems tools.jar is currently not necessary to compile this. I'm pretty sure that  was necessary at some point
+    // it seems tools.jar is currently not necessary to compile this. I'm pretty sure that was necessary at some point
     // I'm keeping it here because this is an experiment anyway.
 //    compileOnly(files("${System.getenv("java.home")}/../lib/tools.jar"))
 }
@@ -26,18 +29,16 @@ sourceSets.test {
     resources.srcDirs("test-resources")
 }
 plugins.withId("info.solidsoft.pitest") {
-    configure<info.solidsoft.gradle.pitest.PitestPluginExtension> {
-//                verbose.set(true)
-        jvmArgs.set(listOf("-Xmx512m")) // necessary on CI
-        avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))
-        excludedTestClasses.set(setOf("failgood.MultiThreadingPerformanceTest*"))
-        targetClasses.set(setOf("failgood.*")) // by default "${project.group}.*"
-        targetTests.set(setOf("failgood.*Test", "failgood.**.*Test"))
-        pitestVersion.set(failgood.versions.pitestVersion)
-        threads.set(
+    configure<PitestPluginExtension> {
+        jvmArgs = listOf("-Xmx512m") // necessary on CI
+        avoidCallsTo = setOf("kotlin.jvm.internal", "kotlin.Result")
+        targetClasses = setOf("failgood.*") // by default "${project.group}.*"
+        targetTests = setOf("failgood.*Test", "failgood.**.*Test")
+        pitestVersion = failgood.versions.pitestVersion
+        threads =
             System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()
-        )
-        outputFormats.set(setOf("XML", "HTML"))
+
+        outputFormats = setOf("XML", "HTML")
     }
 }
 configure<com.bnorm.power.PowerAssertGradleExtension> {

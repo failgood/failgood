@@ -7,22 +7,7 @@ import failgood.describe
 import failgood.dsl.ContextDSL
 import failgood.junit.FailGoodJunitTestEngine
 import failgood.junit.it.JunitPlatformFunctionalTest.TEListener.Event.Type.*
-import failgood.junit.it.fixtures.BlockhoundTestFixture
-import failgood.junit.it.fixtures.DeeplyNestedDuplicateTestFixture
-import failgood.junit.it.fixtures.DoubleTestNamesInRootContextTestFixture
-import failgood.junit.it.fixtures.DoubleTestNamesInSubContextTestFixture
-import failgood.junit.it.fixtures.DuplicateRootWithOneTestFixture
-import failgood.junit.it.fixtures.DuplicateTestNameTest
-import failgood.junit.it.fixtures.FailingContext
-import failgood.junit.it.fixtures.FailingRootContext
-import failgood.junit.it.fixtures.IgnoredContextFixture
-import failgood.junit.it.fixtures.IgnoredTestFixture
-import failgood.junit.it.fixtures.SimpleClassTestFixture
-import failgood.junit.it.fixtures.SimpleTestFixture
-import failgood.junit.it.fixtures.TestFixtureThatFailsAfterFirstPass
-import failgood.junit.it.fixtures.TestFixtureWithFailingTestAndAfterEach
-import failgood.junit.it.fixtures.TestOrderFixture
-import failgood.junit.it.fixtures.TestWithNestedContextsFixture
+import failgood.junit.it.fixtures.*
 import failgood.softly.softly
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
@@ -275,14 +260,17 @@ object JunitPlatformFunctionalTest {
 
         it("returns uniqueIds that it understands (uniqueid round-trip test)") {
             // run a test by className
-            val result = executeSingleTest(SimpleTestFixture::class)
+            val result = executeSingleTest(SimpleTestFixtureWithMultipleTests::class)
             assertSuccess(result)
-            val testName = SimpleTestFixture.TEST_NAME
+
+            val testName = "a test in the subcontext"
             val descriptor: TestIdentifier =
                 assertNotNull(result.results.keys.singleOrNull { it.displayName == testName })
             val uniqueId = descriptor.uniqueId
-            assert(uniqueId.toString().contains(SimpleTestFixture::class.simpleName!!)) {
-                "our unique ids contain the class name"
+            assert(
+                uniqueId.toString().contains(SimpleTestFixtureWithMultipleTests::class.simpleName!!)
+            ) {
+                "our unique ids must contain the class name"
             }
             // now use the uniqueid that we just returned to run the same test again
             val newResult = execute(listOf(selectUniqueId(uniqueId)))

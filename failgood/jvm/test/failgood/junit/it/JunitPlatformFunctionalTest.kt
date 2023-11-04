@@ -5,6 +5,7 @@ import failgood.Test
 import failgood.assert.containsExactlyInAnyOrder
 import failgood.describe
 import failgood.dsl.ContextDSL
+import failgood.junit.FailGoodJunitTestEngine
 import failgood.junit.it.JunitPlatformFunctionalTest.TEListener.Event.Type.*
 import failgood.junit.it.fixtures.BlockhoundTestFixture
 import failgood.junit.it.fixtures.DeeplyNestedDuplicateTestFixture
@@ -37,6 +38,7 @@ import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestIdentifier
+import org.junit.platform.launcher.core.LauncherConfig
 import org.junit.platform.launcher.core.LauncherFactory
 
 @Test
@@ -243,10 +245,17 @@ object JunitPlatformFunctionalTest {
         }
         it(
             "returns tests in the order that they are declared in the file",
-            ignored = Ignored.Because("it does not work with the new engine")
+            ignored =
+                if (newEngine) Ignored.Because("it does not work with the new engine") else null
         ) {
             val testPlan =
-                LauncherFactory.create()
+                // force old junit engine even if we are running with the new engine
+                LauncherFactory.create(
+                        LauncherConfig.builder()
+                            .enableTestEngineAutoRegistration(false)
+                            .addTestEngines(FailGoodJunitTestEngine())
+                            .build()
+                    )
                     .discover(
                         launcherDiscoveryRequest(
                             listOf(selectClass(TestOrderFixture::class.qualifiedName))

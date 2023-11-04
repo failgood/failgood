@@ -4,16 +4,19 @@ import failgood.Ignored
 
 /**
  * This is used to define test contexts and tests. It is recommended to use [describe]/[it]-syntax,
- * but if you really have to you can also use [context] to define a context and [test] to define a
- * test
+ * but you can also use [context] to define a context and [test] to define a test.
  */
 @FailGoodDSL
 interface ContextDSL<GivenType> : ResourcesDSL {
     /**
-     * Define a context that describes a subject with a given block. set [isolation] false to turn
-     * off test isolation for this context. the [given] block will be called for every test and
-     * passed as argument, even if the context has isolation off the whole context can be set to be
-     * ignored by setting [ignored] to `Because(<Reason for ignoring>)`, see [Ignored]
+     * Define a context that describes a subject with a given block. Set [isolation] false to turn
+     * off test isolation for this context.
+     *
+     * The [given] block will be called for every test and passed as argument, even if the context
+     * has isolation off.
+     *
+     * The whole context can be set to be ignored by setting [ignored] to `Because(<Reason for
+     * ignoring>)`, see [Ignored].
      */
     suspend fun <ContextDependency> describe(
         name: String,
@@ -25,8 +28,8 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     )
 
     /**
-     * Define a test context that describes a subject. this is a helper function for contexts
-     * without a given block
+     * Define a test context that describes a subject. This is a helper function for contexts
+     * without a given block.
      */
     suspend fun describe(
         name: String,
@@ -58,10 +61,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     /** Register a callback to be called after all tests have completed */
     fun afterSuite(function: suspend () -> Unit)
 
-    /**
-     * Define a context with a given block. The given block will be called for every test and passed
-     * as argument, even if isolation is turned off.
-     */
+    /** Define a context with a given block. See [describe] */
     suspend fun <ContextDependency> context(
         name: String,
         tags: Set<String> = setOf(),
@@ -71,7 +71,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
     ) = describe(name, tags, isolation, ignored, given, contextLambda)
 
-    /** Define a test context. Prefer [describe] with a description of behavior. */
+    /** Define a test context. see [describe] */
     suspend fun context(
         name: String,
         tags: Set<String> = setOf(),
@@ -80,7 +80,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
         function: ContextLambda
     ) = describe(name, tags, isolation, ignored, function)
 
-    /** Define a test. Prefer [it] */
+    /** Define a test. see [it] */
     suspend fun test(
         name: String,
         tags: Set<String> = setOf(),

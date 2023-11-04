@@ -9,7 +9,6 @@ import failgood.internal.FailedRootContext
 import failgood.internal.LoadResults
 import failgood.internal.SuiteExecutionContext
 import failgood.internal.TestFilterProvider
-import failgood.internal.sysinfo.cpus
 import kotlin.reflect.KClass
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -26,7 +25,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     }
 
     fun run(
-        parallelism: Int = cpus(),
+        parallelism: Int? = null,
         silent: Boolean = false,
         listener: ExecutionListener = NullExecutionListener
     ): SuiteResult {

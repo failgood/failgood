@@ -21,6 +21,7 @@ import strikt.assertions.isEqualTo
 import strikt.assertions.isTrue
 import strikt.assertions.single
 
+/** This tests the old junit engine, so it will probably go away at some point */
 @Test
 class FailGoodJunitTestEngineTest {
     val context =

@@ -27,12 +27,18 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     fun run(
         parallelism: Int? = null,
         silent: Boolean = false,
+        filter: TestFilterProvider? = null,
         listener: ExecutionListener = NullExecutionListener
     ): SuiteResult {
         return SuiteExecutionContext(parallelism).use { suiteExecutionContext ->
             suiteExecutionContext.coroutineDispatcher.use { dispatcher ->
                 runBlocking(dispatcher) {
-                    val contextInfos = findTests(this, listener = listener)
+                    val contextInfos =
+                        findTests(
+                            this,
+                            filter = filter ?: ExecuteAllTestFilterProvider,
+                            listener = listener
+                        )
                     if (!silent) {
                         printResults(this, contextInfos)
                     }
@@ -57,11 +63,11 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     internal suspend fun findTests(
         coroutineScope: CoroutineScope,
         executeTests: Boolean = true,
-        executionFilter: TestFilterProvider = ExecuteAllTestFilterProvider,
+        filter: TestFilterProvider = ExecuteAllTestFilterProvider,
         listener: ExecutionListener = NullExecutionListener
     ): List<Deferred<ContextResult>> {
         return getRootContexts(coroutineScope)
-            .investigate(coroutineScope, executeTests, executionFilter, listener)
+            .investigate(coroutineScope, executeTests, filter, listener)
     }
 
     internal suspend fun getRootContexts(coroutineScope: CoroutineScope): LoadResults =

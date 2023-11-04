@@ -1,9 +1,6 @@
 package failgood.junit.next
 
 import failgood.TestContainer
-import failgood.awaitTestResults
-import failgood.internal.ExecuteAllTestFilterProvider
-import failgood.internal.SuiteExecutionContext
 import failgood.junit.ContextFinder
 import failgood.junit.FailGoodJunitTestEngineConstants
 import failgood.junit.FailGoodJunitTestEngineConstants.DEBUG_TXT_FILENAME
@@ -15,8 +12,6 @@ import failgood.junit.TestMapper
 import failgood.junit.niceString
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.runBlocking
 import org.junit.platform.engine.EngineDiscoveryRequest
 import org.junit.platform.engine.ExecutionRequest
 import org.junit.platform.engine.TestDescriptor
@@ -57,11 +52,6 @@ class NewJunitEngine : TestEngine {
         val root = request.rootTestDescriptor
         if (root !is FailGoodEngineDescriptor) return
         val startedContexts = ConcurrentHashMap.newKeySet<TestContainer>()
-        val suiteExecutionContext = SuiteExecutionContext()
-        val loadResults =
-            runBlocking(suiteExecutionContext.coroutineDispatcher) {
-                root.suiteAndFilters.suite.getRootContexts(suiteExecutionContext.scope)
-            }
 
         val loggingEngineExecutionListener =
             LoggingEngineExecutionListener(request.engineExecutionListener)
@@ -71,18 +61,11 @@ class NewJunitEngine : TestEngine {
         try {
             val testMapper = TestMapper()
             val results =
-                runBlocking(suiteExecutionContext.coroutineDispatcher) {
-                    val r =
-                        loadResults
-                            .investigate(
-                                suiteExecutionContext.scope,
-                                true,
-                                root.suiteAndFilters.filter ?: ExecuteAllTestFilterProvider,
-                                NewExecutionListener(root, listener, startedContexts, testMapper)
-                            )
-                            .awaitAll()
-                    awaitTestResults(r)
-                }
+                root.suiteAndFilters.suite.run(
+                    filter = root.suiteAndFilters.filter,
+                    listener = NewExecutionListener(root, listener, startedContexts, testMapper),
+                    silent = true
+                )
             // report the failing root contexts
             results.failedRootContexts.forEach {
                 val node = TestPlanNode.Container(it.context.name)

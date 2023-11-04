@@ -1,6 +1,6 @@
 package failgood.internal
 
-internal interface TestFilter {
+interface TestFilter {
     /** return true when this context path needs to be executed to satisfy the filter. */
     fun shouldRun(testPath: Path): Boolean
 }

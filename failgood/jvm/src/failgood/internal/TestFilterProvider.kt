@@ -1,6 +1,6 @@
 package failgood.internal
 
-internal interface TestFilterProvider {
+interface TestFilterProvider {
     fun forClass(className: String): TestFilter
 }
 

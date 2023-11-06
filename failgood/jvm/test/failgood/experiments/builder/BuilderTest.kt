@@ -47,7 +47,7 @@ data class ContextBuilder(
     fun tagged(vararg s: String) = this.copy(tags = s.asList())
 }
 
-interface XContextDSL : ContextDSL<Unit>
+interface XContextDSL : ContextDSL<Unit, Unit>
 
 data class RootContext(
     val name: String = "root",

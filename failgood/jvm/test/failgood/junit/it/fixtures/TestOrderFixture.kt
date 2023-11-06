@@ -15,7 +15,7 @@ class TestOrderFixture {
             context("context 4") { fourTests() }
         }
 
-    private suspend fun ContextDSL<Unit>.fourTests() {
+    private suspend fun ContextDSL<Unit, Unit>.fourTests() {
         test("test 1") {}
         test("test 2") {}
         test("test 3") {}

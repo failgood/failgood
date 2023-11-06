@@ -17,7 +17,9 @@ class ContractsTest {
             describe("LinkedList") { behavesAsMutableCollection(LinkedList()) }
         }
 
-    private suspend fun ContextDSL<Unit>.behavesAsMutableCollection(fixture: MutableList<String>) {
+    private suspend fun ContextDSL<Unit, Unit>.behavesAsMutableCollection(
+        fixture: MutableList<String>
+    ) {
         context("behaves as MutableCollection") {
             test("is empty when created") { expectThat(fixture.isEmpty()) }
 

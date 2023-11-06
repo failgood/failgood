@@ -4,7 +4,7 @@ package failgood
     message = "moved to failgood.dsl",
     replaceWith = ReplaceWith("ContextDSL", "failgood.dsl.ContextDSL")
 )
-typealias ContextDSL<T> = failgood.dsl.ContextDSL<T>
+typealias ContextDSL<ContextDependency, Given> = failgood.dsl.ContextDSL<ContextDependency, Given>
 
 @Deprecated(
     message = "moved to failgood.dsl",

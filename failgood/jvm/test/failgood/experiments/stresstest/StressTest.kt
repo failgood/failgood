@@ -40,6 +40,6 @@ class StressTest {
 fun runMultipleTimes(
     name: String,
     times: Int,
-    tests: suspend ContextDSL<*>.() -> Unit
+    tests: suspend ContextDSL<*, *>.() -> Unit
 ): List<RootContext> =
     (1..times).map { index -> RootContext(name + index, order = index) { tests() } }

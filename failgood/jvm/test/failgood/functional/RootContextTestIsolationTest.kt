@@ -27,7 +27,7 @@ class RootContextTestIsolationTest {
         describe("test isolation for root contexts") {
             val afterEachParameters = ConcurrentHashMap<String, TestResult>()
             val totalEvents = CopyOnWriteArrayList<List<String>>()
-            suspend fun ContextDSL<Unit>.contextFixture() {
+            suspend fun ContextDSL<Unit, Unit>.contextFixture() {
                 val testEvents = CopyOnWriteArrayList<String>()
                 totalEvents.add(testEvents)
                 testEvents.add(ROOT_CONTEXT_EXECUTED)
@@ -56,7 +56,7 @@ class RootContextTestIsolationTest {
                 test("test 4", function = logTest)
             }
 
-            suspend fun ContextDSL<Unit>.testAfterEach() {
+            suspend fun ContextDSL<Unit, Unit>.testAfterEach() {
                 it("passes testInfo and success to afterEach") {
                     expectThat(afterEachParameters.keys().toList())
                         .containsExactlyInAnyOrder("test 1", "test 2", "test 3", "test 4")

@@ -20,7 +20,7 @@ internal class SingleTestExecutor(
     private val startTime = System.nanoTime()
 
     suspend fun execute(): TestResult {
-        val dsl: ContextDSL<Unit> = contextDSL({}, test.container.path.drop(1))
+        val dsl: ContextDSL<Unit, Unit> = contextDSL({}, test.container.path.drop(1))
         return try {
             dsl.(rootContextLambda)()
             throw FailGoodException(
@@ -34,15 +34,15 @@ internal class SingleTestExecutor(
         }
     }
 
-    private open inner class Base<GivenType> :
-        ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
+    private open inner class Base<ContextDependency, GivenType> :
+        ContextDSL<ContextDependency, GivenType>, ResourcesDSL by resourcesCloser {
         override suspend fun <ContextDependency> describe(
             name: String,
             tags: Set<String>,
             isolation: Boolean?,
             ignored: Ignored?,
             given: suspend () -> ContextDependency,
-            contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
+            contextLambda: suspend ContextDSL<Unit, ContextDependency>.() -> Unit
         ) {}
 
         override suspend fun it(
@@ -55,30 +55,32 @@ internal class SingleTestExecutor(
         override fun afterSuite(function: suspend () -> Unit) {}
     }
 
-    private inner class ContextFinder<GivenType>(private val contexts: List<String>) :
-        ContextDSL<GivenType>, Base<GivenType>() {
+    private inner class ContextFinder<ContextDependency, GivenType>(
+        private val contexts: List<String>
+    ) : ContextDSL<ContextDependency, GivenType>, Base<ContextDependency, GivenType>() {
         override suspend fun <ContextDependency> describe(
             name: String,
             tags: Set<String>,
             isolation: Boolean?,
             ignored: Ignored?,
             given: suspend () -> ContextDependency,
-            contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
+            contextLambda: suspend ContextDSL<Unit, ContextDependency>.() -> Unit
         ) {
             if (contexts.first() != name) return
 
-            contextDSL(given, contexts.drop(1)).contextLambda()
+            contextDSL<Unit, ContextDependency>(given, contexts.drop(1)).contextLambda()
         }
     }
 
-    private fun <ContextDependency> contextDSL(
-        given: suspend () -> ContextDependency,
+    private fun <ContextDependency, GivenType> contextDSL(
+        given: suspend () -> GivenType,
         parentContexts: List<String>
-    ): ContextDSL<ContextDependency> =
+    ): ContextDSL<ContextDependency, GivenType> =
         if (parentContexts.isEmpty()) TestFinder(given) else ContextFinder(parentContexts)
 
-    private inner class TestFinder<GivenType>(val given: suspend () -> GivenType) :
-        Base<GivenType>() {
+    private inner class TestFinder<ContextDependency, GivenType>(
+        val given: suspend () -> GivenType
+    ) : Base<ContextDependency, GivenType>() {
         override suspend fun it(
             name: String,
             tags: Set<String>,

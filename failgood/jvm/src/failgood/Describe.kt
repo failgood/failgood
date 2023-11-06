@@ -57,7 +57,7 @@ fun describe(
 ): RootContext =
     RootContext("${subjectType.simpleName}", ignored, order, isolation, function = function)
 
-suspend inline fun <reified Class> ContextDSL<*>.describe(
+suspend inline fun <reified Class> ContextDSL<*, *>.describe(
     tags: Set<String> = setOf(),
     isolation: Boolean? = null,
     ignored: Ignored? = null,

@@ -13,7 +13,7 @@ import failgood.internal.ContextPath
 import failgood.internal.ResourcesCloser
 import kotlinx.coroutines.CompletableDeferred
 
-internal class ContextVisitor<GivenType>(
+internal class ContextVisitor<ContextDependency, GivenType>(
     private val staticConfig: StaticContextExecutionConfig,
     private val contextStateCollector: ContextStateCollector,
     private val context: Context,
@@ -26,7 +26,7 @@ internal class ContextVisitor<GivenType>(
     // there is no need to check tests, just go into sub contexts
     private val onlyRunSubcontexts: Boolean,
     private val rootContextStartTime: Long
-) : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
+) : ContextDSL<ContextDependency, GivenType>, ResourcesDSL by resourcesCloser {
     private val isolation = context.isolation
     private val namesInThisContext =
         mutableSetOf<String>() // test and context names to detect duplicates
@@ -94,13 +94,13 @@ internal class ContextVisitor<GivenType>(
         }
     }
 
-    override suspend fun <ContextDependency> describe(
+    override suspend fun <ContextGiven> describe(
         name: String,
         tags: Set<String>,
         isolation: Boolean?,
         ignored: Ignored?,
-        given: (suspend () -> ContextDependency),
-        contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
+        given: (suspend () -> ContextGiven),
+        contextLambda: suspend ContextDSL<Unit, ContextGiven>.() -> Unit
     ) {
         checkForDuplicateName(name)
         if (!shouldRun(tags)) return
@@ -148,7 +148,7 @@ internal class ContextVisitor<GivenType>(
             return
         }
         val visitor =
-            ContextVisitor(
+            ContextVisitor<Unit, ContextGiven>(
                 staticConfig,
                 contextStateCollector,
                 context,

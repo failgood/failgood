@@ -40,7 +40,7 @@ object JunitPlatformFunctionalTest {
             describe("The New Junit Platform Engine") { tests(true) }
         )
 
-    private suspend fun ContextDSL<Unit>.tests(newEngine: Boolean) {
+    private suspend fun ContextDSL<Unit, Unit>.tests(newEngine: Boolean) {
         suspend fun execute(discoverySelectors: List<DiscoverySelector>): Results {
             val listener = TEListener()
 

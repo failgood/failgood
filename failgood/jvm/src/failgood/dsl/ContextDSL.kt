@@ -7,7 +7,7 @@ import failgood.Ignored
  * but you can also use [context] to define a context and [test] to define a test.
  */
 @FailGoodDSL
-interface ContextDSL<GivenType> : ResourcesDSL {
+interface ContextDSL<ContextDependency, GivenType> : ResourcesDSL {
     /**
      * Define a context that describes a subject with a given block. Set [isolation] false to turn
      * off test isolation for this context.
@@ -24,7 +24,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
         isolation: Boolean? = null,
         ignored: Ignored? = null,
         given: (suspend () -> ContextGiven),
-        contextLambda: suspend ContextDSL<ContextGiven>.() -> Unit
+        contextLambda: suspend ContextDSL<Unit, ContextGiven>.() -> Unit
     )
 
     /**
@@ -68,7 +68,7 @@ interface ContextDSL<GivenType> : ResourcesDSL {
         isolation: Boolean? = null,
         given: (suspend () -> ContextDependency),
         ignored: Ignored? = null,
-        contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
+        contextLambda: suspend ContextDSL<Unit, ContextDependency>.() -> Unit
     ) = describe(name, tags, isolation, ignored, given, contextLambda)
 
     /** Define a test context. see [describe] */
@@ -89,6 +89,6 @@ interface ContextDSL<GivenType> : ResourcesDSL {
     ) = it(name, tags, ignored, function)
 }
 
-internal typealias ContextLambda = suspend ContextDSL<Unit>.() -> Unit
+internal typealias ContextLambda = suspend ContextDSL<Unit, Unit>.() -> Unit
 
 internal typealias TestLambda<GivenType> = suspend TestDSL.(GivenType) -> Unit

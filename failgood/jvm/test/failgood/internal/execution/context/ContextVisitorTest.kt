@@ -9,11 +9,12 @@ import kotlinx.coroutines.coroutineScope
 @Test
 object ContextVisitorTest {
     val tests =
-        describe<ContextVisitor<*>> {
+        //        describe<ContextVisitor<*>> { // TODO find out why this no longer works.
+        describe {
             it("can be easily created") {
                 coroutineScope {
                     val staticConfig = StaticContextExecutionConfig({}, this)
-                    ContextVisitor(
+                    ContextVisitor<Unit, Unit>(
                         staticConfig = staticConfig,
                         contextStateCollector = ContextStateCollector(staticConfig, false),
                         context = Context("root"),

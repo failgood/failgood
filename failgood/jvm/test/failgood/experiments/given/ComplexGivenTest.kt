@@ -54,7 +54,7 @@ class ComplexGivenTest {
             }
         }
 
-    private fun <ContextDependency> ContextDSL<Unit>.given2(
+    private fun <ContextDependency> ContextDSL<Unit, Unit>.given2(
         contextName: String,
         dependency: suspend () -> ContextDependency,
         dependencyTeardown: suspend (ContextDependency) -> Unit = {},
@@ -70,6 +70,6 @@ class ComplexGivenTest {
     ) {}
 }
 
-interface GivenDSL<T> : ContextDSL<Unit> {
+interface GivenDSL<T> : ContextDSL<Unit, Unit> {
     suspend fun test2(name: String, function: suspend (T) -> Unit)
 }

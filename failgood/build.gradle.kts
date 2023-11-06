@@ -1,9 +1,6 @@
 @file:Suppress("GradlePackageUpdate")
 
-import failgood.versions.coroutinesVersion
-import failgood.versions.junitPlatformVersion
-import failgood.versions.pitestVersion
-import failgood.versions.striktVersion
+import failgood.versions.*
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
 plugins {
@@ -41,8 +38,8 @@ dependencies {
     testImplementation(kotlin("test"))
 
     // for the tools that analyze what events jupiter tests generate.
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.1")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.10.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
 }
 sourceSets.main {
     java.srcDirs("jvm/src")

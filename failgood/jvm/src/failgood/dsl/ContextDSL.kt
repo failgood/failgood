@@ -18,13 +18,13 @@ interface ContextDSL<GivenType> : ResourcesDSL {
      * The whole context can be set to be ignored by setting [ignored] to `Because(<Reason for
      * ignoring>)`, see [Ignored].
      */
-    suspend fun <ContextDependency> describe(
+    suspend fun <ContextGiven> describe(
         name: String,
         tags: Set<String> = setOf(),
         isolation: Boolean? = null,
         ignored: Ignored? = null,
-        given: (suspend () -> ContextDependency),
-        contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
+        given: (suspend () -> ContextGiven),
+        contextLambda: suspend ContextDSL<ContextGiven>.() -> Unit
     )
 
     /**

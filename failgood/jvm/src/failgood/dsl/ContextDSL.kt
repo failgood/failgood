@@ -36,7 +36,7 @@ interface ContextDSL<ContextDependency, GivenType> : ResourcesDSL {
         tags: Set<String> = setOf(),
         isolation: Boolean? = null,
         ignored: Ignored? = null,
-        function: ContextLambda
+        function: suspend ContextDSL<Unit, Unit>.() -> Unit
     ) = describe(name, tags, isolation, ignored, {}, function)
 
     /**
@@ -77,7 +77,7 @@ interface ContextDSL<ContextDependency, GivenType> : ResourcesDSL {
         tags: Set<String> = setOf(),
         isolation: Boolean? = null,
         ignored: Ignored? = null,
-        function: ContextLambda
+        function: suspend ContextDSL<Unit, Unit>.() -> Unit
     ) = describe(name, tags, isolation, ignored, function)
 
     /** Define a test. see [it] */

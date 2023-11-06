@@ -6,14 +6,14 @@ import java.lang.reflect.ParameterizedType
 import kotlin.reflect.KClass
 
 fun interface ContextProvider {
-    fun getContexts(): List<RootContext>
+    fun getContexts(): List<RootContext<*>>
 }
 
 class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvider {
     constructor(kClass: KClass<*>) : this(kClass.java)
 
     /** get root contexts from a class or object or defined at the top level */
-    override fun getContexts(): List<RootContext> {
+    override fun getContexts(): List<RootContext<*>> {
         // the RootContext constructor tries to determine its file and line number.
         // if the root context is created by a utility method outside the test class the file and
         // line info
@@ -30,7 +30,7 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
         }
     }
 
-    private fun getContextsInternal(): List<RootContext> {
+    private fun getContextsInternal(): List<RootContext<*>> {
         val instance =
             try {
                 instantiateClassOrObject(jClass)
@@ -61,8 +61,11 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
                         it.returnType == List::class.java &&
                             it.genericReturnType.let { genericReturnType ->
                                 genericReturnType is ParameterizedType &&
-                                    genericReturnType.actualTypeArguments.singleOrNull() ==
-                                        RootContext::class.java
+                                    genericReturnType.actualTypeArguments.singleOrNull().let {
+                                        it == RootContext::class.java ||
+                                            (it is ParameterizedType &&
+                                                it.rawType == RootContext::class.java)
+                                    }
                             }
                 }
                 .ifEmpty {
@@ -99,7 +102,7 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
                     )
                 }
             @Suppress("UNCHECKED_CAST")
-            contexts as? List<RootContext> ?: listOf(contexts as RootContext)
+            contexts as? List<RootContext<*>> ?: listOf(contexts as RootContext<*>)
         }
     }
 

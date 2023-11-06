@@ -1,6 +1,6 @@
 package failgood
 
-import failgood.dsl.ContextLambda
+import failgood.dsl.RootContextLambda
 import failgood.internal.ContextPath
 import kotlin.reflect.KClass
 
@@ -30,14 +30,15 @@ internal data class CouldNotLoadContext(val reason: Throwable, val kClass: KClas
         get() = 0
 }
 
-fun RootContext(
+@JvmName("RootContextGeneric")
+fun <RootContextDependency> RootContext(
     name: String = "root",
     ignored: Ignored? = null,
     order: Int = 0,
     isolation: Boolean = true,
     sourceInfo: SourceInfo = callerSourceInfo(),
     addClassName: Boolean = false,
-    function: ContextLambda
+    function: RootContextLambda<RootContextDependency>
 ) =
     RootContext(
         Context(name, null, sourceInfo, isolation),
@@ -47,12 +48,29 @@ fun RootContext(
         function = function
     )
 
-data class RootContext(
+fun RootContext(
+    name: String = "root",
+    ignored: Ignored? = null,
+    order: Int = 0,
+    isolation: Boolean = true,
+    sourceInfo: SourceInfo = callerSourceInfo(),
+    addClassName: Boolean = false,
+    function: RootContextLambda<Unit>
+) =
+    RootContext(
+        Context(name, null, sourceInfo, isolation),
+        order,
+        ignored,
+        addClassName,
+        function = function
+    )
+
+data class RootContext<RootContextDependency>(
     val context: Context,
     override val order: Int = 0,
     val ignored: Ignored?,
     val addClassName: Boolean = false,
-    val function: ContextLambda
+    val function: RootContextLambda<RootContextDependency>
 ) : LoadResult, failgood.internal.Path {
     val sourceInfo: SourceInfo
         get() =

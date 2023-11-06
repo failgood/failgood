@@ -2,8 +2,8 @@ package failgood.internal
 
 import failgood.*
 import failgood.dsl.ContextDSL
-import failgood.dsl.ContextLambda
 import failgood.dsl.ResourcesDSL
+import failgood.dsl.RootContextLambda
 import failgood.dsl.TestDSL
 import failgood.dsl.TestLambda
 
@@ -11,16 +11,17 @@ import failgood.dsl.TestLambda
  * Executes a single test with all its parent contexts Async Called by ContextExecutor to execute
  * all tests that it does not have to execute itself
  */
-internal class SingleTestExecutor(
+internal class SingleTestExecutor<RootContexDependency>(
     private val test: ContextPath,
     val testDSL: TestDSL,
     val resourcesCloser: ResourcesCloser,
-    private val rootContextLambda: ContextLambda
+    private val rootContextLambda: RootContextLambda<RootContexDependency>
 ) {
     private val startTime = System.nanoTime()
 
     suspend fun execute(): TestResult {
-        val dsl: ContextDSL<Unit, Unit> = contextDSL({}, test.container.path.drop(1))
+        val dsl: ContextDSL<RootContexDependency, Unit> =
+            contextDSL({}, test.container.path.drop(1))
         return try {
             dsl.(rootContextLambda)()
             throw FailGoodException(

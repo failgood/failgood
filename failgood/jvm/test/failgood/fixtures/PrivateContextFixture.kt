@@ -5,7 +5,7 @@ import failgood.describe
 
 class PrivateContextFixture {
     private val otherContext = describe("context fixture") {}
-    val context: RootContext =
+    val context =
         describe(RootContext::class) {
             it("test") {
                 val testContext = otherContext

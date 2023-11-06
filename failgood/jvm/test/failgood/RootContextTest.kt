@@ -7,7 +7,7 @@ import strikt.assertions.isEqualTo
 class RootContextTest {
     private val ste = Throwable().stackTrace.first()!!
     val otherContext = describe("context fixture") {}
-    val context: RootContext =
+    val context =
         describe(RootContext::class) {
             val testContext = otherContext
             it("knows its className and line number") {

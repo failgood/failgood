@@ -1,7 +1,7 @@
 package failgood.internal
 
 import failgood.*
-import failgood.dsl.ContextLambda
+import failgood.dsl.RootContextLambda
 import failgood.dsl.TestDSL
 import failgood.mock.mock
 import kotlinx.coroutines.coroutineScope
@@ -18,7 +18,7 @@ class SingleTestExecutorTest {
             val resourceCloser = coroutineScope { ResourceCloserImpl(this) }
             describe("test execution") {
                 val events = mutableListOf<String>()
-                val ctx: ContextLambda = {
+                val ctx: RootContextLambda<Unit> = {
                     events.add("root context")
                     test("test 1") { events.add("test 1") }
                     test("test 2") { events.add("test 2") }
@@ -62,7 +62,7 @@ class SingleTestExecutorTest {
                 }
             }
             it("also supports describe / it") {
-                val context: ContextLambda = {
+                val context: RootContextLambda<Unit> = {
                     describe("with a valid root context") {
                         it("returns number of tests") {}
                         it("returns contexts") {}

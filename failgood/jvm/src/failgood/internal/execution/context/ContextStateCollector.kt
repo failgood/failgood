@@ -5,8 +5,8 @@ import failgood.dsl.TestLambda
 import failgood.internal.*
 import kotlinx.coroutines.*
 
-internal class ContextStateCollector(
-    private val staticConfig: StaticContextExecutionConfig,
+internal class ContextStateCollector<RootContextDependency>(
+    private val staticConfig: StaticContextExecutionConfig<RootContextDependency>,
     // did we find contexts without isolation in this root context?
     // in that case we have to call the resources closer after suite.
     var containsContextsWithoutIsolation: Boolean

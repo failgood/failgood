@@ -41,5 +41,5 @@ fun runMultipleTimes(
     name: String,
     times: Int,
     tests: suspend ContextDSL<*, *>.() -> Unit
-): List<RootContext> =
+): List<RootContext<Unit>> =
     (1..times).map { index -> RootContext(name + index, order = index) { tests() } }

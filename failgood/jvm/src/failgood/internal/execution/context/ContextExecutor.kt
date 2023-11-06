@@ -6,8 +6,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.withTimeout
 
-internal class ContextExecutor(
-    private val rootContext: RootContext,
+internal class ContextExecutor<RootContextDependency>(
+    private val rootContext: RootContext<RootContextDependency>,
     scope: CoroutineScope,
     lazy: Boolean = false,
     listener: ExecutionListener = NullExecutionListener,
@@ -16,7 +16,7 @@ internal class ContextExecutor(
     runOnlyTag: String? = null
 ) {
     private val staticExecutionConfig =
-        StaticContextExecutionConfig(
+        StaticContextExecutionConfig<RootContextDependency>(
             rootContext.function,
             scope,
             listener,
@@ -57,7 +57,7 @@ internal class ContextExecutor(
                 val startTime = System.nanoTime()
                 val resourcesCloser = ResourceCloserImpl(staticExecutionConfig.scope)
                 val visitor =
-                    ContextVisitor<Unit, Unit>(
+                    ContextVisitor<RootContextDependency, Unit>(
                         staticExecutionConfig,
                         stateCollector,
                         rootContext,

@@ -1,6 +1,6 @@
 package failgood
 
-import failgood.dsl.ContextLambda
+import failgood.dsl.RootContextLambda
 import failgood.internal.ContextInfo
 import failgood.internal.ContextResult
 import failgood.internal.ContextTreeReporter
@@ -146,11 +146,12 @@ internal fun printResults(
     }
 }
 
-fun Suite(rootContexts: Collection<RootContext>) =
+fun Suite(rootContexts: Collection<RootContext<*>>) =
     Suite(rootContexts.map { ContextProvider { listOf(it) } })
 
 fun Suite(kClasses: List<KClass<*>>) = Suite(kClasses.map { ObjectContextProvider(it) })
 
-fun Suite(rootContext: RootContext) = Suite(listOf(ContextProvider { listOf(rootContext) }))
+fun Suite(rootContext: RootContext<*>) = Suite(listOf(ContextProvider { listOf(rootContext) }))
 
-fun Suite(lambda: ContextLambda) = Suite(RootContext("root", order = 0, function = lambda))
+fun Suite(lambda: RootContextLambda<Unit>) =
+    Suite(RootContext("root", order = 0, function = lambda))

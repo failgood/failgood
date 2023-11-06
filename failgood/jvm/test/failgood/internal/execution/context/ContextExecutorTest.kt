@@ -484,7 +484,7 @@ object ContextExecutorTest {
         expectThat(contextResult).isA<ContextInfo>().subject.tests.values.awaitAll()
     }
 
-    private suspend fun execute(context: RootContext, tag: String? = null): ContextResult {
+    private suspend fun execute(context: RootContext<Unit>, tag: String? = null): ContextResult {
         return coroutineScope { ContextExecutor(context, this, runOnlyTag = tag).execute() }
     }
 

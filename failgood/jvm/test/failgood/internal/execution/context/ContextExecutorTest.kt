@@ -472,7 +472,10 @@ object ContextExecutorTest {
                         test("test") {}
                     }
                     val contextResult = execute(context)
-                    expectSuccess(contextResult)
+                    assert(
+                        contextResult is ContextInfo &&
+                            contextResult.tests.values.awaitAll().all { !it.isFailure }
+                    )
                 }
                 test("tests can not contain nested contexts") {
                     // context("this does not even compile") {}
@@ -481,7 +484,10 @@ object ContextExecutorTest {
         }
 
     private suspend fun expectSuccess(contextResult: ContextResult) {
-        expectThat(contextResult).isA<ContextInfo>().subject.tests.values.awaitAll()
+        assert(
+            contextResult is ContextInfo &&
+                contextResult.tests.values.awaitAll().all { it.isSuccess }
+        )
     }
 
     private suspend fun execute(context: RootContext, tag: String? = null): ContextResult {

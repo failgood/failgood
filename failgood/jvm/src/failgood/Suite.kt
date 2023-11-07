@@ -70,7 +70,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
             .investigate(coroutineScope, executeTests, filter, listener)
     }
 
-    internal suspend fun getRootContexts(coroutineScope: CoroutineScope): LoadResults =
+    private suspend fun getRootContexts(coroutineScope: CoroutineScope): LoadResults =
         LoadResults(
             contextProviders
                 .map {
@@ -151,6 +151,6 @@ fun Suite(rootContexts: Collection<RootContext>) =
 
 fun Suite(kClasses: List<KClass<*>>) = Suite(kClasses.map { ObjectContextProvider(it) })
 
-fun Suite(rootContext: RootContext) = Suite(listOf(ContextProvider { listOf(rootContext) }))
+fun Suite(rootContext: RootContext) = Suite(listOf(rootContext))
 
 fun Suite(lambda: ContextLambda) = Suite(RootContext("root", order = 0, function = lambda))

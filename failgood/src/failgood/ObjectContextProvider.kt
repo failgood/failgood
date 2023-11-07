@@ -9,8 +9,8 @@ fun interface ContextProvider {
     fun getContexts(): List<RootContextWithGiven<*>>
 }
 
-class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvider {
-    constructor(kClass: KClass<*>) : this(kClass.java)
+class ObjectContextProvider<Cls : Any>(private val jClass: Class<out Cls>) : ContextProvider {
+    constructor(kClass: KClass<Cls>) : this(kClass.java)
 
     /** get root contexts from a class or object or defined at the top level */
     override fun getContexts(): List<RootContext> {

@@ -12,6 +12,13 @@ fun interface ContextProvider {
 class ObjectContextProvider<Cls : Any>(private val jClass: Class<out Cls>) : ContextProvider {
     constructor(kClass: KClass<Cls>) : this(kClass.java)
 
+    data class ContextDependency<Cls>(
+        val jClass: Class<out Cls>,
+        val instance: Any?,
+        val method: Method,
+        val dependencies: List<Class<*>>
+    )
+
     /** get root contexts from a class or object or defined at the top level */
     override fun getContexts(): List<RootContext> {
         // the RootContext constructor tries to determine its file and line number.
@@ -31,46 +38,10 @@ class ObjectContextProvider<Cls : Any>(private val jClass: Class<out Cls>) : Con
     }
 
     private fun getContextsInternal(): List<RootContext> {
-        val instance =
-            try {
-                instantiateClassOrObject(jClass)
-            } catch (e: InvocationTargetException) {
-                throw ErrorLoadingContextsFromClass(
-                    "Could not load contexts from class",
-                    jClass.kotlin,
-                    e.targetException
-                )
-            } catch (e: IllegalArgumentException) {
-                throw ErrorLoadingContextsFromClass(
-                    "No suitable constructor found for class ${jClass.name}",
-                    jClass.kotlin,
-                    e
-                )
-            } catch (e: IllegalAccessException) { // just ignore private classes
-                throw ErrorLoadingContextsFromClass(
-                    "Test class ${jClass.name} is private. Just remove the @Test annotation if you don't want to run it, or make it public if you do.",
-                    jClass.kotlin
-                )
-            }
+        val instance = createInstance()
 
         // get contexts from all methods returning RootContext or List<RootContext>
-        val methodsReturningRootContext =
-            jClass.methods
-                .filter {
-                    it.returnType == RootContextWithGiven::class.java ||
-                        it.returnType == List::class.java &&
-                            it.genericReturnType.let { genericReturnType ->
-                                genericReturnType is ParameterizedType &&
-                                    genericReturnType.actualTypeArguments.singleOrNull().let {
-                                        actualTypArg ->
-                                        actualTypArg is ParameterizedType &&
-                                            actualTypArg.rawType == RootContextWithGiven::class.java
-                                    }
-                            }
-                }
-                .ifEmpty {
-                    throw ErrorLoadingContextsFromClass("no contexts found in class", jClass.kotlin)
-                }
+        val methodsReturningRootContext = getMethodsReturningContexts()
         return methodsReturningRootContext.flatMap {
             val contexts =
                 try {
@@ -106,8 +77,71 @@ class ObjectContextProvider<Cls : Any>(private val jClass: Class<out Cls>) : Con
         }
     }
 
+    private fun getMethodsReturningContexts(): List<Method> {
+        val methodsReturningRootContext =
+            jClass.methods
+                .filter {
+                    it.returnType == RootContextWithGiven::class.java ||
+                            it.returnType == List::class.java &&
+                            it.genericReturnType.let { genericReturnType ->
+                                genericReturnType is ParameterizedType &&
+                                        genericReturnType.actualTypeArguments.singleOrNull().let {
+                                                actualTypArg ->
+                                            actualTypArg is ParameterizedType &&
+                                                    actualTypArg.rawType == RootContextWithGiven::class.java
+                                        }
+                            }
+                }
+                .ifEmpty {
+                    throw ErrorLoadingContextsFromClass("no contexts found in class", jClass.kotlin)
+                }
+        return methodsReturningRootContext
+    }
+
+    private fun createInstance(): Any? {
+        val instance =
+            try {
+                instantiateClassOrObject(jClass)
+            } catch (e: InvocationTargetException) {
+                throw ErrorLoadingContextsFromClass(
+                    "Could not load contexts from class",
+                    jClass.kotlin,
+                    e.targetException
+                )
+            } catch (e: IllegalArgumentException) {
+                throw ErrorLoadingContextsFromClass(
+                    "No suitable constructor found for class ${jClass.name}",
+                    jClass.kotlin,
+                    e
+                )
+            } catch (e: IllegalAccessException) { // just ignore private classes
+                throw ErrorLoadingContextsFromClass(
+                    "Test class ${jClass.name} is private. Just remove the @Test annotation if you don't want to run it, or make it public if you do.",
+                    jClass.kotlin
+                )
+            }
+        return instance
+    }
+
     private fun Method.niceString() =
         "${jClass.name}.$name(${parameters.joinToString { it.name + " " + it.type.simpleName }})"
+
+    fun getContextDependencies(): List<ContextDependency<Cls>> {
+        val instance = createInstance()
+
+        // get contexts from all methods returning RootContext or List<RootContext>
+        val methodsReturningRootContext = getMethodsReturningContexts()
+        return methodsReturningRootContext.map { method ->
+            ContextDependency(
+                jClass,
+                instance,
+                method,
+                method.parameters
+                    .map { parameter -> parameter.type }
+                    .filter { clazz -> clazz != jClass }
+            )
+        }
+    }
 
     companion object {
         fun instantiateClassOrObject(clazz: Class<out Any>): Any? {

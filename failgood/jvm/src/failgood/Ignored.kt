@@ -8,6 +8,11 @@ package failgood
  * ```
  */
 fun interface Ignored {
+    // todo before the pr can be merged.
+    object TODO : Ignored {
+        override fun isIgnored() = "TODO"
+    }
+
     fun isIgnored(): String?
 
     /**

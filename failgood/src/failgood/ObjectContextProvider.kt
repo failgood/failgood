@@ -5,21 +5,27 @@ import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 import kotlin.reflect.KClass
 
-fun interface ContextProvider {
+interface ContextCreator {
+    val dependencies: List<Class<*>>
+    val method: Method?
+
     fun getContexts(): List<RootContextWithGiven<*>>
+}
+
+fun interface ContextProvider {
+    fun getContextCreators(): List<ContextCreator>
 }
 
 class ObjectContextProvider<Cls : Any>(private val jClass: Class<out Cls>) : ContextProvider {
     constructor(kClass: KClass<Cls>) : this(kClass.java)
 
-    data class ContextCreator<Cls>(
-        val jClass: Class<out Cls>,
-        val instance: Any?,
-        val method: Method,
-        val dependencies: List<Class<*>>
-    ) {
-        fun getContexts(
-        ): List<RootContext> {
+    data class ContextCreatorImpl<Cls>(
+        private val jClass: Class<out Cls>,
+        private val instance: Any?,
+        override val method: Method,
+        override val dependencies: List<Class<*>>
+    ) : ContextCreator {
+        override fun getContexts(): List<RootContext> {
             val contexts =
                 try {
                     // the most common case is that the getter has no parameters
@@ -30,8 +36,8 @@ class ObjectContextProvider<Cls : Any>(private val jClass: Class<out Cls>) : Con
                         val typeOfSingleParameter = method.parameters.singleOrNull()?.type
                         if (
                             typeOfSingleParameter != null &&
-                            instance != null &&
-                            typeOfSingleParameter == instance::class.java
+                                instance != null &&
+                                typeOfSingleParameter == instance::class.java
                         )
                             method.invoke(null, instance)
                         else
@@ -49,14 +55,13 @@ class ObjectContextProvider<Cls : Any>(private val jClass: Class<out Cls>) : Con
                         e
                     )
                 }
-            return (@Suppress("UNCHECKED_CAST")
-            contexts as? List<RootContext> ?: listOf(contexts as RootContext))
+            @Suppress("UNCHECKED_CAST")
+            return contexts as? List<RootContext> ?: listOf(contexts as RootContext)
         }
-
     }
 
     /** get root contexts from a class or object or defined at the top level */
-    override fun getContexts(): List<RootContext> {
+    fun getContexts(): List<RootContext> {
         // the RootContext constructor tries to determine its file and line number.
         // if the root context is created by a utility method outside the test class the file and
         // line info
@@ -78,15 +83,10 @@ class ObjectContextProvider<Cls : Any>(private val jClass: Class<out Cls>) : Con
 
         // get contexts from all methods returning RootContext or List<RootContext>
         val methodsReturningRootContext = getMethodsReturningContexts()
-        return methodsReturningRootContext.flatMap {
-            getContexts(it, instance)
-        }
+        return methodsReturningRootContext.flatMap { getContexts(it, instance) }
     }
 
-    private fun getContexts(
-        it: Method,
-        instance: Any?
-    ): List<RootContext> {
+    private fun getContexts(it: Method, instance: Any?): List<RootContext> {
         val contexts =
             try {
                 // the most common case is that the getter has no parameters
@@ -97,8 +97,8 @@ class ObjectContextProvider<Cls : Any>(private val jClass: Class<out Cls>) : Con
                     val typeOfSingleParameter = it.parameters.singleOrNull()?.type
                     if (
                         typeOfSingleParameter != null &&
-                        instance != null &&
-                        typeOfSingleParameter == instance::class.java
+                            instance != null &&
+                            typeOfSingleParameter == instance::class.java
                     )
                         it.invoke(null, instance)
                     else
@@ -116,8 +116,8 @@ class ObjectContextProvider<Cls : Any>(private val jClass: Class<out Cls>) : Con
                     e
                 )
             }
-        return (@Suppress("UNCHECKED_CAST")
-        contexts as? List<RootContext> ?: listOf(contexts as RootContext))
+        @Suppress("UNCHECKED_CAST")
+        return contexts as? List<RootContext> ?: listOf(contexts as RootContext)
     }
 
     private fun getMethodsReturningContexts(): List<Method> {
@@ -166,14 +166,13 @@ class ObjectContextProvider<Cls : Any>(private val jClass: Class<out Cls>) : Con
         return instance
     }
 
-
-    fun getContextDependencies(): List<ContextCreator<Cls>> {
+    override fun getContextCreators(): List<ContextCreator> {
         val instance = createInstance()
 
         // get contexts from all methods returning RootContext or List<RootContext>
         val methodsReturningRootContext = getMethodsReturningContexts()
         return methodsReturningRootContext.map { method ->
-            ContextCreator(
+            ContextCreatorImpl(
                 jClass,
                 instance,
                 method,
@@ -204,5 +203,6 @@ class ObjectContextProvider<Cls : Any>(private val jClass: Class<out Cls>) : Con
         }
     }
 }
+
 private fun Method.niceString(clazz: Class<*>) =
     "${clazz.name}.$name(${parameters.joinToString { it.name + " " + it.type.simpleName }})"

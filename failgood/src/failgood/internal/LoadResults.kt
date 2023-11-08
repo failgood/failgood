@@ -15,7 +15,7 @@ import kotlinx.coroutines.async
 private val timeoutMillis: Long = Suite.parseTimeout(getenv("TIMEOUT"))
 private val tag = getenv("FAILGOOD_TAG")
 
-internal class LoadResults(private val loadResults: List<LoadResult>) {
+internal class LoadResults(private val loadResults: List<ContextCreator>) {
     fun investigate(
         coroutineScope: CoroutineScope,
         executeTests: Boolean = true,

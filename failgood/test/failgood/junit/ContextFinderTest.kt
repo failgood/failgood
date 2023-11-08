@@ -32,6 +32,8 @@ class ContextFinderTest {
                 assert(
                     result.suite.contextProviders
                         .singleOrNull()
+                        ?.getContextCreators()
+                        ?.singleOrNull()
                         ?.getContexts()
                         ?.singleOrNull()
                         ?.context
@@ -74,6 +76,7 @@ class ContextFinderTest {
                     val suiteAndFilters = assertNotNull(contextFinder.findContexts(request))
                     val contextNames =
                         suiteAndFilters.suite.contextProviders
+                            .flatMap { it.getContextCreators() }
                             .flatMap { it.getContexts() }
                             .map { it.context.name }
                     expectThat(contextNames)

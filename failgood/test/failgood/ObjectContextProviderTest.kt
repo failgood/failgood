@@ -163,28 +163,28 @@ class ObjectContextProviderTest {
         describe("test classes with dependencies") {
             it("can return a list of dependencies") {
                 val deps =
-                    ObjectContextProvider(TestWithDependencies::class.java).getContextDependencies()
+                    ObjectContextProvider(TestWithDependencies::class.java).getContextCreators()
                 assert(deps.size == 2)
                 assertNotNull(
                     deps.singleOrNull {
                         it.dependencies ==
                             listOf(TestWithDependencies.MySlowDockerContainer::class.java) &&
-                            it.method.name == TestWithDependencies::tests.name
+                            it.method?.name == TestWithDependencies::tests.name
                     }
                 )
                 assertNotNull(
                     deps.singleOrNull {
                         it.dependencies ==
                             listOf(TestWithDependencies.MySlowKafkaContainer::class.java) &&
-                            it.method.name == TestWithDependencies::otherTests.name
+                            it.method?.name == TestWithDependencies::otherTests.name
                     }
                 )
             }
             it("handles private contexts correctly") {
                 assert(
-                    ObjectContextProvider(PrivateContextFixture::class)
-                        .getContextDependencies()
-                        .all { it.dependencies.isEmpty() }
+                    ObjectContextProvider(PrivateContextFixture::class).getContextCreators().all {
+                        it.dependencies.isEmpty()
+                    }
                 )
             }
         }

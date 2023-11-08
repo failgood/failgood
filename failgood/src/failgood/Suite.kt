@@ -9,6 +9,7 @@ import failgood.internal.FailedRootContext
 import failgood.internal.LoadResults
 import failgood.internal.SuiteExecutionContext
 import failgood.internal.TestFilterProvider
+import java.lang.reflect.Method
 import kotlin.reflect.KClass
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -73,17 +74,8 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
     private suspend fun getRootContexts(coroutineScope: CoroutineScope): LoadResults =
         LoadResults(
             contextProviders
-                .map {
-                    coroutineScope.async {
-                        try {
-                            it.getContexts()
-                        } catch (e: ErrorLoadingContextsFromClass) {
-                            listOf(CouldNotLoadContext(e, e.kClass))
-                        }
-                    }
-                }
+                .map { coroutineScope.async { it.getContextCreators() } }
                 .flatMap { it.await() }
-                .sortedBy { it.order }
         )
 }
 
@@ -147,10 +139,26 @@ internal fun printResults(
 }
 
 fun Suite(rootContexts: Collection<RootContext>) =
-    Suite(rootContexts.map { ContextProvider { listOf(it) } })
+    Suite(rootContexts.map { SimpleContextProvider(it) })
 
 fun Suite(kClasses: List<KClass<*>>) = Suite(kClasses.map { ObjectContextProvider(it) })
 
 fun Suite(rootContext: RootContext) = Suite(listOf(rootContext))
 
 fun Suite(lambda: ContextLambda) = Suite(RootContext("root", order = 0, function = lambda))
+
+private class SimpleContextProvider(val context: RootContext) : ContextProvider {
+    override fun getContextCreators(): List<ContextCreator> {
+        return listOf(SimpleContextCreator(context))
+    }
+
+    class SimpleContextCreator(val context: RootContext) : ContextCreator {
+        override val dependencies: List<Class<*>>
+            get() = listOf()
+
+        override val method: Method?
+            get() = null
+
+        override fun getContexts(): List<RootContext> = listOf(context)
+    }
+}

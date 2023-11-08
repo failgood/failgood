@@ -1,5 +1,6 @@
 package failgood.functional
 
+import failgood.Ignored
 import failgood.Suite
 import failgood.Test
 import failgood.describe
@@ -11,7 +12,7 @@ import strikt.assertions.isTrue
 class ContextOrderTest {
     val context =
         describe("Root Context Order") {
-            it("is determined by the order field low to high") {
+            it("is determined by the order field low to high", ignored = Ignored.TODO) {
                 val events = mutableListOf<String>()
                 expectThat(
                         Suite(

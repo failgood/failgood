@@ -1,10 +1,15 @@
 package failgood.internal.execution.context
 
 import failgood.*
-import failgood.Article.*
+import failgood.Article.THE
 import failgood.Ignored.Because
 import failgood.internal.*
+import failgood.internal.execution.context.RecordingListener.Event
+import failgood.internal.execution.context.RecordingListener.Type.CONTEXT_DISCOVERED
+import failgood.internal.execution.context.RecordingListener.Type.TEST_DISCOVERED
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.*
 import strikt.api.expectThat
@@ -31,7 +36,7 @@ object ContextExecutorTest {
                         context("context 1") {
                             context("context 2") { test("test 3") { delay(1) } }
                         }
-                        context("context 4") { test("test 4") { delay(1) } }
+                        context("context 3") { test("test 4") { delay(1) } }
                     }
                 describe("executing all the tests") {
                     val contextInfo = assertNotNull(execute(ctx) as? ContextInfo)
@@ -66,7 +71,7 @@ object ContextExecutorTest {
                     it("returns contexts in the same order as they appear in the file") {
                         expectThat(contextInfo.contexts)
                             .map { it.name }
-                            .containsExactly("root context", "context 1", "context 2", "context 4")
+                            .containsExactly("root context", "context 1", "context 2", "context 3")
                     }
                     it("reports time of successful tests") {
                         expectThat(
@@ -92,6 +97,27 @@ object ContextExecutorTest {
                                 get { stackTraceToString() }
                                     .isEqualTo(assertionError.stackTraceToString())
                             }
+                        }
+                    }
+                    describe("with a listener") {
+                        it("reports tests and contexts in their order inside the file") {
+                            val listener = RecordingListener()
+                            assert(execute(ctx, listener = listener) is ContextInfo)
+                            assertEquals(
+                                listOf(
+                                    Event(CONTEXT_DISCOVERED, "root context"),
+                                    Event(TEST_DISCOVERED, "test 1"),
+                                    Event(TEST_DISCOVERED, "test 2"),
+                                    Event(TEST_DISCOVERED, "ignored test"),
+                                    Event(TEST_DISCOVERED, "failed test"),
+                                    Event(CONTEXT_DISCOVERED, "context 1"),
+                                    Event(CONTEXT_DISCOVERED, "context 2"),
+                                    Event(TEST_DISCOVERED, "test 3"),
+                                    Event(CONTEXT_DISCOVERED, "context 3"),
+                                    Event(TEST_DISCOVERED, "test 4"),
+                                ),
+                                listener.events
+                            )
                         }
                     }
                 }
@@ -493,10 +519,42 @@ object ContextExecutorTest {
         )
     }
 
-    private suspend fun execute(context: RootContext, tag: String? = null): ContextResult {
-        return coroutineScope { ContextExecutor(context, this, runOnlyTag = tag).execute() }
+    private suspend fun execute(
+        context: RootContext,
+        tag: String? = null,
+        listener: ExecutionListener = NullExecutionListener
+    ): ContextResult {
+        return coroutineScope {
+            ContextExecutor(context, this, runOnlyTag = tag, listener = listener).execute()
+        }
     }
 
     private fun getLineNumber(runtimeException: Throwable?): Int =
         runtimeException!!.stackTrace.first().lineNumber
+}
+
+class RecordingListener : ExecutionListener {
+    enum class Type {
+        TEST_DISCOVERED,
+        CONTEXT_DISCOVERED,
+        TEST_STARTED,
+        FINISHED,
+        TEST_EVENT
+    }
+
+    private fun event(type: Type, name: String) {
+        events.add(Event(type, name))
+    }
+
+    data class Event(val type: Type, val testDescription: String)
+
+    val events = CopyOnWriteArrayList<Event>()
+
+    override suspend fun testDiscovered(testDescription: TestDescription) {
+        event(TEST_DISCOVERED, testDescription.testName)
+    }
+
+    override suspend fun contextDiscovered(context: Context) {
+        event(CONTEXT_DISCOVERED, context.name)
+    }
 }

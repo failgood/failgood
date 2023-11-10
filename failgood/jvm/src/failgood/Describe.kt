@@ -49,6 +49,27 @@ fun describe(
     RootContext(subjectType.niceString(), ignored, order, isolation, function = function)
 
 fun describe(
+    article: Article,
+    subjectType: KClass<*>,
+    ignored: Ignored? = null,
+    order: Int = 0,
+    isolation: Boolean = true,
+    function: ContextLambda
+): RootContext =
+    RootContext(
+        "${article.name.lowercase()} ${subjectType.simpleName}",
+        ignored,
+        order,
+        isolation,
+        function = function
+    )
+
+enum class Article {
+    THE,
+    A
+}
+
+fun describe(
     subjectType: KClass<*>,
     ignored: Ignored? = null,
     order: Int = 0,

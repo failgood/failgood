@@ -31,4 +31,22 @@ fun interface Ignored {
     class Because(private val reason: String) : Ignored {
         override fun isIgnored() = reason
     }
+    /**
+     * Ignore a test unless an environment var is set.
+     *
+     * example
+     *
+     * ```
+     * it("has the newest feature", ignored=UnlessEnv("NEXT"))
+     * ```
+     *
+     * then for local development you run the tests with NEXT=1 to run your unfinished test, and on
+     * others systems and in ci it is ignored.
+     */
+    class UnlessEnv(private val envVar: String) : Ignored {
+        override fun isIgnored(): String? {
+            return if (System.getenv(envVar) == null) "Ignored because env var $envVar is not set"
+            else null
+        }
+    }
 }

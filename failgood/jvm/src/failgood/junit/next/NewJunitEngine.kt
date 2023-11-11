@@ -3,6 +3,7 @@ package failgood.junit.next
 import failgood.TestContainer
 import failgood.junit.ContextFinder
 import failgood.junit.FailGoodJunitTestEngineConstants
+import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_SILENT
 import failgood.junit.FailGoodJunitTestEngineConstants.DEBUG_TXT_FILENAME
 import failgood.junit.FailureLogger
 import failgood.junit.FailureLoggingEngineExecutionListener
@@ -25,6 +26,7 @@ class NewJunitEngine : TestEngine {
 
     private var debug: Boolean = false
     private val failureLogger = FailureLogger()
+    var silent: Boolean = false
 
     override fun discover(
         discoveryRequest: EngineDiscoveryRequest,
@@ -34,12 +36,13 @@ class NewJunitEngine : TestEngine {
             discoveryRequest.configurationParameters
                 .getBoolean(FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG)
                 .orElse(false)
-
+        silent =
+            discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_SILENT).orElse(false)
         failureLogger.add("discoveryRequest", discoveryRequest.niceString())
 
         val runTestFixtures =
             discoveryRequest.configurationParameters
-                .getBoolean(FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES)
+                .getBoolean(FailGoodJunitTestEngineConstants.CONFIG_KEY_RUN_TEST_FIXTURES)
                 .orElse(false)
         val suiteAndFilters =
             ContextFinder(runTestFixtures).findContexts(discoveryRequest)
@@ -66,6 +69,7 @@ class NewJunitEngine : TestEngine {
                     listener = NewExecutionListener(root, listener, startedContexts, testMapper),
                     silent = true
                 )
+            if (!silent) results.printSummary(true, false)
             // report the failing root contexts
             results.failedRootContexts.forEach {
                 val node = TestPlanNode.Container(it.context.name)

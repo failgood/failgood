@@ -60,7 +60,10 @@ class ContextFinderTest {
                                 DiscoverySelectors.selectClasspathRoots(setOf(Paths.get(path)))
                             )
                             .configurationParameters(
-                                mapOf(FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES to "true")
+                                mapOf(
+                                    FailGoodJunitTestEngineConstants.CONFIG_KEY_RUN_TEST_FIXTURES to
+                                        "true"
+                                )
                             )
                             .filters(
                                 PackageNameFilter.includePackageNames(

@@ -30,49 +30,58 @@ data class SuiteResult(
                 Junit4Reporter(allTests).stringReport().joinToString("\n").encodeToByteArray()
             )
         }
+        if (printSummary(getenv("PRINT_SLOWEST") != null, getenv("PRINT_PENDING") != null)) return
+
+        if (throwException) throw SuiteFailedException("test failed")
+        exitProcess(-1)
+    }
+
+    fun printSummary(printSlowest: Boolean, printPending: Boolean): Boolean {
         val totalTests = allTests.size
         if (allOk) {
-            if (getenv("PRINT_SLOWEST") != null) printSlowestTests()
+            if (printSlowest) printSlowestTests()
             val pendingTests = allTests.filter { it.isSkipped }
             if (pendingTests.isNotEmpty()) {
-                // printPendingTests(ignoredTests)
+                if (printPending) printPendingTests(pendingTests)
                 val pending = pendingTests.size
                 println(
                     pluralize(totalTests, "test") +
                         ". ${totalTests - pending} ok, $pending pending. time: ${
-                        uptime(
-                            totalTests
-                        )
-                    }"
+                                uptime(
+                                    totalTests
+                                )
+                            }"
                 )
-                return
+                return true
             }
             println(pluralize(totalTests, "test") + ". time: ${uptime(totalTests)}")
-            return
-        }
-        if (throwException) throw SuiteFailedException("test failed")
-        else {
+            return true
+        } else {
             val message = failedTests.joinToString(separator = "\n") { it.prettyPrint() }
             @Suppress("unused") println("${Colors.RED}FAILED:${Colors.RESET}\n$message")
             println(
                 "$totalTests tests. ${failedTests.size} failed. total time: ${uptime(totalTests)}"
             )
-            exitProcess(-1)
         }
-        @Suppress("unused")
-        fun printPendingTests(pendingTests: List<TestPlusResult>) {
-            println("\nPending tests:")
-            pendingTests.forEach { println(it.test) }
-        }
+        return false
+    }
+
+    fun printPendingTests(pendingTests: List<TestPlusResult>) {
+        println("\nPending tests:")
+        pendingTests.forEach { println(it.test) }
     }
 
     fun printSlowestTests() {
+        // be very gentle and consider any tests faster than 500ms as not slow
+        val SLOW_THRESHOLD = 500 * 1000
         val contextTreeReporter = ContextTreeReporter()
         val slowTests =
             allTests
                 .filter { it.isSuccess }
+                .filter { (it.result as Success).timeMicro > SLOW_THRESHOLD }
                 .sortedBy { 0 - (it.result as Success).timeMicro }
                 .take(5)
+        if (slowTests.isEmpty()) return
         println("Slowest tests:")
         slowTests.forEach {
             println("${contextTreeReporter.time((it.result as Success).timeMicro)}ms ${it.test}")

@@ -24,7 +24,7 @@ suspend fun execute(selectors: List<DiscoverySelector>) {
         .execute(
             LauncherDiscoveryRequestBuilder.request()
                 .configurationParameters(
-                    mapOf(FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES to "true")
+                    mapOf(FailGoodJunitTestEngineConstants.CONFIG_KEY_RUN_TEST_FIXTURES to "true")
                 )
                 .selectors(selectors)
                 .build(),

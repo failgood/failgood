@@ -13,9 +13,11 @@ fun launcherDiscoveryRequest(
 ): LauncherDiscoveryRequest {
     val configurationParameters =
         buildMap<String, String> {
-            put(FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES, "true")
-            if (newEngine) put(FailGoodJunitTestEngineConstants.FAILGOOD_NEW_JUNIT, "true")
-            else put(FailGoodJunitTestEngineConstants.FAILGOOD_NEW_JUNIT, "false")
+            put(FailGoodJunitTestEngineConstants.CONFIG_KEY_RUN_TEST_FIXTURES, "true")
+            put(FailGoodJunitTestEngineConstants.CONFIG_KEY_SILENT, "true")
+
+            if (newEngine) put(FailGoodJunitTestEngineConstants.CONFIG_KEY_NEW_JUNIT, "true")
+            else put(FailGoodJunitTestEngineConstants.CONFIG_KEY_NEW_JUNIT, "false")
         }
     return LauncherDiscoveryRequestBuilder.request()
         .filters(EngineFilter.includeEngines(FailGoodJunitTestEngine().id))

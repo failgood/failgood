@@ -16,8 +16,8 @@ import failgood.internal.sysinfo.uptime
 import failgood.internal.util.getenv
 import failgood.junit.ChannelExecutionListener.TestExecutionEvent
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
+import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_RUN_TEST_FIXTURES
 import failgood.junit.FailGoodJunitTestEngineConstants.DEBUG_TXT_FILENAME
-import failgood.junit.FailGoodJunitTestEngineConstants.RUN_TEST_FIXTURES
 import java.io.File
 import java.util.Timer
 import kotlin.concurrent.schedule
@@ -66,7 +66,9 @@ class FailGoodJunitTestEngine : TestEngine {
         try {
             val executionListener = ChannelExecutionListener()
             val runTestFixtures =
-                discoveryRequest.configurationParameters.getBoolean(RUN_TEST_FIXTURES).orElse(false)
+                discoveryRequest.configurationParameters
+                    .getBoolean(CONFIG_KEY_RUN_TEST_FIXTURES)
+                    .orElse(false)
             val suiteAndFilters = ContextFinder(runTestFixtures).findContexts(discoveryRequest)
 
             // if we did not find any tests just return an empty descriptor, maybe other engines

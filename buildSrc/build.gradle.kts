@@ -13,7 +13,7 @@ dependencies {
     implementation(kotlin("script-runtime"))
     implementation(kotlin("gradle-plugin", "1.9.20"))
     implementation("com.adarshr:gradle-test-logger-plugin:4.0.0")
-    implementation("com.diffplug.spotless:spotless-plugin-gradle:6.22.0")
+    implementation("com.diffplug.spotless:spotless-plugin-gradle:6.23.0")
 }
 // to make idea ignore gradle generated classes in analyze code. (idea bug)
 idea {

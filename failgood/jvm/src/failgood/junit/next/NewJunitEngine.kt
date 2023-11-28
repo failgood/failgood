@@ -1,6 +1,6 @@
 package failgood.junit.next
 
-import failgood.TestContainer
+import failgood.Context
 import failgood.junit.ContextFinder
 import failgood.junit.FailGoodJunitTestEngineConstants
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_SILENT
@@ -54,7 +54,7 @@ class NewJunitEngine : TestEngine {
     override fun execute(request: ExecutionRequest) {
         val root = request.rootTestDescriptor
         if (root !is FailGoodEngineDescriptor) return
-        val startedContexts = ConcurrentHashMap.newKeySet<TestContainer>()
+        val startedContexts = ConcurrentHashMap.newKeySet<Context>()
 
         val loggingEngineExecutionListener =
             LoggingEngineExecutionListener(request.engineExecutionListener)

@@ -6,7 +6,6 @@ import failgood.FailGoodException
 import failgood.Failure
 import failgood.Skipped
 import failgood.Success
-import failgood.TestContainer
 import failgood.TestDescription
 import failgood.TestPlusResult
 import failgood.junit.TestMapper
@@ -19,7 +18,7 @@ import org.junit.platform.engine.reporting.ReportEntry
 internal class NewExecutionListener(
     private val root: NewJunitEngine.FailGoodEngineDescriptor,
     private val listener: EngineExecutionListener,
-    private val startedContexts: MutableSet<TestContainer>,
+    private val startedContexts: MutableSet<Context>,
     private val testMapper: TestMapper
 ) : ExecutionListener {
     override suspend fun testDiscovered(testDescription: TestDescription) {

@@ -76,10 +76,8 @@ data class Context(
         }
     }
 
-    val parents: List<TestContainer> = parent?.parents?.plus(parent) ?: listOf()
+    val parents: List<Context> = parent?.parents?.plus(parent) ?: listOf()
     val path: List<String> = parent?.path?.plus(name) ?: listOf(name)
 
     fun stringPath(): String = path.joinToString(" > ")
 }
-
-typealias TestContainer = Context

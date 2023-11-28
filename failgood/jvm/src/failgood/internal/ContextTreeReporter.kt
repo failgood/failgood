@@ -4,7 +4,6 @@ import failgood.Context
 import failgood.Failure
 import failgood.Skipped
 import failgood.Success
-import failgood.TestContainer
 import failgood.TestPlusResult
 import failgood.internal.Colors.FAILED
 import failgood.internal.Colors.PENDING
@@ -18,8 +17,7 @@ import java.util.Locale
 
 internal class ContextTreeReporter {
     fun stringReport(results: List<TestPlusResult>, allContexts: List<Context>): List<String> {
-        val contextMap: Map<TestContainer, List<TestPlusResult>> =
-            results.groupBy { it.test.container }
+        val contextMap: Map<Context, List<TestPlusResult>> = results.groupBy { it.test.container }
         val result = mutableListOf<String>()
         val rootContexts = allContexts.filter { it.parent == null }
         printContext(rootContexts, allContexts, result, contextMap, 0)
@@ -30,7 +28,7 @@ internal class ContextTreeReporter {
         contexts: List<Context>,
         allContexts: List<Context>,
         result: MutableList<String>,
-        contextMap: Map<TestContainer, List<TestPlusResult>>,
+        contextMap: Map<Context, List<TestPlusResult>>,
         indent: Int
     ) {
         val indentString = "  ".repeat(indent)

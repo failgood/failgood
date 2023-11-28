@@ -1,11 +1,7 @@
 package failgood.junit
 
-import failgood.FailGoodException
-import failgood.Failure
+import failgood.*
 import failgood.Skipped
-import failgood.Success
-import failgood.TestContainer
-import failgood.TestDescription
 import failgood.awaitTestResults
 import failgood.internal.ExecuteAllTestFilterProvider
 import failgood.internal.StaticTestFilterProvider
@@ -133,7 +129,7 @@ class FailGoodJunitTestEngine : TestEngine {
             failureLogger.add("nodes received", root.allDescendants())
             failureLogger.add("execute-stacktrace", RuntimeException().stackTraceToString())
             val mapper = root.mapper
-            val startedContexts = mutableSetOf<TestContainer>()
+            val startedContexts = mutableSetOf<Context>()
             val junitListener =
                 FailureLoggingEngineExecutionListener(loggingEngineExecutionListener, failureLogger)
             junitListener.executionStarted(root)

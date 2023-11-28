@@ -18,6 +18,7 @@ data class TestDescription(
         return "${container.stringPath()} > $testName"
     }
 }
+
 // https://youtrack.jetbrains.com/issue/KTIJ-27236/False-positive-Java-inspection-Method-always-returns-the-same-value-with-on-Kotlin-code
 @Suppress("SameReturnValue")
 internal sealed interface LoadResult {
@@ -63,27 +64,22 @@ data class RootContext(
 }
 
 /** something that contains tests */
-interface TestContainer {
-    val parents: List<TestContainer>
-    val name: String
-
-    fun stringPath(): String
-}
-
 data class Context(
-    override val name: String,
+    val name: String,
     val parent: Context? = null,
     val sourceInfo: SourceInfo? = null,
     val isolation: Boolean = true
-) : TestContainer {
+) {
     companion object {
         fun fromPath(path: List<String>): Context {
             return Context(path.last(), if (path.size == 1) null else fromPath(path.dropLast(1)))
         }
     }
 
-    override val parents: List<TestContainer> = parent?.parents?.plus(parent) ?: listOf()
+    val parents: List<TestContainer> = parent?.parents?.plus(parent) ?: listOf()
     val path: List<String> = parent?.path?.plus(name) ?: listOf(name)
 
-    override fun stringPath(): String = path.joinToString(" > ")
+    fun stringPath(): String = path.joinToString(" > ")
 }
+
+typealias TestContainer = Context

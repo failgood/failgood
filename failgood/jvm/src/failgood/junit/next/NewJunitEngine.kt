@@ -58,36 +58,41 @@ class NewJunitEngine : TestEngine {
 
         val loggingEngineExecutionListener =
             LoggingEngineExecutionListener(request.engineExecutionListener)
-        val listener =
+        val junitListener =
             FailureLoggingEngineExecutionListener(loggingEngineExecutionListener, failureLogger)
-        listener.executionStarted(root)
+        junitListener.executionStarted(root)
         try {
             val testMapper = TestMapper()
+            val failgoodListener =
+                NewExecutionListener(root, junitListener, startedContexts, testMapper)
             val results =
                 root.suiteAndFilters.suite.run(
                     filter = root.suiteAndFilters.filter,
-                    listener = NewExecutionListener(root, listener, startedContexts, testMapper),
+                    listener = failgoodListener,
                     silent = true
                 )
-            if (!silent) results.printSummary(true, false)
+            if (!silent) results.printSummary(printSlowest = true, printPending = false)
             // report the failing root contexts
             results.failedRootContexts.forEach {
-                val node = TestPlanNode.Container(it.context.name)
+                val node = TestPlanNode.Container(it.context.name, it.context.displayName)
                 val testDescriptor = DynamicTestDescriptor(node, root)
 
-                listener.dynamicTestRegistered(testDescriptor)
-                listener.executionStarted(testDescriptor)
-                listener.executionFinished(testDescriptor, TestExecutionResult.failed(it.failure))
+                junitListener.dynamicTestRegistered(testDescriptor)
+                junitListener.executionStarted(testDescriptor)
+                junitListener.executionFinished(
+                    testDescriptor,
+                    TestExecutionResult.failed(it.failure)
+                )
             }
             // close all open contexts.
             val leafToRootContexts = startedContexts.sortedBy { -it.parents.size }
             leafToRootContexts.forEach { context ->
-                listener.executionFinished(
+                junitListener.executionFinished(
                     testMapper.getMapping(context),
                     TestExecutionResult.successful()
                 )
             }
-            listener.executionFinished(root, TestExecutionResult.successful())
+            junitListener.executionFinished(root, TestExecutionResult.successful())
             failureLogger
         } catch (e: Exception) {
             failureLogger.add("events", loggingEngineExecutionListener.eventsString())

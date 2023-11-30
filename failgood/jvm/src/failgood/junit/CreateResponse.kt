@@ -76,14 +76,14 @@ internal fun createResponse(
                         FailGoodTestDescriptor(
                             TestDescriptor.Type.CONTAINER,
                             contextUniqueId,
-                            context.name,
+                            context.displayName,
                             context.sourceInfo?.let {
                                 if (isRootContext) createClassSource(it)
                                 else createFileSource(it, context.name)
                             }
                         )
                     mapper.addMapping(context, contextNode)
-                    val testsInThisContext = tests.filter { it.key.container == context }
+                    val testsInThisContext = tests.filter { it.key.context == context }
                     testsInThisContext.forEach {
                         val testDescription = it.key
                         val testDescriptor = testDescription.toTestDescriptor(contextUniqueId)
@@ -108,7 +108,7 @@ internal fun createResponse(
                     FailGoodTestDescriptor(
                         TestDescriptor.Type.TEST,
                         uniqueId.appendContext(uniqueMaker.makeUnique(path)),
-                        context.name,
+                        context.displayName,
                         context.sourceInfo?.let { createClassSource(it) }
                     )
                 failGoodEngineDescriptor.addChild(testDescriptor)

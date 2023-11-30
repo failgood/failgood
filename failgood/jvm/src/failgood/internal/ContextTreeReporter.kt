@@ -17,7 +17,7 @@ import java.util.Locale
 
 internal class ContextTreeReporter {
     fun stringReport(results: List<TestPlusResult>, allContexts: List<Context>): List<String> {
-        val contextMap: Map<Context, List<TestPlusResult>> = results.groupBy { it.test.container }
+        val contextMap: Map<Context, List<TestPlusResult>> = results.groupBy { it.test.context }
         val result = mutableListOf<String>()
         val rootContexts = allContexts.filter { it.parent == null }
         printContext(rootContexts, allContexts, result, contextMap, 0)

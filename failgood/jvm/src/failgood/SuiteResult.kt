@@ -19,7 +19,6 @@ data class SuiteResult(
 ) {
     val allOk = failedTests.isEmpty() && failedRootContexts.isEmpty()
 
-    @Suppress("UNREACHABLE_CODE")
     fun check(throwException: Boolean = false, writeReport: Boolean = false) {
         // **/build/test-results/test/TEST-*.xml'
         if (writeReport) {

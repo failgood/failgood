@@ -200,8 +200,9 @@ object JunitPlatformFunctionalTest {
                         .sortedBy { it.key.uniqueId }
                         .joinToString("\n") { it.key.uniqueId }
                 }
+                val failedTests = getFailedTests(r)
                 assert(
-                    getFailedTests(r)
+                    failedTests
                         .map { it.key.displayName }
                         .containsExactlyInAnyOrder(
                             "FailingRootContext: Failing Root Context",

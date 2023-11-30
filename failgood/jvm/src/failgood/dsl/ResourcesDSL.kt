@@ -26,14 +26,14 @@ interface ResourcesDSL {
 /** Resource management functions that are only available in the context and not in a test */
 interface ContextOnlyResourceDSL {
     /**
-     * Register a callback that will run after each test. use [autoClose] instead if you can. This
-     * will be called after each test even in contexts that have no isolation
+     * Register a callback that will run after each test. use [ResourcesDSL.autoClose] instead if
+     * you can. This will be called after each test even in contexts that have no isolation
      */
     fun afterEach(function: suspend TestDSL.(TestResult) -> Unit)
     /**
      * Asynchronously create a dependency. This is great for blocking dependencies, like a docker
      * container. The creator lambda runs on the IO dispatcher to make a cpu thread free for a test.
-     * the close function works just like in [autoClose]
+     * the close function works just like in [ResourcesDSL.autoClose]
      */
     suspend fun <T> dependency(
         creator: suspend () -> T,

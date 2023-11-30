@@ -65,19 +65,19 @@ data class SuiteResult(
         return false
     }
 
-    fun printPendingTests(pendingTests: List<TestPlusResult>) {
+    private fun printPendingTests(pendingTests: List<TestPlusResult>) {
         println("\nPending tests:")
         pendingTests.forEach { println(it.test) }
     }
 
     fun printSlowestTests() {
         // be very gentle and consider any tests faster than 500ms as not slow
-        val SLOW_THRESHOLD = 500 * 1000
+        val veryLongTimeForATestToTake = 500 * 1000
         val contextTreeReporter = ContextTreeReporter()
         val slowTests =
             allTests
                 .filter { it.isSuccess }
-                .filter { (it.result as Success).timeMicro > SLOW_THRESHOLD }
+                .filter { (it.result as Success).timeMicro > veryLongTimeForATestToTake }
                 .sortedBy { 0 - (it.result as Success).timeMicro }
                 .take(5)
         if (slowTests.isEmpty()) return

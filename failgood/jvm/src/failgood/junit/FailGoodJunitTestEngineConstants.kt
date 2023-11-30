@@ -9,7 +9,7 @@ object FailGoodJunitTestEngineConstants {
 
     // the filename for the debug txt file that we write when CONFIG_KEY_DEBUG is set or an error
     // occurs
-    internal val DEBUG_TXT_FILENAME = "failgood.debug.txt"
+    internal const val DEBUG_TXT_FILENAME = "failgood.debug.txt"
 
     // this config setting is only used by FailGood's own test suite to trigger execution of test
     // fixtures

@@ -11,6 +11,7 @@ fun launcherDiscoveryRequest(
     selectors: List<DiscoverySelector>,
     newEngine: Boolean = false
 ): LauncherDiscoveryRequest {
+    @Suppress("RemoveExplicitTypeArguments") // necessary because of a compiler bug
     val configurationParameters =
         buildMap<String, String> {
             put(FailGoodJunitTestEngineConstants.CONFIG_KEY_RUN_TEST_FIXTURES, "true")

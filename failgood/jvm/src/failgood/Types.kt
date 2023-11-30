@@ -77,7 +77,7 @@ data class Context(
     /** this is used for example for filtering */
     val path: List<String> = parent?.path?.plus(name) ?: listOf(name)
     /** path for displaying to the user */
-    val displayPath: List<String> = parent?.path?.plus(displayName) ?: listOf(displayName)
+    private val displayPath: List<String> = parent?.path?.plus(displayName) ?: listOf(displayName)
 
     fun stringPath(): String = displayPath.joinToString(" > ")
 }

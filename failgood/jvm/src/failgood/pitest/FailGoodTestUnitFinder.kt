@@ -44,7 +44,7 @@ object FailGoodTestUnitFinder : TestUnitFinder {
         test: TestDescription,
         private val deferredResult: Deferred<TestPlusResult>,
         clazz: Class<*>
-    ) : AbstractTestUnit(Description(test.toString(), clazz)) {
+    ) : AbstractTestUnit(Description(test.niceString(), clazz)) {
         override fun execute(rc: ResultCollector) {
             runBlocking {
                 rc.notifyStart(description)

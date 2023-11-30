@@ -159,7 +159,7 @@ object SubContextIsolationTest {
                         val failedContext = assertNotNull(result.failedTests.singleOrNull()?.test)
                         assert(
                             failedContext.testName == "error in context" &&
-                                failedContext.container.name ==
+                                failedContext.context.name ==
                                     "sub context that tries to turn isolation on"
                         )
                         assert(e.globalEvents.isEmpty())

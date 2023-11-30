@@ -13,7 +13,7 @@ object ContextDSLTest {
                 val e = NestedEvents()
                 val results = Suite { describe<String> { it("test") { e.addEvent() } } }.run()
                 val test = assertNotNull(results.allTests.singleOrNull())
-                assert(test.test.container.name == "String")
+                assert(test.test.context.name == "String")
                 assert(e.globalEvents.isNotEmpty())
             }
         }

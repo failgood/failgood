@@ -9,7 +9,7 @@ data class TestPlusResult(val test: TestDescription, val result: TestResult) {
     val isSuccess = result is Success
 
     fun prettyPrint(): String {
-        val testDescription = test.toString()
+        val testDescription = test.niceString()
         return when (result) {
             is Failure -> {
                 val exceptionInfo =

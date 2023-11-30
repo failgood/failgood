@@ -154,7 +154,7 @@ class FailGoodJunitTestEngine : TestEngine {
                     val eventForwarder = launch {
                         executionListener.events.consumeEach { event ->
                             fun startParentContexts(testDescriptor: TestDescription) {
-                                val context = testDescriptor.container
+                                val context = testDescriptor.context
                                 (context.parents + context).forEach {
                                     if (startedContexts.add(it))
                                         junitListener.executionStarted(mapper.getMapping(it))
@@ -166,10 +166,10 @@ class FailGoodJunitTestEngine : TestEngine {
                             // it's possible that we get a test event for a test that has no mapping
                             // because it is part of a failing context
                             if (mapping == null) {
-                                val parents = description.container.parents
+                                val parents = description.context.parents
                                 val isRootContext = parents.isEmpty()
                                 val rootContextOfEvent =
-                                    if (isRootContext) description.container else parents.first()
+                                    if (isRootContext) description.context else parents.first()
                                 val isInFailedRootContext =
                                     root.failedRootContexts.any { it.context == rootContextOfEvent }
                                 if (!isInFailedRootContext)

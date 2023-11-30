@@ -45,7 +45,7 @@ internal class ContextExecutor(
                     if (rootContext.context.name.isNotBlank())
                         "$shortClassName: ${rootContext.context.name}"
                     else shortClassName
-                rootContext.copy(context = rootContext.context.copy(name = newName))
+                rootContext.copy(context = rootContext.context.copy(displayName = newName))
             } else rootContext
         if (!staticExecutionConfig.testFilter.shouldRun(incomingRootContext))
             return ContextInfo(listOf(), mapOf(), setOf())

@@ -24,7 +24,7 @@ class DynamicTestDescriptor(
 
     override fun getUniqueId(): UniqueId = uniqueId
 
-    override fun getDisplayName(): String = node.name
+    override fun getDisplayName(): String = node.displayName
 
     override fun getTags(): MutableSet<TestTag> = mutableSetOf()
 

@@ -290,7 +290,7 @@ object ContextExecutorTest {
                     // candidate for a soft assert
                     with(singleFailure.test) {
                         assert(testName == "error in context")
-                        assert(container.name == "context 1")
+                        assert(context.name == "context 1")
                         with(sourceInfo) {
                             assert(lineNumber == getLineNumber(error) - 1)
                             assert(className.contains("ContextExecutorTest"))
@@ -346,7 +346,7 @@ object ContextExecutorTest {
                                 testName ==
                                     "context ignored because We are testing that it is correctly reported"
                             )
-                            assert(container.name == "context 1")
+                            assert(context.name == "context 1")
                             assert(sourceInfo.className.contains("ContextExecutorTest"))
                         }
                         assert(

@@ -28,7 +28,7 @@ internal class NewExecutionListener(
         When everything is feature complete and stable we can see if we should optimize this.
         */
         synchronized(this) {
-            val parent = testMapper.getMapping(testDescription.container)
+            val parent = testMapper.getMapping(testDescription.context)
             val node = TestPlanNode.Test(testDescription.testName)
             val descriptor =
                 DynamicTestDescriptor(
@@ -43,7 +43,7 @@ internal class NewExecutionListener(
 
     override suspend fun contextDiscovered(context: Context) {
         synchronized(this) {
-            val node = TestPlanNode.Container(context.name)
+            val node = TestPlanNode.Container(context.name, context.displayName)
             val descriptor =
                 if (context.parent == null) {
                     DynamicTestDescriptor(
@@ -75,7 +75,7 @@ internal class NewExecutionListener(
     }
 
     private fun startParentContexts(testDescription: TestDescription) {
-        val context = testDescription.container
+        val context = testDescription.context
         (context.parents + context).forEach {
             if (startedContexts.add(it)) {
                 listener.executionStarted(testMapper.getMapping(it))

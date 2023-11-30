@@ -4,18 +4,14 @@ import failgood.dsl.ContextLambda
 import failgood.internal.ContextPath
 import kotlin.reflect.KClass
 
-data class TestDescription(
-    val container: Context,
-    val testName: String,
-    val sourceInfo: SourceInfo
-) {
+data class TestDescription(val context: Context, val testName: String, val sourceInfo: SourceInfo) {
     internal constructor(
         testPath: ContextPath,
         sourceInfo: SourceInfo
     ) : this(testPath.container, testPath.name, sourceInfo)
 
-    override fun toString(): String {
-        return "${container.stringPath()} > $testName"
+    fun niceString(): String {
+        return "${context.stringPath()} > $testName"
     }
 }
 
@@ -68,7 +64,8 @@ data class Context(
     val name: String,
     val parent: Context? = null,
     val sourceInfo: SourceInfo? = null,
-    val isolation: Boolean = true
+    val isolation: Boolean = true,
+    val displayName: String = name
 ) {
     companion object {
         fun fromPath(path: List<String>): Context {
@@ -77,7 +74,10 @@ data class Context(
     }
 
     val parents: List<Context> = parent?.parents?.plus(parent) ?: listOf()
+    /** this is used for example for filtering */
     val path: List<String> = parent?.path?.plus(name) ?: listOf(name)
+    /** path for displaying to the user */
+    val displayPath: List<String> = parent?.path?.plus(displayName) ?: listOf(displayName)
 
-    fun stringPath(): String = path.joinToString(" > ")
+    fun stringPath(): String = displayPath.joinToString(" > ")
 }

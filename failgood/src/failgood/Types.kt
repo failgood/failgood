@@ -35,7 +35,7 @@ fun RootContext(
     sourceInfo: SourceInfo = callerSourceInfo(),
     addClassName: Boolean = false,
     function: ContextLambda
-) =
+): RootContext =
     RootContext(
         Context(name, null, sourceInfo, isolation),
         order,
@@ -44,11 +44,32 @@ fun RootContext(
         function = function
     )
 
-data class RootContext(
+fun <RootGiven> RootContextWithGiven(
+    name: String = "root",
+    ignored: Ignored? = null,
+    order: Int = 0,
+    isolation: Boolean = true,
+    sourceInfo: SourceInfo = callerSourceInfo(),
+    addClassName: Boolean = false,
+    given: (suspend () -> RootGiven),
+    function: ContextLambda
+) =
+    RootContextWithGiven(
+        Context(name, null, sourceInfo, isolation),
+        order,
+        ignored,
+        addClassName,
+        given,
+        function = function
+    )
+typealias RootContext = RootContextWithGiven<Unit>
+
+data class RootContextWithGiven<RootGiven>(
     val context: Context,
     override val order: Int = 0,
     val ignored: Ignored?,
     val addClassName: Boolean = false,
+    val given: (suspend () -> RootGiven)? = null,
     val function: ContextLambda
 ) : LoadResult, failgood.internal.Path {
     val sourceInfo: SourceInfo
@@ -74,8 +95,10 @@ data class Context(
     }
 
     val parents: List<Context> = parent?.parents?.plus(parent) ?: listOf()
+
     /** this is used for example for filtering */
     val path: List<String> = parent?.path?.plus(name) ?: listOf(name)
+
     /** path for displaying to the user */
     private val displayPath: List<String> = parent?.path?.plus(displayName) ?: listOf(displayName)
 

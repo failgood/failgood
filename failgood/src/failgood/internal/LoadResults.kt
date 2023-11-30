@@ -1,12 +1,9 @@
 package failgood.internal
 
-import failgood.Context
+import failgood.*
 import failgood.CouldNotLoadContext
-import failgood.ExecutionListener
 import failgood.LoadResult
 import failgood.NullExecutionListener
-import failgood.RootContext
-import failgood.Suite
 import failgood.internal.execution.context.ContextExecutor
 import failgood.internal.util.getenv
 import kotlinx.coroutines.CompletableDeferred
@@ -34,7 +31,7 @@ internal class LoadResults(private val loadResults: List<LoadResult>) {
                             loadResult.reason
                         )
                     )
-                is RootContext -> {
+                is RootContextWithGiven<*> -> {
                     val testFilter =
                         loadResult.context.sourceInfo?.className?.let {
                             executionFilter.forClass(it)

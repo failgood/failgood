@@ -8,6 +8,7 @@ import java.util.UUID
 import kotlin.test.assertEquals
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
+import kotlin.reflect.KClass
 
 /*
  * given support is a given
@@ -19,7 +20,7 @@ class GivenTest {
         describe("Given support") {
             it("passes the value of the contests given block to the test") {
                 val context =
-                    RootContext("TestContext for dependency Injection") {
+                    describe2("TestContext for dependency Injection", given={"root dependency"}) {
                         context("context with dependency lambda", given = { "StringDependency" }) {
                             test("test that takes a string dependency") {
                                 expectThat(given).isEqualTo("StringDependency")
@@ -125,3 +126,12 @@ class GivenTest {
             }
         }
 }
+fun <RootGiven : Any> describe2(
+    name:String,
+    ignored: Ignored? = null,
+    order: Int = 0,
+    isolation: Boolean = true,
+    given: (suspend () -> RootGiven),
+    function: failgood.dsl.ContextLambda
+): RootContextWithGiven<RootGiven> =
+    RootContextWithGiven(name, ignored, order, isolation, given = given, function = function)

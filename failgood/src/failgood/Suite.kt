@@ -138,27 +138,27 @@ internal fun printResults(
     }
 }
 
-fun Suite(rootContexts: Collection<RootContext>) =
+fun Suite(rootContexts: Collection<RootContextWithGiven<*>>) =
     Suite(rootContexts.map { SimpleContextProvider(it) })
 
 fun Suite(kClasses: List<KClass<*>>) = Suite(kClasses.map { ObjectContextProvider(it) })
 
-fun Suite(rootContext: RootContext) = Suite(listOf(rootContext))
+fun <RootGiven >Suite(rootContext: RootContextWithGiven<RootGiven>) = Suite(listOf(rootContext))
 
 fun Suite(lambda: ContextLambda) = Suite(RootContext("root", order = 0, function = lambda))
 
-private class SimpleContextProvider(val context: RootContext) : ContextProvider {
+private class SimpleContextProvider(val context: RootContextWithGiven<*>) : ContextProvider {
     override fun getContextCreators(): List<ContextCreator> {
         return listOf(SimpleContextCreator(context))
     }
 
-    class SimpleContextCreator(val context: RootContext) : ContextCreator {
+    class SimpleContextCreator(val context: RootContextWithGiven<*>) : ContextCreator {
         override val dependencies: List<Class<*>>
             get() = listOf()
 
         override val method: Method?
             get() = null
 
-        override fun getContexts(): List<RootContext> = listOf(context)
+        override fun getContexts(): List<RootContextWithGiven<*>> = listOf(context)
     }
 }

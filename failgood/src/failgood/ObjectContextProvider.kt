@@ -9,7 +9,7 @@ interface ContextCreator {
     val dependencies: List<Class<*>>
     val method: Method?
 
-    fun getContexts(): List<RootContext>
+    fun getContexts(): List<RootContextWithGiven<*>>
 }
 
 fun interface ContextProvider {
@@ -124,12 +124,12 @@ class ObjectContextProvider<Cls : Any>(private val jClass: Class<out Cls>) : Con
         val methodsReturningRootContext =
             jClass.methods
                 .filter {
-                    it.returnType == RootContext::class.java ||
-                        it.returnType == List::class.java &&
+                    it.returnType == RootContextWithGiven::class.java ||
+                            it.returnType == List::class.java &&
                             it.genericReturnType.let { genericReturnType ->
                                 genericReturnType is ParameterizedType &&
-                                    genericReturnType.actualTypeArguments.singleOrNull() ==
-                                        RootContext::class.java
+                                        genericReturnType.actualTypeArguments.singleOrNull() ==
+                                        RootContextWithGiven::class.java
                             }
                 }
                 .ifEmpty {

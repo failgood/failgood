@@ -34,7 +34,7 @@ internal class LoadResults(private val loadResults: List<ContextCreator>) {
                                 loadResult.reason
                             )
                         )
-                    is RootContext -> {
+                    is RootContextWithGiven<*> -> {
                         val testFilter =
                             loadResult.context.sourceInfo?.className?.let {
                                 executionFilter.forClass(it)

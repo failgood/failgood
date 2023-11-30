@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 
 ## 0.9.0 - Unreleased
 
+### Fixed
+
+- afterEach and dependency are no longer available in the TestDSL, where it makes no sense to have them.
+
 ### Changed
 
 - Private test classes now throw an error instead of being ignored. Now that we find tests by annotation it

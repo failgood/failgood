@@ -1,10 +1,10 @@
 package failgood.internal
 
 import failgood.*
+import failgood.dsl.*
 import failgood.dsl.ContextDSL
 import failgood.dsl.ContextLambda
 import failgood.dsl.ResourcesDSL
-import failgood.dsl.TestDSL
 import failgood.dsl.TestLambda
 
 /**
@@ -35,7 +35,9 @@ internal class SingleTestExecutor(
     }
 
     private open inner class Base<GivenType> :
-        ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
+        ContextDSL<GivenType>,
+        ResourcesDSL by resourcesCloser,
+        ContextOnlyResourceDSL by resourcesCloser {
         override suspend fun <ContextDependency> describe(
             name: String,
             tags: Set<String>,

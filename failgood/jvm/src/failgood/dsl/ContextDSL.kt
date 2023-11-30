@@ -7,7 +7,7 @@ import failgood.Ignored
  * but you can also use [context] to define a context and [test] to define a test.
  */
 @FailGoodDSL
-interface ContextDSL<GivenType> : ResourcesDSL {
+interface ContextDSL<GivenType> : ResourcesDSL, ContextOnlyResourceDSL {
     /**
      * Define a context that describes a subject with a given block. Set [isolation] false to turn
      * off test isolation for this context.

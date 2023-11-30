@@ -2,6 +2,7 @@ package failgood.internal
 
 import failgood.TestDependency
 import failgood.TestResult
+import failgood.dsl.ContextOnlyResourceDSL
 import failgood.dsl.TestDSL
 import failgood.jvm.JVMTestDependency
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -9,7 +10,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 
-internal class ResourceCloserImpl(private val scope: CoroutineScope) : ResourcesCloser {
+internal class ResourceCloserImpl(private val scope: CoroutineScope) :
+    ResourcesCloser, ContextOnlyResourceDSL {
     override fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T {
         addClosable(SuspendAutoCloseable(wrapped, closeFunction))
         return wrapped

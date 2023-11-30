@@ -7,6 +7,7 @@ import failgood.Skipped
 import failgood.TestDescription
 import failgood.TestPlusResult
 import failgood.dsl.ContextDSL
+import failgood.dsl.ContextOnlyResourceDSL
 import failgood.dsl.ResourcesDSL
 import failgood.dsl.TestLambda
 import failgood.internal.ContextPath
@@ -26,7 +27,10 @@ internal class ContextVisitor<GivenType>(
     // there is no need to check tests, just go into sub contexts
     private val onlyRunSubcontexts: Boolean,
     private val rootContextStartTime: Long
-) : ContextDSL<GivenType>, ResourcesDSL by resourcesCloser {
+) :
+    ContextDSL<GivenType>,
+    ResourcesDSL by resourcesCloser,
+    ContextOnlyResourceDSL by resourcesCloser {
     private val isolation = context.isolation
     private val namesInThisContext =
         mutableSetOf<String>() // test and context names to detect duplicates

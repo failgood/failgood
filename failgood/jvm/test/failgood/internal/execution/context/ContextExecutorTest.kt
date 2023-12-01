@@ -17,20 +17,17 @@ import strikt.assertions.*
 @Suppress("NAME_SHADOWING")
 @Test
 object ContextExecutorTest {
-    private var assertionError: AssertionError? = null
 
     @Suppress("SimplifiableCallChain") // for better kotlin-power-assert output
     val context = describe {
+        val assertionError: AssertionError = AssertionError("failed")
         describe("with a typical valid root context") {
             val ctx =
                 RootContext("root context") {
                     test("test 1") { delay(1) }
                     test("test 2") { delay(1) }
                     test("ignored test", ignored = Because("testing")) {}
-                    test("failed test") {
-                        assertionError = AssertionError("failed")
-                        throw assertionError!!
-                    }
+                    test("failed test") { throw assertionError }
                     context("context 1") {
                         // comment to make sure that context1 and context2 are not on the same line
                         context("context 2") { test("test 3") { delay(1) } }
@@ -88,8 +85,6 @@ object ContextExecutorTest {
                             .filterIsInstance<Failure>()
                             .single()
                     it("reports exception for failed tests") {
-                        expectThat(assertionError).isNotNull()
-                        val assertionError = assertionError!!
                         expectThat(failure.failure) {
                             get { stackTraceToString() }
                                 .isEqualTo(assertionError.stackTraceToString())

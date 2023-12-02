@@ -58,18 +58,18 @@ class ComplexGivenTest {
         contextName: String,
         dependency: suspend () -> ContextDependency,
         dependencyTeardown: suspend (ContextDependency) -> Unit = {},
-        contextLambda: suspend GivenDSL<ContextDependency>.() -> Unit
+        contextLambda: suspend EXPGivenDSL<ContextDependency>.() -> Unit
     ) {}
 
-    private fun <ContextDependency, ParentContextDependency> GivenDSL<ParentContextDependency>
+    private fun <ContextDependency, ParentContextDependency> EXPGivenDSL<ParentContextDependency>
         .describe(
         contextName: String,
         dependencies: suspend (ParentContextDependency) -> ContextDependency,
         dependencyTeardown: suspend (ContextDependency) -> Unit = {},
-        contextLambda: suspend GivenDSL<ContextDependency>.() -> Unit
+        contextLambda: suspend EXPGivenDSL<ContextDependency>.() -> Unit
     ) {}
 }
 
-interface GivenDSL<T> : ContextDSL<Unit> {
+interface EXPGivenDSL<T> : ContextDSL<Unit> {
     suspend fun test2(name: String, function: suspend (T) -> Unit)
 }

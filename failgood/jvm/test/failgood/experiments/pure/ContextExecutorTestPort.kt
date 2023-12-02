@@ -1,7 +1,14 @@
 package failgood.experiments.pure
 
+import failgood.ExecutionListener
 import failgood.Ignored
+import failgood.NullExecutionListener
 import failgood.RootContext
+import failgood.internal.ContextInfo
+import failgood.internal.ContextResult
+import failgood.internal.execution.context.ContextExecutor
+import kotlin.test.assertNotNull
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 
 /**
@@ -10,6 +17,7 @@ import kotlinx.coroutines.delay
  */
 object ContextExecutorTestPort {
     class Given {
+
         val assertionError: java.lang.AssertionError = AssertionError("failed")
         val context: RootContext =
             RootContext("root context") {
@@ -24,12 +32,24 @@ object ContextExecutorTestPort {
                 }
                 context("context 3") { test("test 4") { delay(1) } }
             }
+
+        suspend fun execute(
+            tag: String? = null,
+            listener: ExecutionListener = NullExecutionListener
+        ): ContextResult {
+            return coroutineScope {
+                ContextExecutor(context, this, runOnlyTag = tag, listener = listener).execute()
+            }
+        }
     }
 
     val test =
-        context(
+        root(
             "contextExecutorTest port",
             given = { Given() },
-            context("executing all the tests", given = {})
+            context(
+                "executing all the tests",
+                given = { assertNotNull(given.execute() as? ContextInfo) }
+            )
         )
 }

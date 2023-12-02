@@ -1,13 +1,13 @@
-@file:Suppress("unused", "UNUSED_ANONYMOUS_PARAMETER", "UNUSED_PARAMETER")
+@file:Suppress("unused", "UNUSED_PARAMETER")
 
 package failgood.experiments.pure
 
-/** possible syntax for a suite without side effects */
+/** possible syntax for a suite without side effects. inspired by minutest */
 class PureTest {
-    open class Given(val mongoDB: MongoDB)
+    class Given(val mongoDB: MongoDB)
 
     private val withListOfNodes =
-        context(
+        root(
             "root",
             given = { Given(MongoDB()) },
             listOf(
@@ -26,7 +26,7 @@ class PureTest {
             )
         )
     private val withVarargNodes =
-        context(
+        root(
             "root",
             given = { Given(MongoDB()) },
             test("a test") { mongoDB.flush() },

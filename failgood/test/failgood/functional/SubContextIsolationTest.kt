@@ -78,11 +78,11 @@ object SubContextIsolationTest {
                                         }
                                     ) {
                                         events.add("childContext")
-                                        it("test1") { given ->
+                                        it("test1") {
                                             events.add("test1")
                                             givenValues.add(given)
                                         }
-                                        it("test2") { given ->
+                                        it("test2") {
                                             events.add("test2")
                                             givenValues.add(given)
                                         }

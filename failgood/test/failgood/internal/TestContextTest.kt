@@ -17,7 +17,7 @@ class TestContextTest {
             val testDescription =
                 TestDescription(Context("root"), "testname", SourceInfo("a", "b", 1))
             val listener = mock<ExecutionListener>()
-            val testContext = TestContext(mock(), listener, testDescription)
+            val testContext = TestContext(mock(), listener, testDescription, Unit)
             it("publishes a test event for stdout printing") {
                 testContext.log("printing to stdout")
                 expectThat(getCalls(listener))

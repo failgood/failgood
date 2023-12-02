@@ -2,7 +2,7 @@ package failgood.internal
 
 import failgood.*
 import failgood.dsl.ContextLambda
-import failgood.dsl.TestDSL
+import failgood.dsl.TestDSLWithGiven
 import failgood.mock.mock
 import kotlinx.coroutines.coroutineScope
 import strikt.api.expectThat
@@ -14,7 +14,7 @@ import strikt.assertions.isEqualTo
 class SingleTestExecutorTest {
     val context =
         describe(SingleTestExecutor::class) {
-            val testDSL = mock<TestDSL>()
+            val testDSL = mock<TestDSLWithGiven<Unit>>()
             val resourceCloser = coroutineScope { ResourceCloserImpl(this) }
             describe("test execution") {
                 val events = mutableListOf<String>()

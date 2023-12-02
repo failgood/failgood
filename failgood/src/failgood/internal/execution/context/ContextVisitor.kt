@@ -94,7 +94,7 @@ internal class ContextVisitor<GivenType>(
                 rootContextStartTime
             )
         } else {
-            contextStateCollector.executeTestLater(testDescription, testPath)
+            contextStateCollector.executeTestLater(testDescription, testPath, given)
         }
     }
 

@@ -19,33 +19,33 @@ class GivenTest {
                 val context =
                     RootContext("TestContext for dependency Injection") {
                         context("context with dependency lambda", given = { "StringDependency" }) {
-                            test("test that takes a string dependency") { string ->
-                                expectThat(string).isEqualTo("StringDependency")
+                            test("test that takes a string dependency") {
+                                expectThat(given).isEqualTo("StringDependency")
                             }
-                            test("second test that takes a string dependency") { string ->
-                                expectThat(string).isEqualTo("StringDependency")
+                            test("second test that takes a string dependency") {
+                                expectThat(given).isEqualTo("StringDependency")
                             }
                         }
                         describe(
                             "describe context with dependency lambda",
                             given = { "StringDependency" }
                         ) {
-                            test("test that takes a string dependency") { string ->
-                                expectThat(string).isEqualTo("StringDependency")
+                            test("test that takes a string dependency") {
+                                expectThat(given).isEqualTo("StringDependency")
                             }
-                            test("second test that takes a string dependency") { string ->
-                                expectThat(string).isEqualTo("StringDependency")
+                            test("second test that takes a string dependency") {
+                                expectThat(given).isEqualTo("StringDependency")
                             }
                         }
                         describe(
                             "describe context with dependency lambda that uses it",
                             given = { "StringDependency" }
                         ) {
-                            it("test that takes a string dependency") { string ->
-                                expectThat(string).isEqualTo("StringDependency")
+                            it("test that takes a string dependency") {
+                                expectThat(given).isEqualTo("StringDependency")
                             }
-                            it("second test that takes a string dependency") { string ->
-                                expectThat(string).isEqualTo("StringDependency")
+                            it("second test that takes a string dependency") {
+                                expectThat(given).isEqualTo("StringDependency")
                             }
                         }
                     }

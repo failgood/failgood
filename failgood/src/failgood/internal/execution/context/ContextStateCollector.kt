@@ -60,9 +60,9 @@ internal class ContextStateCollector(
                     try {
                         withTimeout(staticConfig.timeoutMillis) {
                             val testContext =
-                                TestContext(resourcesCloser, listener, testDescription)
+                                TestContext(resourcesCloser, listener, testDescription, given())
                             try {
-                                testContext.function(given.invoke())
+                                testContext.function()
                             } catch (e: Throwable) {
                                 val failure = Failure(e)
                                 try {
@@ -106,7 +106,11 @@ internal class ContextStateCollector(
             }
     }
 
-    fun executeTestLater(testDescription: TestDescription, testPath: ContextPath) {
+    fun <GivenType> executeTestLater(
+        testDescription: TestDescription,
+        testPath: ContextPath,
+        given: suspend () -> GivenType
+    ) {
         val resourcesCloser = ResourceCloserImpl(staticConfig.scope)
         val deferred =
             staticConfig.scope.async(start = staticConfig.coroutineStart) {
@@ -120,7 +124,8 @@ internal class ContextStateCollector(
                                         TestContext(
                                             resourcesCloser,
                                             staticConfig.listener,
-                                            testDescription
+                                            testDescription,
+                                            given()
                                         ),
                                         resourcesCloser,
                                         staticConfig.rootContextLambda

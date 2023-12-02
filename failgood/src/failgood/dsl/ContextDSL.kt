@@ -91,4 +91,4 @@ interface ContextDSL<GivenType> : ResourcesDSL, ContextOnlyResourceDSL {
 
 internal typealias ContextLambda = suspend ContextDSL<Unit>.() -> Unit
 
-internal typealias TestLambda<GivenType> = suspend TestDSL.(GivenType) -> Unit
+internal typealias TestLambda<GivenType> = suspend TestDSLWithGiven<GivenType>.() -> Unit

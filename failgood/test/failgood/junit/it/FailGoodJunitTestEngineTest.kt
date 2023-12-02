@@ -48,12 +48,12 @@ class FailGoodJunitTestEngineTest {
                     }
                 }
             ) {
-                it("returns a root descriptor") { testDescriptor ->
-                    expectThat(testDescriptor.isRoot)
-                    expectThat(testDescriptor.displayName).isEqualTo("FailGood")
+                it("returns a root descriptor") {
+                    expectThat(given.isRoot)
+                    expectThat(given.displayName).isEqualTo("FailGood")
                 }
-                it("returns all root contexts") { testDescriptor ->
-                    expectThat(testDescriptor.children).single().and {
+                it("returns all root contexts") {
+                    expectThat(given.children).single().and {
                         get { isContainer }.isTrue()
                         get { displayName }
                             .isEqualTo(

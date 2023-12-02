@@ -14,4 +14,8 @@ interface TestDSL : ResourcesDSL {
     @Suppress("FunctionName") suspend fun _test_event(type: String, body: String)
 }
 
+interface TestDSLWithGiven<GivenType> : TestDSL {
+    val given: GivenType
+}
+
 data class TestInfo(val name: String)

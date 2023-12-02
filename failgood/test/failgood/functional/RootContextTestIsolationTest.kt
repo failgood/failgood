@@ -2,7 +2,7 @@ package failgood.functional
 
 import failgood.*
 import failgood.dsl.ContextDSL
-import failgood.dsl.TestDSL
+import failgood.dsl.TestLambda
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import strikt.api.Assertion
@@ -37,9 +37,7 @@ class RootContextTestIsolationTest {
                     afterEachParameters[testName] = result
                     testEvents.add("after each executed for $testName")
                 }
-                val logTest: suspend TestDSL.(Unit) -> Unit = {
-                    testEvents.add("${testInfo.name} executed")
-                }
+                val logTest: TestLambda<Unit> = { testEvents.add("${testInfo.name} executed") }
                 test("test 1", function = logTest)
                 test("test 2", function = logTest)
                 context("context 1") {

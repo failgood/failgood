@@ -4,9 +4,9 @@ package failgood.functional
 
 import failgood.*
 import failgood.RootContext
+import kotlin.test.assertEquals
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
-import kotlin.test.assertEquals
 
 /*
  * given support is a given
@@ -82,21 +82,18 @@ class GivenTest {
                 }
             }
             describe("nested describe") {
-                describe("the given of a parent context", given={"parentContextGiven"}) {
-                    describe("is available in the given block of the child", given={
-//                        parentGiven=given()
-                        "ok"
-                    }) {
-                        it("first test") {
-                            assertEquals("ok", given)
+                describe("the given of a parent context", given = { "parentContextGiven" }) {
+                    describe(
+                        "is available in the given block of the child",
+                        given = {
+                            //                        parentGiven=given()
+                            "ok"
                         }
-                        it("second test") {
-                            assertEquals("ok", given)
-                        }
+                    ) {
+                        it("first test") { assertEquals("ok", given) }
+                        it("second test") { assertEquals("ok", given) }
                     }
-
                 }
             }
         }
-
 }

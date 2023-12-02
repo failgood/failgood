@@ -6,20 +6,18 @@ import failgood.Ignored
 import failgood.Skipped
 import failgood.TestDescription
 import failgood.TestPlusResult
-import failgood.dsl.ContextDSL
-import failgood.dsl.ContextOnlyResourceDSL
-import failgood.dsl.ResourcesDSL
+import failgood.dsl.*
 import failgood.dsl.TestLambda
 import failgood.internal.ContextPath
 import failgood.internal.ResourcesCloser
 import kotlinx.coroutines.CompletableDeferred
 
-internal class ContextVisitor<GivenType>(
+internal class ContextVisitor<ParentGivenType, GivenType>(
     private val staticConfig: StaticContextExecutionConfig,
     private val contextStateCollector: ContextStateCollector,
     private val context: Context,
     // execute sub-contexts and tests regardless of their tags, even when filtering
-    private val given: suspend () -> GivenType,
+    private val given: GivenLambda<ParentGivenType, GivenType>,
     private val resourcesCloser: ResourcesCloser,
     private val executeAll: Boolean = false,
     // indicate that this context was already executed once, so we already know about all of its
@@ -152,7 +150,7 @@ internal class ContextVisitor<GivenType>(
             return
         }
         val visitor =
-            ContextVisitor(
+            ContextVisitor<GivenType, ContextDependency>(
                 staticConfig,
                 contextStateCollector,
                 context,

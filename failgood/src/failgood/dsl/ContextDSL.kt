@@ -23,7 +23,7 @@ interface ContextDSL<GivenType> : ResourcesDSL, ContextOnlyResourceDSL {
         tags: Set<String> = setOf(),
         isolation: Boolean? = null,
         ignored: Ignored? = null,
-        given: (suspend () -> ContextGiven),
+        given: GivenLambda<GivenType, ContextGiven>,
         contextLambda: suspend ContextDSL<ContextGiven>.() -> Unit
     )
 
@@ -62,13 +62,13 @@ interface ContextDSL<GivenType> : ResourcesDSL, ContextOnlyResourceDSL {
     fun afterSuite(function: suspend () -> Unit)
 
     /** Define a context with a given block. See [describe] */
-    suspend fun <ContextDependency> context(
+    suspend fun <ContextGiven> context(
         name: String,
         tags: Set<String> = setOf(),
         isolation: Boolean? = null,
-        given: (suspend () -> ContextDependency),
+        given: GivenLambda<GivenType, ContextGiven>,
         ignored: Ignored? = null,
-        contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
+        contextLambda: suspend ContextDSL<ContextGiven>.() -> Unit
     ) = describe(name, tags, isolation, ignored, given, contextLambda)
 
     /** Define a test context. see [describe] */
@@ -92,3 +92,5 @@ interface ContextDSL<GivenType> : ResourcesDSL, ContextOnlyResourceDSL {
 internal typealias ContextLambda = suspend ContextDSL<Unit>.() -> Unit
 
 internal typealias TestLambda<GivenType> = suspend TestDSLWithGiven<GivenType>.() -> Unit
+
+internal typealias GivenLambda<ParentGivenType, GivenType> = suspend () -> GivenType

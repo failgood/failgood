@@ -49,7 +49,7 @@ internal class ContextStateCollector(
         function: TestLambda<GivenType>,
         resourcesCloser: ResourcesCloser,
         isolation: Boolean,
-        given: suspend () -> GivenType,
+        givenLambda: suspend () -> GivenType,
         rootContextStartTime: Long
     ) {
         deferredTestResults[testDescription] =
@@ -59,8 +59,23 @@ internal class ContextStateCollector(
                 val testResult =
                     try {
                         withTimeout(staticConfig.timeoutMillis) {
+                            val given =
+                                try {
+                                    givenLambda()
+                                } catch (e: Throwable) {
+                                    val failure = Failure(e)
+                                    val testContext =
+                                        TestContext(
+                                            resourcesCloser,
+                                            listener,
+                                            testDescription,
+                                            null
+                                        )
+                                    resourcesCloser.callAfterEach(testContext, failure)
+                                    return@withTimeout failure
+                                }
                             val testContext =
-                                TestContext(resourcesCloser, listener, testDescription, given())
+                                TestContext(resourcesCloser, listener, testDescription, given)
                             try {
                                 testContext.function()
                             } catch (e: Throwable) {
@@ -109,7 +124,7 @@ internal class ContextStateCollector(
     fun <GivenType> executeTestLater(
         testDescription: TestDescription,
         testPath: ContextPath,
-        given: suspend () -> GivenType
+        givenLambda: suspend () -> GivenType
     ) {
         val resourcesCloser = ResourceCloserImpl(staticConfig.scope)
         val deferred =
@@ -125,7 +140,7 @@ internal class ContextStateCollector(
                                             resourcesCloser,
                                             staticConfig.listener,
                                             testDescription,
-                                            given()
+                                            givenLambda()
                                         ),
                                         resourcesCloser,
                                         staticConfig.rootContextLambda
@@ -133,6 +148,8 @@ internal class ContextStateCollector(
                                     .execute()
                             TestPlusResult(testDescription, result)
                         }
+                    } catch (e: Throwable) {
+                        TestPlusResult(testDescription, Failure(e))
                     } catch (e: TimeoutCancellationException) {
                         TestPlusResult(testDescription, Failure(e))
                     }

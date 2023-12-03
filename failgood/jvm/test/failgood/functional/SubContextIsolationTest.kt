@@ -68,7 +68,15 @@ object SubContextIsolationTest {
                         Suite(
                                 failgood.describe("root") {
                                     val events = evt.addEvent()
-                                    describe("child", isolation = false, given = { givenCalls++ }) {
+                                    describe(
+                                        "child",
+                                        isolation = false,
+                                        given = {
+                                            // make sure that the block is not called twice before
+                                            // the counter increments
+                                            synchronized(givenValues) { givenCalls++ }
+                                        }
+                                    ) {
                                         events.add("childContext")
                                         it("test1") { given ->
                                             events.add("test1")

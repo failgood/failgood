@@ -2,6 +2,7 @@ package failgood.internal.execution.context
 
 import failgood.*
 import failgood.internal.*
+import failgood.internal.given.GivenDSLHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.withTimeout

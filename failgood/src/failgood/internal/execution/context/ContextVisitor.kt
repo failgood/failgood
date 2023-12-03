@@ -10,6 +10,7 @@ import failgood.dsl.*
 import failgood.dsl.TestLambda
 import failgood.internal.ContextPath
 import failgood.internal.ResourcesCloser
+import failgood.internal.given.GivenDSLHandler
 import kotlinx.coroutines.CompletableDeferred
 
 internal class ContextVisitor<ParentGivenType, GivenType>(

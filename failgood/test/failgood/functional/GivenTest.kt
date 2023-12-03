@@ -86,12 +86,13 @@ class GivenTest {
                     describe(
                         "is available in the given block of the child",
                         given = {
-                            //                        parentGiven=given()
+                            val parentGiven = given()
+                            assertEquals("parentContextGiven", parentGiven)
                             "ok"
                         }
                     ) {
                         it("first test") { assertEquals("ok", given) }
-                        it("second test") { assertEquals("ok", given) }
+                        it("second test", ignored = Ignored.TODO) { assertEquals("ok", given) }
                     }
                 }
             }

@@ -3,6 +3,7 @@ package failgood.internal.execution.context
 import failgood.Context
 import failgood.Test
 import failgood.describe
+import failgood.internal.given.GivenDSLHandler
 import failgood.mock.mock
 import kotlinx.coroutines.coroutineScope
 

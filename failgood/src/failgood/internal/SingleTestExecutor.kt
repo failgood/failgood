@@ -39,13 +39,14 @@ internal class SingleTestExecutor<GivenType>(
         ContextDSL<GivenType>,
         ResourcesDSL by resourcesCloser,
         ContextOnlyResourceDSL by resourcesCloser {
-        override suspend fun <ContextDependency> describe(
+
+        override suspend fun <ContextGiven> describe(
             name: String,
             tags: Set<String>,
             isolation: Boolean?,
             ignored: Ignored?,
-            given: suspend () -> ContextDependency,
-            contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
+            given: GivenLambda<GivenType, ContextGiven>,
+            contextLambda: suspend ContextDSL<ContextGiven>.() -> Unit
         ) {}
 
         override suspend fun it(
@@ -65,7 +66,7 @@ internal class SingleTestExecutor<GivenType>(
             tags: Set<String>,
             isolation: Boolean?,
             ignored: Ignored?,
-            given: suspend () -> ContextDependency,
+            given: GivenLambda<GivenType, ContextDependency>,
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
             if (contexts.first() != name) return

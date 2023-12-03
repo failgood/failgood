@@ -4,6 +4,7 @@ package failgood.functional
 
 import failgood.*
 import failgood.RootContext
+import java.util.UUID
 import kotlin.test.assertEquals
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
@@ -93,6 +94,32 @@ class GivenTest {
                     ) {
                         it("first test") { assertEquals("ok", given) }
                         it("second test") { assertEquals("ok", given) }
+                    }
+                }
+            }
+            describe("given that accesses non given values") {
+                val uuid = UUID.randomUUID()
+                describe(
+                    "a context with given that uses a value from the parent context",
+                    given = { "my uuid is $uuid" }
+                ) {
+                    describe(
+                        "a context that uses the parent context value",
+                        given = { given() + " and then the child context mutated it" }
+                    ) {
+                        it("first test") {
+                            assertEquals(
+                                "my uuid is $uuid and then the child context mutated it",
+                                given
+                            )
+                        }
+                        // this test fails because the given is evaluated in the wrong context
+                        it("second test", ignored = Ignored.TODO) {
+                            assertEquals(
+                                "my uuid is $uuid and then the child context mutated it",
+                                given
+                            )
+                        }
                     }
                 }
             }

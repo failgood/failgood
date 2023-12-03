@@ -15,7 +15,7 @@ object SubContextIsolationTest {
         describe("sub context isolation") {
             describe("on a root context with default isolation (true)") {
                 val evt = NestedEvents()
-                describe("turning off isolation for a subcotext") {
+                describe("turning off isolation for a subcontext") {
                     it("executes all the tests in that context in one go") {
                         Suite(
                                 failgood.describe("root") {

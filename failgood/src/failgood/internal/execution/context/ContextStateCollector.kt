@@ -1,6 +1,7 @@
 package failgood.internal.execution.context
 
 import failgood.*
+import failgood.dsl.GivenLambda
 import failgood.dsl.TestLambda
 import failgood.internal.*
 import kotlinx.coroutines.*
@@ -44,12 +45,13 @@ internal class ContextStateCollector(
         staticConfig.listener.testFinished(testPlusResult)
     }
 
-    fun <GivenType> executeTest(
+    fun <ParentGivenType, GivenType> executeTest(
         testDescription: TestDescription,
         function: TestLambda<GivenType>,
         resourcesCloser: ResourcesCloser,
         isolation: Boolean,
-        givenLambda: suspend () -> GivenType,
+        givenLambda: GivenLambda<ParentGivenType, GivenType>,
+        givenDSL: GivenDSLHandler<ParentGivenType>,
         rootContextStartTime: Long
     ) {
         deferredTestResults[testDescription] =
@@ -61,7 +63,7 @@ internal class ContextStateCollector(
                         withTimeout(staticConfig.timeoutMillis) {
                             val given =
                                 try {
-                                    givenLambda()
+                                    givenDSL.givenLambda()
                                 } catch (e: Throwable) {
                                     val failure = Failure(e)
                                     val testContext =
@@ -121,10 +123,10 @@ internal class ContextStateCollector(
             }
     }
 
-    fun <GivenType> executeTestLater(
+    fun <ParentGivenType, GivenType> executeTestLater(
         testDescription: TestDescription,
         testPath: ContextPath,
-        givenLambda: suspend () -> GivenType
+        givenLambda: GivenLambda<ParentGivenType, GivenType>,
     ) {
         val resourcesCloser = ResourceCloserImpl(staticConfig.scope)
         val deferred =
@@ -140,7 +142,7 @@ internal class ContextStateCollector(
                                             resourcesCloser,
                                             staticConfig.listener,
                                             testDescription,
-                                            givenLambda()
+                                            GivenDSLHandler<ParentGivenType>().givenLambda()
                                         ),
                                         resourcesCloser,
                                         staticConfig.rootContextLambda

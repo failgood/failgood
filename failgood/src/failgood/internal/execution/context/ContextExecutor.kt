@@ -65,7 +65,8 @@ internal class ContextExecutor(
                         resourcesCloser,
                         false,
                         stateCollector.investigatedContexts.contains(rootContext),
-                        startTime
+                        startTime,
+                        GivenDSLHandler()
                     )
                 try {
                     withTimeout(staticExecutionConfig.timeoutMillis) { visitor.function() }

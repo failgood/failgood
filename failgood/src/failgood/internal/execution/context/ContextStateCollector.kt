@@ -128,6 +128,7 @@ internal class ContextStateCollector(
         testDescription: TestDescription,
         testPath: ContextPath,
         givenLambda: GivenLambda<ParentGivenType, GivenType>,
+        givenDSL: GivenDSLHandler<ParentGivenType>,
     ) {
         val resourcesCloser = ResourceCloserImpl(staticConfig.scope)
         val deferred =
@@ -143,7 +144,7 @@ internal class ContextStateCollector(
                                             resourcesCloser,
                                             staticConfig.listener,
                                             testDescription,
-                                            GivenDSLHandler<ParentGivenType>().givenLambda()
+                                            givenDSL.givenLambda()
                                         ),
                                         resourcesCloser,
                                         staticConfig.rootContextLambda

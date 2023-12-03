@@ -92,7 +92,7 @@ class GivenTest {
                         }
                     ) {
                         it("first test") { assertEquals("ok", given) }
-                        it("second test", ignored = Ignored.TODO) { assertEquals("ok", given) }
+                        it("second test") { assertEquals("ok", given) }
                     }
                 }
             }

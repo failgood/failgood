@@ -93,9 +93,9 @@ internal typealias ContextLambda = suspend ContextDSL<Unit>.() -> Unit
 
 internal typealias TestLambda<GivenType> = suspend TestDSLWithGiven<GivenType>.() -> Unit
 
-internal typealias GivenLambda<
-    @Suppress("unused", "UNUSED_TYPEALIAS_PARAMETER")
-    ParentGivenType,
-    GivenType
-> =
-    suspend () -> GivenType
+internal typealias GivenLambda<ParentGivenType, GivenType> =
+    suspend GivenDSL<ParentGivenType>.() -> GivenType
+
+interface GivenDSL<ParentGivenType> {
+    fun given(): ParentGivenType
+}

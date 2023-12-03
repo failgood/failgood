@@ -96,6 +96,6 @@ internal typealias TestLambda<GivenType> = suspend TestDSLWithGiven<GivenType>.(
 internal typealias GivenLambda<ParentGivenType, GivenType> =
     suspend GivenDSL<ParentGivenType>.() -> GivenType
 
-interface GivenDSL<ParentGivenType> {
-    fun given(): ParentGivenType
+fun interface GivenDSL<ParentGivenType> {
+    suspend fun given(): ParentGivenType
 }

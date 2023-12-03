@@ -4,6 +4,7 @@ import failgood.*
 import failgood.dsl.GivenLambda
 import failgood.dsl.TestLambda
 import failgood.internal.*
+import failgood.internal.given.GivenDSLHandler
 import kotlinx.coroutines.*
 
 internal class ContextStateCollector(

@@ -101,7 +101,7 @@ internal class ContextVisitor<ParentGivenType, GivenType>(
         tags: Set<String>,
         isolation: Boolean?,
         ignored: Ignored?,
-        given: (suspend () -> ContextDependency),
+        given: GivenLambda<GivenType, ContextDependency>,
         contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
     ) {
         checkForDuplicateName(name)

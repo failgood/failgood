@@ -18,7 +18,7 @@ import strikt.assertions.*
 object ContextExecutorTest {
     val assertionError: java.lang.AssertionError = AssertionError("failed")
 
-    class Given {
+    class TypicalTestContext {
         val context: RootContext =
             RootContext("root context") {
                 test("test 1") { delay(1) }
@@ -51,13 +51,13 @@ object ContextExecutorTest {
         }
     }
 
+    private suspend fun executedTestContext() =
+        assertNotNull(TypicalTestContext().execute() as? ContextInfo)
+
     @Suppress("SimplifiableCallChain") // for better kotlin-power-assert output
     val context = describe {
-        describe("with a typical valid root context", given = { Given() }) {
-            describe(
-                "executing all the tests",
-                given = { assertNotNull(given().execute() as? ContextInfo) }
-            ) {
+        describe("with a typical valid root context") {
+            describe("executing all the tests", given = { executedTestContext() }) {
                 it("returns tests in the same order as they are declared in the file") {
                     assert(
                         given.tests.keys.map { it.testName } ==
@@ -125,7 +125,9 @@ object ContextExecutorTest {
                 given = {
                     val listener = RecordingListener()
                     assertNotNull(
-                        assertNotNull(given().execute(listener = listener) as? ContextInfo)
+                        assertNotNull(
+                            TypicalTestContext().execute(listener = listener) as? ContextInfo
+                        )
                     )
                     listener
                 }
@@ -148,7 +150,7 @@ object ContextExecutorTest {
                     )
                 }
             }
-            describe("executing a subset of tests", given = { given() }) {
+            describe("executing a subset of tests", given = { TypicalTestContext() }) {
                 it("can execute a subset of tests") {
                     val contextResult =
                         given.execute(

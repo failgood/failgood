@@ -3,13 +3,11 @@ package failgood.internal
 import failgood.*
 import failgood.dsl.*
 import failgood.dsl.ContextDSL
-import failgood.dsl.ContextLambda
 import failgood.dsl.ResourcesDSL
-import failgood.dsl.TestLambda
 
 /**
- * Executes a single test with all its parent contexts Async Called by ContextExecutor to execute
- * all tests that it does not have to execute itself
+ * Executes a single test with all its parent contexts. Called by ContextExecutor to execute all
+ * tests that it does not have to execute itself
  */
 internal class SingleTestExecutor<GivenType>(
     private val test: ContextPath,
@@ -20,8 +18,7 @@ internal class SingleTestExecutor<GivenType>(
     private val startTime = System.nanoTime()
 
     suspend fun execute(): TestResult {
-        @Suppress("UNCHECKED_CAST")
-        val dsl: ContextDSL<Unit> = contextDSL(test.container.path.drop(1)) as ContextDSL<Unit>
+        val dsl: ContextDSL<Unit> = ContextFinder(test.container.path.drop(1))
         return try {
             dsl.(rootContextLambda)()
             throw FailGoodException(
@@ -35,32 +32,15 @@ internal class SingleTestExecutor<GivenType>(
         }
     }
 
-    private open inner class Base<GivenType> :
+    private inner class ContextFinder<GivenType>(private val contexts: List<String>) :
         ContextDSL<GivenType>,
         ResourcesDSL by resourcesCloser,
         ContextOnlyResourceDSL by resourcesCloser {
-
-        override suspend fun <ContextGiven> describe(
-            name: String,
-            tags: Set<String>,
-            isolation: Boolean?,
-            ignored: Ignored?,
-            given: GivenLambda<GivenType, ContextGiven>,
-            contextLambda: suspend ContextDSL<ContextGiven>.() -> Unit
-        ) {}
-
-        override suspend fun it(
-            name: String,
-            tags: Set<String>,
-            ignored: Ignored?,
-            function: TestLambda<GivenType>
-        ) {}
+        // are we already in the correct context and just waiting for the test?
+        val findTest = contexts.isEmpty()
 
         override fun afterSuite(function: suspend () -> Unit) {}
-    }
 
-    private inner class ContextFinder(private val contexts: List<String>) :
-        ContextDSL<GivenType>, Base<GivenType>() {
         override suspend fun <ContextDependency> describe(
             name: String,
             tags: Set<String>,
@@ -69,31 +49,25 @@ internal class SingleTestExecutor<GivenType>(
             given: GivenLambda<GivenType, ContextDependency>,
             contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
-            if (contexts.first() != name) return
+            if (findTest || contexts.first() != name) return
 
-            @Suppress("UNCHECKED_CAST")
-            (contextDSL(contexts.drop(1)) as ContextDSL<ContextDependency>).contextLambda()
+            ContextFinder<ContextDependency>(contexts.drop(1)).contextLambda()
         }
-    }
 
-    private fun contextDSL(parentContexts: List<String>): ContextDSL<*> =
-        if (parentContexts.isEmpty()) TestFinder() else ContextFinder(parentContexts)
-
-    private inner class TestFinder : Base<GivenType>() {
         override suspend fun it(
             name: String,
             tags: Set<String>,
             ignored: Ignored?,
             function: TestLambda<GivenType>
         ) {
-            if (test.name == name) {
+            if (findTest && test.name == name) {
                 throw TestResultAvailable(executeTest(function))
             }
         }
 
         private suspend fun executeTest(function: TestLambda<GivenType>): TestResult {
             try {
-                testDSL.function()
+                @Suppress("UNCHECKED_CAST") (testDSL as TestDSLWithGiven<GivenType>).function()
             } catch (e: Throwable) {
                 val failure = Failure(e)
                 try {

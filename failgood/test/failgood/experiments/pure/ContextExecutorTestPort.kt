@@ -17,7 +17,6 @@ import kotlinx.coroutines.delay
  */
 object ContextExecutorTestPort {
     class Given {
-
         val assertionError: java.lang.AssertionError = AssertionError("failed")
         val context: RootContext =
             RootContext("root context") {

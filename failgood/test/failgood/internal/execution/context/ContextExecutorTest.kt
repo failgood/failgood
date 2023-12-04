@@ -14,31 +14,53 @@ import kotlinx.coroutines.*
 import strikt.api.expectThat
 import strikt.assertions.*
 
-@Suppress("NAME_SHADOWING")
 @Test
 object ContextExecutorTest {
+    val assertionError: java.lang.AssertionError = AssertionError("failed")
+
+    class Given {
+        val context: RootContext =
+            RootContext("root context") {
+                test("test 1") { delay(1) }
+                test("test 2") { delay(1) }
+                test("ignored test", ignored = Because("testing")) {}
+                test("failed test") { throw assertionError }
+                context("context 1") {
+                    // comment to make sure that context1 and context2 are not on the same
+                    // line
+                    context("context 2") { test("test 3") { delay(1) } }
+                }
+                context("context 3") { test("test 4") { delay(1) } }
+            }
+
+        suspend fun execute(
+            tag: String? = null,
+            listener: ExecutionListener = NullExecutionListener,
+            testFilter: TestFilter = ExecuteAllTests,
+        ): ContextResult {
+            return coroutineScope {
+                ContextExecutor(
+                        context,
+                        this,
+                        runOnlyTag = tag,
+                        listener = listener,
+                        testFilter = testFilter
+                    )
+                    .execute()
+            }
+        }
+    }
 
     @Suppress("SimplifiableCallChain") // for better kotlin-power-assert output
     val context = describe {
-        val assertionError: AssertionError = AssertionError("failed")
-        describe("with a typical valid root context") {
-            val ctx =
-                RootContext("root context") {
-                    test("test 1") { delay(1) }
-                    test("test 2") { delay(1) }
-                    test("ignored test", ignored = Because("testing")) {}
-                    test("failed test") { throw assertionError }
-                    context("context 1") {
-                        // comment to make sure that context1 and context2 are not on the same line
-                        context("context 2") { test("test 3") { delay(1) } }
-                    }
-                    context("context 3") { test("test 4") { delay(1) } }
-                }
-            describe("executing all the tests") {
-                val contextInfo = assertNotNull(execute(ctx) as? ContextInfo)
+        describe("with a typical valid root context", given = { Given() }) {
+            describe(
+                "executing all the tests",
+                given = { assertNotNull(given().execute() as? ContextInfo) }
+            ) {
                 it("returns tests in the same order as they are declared in the file") {
                     assert(
-                        contextInfo.tests.keys.map { it.testName } ==
+                        given.tests.keys.map { it.testName } ==
                             listOf(
                                 "test 1",
                                 "test 2",
@@ -50,7 +72,7 @@ object ContextExecutorTest {
                     )
                 }
                 it("returns deferred test results") {
-                    val testResults = contextInfo.tests.values.awaitAll()
+                    val testResults = given.tests.values.awaitAll()
                     val successful = testResults.filter { it.isSuccess }
                     val failed = assertNotNull(testResults.filter { it.isFailure }.singleOrNull())
                     val skipped = assertNotNull(testResults.filter { it.isSkipped }.singleOrNull())
@@ -63,13 +85,13 @@ object ContextExecutorTest {
                 }
 
                 it("returns contexts in the same order as they appear in the file") {
-                    expectThat(contextInfo.contexts)
+                    expectThat(given.contexts)
                         .map { it.name }
                         .containsExactly("root context", "context 1", "context 2", "context 3")
                 }
                 it("reports time of successful tests") {
                     expectThat(
-                            contextInfo.tests.values
+                            given.tests.values
                                 .awaitAll()
                                 .map { it.result }
                                 .filterIsInstance<Success>()
@@ -77,52 +99,61 @@ object ContextExecutorTest {
                         .isNotEmpty()
                         .all { get { timeMicro }.isGreaterThanOrEqualTo(1) }
                 }
-                describe("reports failed tests") {
-                    val failure =
-                        contextInfo.tests.values
+
+                describe(
+                    "reports failed tests",
+                    given = {
+                        given()
+                            .tests
+                            .values
                             .awaitAll()
                             .map { it.result }
                             .filterIsInstance<Failure>()
                             .single()
-                    it("reports exception for failed tests") {
-                        expectThat(failure.failure) {
-                            get { stackTraceToString() }
-                                .isEqualTo(assertionError.stackTraceToString())
-                        }
                     }
-                }
-                describe("with a listener") {
-                    it("reports tests and contexts in their order inside the file") {
-                        val listener = RecordingListener()
-                        assert(execute(ctx, listener = listener) is ContextInfo)
+                ) {
+                    it("reports exception for failed tests") {
                         assertEquals(
-                            listOf(
-                                Event(CONTEXT_DISCOVERED, "root context"),
-                                Event(TEST_DISCOVERED, "test 1"),
-                                Event(TEST_DISCOVERED, "test 2"),
-                                Event(TEST_DISCOVERED, "ignored test"),
-                                Event(TEST_DISCOVERED, "failed test"),
-                                Event(CONTEXT_DISCOVERED, "context 1"),
-                                Event(CONTEXT_DISCOVERED, "context 2"),
-                                Event(TEST_DISCOVERED, "test 3"),
-                                Event(CONTEXT_DISCOVERED, "context 3"),
-                                Event(TEST_DISCOVERED, "test 4"),
-                            ),
-                            listener.events
+                            given.failure.stackTraceToString(),
+                            assertionError.stackTraceToString()
                         )
                     }
                 }
             }
-            describe("executing a subset of tests") {
+            describe(
+                "with a listener",
+                given = {
+                    val listener = RecordingListener()
+                    assertNotNull(
+                        assertNotNull(given().execute(listener = listener) as? ContextInfo)
+                    )
+                    listener
+                }
+            ) {
+                it("reports tests and contexts in their order inside the file") {
+                    assertEquals(
+                        listOf(
+                            Event(CONTEXT_DISCOVERED, "root context"),
+                            Event(TEST_DISCOVERED, "test 1"),
+                            Event(TEST_DISCOVERED, "test 2"),
+                            Event(TEST_DISCOVERED, "ignored test"),
+                            Event(TEST_DISCOVERED, "failed test"),
+                            Event(CONTEXT_DISCOVERED, "context 1"),
+                            Event(CONTEXT_DISCOVERED, "context 2"),
+                            Event(TEST_DISCOVERED, "test 3"),
+                            Event(CONTEXT_DISCOVERED, "context 3"),
+                            Event(TEST_DISCOVERED, "test 4"),
+                        ),
+                        given.events
+                    )
+                }
+            }
+            describe("executing a subset of tests", given = { given() }) {
                 it("can execute a subset of tests") {
-                    val contextResult = coroutineScope {
-                        ContextExecutor(
-                                ctx,
-                                this,
-                                testFilter = StringListTestFilter(listOf("root context", "test 1"))
-                            )
-                            .execute()
-                    }
+                    val contextResult =
+                        given.execute(
+                            testFilter = StringListTestFilter(listOf("root context", "test 1"))
+                        )
                     val contextInfo = expectThat(contextResult).isA<ContextInfo>().subject
                     expectThat(contextInfo) {
                         get { tests.keys }.map { it.testName }.containsExactly("test 1")
@@ -130,15 +161,11 @@ object ContextExecutorTest {
                     }
                 }
                 it("does not execute the context at all if the root name does not match") {
-                    val contextResult = coroutineScope {
-                        ContextExecutor(
-                                ctx,
-                                this,
-                                testFilter =
-                                    StringListTestFilter(listOf("other root context", "test 1"))
-                            )
-                            .execute()
-                    }
+                    val contextResult =
+                        given.execute(
+                            testFilter =
+                                StringListTestFilter(listOf("other root context", "test 1"))
+                        )
                     val contextInfo = expectThat(contextResult).isA<ContextInfo>().subject
                     expectThat(contextInfo) {
                         get { tests }.isEmpty()

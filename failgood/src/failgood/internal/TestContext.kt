@@ -7,7 +7,7 @@ import failgood.dsl.TestDSLWithGiven
 import failgood.dsl.TestInfo
 
 internal class TestContext<GivenType>(
-    resourcesDSL: ResourcesDSL,
+    private val resourcesDSL: ResourcesDSL,
     private val listener: ExecutionListener,
     private val testDescription: TestDescription,
     override val given: GivenType
@@ -21,4 +21,7 @@ internal class TestContext<GivenType>(
     override suspend fun _test_event(type: String, body: String) {
         listener.testEvent(testDescription, type, body.ifBlank { "<empty>" })
     }
+
+    fun <GivenType> withGiven(given: GivenType) =
+        TestContext(resourcesDSL, listener, testDescription, given)
 }

@@ -59,6 +59,15 @@ task("autotest", JavaExec::class) {
 tasks.check { dependsOn(testMain) }
 
 tasks.getByName("check").dependsOn(tasks.getByName("ktfmtCheck"))
+sourceSets.main {
+    java.srcDirs("src")
+    resources.srcDirs("resources")
+}
+sourceSets.test {
+    java.srcDirs("test")
+    resources.srcDirs("test-resources")
+}
+
 ktfmt {
     kotlinLangStyle()
 }

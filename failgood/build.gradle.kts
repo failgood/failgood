@@ -42,12 +42,12 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
 }
 sourceSets.main {
-    java.srcDirs("jvm/src")
-    resources.srcDirs("jvm/resources")
+    java.srcDirs("src")
+    resources.srcDirs("resources")
 }
 sourceSets.test {
-    java.srcDirs("jvm/test")
-    resources.srcDirs("jvm/test-resources")
+    java.srcDirs("test")
+    resources.srcDirs("test-resources")
 }
 val testMain =
     task("testMain", JavaExec::class) {

@@ -11,6 +11,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Given is now accessed via `given` instead of a parameter to the test lambda
+- Given block can now lazily access the parent context
 - Private test classes now throw an error instead of being ignored. Now that we find tests by annotation it
   makes no sense to mark a class as test and make it private.
 - The Root context name now contains the name of the test file when it makes sense

@@ -114,7 +114,7 @@ class GivenTest {
                             )
                         }
                         // this test fails because the given is evaluated in the wrong context
-                        it("second test", ignored = Ignored.TODO) {
+                        it("second test") {
                             assertEquals(
                                 "my uuid is $uuid and then the child context mutated it",
                                 given

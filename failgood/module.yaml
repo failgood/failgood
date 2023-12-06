@@ -5,13 +5,16 @@ product:
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3: exported
   - org.junit.platform:junit-platform-commons:1.10.1: exported
+
+  ## note that amper currently mistakes compile only and runtime only
+  ## so they are switched here in this file as temp fix
   - org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.7.3:
-      scope: runtime-only
-  - org.junit.platform:junit-platform-engine:1.10.1:
       scope: compile-only
+  - org.junit.platform:junit-platform-engine:1.10.1:
+      scope: runtime-only
   - org.junit.platform:junit-platform-launcher:1.10.1: exported
   - org.pitest:pitest:1.15.3:
-      scope: compile-only
+      scope: runtime-only
   - org.opentest4j:opentest4j:1.3.0
 test-dependencies:
   - io.strikt:strikt-core:0.34.1

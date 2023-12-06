@@ -1,0 +1,11 @@
+product:
+  type: jvm/app
+  platforms:
+    - jvm
+dependencies:
+  - io.github.microutils:kotlin-logging-jvm:3.0.5
+test-dependencies:
+  - ../failgood
+  - io.mockk:mockk:1.13.8
+  - io.strikt:strikt-core:0.34.1
+

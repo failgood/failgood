@@ -26,7 +26,7 @@ sourceSets.main {
 }
 sourceSets.test {
     java.srcDirs("test")
-    resources.srcDirs("test-resources")
+    resources.srcDirs("testResources")
 }
 plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {

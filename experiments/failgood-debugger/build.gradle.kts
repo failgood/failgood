@@ -6,12 +6,17 @@ import info.solidsoft.gradle.pitest.PitestPluginExtension
 plugins {
     kotlin("jvm")
     id("info.solidsoft.pitest")
-    id("failgood.common")
+//    id("failgood.common")
 //    id("failgood.publishing")
     id("com.bnorm.power.kotlin-power-assert") version "0.13.0"
     id("org.jetbrains.kotlinx.kover") version "0.7.5"
     id("org.jetbrains.dokka") version "1.9.10"
 }
+val coroutinesVersion = "1.7.3"
+val striktVersion = "0.34.1"
+val junitPlatformVersion = "1.10.1"
+val junitJupiterVersion = "5.10.1"
+val pitestVersion = "1.15.3"
 
 dependencies {
     testImplementation(kotlin("test"))
@@ -30,11 +35,12 @@ sourceSets.test {
 }
 plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
+        addJUnitPlatformLauncher = false
         jvmArgs = listOf("-Xmx512m") // necessary on CI
         avoidCallsTo = setOf("kotlin.jvm.internal", "kotlin.Result")
         targetClasses = setOf("failgood.*") // by default "${project.group}.*"
         targetTests = setOf("failgood.*Test", "failgood.**.*Test")
-        pitestVersion = failgood.versions.pitestVersion
+        pitestVersion = pitestVersion
         threads =
             System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()
 

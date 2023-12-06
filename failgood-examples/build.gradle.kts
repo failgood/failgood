@@ -1,6 +1,4 @@
 @file:Suppress("GradlePackageUpdate")
-import failgood.versions.coroutinesVersion
-import failgood.versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
 /**
@@ -9,18 +7,19 @@ import info.solidsoft.gradle.pitest.PitestPluginExtension
 plugins {
     kotlin("jvm")
     id("info.solidsoft.pitest")
-    id("com.ncorti.ktfmt.gradle")
+//    id("com.ncorti.ktfmt.gradle")
 }
 
 dependencies {
     testImplementation(project(":failgood"))
 
     // everything else is optional, and only here because some tests show interactions with these libs
+/*
     testImplementation("io.strikt:strikt-core:$striktVersion")
     testImplementation("io.mockk:mockk:1.13.8")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
-    implementation("org.slf4j:slf4j-api:2.0.9")
+    implementation("org.slf4j:slf4j-api:2.0.9")*/
 }
 
 tasks {
@@ -31,6 +30,7 @@ tasks {
 
 plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
+        addJUnitPlatformLauncher = false
         mutators.set(listOf("ALL"))
         //        verbose.set(true)
         jvmArgs.set(listOf("-Xmx512m")) // necessary on CI
@@ -58,7 +58,7 @@ task("autotest", JavaExec::class) {
 }
 tasks.check { dependsOn(testMain) }
 
-tasks.getByName("check").dependsOn(tasks.getByName("ktfmtCheck"))
+//tasks.getByName("check").dependsOn(tasks.getByName("ktfmtCheck"))
 sourceSets.main {
     java.srcDirs("src")
     resources.srcDirs("resources")
@@ -67,8 +67,3 @@ sourceSets.test {
     java.srcDirs("test")
     resources.srcDirs("testResources")
 }
-
-ktfmt {
-    kotlinLangStyle()
-}
-

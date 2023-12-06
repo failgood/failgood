@@ -5,6 +5,7 @@ plugins {
     id("info.solidsoft.pitest") version "1.15.0" apply false
     id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
     id("com.autonomousapps.dependency-analysis") version "1.27.0"
+//    id("com.ncorti.ktfmt.gradle") version "1.15.1"
 }
 
 

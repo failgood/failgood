@@ -47,7 +47,7 @@ sourceSets.main {
 }
 sourceSets.test {
     java.srcDirs("test")
-    resources.srcDirs("test-resources")
+    resources.srcDirs("testResources")
 }
 val testMain =
     task("testMain", JavaExec::class) {

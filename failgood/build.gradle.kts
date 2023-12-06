@@ -20,24 +20,6 @@ val junitJupiterVersion = "5.10.1"
 val pitestVersion = "1.15.3"
 
 dependencies {
-//    runtimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-debug:$coroutinesVersion")
-    // to enable running test in idea without having to add the dependency manually
-//    compileOnly("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
-
-    compileOnly("org.pitest:pitest:$pitestVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
-    implementation("org.opentest4j:opentest4j:1.3.0")
-    testImplementation("io.strikt:strikt-core:$striktVersion")
-    testImplementation("org.pitest:pitest:$pitestVersion")
-    testImplementation("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
-    testImplementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
-    testImplementation("io.projectreactor.tools:blockhound:1.0.8.RELEASE")
-
-    testImplementation(kotlin("test"))
-
-    // for the tools that analyze what events jupiter tests generate.
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
 }
 sourceSets.main {
     java.srcDirs("src")

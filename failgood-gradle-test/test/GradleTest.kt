@@ -1,5 +1,6 @@
 package failgood.gradle
 
+import failgood.Ignored
 import failgood.Test
 import failgood.describe
 import java.io.File
@@ -13,10 +14,12 @@ import org.gradle.tooling.events.test.internal.DefaultTestStartEvent
 @Test
 class GradleTest {
     val context =
-        describe("running via gradle") {
+        describe("running via gradle", ignored= Ignored.Because("does not in amper version")) {
             it("works") {
+                val thisSource = File(GradleTest::class.java.protectionDomain.codeSource.location.toURI())
                 val rootDirectory =
-                    File(GradleTest::class.java.protectionDomain.codeSource.location.toURI())
+                    thisSource
+                        .parentFile
                         .parentFile
                         .parentFile
                         .parentFile

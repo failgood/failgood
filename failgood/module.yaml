@@ -18,6 +18,7 @@ dependencies:
   - org.opentest4j:opentest4j:1.3.0
 test-dependencies:
   - io.strikt:strikt-core:0.34.1
+  - com.christophsturm:filepeek:0.1.3
   - org.pitest:pitest:1.15.3
   - org.junit.platform:junit-platform-engine:1.10.1
   - org.junit.platform:junit-platform-launcher:1.10.1

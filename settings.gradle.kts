@@ -3,6 +3,7 @@
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
+        maven("https://repo.gradle.org/gradle/libs-releases") // for gradle test project
     }
 //    repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS // kover does not work with this
 }

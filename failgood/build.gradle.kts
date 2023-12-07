@@ -6,12 +6,13 @@ import failgood.versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
 plugins {
-    kotlin("jvm")
+    java
+    kotlin("multiplatform")
     `maven-publish`
     id("info.solidsoft.pitest")
     signing
-    id("failgood.common")
-    id("failgood.publishing")
+//    id("failgood.common")
+//    id("failgood.publishing")
     id("org.jetbrains.kotlinx.kover") version "0.9.1"
     id("org.jetbrains.dokka") version "2.0.0"
 }
@@ -20,6 +21,7 @@ plugins {
 // ./gradlew publishToSonatype closeSonatypeStagingRepository (or ./gradlew publishToSonatype
 // closeAndReleaseSonatypeStagingRepository)
 
+/*
 dependencies {
     compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     api("org.junit.platform:junit-platform-commons:$junitPlatformVersion")
@@ -76,6 +78,97 @@ task("autotest", JavaExec::class) {
 }
 
 tasks.check { dependsOn(testMain, multiThreadedTest) }
+*/
+val enableJs = false
+kotlin {
+/* waiting for compatible libraries
+    wasmWasi {
+        nodejs()
+        binaries.executable()
+    }*/
+    if (enableJs) {
+        js {
+            nodejs {}
+        }
+    }
+    jvm {
+        compilations.all {
+            kotlinOptions.jvmTarget = "1.8"
+        }
+        withJava()
+        testRuns["test"].executionTask.configure {
+            useJUnitPlatform {}
+        }
+        compilations.getByName("test") {
+            val testMain =
+                task("testMain", JavaExec::class) {
+                    mainClass.set("failgood.FailGoodBootstrapKt")
+                    classpath(runtimeDependencyFiles, output)
+                }
+            val multiThreadedTest =
+                task("multiThreadedTest", JavaExec::class) {
+                    mainClass.set("failgood.MultiThreadingPerformanceTestKt")
+                    classpath(runtimeDependencyFiles, output)
+                    systemProperties = mapOf("kotlinx.coroutines.scheduler.core.pool.size" to "1000")
+                }
+            task("autotest", JavaExec::class) {
+                mainClass.set("failgood.AutoTestMainKt")
+                classpath(runtimeDependencyFiles, output)
+            }
+
+            tasks.check { dependsOn(testMain, multiThreadedTest) }
+
+        }
+    }
+    sourceSets {
+        val commonMain by getting {
+            kotlin.srcDir("common/src")
+            dependencies {
+                api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+            }
+        }
+        val commonTest by getting {
+            kotlin.srcDir("common/test")
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
+        if (enableJs) {
+            val jsMain by getting { kotlin.srcDir("js/src") }
+            val jsTest by getting { kotlin.srcDir("js/test") }
+        }
+
+        val jvmMain by getting {
+            kotlin.srcDir("jvm/src")
+            resources.srcDir("jvm/resources")
+            dependencies {
+                api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+                api("org.junit.platform:junit-platform-commons:$junitPlatformVersion")
+//                runtimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-debug:$coroutinesVersion")
+                // to enable running test in idea without having to add the dependency manually
+                api("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
+                compileOnly("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
+
+                implementation(kotlin("stdlib-jdk8"))
+                compileOnly("org.pitest:pitest:$pitestVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+            }
+        }
+        val jvmTest by getting {
+            kotlin.srcDir("jvm/test")
+            resources.srcDir("jvm/test-resources")
+            dependencies {
+                implementation("io.strikt:strikt-core:$striktVersion")
+                implementation("org.pitest:pitest:$pitestVersion")
+                implementation("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
+                implementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
+                implementation("io.projectreactor.tools:blockhound:1.0.6.RELEASE")
+                implementation(kotlin("test"))
+
+            }
+        }
+    }
+}
 
 plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {

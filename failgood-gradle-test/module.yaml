@@ -1,0 +1,7 @@
+product:
+  type: jvm/app
+  platforms:
+    - jvm
+test-dependencies:
+  - ../failgood
+  - org.gradle:gradle-tooling-api:8.5

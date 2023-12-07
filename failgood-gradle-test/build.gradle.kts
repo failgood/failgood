@@ -4,10 +4,6 @@ repositories {
     maven("https://repo.gradle.org/gradle/libs-releases")
     mavenCentral()
 }
-plugins {
-    id("failgood.common")
-    kotlin("jvm")
-}
 
 dependencies {
     testImplementation(project(":failgood"))

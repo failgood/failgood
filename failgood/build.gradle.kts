@@ -3,7 +3,11 @@ import failgood.versions.junitJupiterVersion
 import failgood.versions.junitPlatformVersion
 import failgood.versions.pitestVersion
 import failgood.versions.striktVersion
+import com.adarshr.gradle.testlogger.TestLoggerExtension
+import com.adarshr.gradle.testlogger.theme.ThemeType
+import failgood.versions.*
 import info.solidsoft.gradle.pitest.PitestPluginExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     java
@@ -197,3 +201,37 @@ tasks.register<Test>("runSingleNonFailgoodTest") {
 
 // this seems to be no longer necessary, but keeping it here for now
 // tasks.withType<Jar> { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }
+tasks {
+    test {
+        useJUnitPlatform {
+// use all engine for now because we want to see the playground engines output
+            //            includeEngines = setOf("failgood")
+        }
+        outputs.upToDateWhen { false }
+    }
+
+    withType<JavaCompile> {
+        sourceCompatibility = "1.8"
+        targetCompatibility = "1.8"
+    }
+    withType<KotlinCompile> {
+        kotlinOptions {
+            if (System.getenv("CI") != null)
+                allWarningsAsErrors = true
+            jvmTarget = "1.8"
+            freeCompilerArgs = listOf("-opt-in=kotlin.RequiresOptIn")
+            languageVersion = "1.6"
+            apiVersion = "1.6"
+        }
+    }
+}
+configure<TestLoggerExtension> {
+    theme = ThemeType.MOCHA_PARALLEL
+    showSimpleNames = true
+    showFullStackTraces = true
+}
+tasks.getByName("check").dependsOn(tasks.getByName("ktfmtCheck"))
+
+ktfmt {
+    kotlinLangStyle()
+}

@@ -122,25 +122,25 @@ kotlin {
     }
     sourceSets {
         val commonMain by getting {
-            kotlin.srcDir("common/src")
+            kotlin.srcDir("src@common")
             dependencies {
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
             }
         }
         val commonTest by getting {
-            kotlin.srcDir("common/test")
+            kotlin.srcDir("test@common")
             dependencies {
                 implementation(kotlin("test"))
             }
         }
         if (enableJs) {
-            val jsMain by getting { kotlin.srcDir("js/src") }
-            val jsTest by getting { kotlin.srcDir("js/test") }
+            val jsMain by getting { kotlin.srcDir("src@js") }
+            val jsTest by getting { kotlin.srcDir("test@js") }
         }
 
         val jvmMain by getting {
-            kotlin.srcDir("jvm/src")
-            resources.srcDir("jvm/resources")
+            kotlin.srcDir("src")
+            resources.srcDir("resources")
             dependencies {
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
                 api("org.junit.platform:junit-platform-commons:$junitPlatformVersion")
@@ -155,8 +155,8 @@ kotlin {
             }
         }
         val jvmTest by getting {
-            kotlin.srcDir("jvm/test")
-            resources.srcDir("jvm/test-resources")
+            kotlin.srcDir("test")
+            resources.srcDir("testResources")
             dependencies {
                 implementation("io.strikt:strikt-core:$striktVersion")
                 implementation("org.pitest:pitest:$pitestVersion")

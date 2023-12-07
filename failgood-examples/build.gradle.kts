@@ -31,6 +31,7 @@ tasks {
 
 plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
+        addJUnitPlatformLauncher = false
         mutators.set(listOf("ALL"))
         //        verbose.set(true)
         jvmArgs.set(listOf("-Xmx512m")) // necessary on CI

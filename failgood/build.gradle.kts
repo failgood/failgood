@@ -70,6 +70,7 @@ plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
 // in case of problems:
         //                verbose = true
+        addJUnitPlatformLauncher = false
         jvmArgs = listOf("-Xmx512m") // necessary on CI
         avoidCallsTo = setOf("kotlin.jvm.internal", "kotlin.Result")
         excludedTestClasses = setOf("failgood.MultiThreadingPerformanceTest*")

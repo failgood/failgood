@@ -30,6 +30,7 @@ sourceSets.test {
 }
 plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
+        addJUnitPlatformLauncher = false
         jvmArgs = listOf("-Xmx512m") // necessary on CI
         avoidCallsTo = setOf("kotlin.jvm.internal", "kotlin.Result")
         targetClasses = setOf("failgood.*") // by default "${project.group}.*"

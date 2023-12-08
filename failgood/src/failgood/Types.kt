@@ -1,6 +1,7 @@
 package failgood
 
 import failgood.dsl.ContextLambda
+import failgood.dsl.ContextLambdaWithGiven
 import failgood.internal.ContextPath
 import kotlin.reflect.KClass
 
@@ -52,7 +53,7 @@ fun <RootGiven> RootContextWithGiven(
     sourceInfo: SourceInfo = callerSourceInfo(),
     addClassName: Boolean = false,
     given: (suspend () -> RootGiven),
-    function: ContextLambda
+    function: ContextLambdaWithGiven<RootGiven>
 ) =
     RootContextWithGiven(
         Context(name, null, sourceInfo, isolation),
@@ -70,8 +71,11 @@ data class RootContextWithGiven<RootGiven>(
     override val order: Int = 0,
     val ignored: Ignored?,
     val addClassName: Boolean = false,
-    val given: (suspend () -> RootGiven)? = null,
-    val function: ContextLambda
+    val given: (suspend () -> RootGiven) = {
+        @Suppress("UNCHECKED_CAST")
+        Unit as RootGiven
+    },
+    val function: ContextLambdaWithGiven<RootGiven>
 ) : LoadResult, failgood.internal.Path {
     val sourceInfo: SourceInfo
         get() =
@@ -89,6 +93,10 @@ data class Context(
     val isolation: Boolean = true,
     val displayName: String = name
 ) {
+    init {
+        if (name.isBlank()) throw IllegalArgumentException("name must not be blank")
+    }
+
     companion object {
         fun fromPath(path: List<String>): Context {
             return Context(path.last(), if (path.size == 1) null else fromPath(path.dropLast(1)))

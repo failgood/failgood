@@ -49,7 +49,8 @@ class SingleTestExecutorTest {
                                     ContextPath(rootContext, "test 1"),
                                     testDSL,
                                     resourceCloser,
-                                    ctx
+                                    ctx,
+                                    {}
                                 )
                                 .execute()
                         expectThat(events).containsExactly("root context", "test 1")
@@ -61,7 +62,8 @@ class SingleTestExecutorTest {
                                     ContextPath(context2, "test 3"),
                                     testDSL,
                                     resourceCloser,
-                                    ctx
+                                    ctx,
+                                    {}
                                 )
                                 .execute()
                         expectThat(events)
@@ -93,7 +95,8 @@ class SingleTestExecutorTest {
                                     ContextPath(context2, "test 3"),
                                     testDSL,
                                     resourceCloser,
-                                    ctx
+                                    ctx,
+                                    {}
                                 )
                                 .execute()
                         assert(result is Success)
@@ -121,7 +124,7 @@ class SingleTestExecutorTest {
                         Context("with a valid root context", Context("ContextExecutor", null)),
                         "returns contexts"
                     )
-                val executor = SingleTestExecutor(test, testDSL, resourceCloser, context)
+                val executor = SingleTestExecutor(test, testDSL, resourceCloser, context, {})
                 executor.execute()
             }
             describe("error handling") {
@@ -133,7 +136,8 @@ class SingleTestExecutorTest {
                                 ContextPath(Context("root context", null), "test"),
                                 testDSL,
                                 resourceCloser,
-                                contextThatThrows.function
+                                contextThatThrows.function,
+                                {}
                             )
                             .execute()
                     expectThat(result).isA<Failure>().get { failure }.isEqualTo(runtimeException)
@@ -150,7 +154,8 @@ class SingleTestExecutorTest {
                                 ContextPath(Context("root context", null), "test"),
                                 testDSL,
                                 resourceCloser,
-                                contextThatThrows.function
+                                contextThatThrows.function,
+                                {}
                             )
                             .execute()
                     expectThat(result).isA<Failure>().get { failure }.isEqualTo(runtimeException)

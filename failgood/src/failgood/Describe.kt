@@ -29,7 +29,7 @@ fun describe(
     isolation: Boolean = true,
     function: ContextLambda
 ): RootContext =
-    RootContext("", ignored, order, isolation, addClassName = true, function = function)
+    RootContext("root", ignored, order, isolation, addClassName = true, function = function)
 
 @JvmName("describe2")
 inline fun <reified T> describe(

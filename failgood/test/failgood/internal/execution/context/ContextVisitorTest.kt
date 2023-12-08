@@ -12,7 +12,7 @@ object ContextVisitorTest {
     val tests = describe {
         it("can be easily created") {
             coroutineScope {
-                val staticConfig = StaticContextExecutionConfig({}, this)
+                val staticConfig = StaticContextExecutionConfig({}, this, given = {})
                 ContextVisitor(
                     staticConfig,
                     ContextStateCollector(staticConfig, false),

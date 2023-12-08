@@ -24,7 +24,8 @@ internal class ContextExecutor<RootGiven>(
             testFilter,
             timeoutMillis,
             if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT,
-            runOnlyTag
+            runOnlyTag,
+            rootContext.given
         )
 
     private val stateCollector =
@@ -39,15 +40,7 @@ internal class ContextExecutor<RootGiven>(
      * context path of that test together with the test.
      */
     suspend fun execute(): ContextResult {
-        val incomingRootContext =
-            if (rootContext.addClassName) {
-                val shortClassName = rootContext.sourceInfo.className.substringAfterLast(".")
-                val newName =
-                    if (rootContext.context.name.isNotBlank())
-                        "$shortClassName: ${rootContext.context.name}"
-                    else shortClassName
-                rootContext.copy(context = rootContext.context.copy(displayName = newName))
-            } else rootContext
+        val incomingRootContext = fixRootName()
         if (!staticExecutionConfig.testFilter.shouldRun(incomingRootContext))
             return ContextInfo(listOf(), mapOf(), setOf())
         val function = rootContext.function
@@ -66,7 +59,7 @@ internal class ContextExecutor<RootGiven>(
                         false,
                         stateCollector.investigatedContexts.contains(rootContext),
                         startTime,
-                        RootGivenDSLHandler {}
+                        RootGivenDSLHandler(staticExecutionConfig.given)
                     )
                 try {
                     withTimeout(staticExecutionConfig.timeoutMillis) { visitor.function() }
@@ -89,6 +82,15 @@ internal class ContextExecutor<RootGiven>(
             stateCollector.afterSuiteCallbacks
         )
     }
+
+    private fun fixRootName() =
+        if (rootContext.addClassName) {
+            val shortClassName = rootContext.sourceInfo.className.substringAfterLast(".")
+            val newName =
+                if (rootContext.context.name == "root") shortClassName
+                else "$shortClassName: ${rootContext.context.name}"
+            rootContext.copy(context = rootContext.context.copy(displayName = newName))
+        } else rootContext
 }
 
 // this is thrown when a context is finished, and we can not do anything meaningful in this pass

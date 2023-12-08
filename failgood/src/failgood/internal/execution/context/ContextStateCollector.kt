@@ -6,8 +6,8 @@ import failgood.internal.*
 import failgood.internal.given.GivenDSLHandler
 import kotlinx.coroutines.*
 
-internal class ContextStateCollector(
-    private val staticConfig: StaticContextExecutionConfig,
+internal class ContextStateCollector<RootGiven>(
+    private val staticConfig: StaticContextExecutionConfig<RootGiven>,
     // did we find contexts without isolation in this root context?
     // in that case we have to call the resources closer after suite.
     var containsContextsWithoutIsolation: Boolean
@@ -50,7 +50,7 @@ internal class ContextStateCollector(
         function: TestLambda<GivenType>,
         resourcesCloser: ResourcesCloser,
         isolation: Boolean,
-        givenDSL: GivenDSLHandler<GivenType>,
+        givenDSLHandler: GivenDSLHandler<GivenType>,
         rootContextStartTime: Long
     ) {
         deferredTestResults[testDescription] =
@@ -62,7 +62,7 @@ internal class ContextStateCollector(
                         withTimeout(staticConfig.timeoutMillis) {
                             val given =
                                 try {
-                                    givenDSL.given()
+                                    givenDSLHandler.given()
                                 } catch (e: Throwable) {
                                     val failure = Failure(e)
                                     val testContext =
@@ -140,7 +140,8 @@ internal class ContextStateCollector(
                                             null
                                         ),
                                         resourcesCloser,
-                                        staticConfig.rootContextLambda
+                                        staticConfig.rootContextLambda,
+                                        staticConfig.given
                                     )
                                     .execute()
                             TestPlusResult(testDescription, result)

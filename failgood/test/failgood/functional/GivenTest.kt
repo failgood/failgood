@@ -135,6 +135,6 @@ fun <RootGiven : Any> describe2(
     order: Int = 0,
     isolation: Boolean = true,
     given: (suspend () -> RootGiven),
-    function: failgood.dsl.ContextLambda
+    function: failgood.dsl.ContextLambdaWithGiven<RootGiven>
 ): RootContextWithGiven<RootGiven> =
     RootContextWithGiven(name, ignored, order, isolation, given = given, function = function)

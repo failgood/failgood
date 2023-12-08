@@ -5,6 +5,7 @@ import failgood.dsl.*
 import failgood.dsl.ContextDSL
 import failgood.dsl.ResourcesDSL
 import failgood.internal.given.GivenDSLHandler
+import failgood.internal.given.RootGivenDSLHandler
 
 /**
  * Executes a single test with all its parent contexts. Called by ContextExecutor to execute all
@@ -19,7 +20,8 @@ internal class SingleTestExecutor<TestGivenType>(
     private val startTime = System.nanoTime()
 
     suspend fun execute(): TestResult {
-        val dsl: ContextDSL<Unit> = ContextFinder(test.container.path.drop(1), GivenDSLHandler({}))
+        val dsl: ContextDSL<Unit> =
+            ContextFinder(test.container.path.drop(1), RootGivenDSLHandler({}))
         return try {
             dsl.(rootContextLambda)()
             throw FailGoodException(

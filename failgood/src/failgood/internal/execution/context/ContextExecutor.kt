@@ -2,7 +2,7 @@ package failgood.internal.execution.context
 
 import failgood.*
 import failgood.internal.*
-import failgood.internal.given.GivenDSLHandler
+import failgood.internal.given.RootGivenDSLHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.withTimeout
@@ -67,7 +67,7 @@ internal class ContextExecutor(
                         false,
                         stateCollector.investigatedContexts.contains(rootContext),
                         startTime,
-                        GivenDSLHandler()
+                        RootGivenDSLHandler({ Unit })
                     )
                 try {
                     withTimeout(staticExecutionConfig.timeoutMillis) { visitor.function() }

@@ -13,12 +13,11 @@ import failgood.internal.ResourcesCloser
 import failgood.internal.given.GivenDSLHandler
 import kotlinx.coroutines.CompletableDeferred
 
-internal class ContextVisitor<ParentGivenType, GivenType>(
+internal class ContextVisitor<GivenType>(
     private val staticConfig: StaticContextExecutionConfig,
     private val contextStateCollector: ContextStateCollector,
     private val context: Context,
     // execute sub-contexts and tests regardless of their tags, even when filtering
-    private val givenLambda: GivenLambda<ParentGivenType, GivenType>,
     private val resourcesCloser: ResourcesCloser,
     private val executeAll: Boolean = false,
     // indicate that this context was already executed once, so we already know about all of its
@@ -26,7 +25,7 @@ internal class ContextVisitor<ParentGivenType, GivenType>(
     // there is no need to check tests, just go into sub contexts
     private val onlyRunSubcontexts: Boolean,
     private val rootContextStartTime: Long,
-    private val givenDSL: GivenDSLHandler<ParentGivenType>
+    private val givenDSL: GivenDSLHandler<GivenType>
 ) :
     ContextDSL<GivenType>,
     ResourcesDSL by resourcesCloser,
@@ -90,12 +89,11 @@ internal class ContextVisitor<ParentGivenType, GivenType>(
                 function,
                 resourcesCloser,
                 isolation,
-                givenLambda,
                 givenDSL,
                 rootContextStartTime
             )
         } else {
-            contextStateCollector.executeTestLater(testDescription, testPath, givenLambda, givenDSL)
+            contextStateCollector.executeTestLater(testDescription, testPath)
         }
     }
 
@@ -153,16 +151,15 @@ internal class ContextVisitor<ParentGivenType, GivenType>(
             return
         }
         val visitor =
-            ContextVisitor<GivenType, ContextDependency>(
+            ContextVisitor(
                 staticConfig,
                 contextStateCollector,
                 context,
-                given,
                 resourcesCloser,
                 staticConfig.runOnlyTag != null,
                 contextStateCollector.investigatedContexts.contains(context),
                 rootContextStartTime,
-                givenDSL.add(givenLambda)
+                givenDSL.add(given)
             )
         this.mutable = false
         try {

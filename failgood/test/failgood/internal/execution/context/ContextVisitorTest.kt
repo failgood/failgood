@@ -13,16 +13,15 @@ object ContextVisitorTest {
         it("can be easily created") {
             coroutineScope {
                 val staticConfig = StaticContextExecutionConfig({}, this)
-                ContextVisitor<Unit, Unit>(
+                ContextVisitor(
                     staticConfig,
                     ContextStateCollector(staticConfig, false),
                     Context("root"),
-                    {},
                     mock(),
                     executeAll = false,
                     onlyRunSubcontexts = false,
                     rootContextStartTime = 0,
-                    givenDSL = RootGivenDSLHandler({})
+                    givenDSL = RootGivenDSLHandler {}
                 )
             }
         }

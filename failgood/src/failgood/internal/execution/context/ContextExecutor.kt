@@ -58,16 +58,15 @@ internal class ContextExecutor(
                 val startTime = System.nanoTime()
                 val resourcesCloser = ResourceCloserImpl(staticExecutionConfig.scope)
                 val visitor =
-                    ContextVisitor<Unit, Unit>(
+                    ContextVisitor(
                         staticExecutionConfig,
                         stateCollector,
                         rootContext,
-                        {},
                         resourcesCloser,
                         false,
                         stateCollector.investigatedContexts.contains(rootContext),
                         startTime,
-                        RootGivenDSLHandler({ Unit })
+                        RootGivenDSLHandler {}
                     )
                 try {
                     withTimeout(staticExecutionConfig.timeoutMillis) { visitor.function() }

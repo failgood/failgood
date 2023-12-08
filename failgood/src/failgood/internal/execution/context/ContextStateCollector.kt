@@ -1,7 +1,6 @@
 package failgood.internal.execution.context
 
 import failgood.*
-import failgood.dsl.GivenLambda
 import failgood.dsl.TestLambda
 import failgood.internal.*
 import failgood.internal.given.GivenDSLHandler
@@ -46,13 +45,12 @@ internal class ContextStateCollector(
         staticConfig.listener.testFinished(testPlusResult)
     }
 
-    fun <ParentGivenType, GivenType> executeTest(
+    fun <GivenType> executeTest(
         testDescription: TestDescription,
         function: TestLambda<GivenType>,
         resourcesCloser: ResourcesCloser,
         isolation: Boolean,
-        givenLambda: GivenLambda<ParentGivenType, GivenType>,
-        givenDSL: GivenDSLHandler<ParentGivenType>,
+        givenDSL: GivenDSLHandler<GivenType>,
         rootContextStartTime: Long
     ) {
         deferredTestResults[testDescription] =
@@ -64,7 +62,7 @@ internal class ContextStateCollector(
                         withTimeout(staticConfig.timeoutMillis) {
                             val given =
                                 try {
-                                    givenDSL.givenLambda()
+                                    givenDSL.given()
                                 } catch (e: Throwable) {
                                     val failure = Failure(e)
                                     val testContext =
@@ -124,12 +122,7 @@ internal class ContextStateCollector(
             }
     }
 
-    fun <ParentGivenType, GivenType> executeTestLater(
-        testDescription: TestDescription,
-        testPath: ContextPath,
-        givenLambda: GivenLambda<ParentGivenType, GivenType>,
-        givenDSL: GivenDSLHandler<ParentGivenType>,
-    ) {
+    fun executeTestLater(testDescription: TestDescription, testPath: ContextPath) {
         val resourcesCloser = ResourceCloserImpl(staticConfig.scope)
         val deferred =
             staticConfig.scope.async(start = staticConfig.coroutineStart) {
@@ -144,7 +137,7 @@ internal class ContextStateCollector(
                                             resourcesCloser,
                                             staticConfig.listener,
                                             testDescription,
-                                            givenDSL.givenLambda()
+                                            null
                                         ),
                                         resourcesCloser,
                                         staticConfig.rootContextLambda

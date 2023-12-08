@@ -61,8 +61,11 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
                         it.returnType == List::class.java &&
                             it.genericReturnType.let { genericReturnType ->
                                 genericReturnType is ParameterizedType &&
-                                    genericReturnType.actualTypeArguments.singleOrNull() ==
-                                        RootContextWithGiven::class.java
+                                    genericReturnType.actualTypeArguments.singleOrNull().let {
+                                        actualTypArg ->
+                                        actualTypArg is ParameterizedType &&
+                                            actualTypArg.rawType == RootContextWithGiven::class.java
+                                    }
                             }
                 }
                 .ifEmpty {

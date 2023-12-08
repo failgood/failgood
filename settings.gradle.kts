@@ -16,7 +16,7 @@ pluginManagement {
     }
 }
 plugins {
-    id("org.jetbrains.amper.settings.plugin").version("0.1.1")
+    id("org.jetbrains.amper.settings.plugin").version("0.1.2")
 }
 rootProject.name = "failgood-root"
 include("failgood", "failgood-examples", "failgood-gradle-test"

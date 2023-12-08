@@ -19,7 +19,7 @@ class GivenTest {
         describe("Given support") {
             it("passes the value of the contests given block to the test") {
                 val context =
-                    describe2(
+                    RootContextWithGiven(
                         "TestContext for dependency Injection",
                         given = { "root dependency" }
                     ) {
@@ -128,13 +128,3 @@ class GivenTest {
             }
         }
 }
-
-fun <RootGiven : Any> describe2(
-    name: String,
-    ignored: Ignored? = null,
-    order: Int = 0,
-    isolation: Boolean = true,
-    given: (suspend () -> RootGiven),
-    function: failgood.dsl.ContextLambdaWithGiven<RootGiven>
-): RootContextWithGiven<RootGiven> =
-    RootContextWithGiven(name, ignored, order, isolation, given = given, function = function)

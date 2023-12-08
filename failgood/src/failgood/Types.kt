@@ -62,6 +62,7 @@ fun <RootGiven> RootContextWithGiven(
         given,
         function = function
     )
+
 typealias RootContext = RootContextWithGiven<Unit>
 
 data class RootContextWithGiven<RootGiven>(

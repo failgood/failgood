@@ -5,11 +5,10 @@ import failgood.describe
 
 class PrivateContextFixture {
     private val otherContext = describe("context fixture") {}
-    val context: RootContext =
-        describe {
-            it("test") {
-                val testContext = otherContext
-                @Suppress("SENSELESS_COMPARISON") assert(testContext != null)
-            }
+    val context: RootContext = describe {
+        it("test") {
+            val testContext = otherContext
+            @Suppress("SENSELESS_COMPARISON") assert(testContext != null)
         }
+    }
 }

@@ -151,6 +151,6 @@ fun Suite(rootContexts: Collection<RootContextWithGiven<*>>) =
 
 fun Suite(kClasses: List<KClass<*>>) = Suite(kClasses.map { ObjectContextProvider(it) })
 
-fun <RootGiven >Suite(rootContext: RootContextWithGiven<RootGiven>) = Suite(listOf(rootContext))
+fun <RootGiven> Suite(rootContext: RootContextWithGiven<RootGiven>) = Suite(listOf(rootContext))
 
 fun Suite(lambda: ContextLambda) = Suite(RootContext("root", order = 0, function = lambda))

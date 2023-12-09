@@ -22,7 +22,7 @@ internal class LoadResults(private val loadResults: List<ContextCreator>) {
         executionFilter: TestFilterProvider = ExecuteAllTestFilterProvider,
         listener: ExecutionListener = NullExecutionListener
     ): List<Deferred<ContextResult>> {
-        return loadResults.map { loadResult: LoadResult ->
+        return loadResults.flatMap { it.getContexts() }.map { loadResult: LoadResult ->
             when (loadResult) {
                 is CouldNotLoadContext ->
                     CompletableDeferred(

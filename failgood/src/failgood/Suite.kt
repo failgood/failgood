@@ -147,12 +147,14 @@ fun <RootGiven> Suite(rootContext: RootContextWithGiven<RootGiven>) = Suite(list
 
 fun Suite(lambda: ContextLambda) = Suite(RootContext("root", order = 0, function = lambda))
 
-private class SimpleContextProvider<RootGiven>(val context: RootContextWithGiven<RootGiven>) : ContextProvider {
+private class SimpleContextProvider<RootGiven>(val context: RootContextWithGiven<RootGiven>) :
+    ContextProvider {
     override fun getContextCreators(): List<ContextCreator> {
         return listOf(SimpleContextCreator(context))
     }
 
-    class SimpleContextCreator<RootGiven>(val context: RootContextWithGiven<RootGiven>) : ContextCreator {
+    class SimpleContextCreator<RootGiven>(val context: RootContextWithGiven<RootGiven>) :
+        ContextCreator {
         override val dependencies: List<Class<*>>
             get() = listOf()
 

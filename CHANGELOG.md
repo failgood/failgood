@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- root context now also has a given block
 - New junit platform engine that is totally async
   To try it out add -Dfailgood.new.junit=true to your test run or set it in junit-platform.properties.
   It works pretty well and will become the default before 1.0

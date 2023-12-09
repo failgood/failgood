@@ -22,36 +22,38 @@ internal class LoadResults(private val loadResults: List<ContextCreator>) {
         executionFilter: TestFilterProvider = ExecuteAllTestFilterProvider,
         listener: ExecutionListener = NullExecutionListener
     ): List<Deferred<ContextResult>> {
-        return loadResults.flatMap { it.getContexts() }.map { loadResult: LoadResult ->
-            when (loadResult) {
-                is CouldNotLoadContext ->
-                    CompletableDeferred(
-                        FailedRootContext(
-                            Context(loadResult.kClass.simpleName ?: "unknown"),
-                            loadResult.reason
+        return loadResults
+            .flatMap { it.getContexts() }
+            .map { loadResult: LoadResult ->
+                when (loadResult) {
+                    is CouldNotLoadContext ->
+                        CompletableDeferred(
+                            FailedRootContext(
+                                Context(loadResult.kClass.simpleName ?: "unknown"),
+                                loadResult.reason
+                            )
                         )
-                    )
-                is RootContextWithGiven<*> -> {
-                    val testFilter =
-                        loadResult.context.sourceInfo?.className?.let {
-                            executionFilter.forClass(it)
-                        } ?: ExecuteAllTests
-                    coroutineScope.async {
-                        if (loadResult.ignored?.isIgnored() == null) {
-                            ContextExecutor(
-                                    loadResult,
-                                    coroutineScope,
-                                    !executeTests,
-                                    listener,
-                                    testFilter,
-                                    timeoutMillis,
-                                    runOnlyTag = tag
-                                )
-                                .execute()
-                        } else ContextInfo(emptyList(), mapOf(), setOf())
+                    is RootContextWithGiven<*> -> {
+                        val testFilter =
+                            loadResult.context.sourceInfo?.className?.let {
+                                executionFilter.forClass(it)
+                            } ?: ExecuteAllTests
+                        coroutineScope.async {
+                            if (loadResult.ignored?.isIgnored() == null) {
+                                ContextExecutor(
+                                        loadResult,
+                                        coroutineScope,
+                                        !executeTests,
+                                        listener,
+                                        testFilter,
+                                        timeoutMillis,
+                                        runOnlyTag = tag
+                                    )
+                                    .execute()
+                            } else ContextInfo(emptyList(), mapOf(), setOf())
+                        }
                     }
                 }
             }
-        }
     }
 }

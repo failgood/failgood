@@ -61,6 +61,7 @@ class ObjectContextProvider<Cls : Any>(private val jClass: Class<out Cls>) : Con
     }
 
     /** get root contexts from a class or object or defined at the top level */
+    @Deprecated("use getContextCreators")
     fun getContexts(): List<RootContext> {
         // the RootContext constructor tries to determine its file and line number.
         // if the root context is created by a utility method outside the test class the file and

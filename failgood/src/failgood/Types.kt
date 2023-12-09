@@ -1,6 +1,7 @@
 package failgood
 
 import failgood.dsl.ContextLambda
+import failgood.dsl.ContextLambdaWithGiven
 import failgood.internal.ContextPath
 import kotlin.reflect.KClass
 
@@ -35,7 +36,7 @@ fun RootContext(
     sourceInfo: SourceInfo = callerSourceInfo(),
     addClassName: Boolean = false,
     function: ContextLambda
-) =
+): RootContext =
     RootContext(
         Context(name, null, sourceInfo, isolation),
         order,
@@ -44,12 +45,37 @@ fun RootContext(
         function = function
     )
 
-data class RootContext(
+fun <RootGiven> RootContextWithGiven(
+    name: String = "root",
+    ignored: Ignored? = null,
+    order: Int = 0,
+    isolation: Boolean = true,
+    sourceInfo: SourceInfo = callerSourceInfo(),
+    addClassName: Boolean = false,
+    given: (suspend () -> RootGiven),
+    function: ContextLambdaWithGiven<RootGiven>
+) =
+    RootContextWithGiven(
+        Context(name, null, sourceInfo, isolation),
+        order,
+        ignored,
+        addClassName,
+        given,
+        function = function
+    )
+
+typealias RootContext = RootContextWithGiven<Unit>
+
+data class RootContextWithGiven<RootGiven>(
     val context: Context,
     override val order: Int = 0,
     val ignored: Ignored?,
     val addClassName: Boolean = false,
-    val function: ContextLambda
+    val given: (suspend () -> RootGiven) = {
+        @Suppress("UNCHECKED_CAST")
+        Unit as RootGiven
+    },
+    val function: ContextLambdaWithGiven<RootGiven>
 ) : LoadResult, failgood.internal.Path {
     val sourceInfo: SourceInfo
         get() =
@@ -67,6 +93,10 @@ data class Context(
     val isolation: Boolean = true,
     val displayName: String = name
 ) {
+    init {
+        if (name.isBlank()) throw IllegalArgumentException("name must not be blank")
+    }
+
     companion object {
         fun fromPath(path: List<String>): Context {
             return Context(path.last(), if (path.size == 1) null else fromPath(path.dropLast(1)))
@@ -74,8 +104,10 @@ data class Context(
     }
 
     val parents: List<Context> = parent?.parents?.plus(parent) ?: listOf()
+
     /** this is used for example for filtering */
     val path: List<String> = parent?.path?.plus(name) ?: listOf(name)
+
     /** path for displaying to the user */
     private val displayPath: List<String> = parent?.path?.plus(displayName) ?: listOf(displayName)
 

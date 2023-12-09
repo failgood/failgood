@@ -2,6 +2,7 @@ package failgood
 
 import failgood.dsl.ContextDSL
 import failgood.dsl.ContextLambda
+import failgood.dsl.ContextLambdaWithGiven
 import failgood.internal.util.niceString
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -23,13 +24,47 @@ fun describe(
         function = function
     )
 
+fun <RootGiven> describe(
+    subjectDescription: String,
+    ignored: Ignored? = null,
+    order: Int = 0,
+    isolation: Boolean = true,
+    given: (suspend () -> RootGiven),
+    function: ContextLambdaWithGiven<RootGiven>
+): RootContextWithGiven<RootGiven> =
+    RootContextWithGiven(
+        subjectDescription,
+        ignored,
+        order,
+        isolation,
+        given = given,
+        function = function
+    )
+
 fun describe(
     ignored: Ignored? = null,
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextLambda
 ): RootContext =
-    RootContext("", ignored, order, isolation, addClassName = true, function = function)
+    RootContext("root", ignored, order, isolation, addClassName = true, function = function)
+
+fun <RootGiven> describe(
+    ignored: Ignored? = null,
+    order: Int = 0,
+    isolation: Boolean = true,
+    given: (suspend () -> RootGiven),
+    function: ContextLambdaWithGiven<RootGiven>
+): RootContextWithGiven<RootGiven> =
+    RootContextWithGiven(
+        "root",
+        ignored,
+        order,
+        isolation,
+        addClassName = true,
+        given = given,
+        function = function
+    )
 
 @JvmName("describe2")
 inline fun <reified T> describe(

@@ -13,9 +13,9 @@ import failgood.internal.ResourcesCloser
 import failgood.internal.given.GivenDSLHandler
 import kotlinx.coroutines.CompletableDeferred
 
-internal class ContextVisitor<GivenType>(
-    private val staticConfig: StaticContextExecutionConfig,
-    private val contextStateCollector: ContextStateCollector,
+internal class ContextVisitor<RootGiven, GivenType>(
+    private val staticConfig: StaticContextExecutionConfig<RootGiven>,
+    private val contextStateCollector: ContextStateCollector<RootGiven>,
     private val context: Context,
     // execute sub-contexts and tests regardless of their tags, even when filtering
     private val resourcesCloser: ResourcesCloser,

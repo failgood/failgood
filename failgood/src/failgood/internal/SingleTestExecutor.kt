@@ -11,17 +11,18 @@ import failgood.internal.given.RootGivenDSLHandler
  * Executes a single test with all its parent contexts. Called by ContextExecutor to execute all
  * tests that it does not have to execute itself
  */
-internal class SingleTestExecutor<TestGivenType>(
+internal class SingleTestExecutor<RootGiven, TestGivenType>(
     private val test: ContextPath,
     val testDSL: ClonableTestContext<TestGivenType>,
     val resourcesCloser: ResourcesCloser,
-    private val rootContextLambda: ContextLambda
+    private val rootContextLambda: ContextLambdaWithGiven<RootGiven>,
+    val given: suspend () -> RootGiven
 ) {
     private val startTime = System.nanoTime()
 
     suspend fun execute(): TestResult {
-        val dsl: ContextDSL<Unit> =
-            ContextFinder(test.container.path.drop(1), RootGivenDSLHandler({}))
+        val dsl: ContextDSL<RootGiven> =
+            ContextFinder(test.container.path.drop(1), RootGivenDSLHandler(given))
         return try {
             dsl.(rootContextLambda)()
             throw FailGoodException(

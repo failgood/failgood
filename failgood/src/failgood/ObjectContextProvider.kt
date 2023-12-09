@@ -6,7 +6,7 @@ import java.lang.reflect.ParameterizedType
 import kotlin.reflect.KClass
 
 fun interface ContextProvider {
-    fun getContexts(): List<RootContext>
+    fun getContexts(): List<RootContextWithGiven<*>>
 }
 
 class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvider {
@@ -57,12 +57,15 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
         val methodsReturningRootContext =
             jClass.methods
                 .filter {
-                    it.returnType == RootContext::class.java ||
+                    it.returnType == RootContextWithGiven::class.java ||
                         it.returnType == List::class.java &&
                             it.genericReturnType.let { genericReturnType ->
                                 genericReturnType is ParameterizedType &&
-                                    genericReturnType.actualTypeArguments.singleOrNull() ==
-                                        RootContext::class.java
+                                    genericReturnType.actualTypeArguments.singleOrNull().let {
+                                        actualTypArg ->
+                                        actualTypArg is ParameterizedType &&
+                                            actualTypArg.rawType == RootContextWithGiven::class.java
+                                    }
                             }
                 }
                 .ifEmpty {

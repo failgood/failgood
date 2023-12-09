@@ -47,15 +47,15 @@ class TestResourcesLifecycleTest {
                                             events.add("second close callback")
                                         }
                                     test("first failing test") {
-                                        events.add(this.testInfo.name)
+                                        events.add(testInfo.name)
                                         throw AssertionError("test failed")
                                     }
                                     test("second failing test") {
-                                        events.add(this.testInfo.name)
+                                        events.add(testInfo.name)
                                         throw AssertionError("test failed")
                                     }
-                                    test("first test") { events.add(this.testInfo.name) }
-                                    test("second test") { events.add(this.testInfo.name) }
+                                    test("first test") { events.add(testInfo.name) }
+                                    test("second test") { events.add(testInfo.name) }
                                 }
                                 .run(silent = true)
                         )
@@ -166,6 +166,7 @@ class TestResourcesLifecycleTest {
                                 .containsExactlyInAnyOrder("first test", "second test")
                         }
                     }
+
                     var afterEachCalled = 0
                     var autoCloseCalled = 0
                     fun suiteResult(

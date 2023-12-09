@@ -2,8 +2,12 @@
 
 package failgood.functional
 
-import failgood.*
+import failgood.Failure
 import failgood.RootContext
+import failgood.RootContextWithGiven
+import failgood.Suite
+import failgood.Test
+import failgood.describe
 import java.util.UUID
 import kotlin.test.assertEquals
 import strikt.api.expectThat
@@ -16,7 +20,7 @@ import strikt.assertions.isEqualTo
 @Test
 class GivenTest {
     val context =
-        describe("Given support") {
+        describe(given = { "adding an unused given just for fun" }) {
             it("passes the value of the contests given block to the test") {
                 val context =
                     RootContextWithGiven(
@@ -116,7 +120,6 @@ class GivenTest {
                                 given
                             )
                         }
-                        // this test fails because the given is evaluated in the wrong context
                         it("second test") {
                             assertEquals(
                                 "my uuid is $uuid and then the child context mutated it",

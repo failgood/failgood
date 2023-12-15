@@ -1,18 +1,33 @@
 ### Given
 
-Sub-contexts can define a `given` block, whose result will be freshly evaluated and passed to each test. This is not different from dependencies that are just declared in the context, those are also freshly evaluated
-for each test. The only real difference is that the given block is evaluated as part of the test, which can result in better parallelization of test runs.
+Contexts can define a `given` block, which will be evaluated for every test and can be accessed inside the tests via a `given` getter.
 
 ```kotlin
-context(
-    "context with dependency lambda",
-    given = { "StringDependency" }
-) {
-    test("test that takes a string dependency") { givenString ->
-        expectThat(givenString).isEqualTo("StringDependency")
+describe("context with given lambda", given = { "StringDependency" }) {
+    test("test that takes a string dependency") {
+        expectThat(given).isEqualTo("StringDependency")
     }
 }
 ```
 
-Given support is an alternative way to declare your dependencies or to do things before each test. It's not something you have to use, it's perfectly fine to declare all dependencies directly in the context.
-If you like it try it out and if you don't like it just ignore it and don't worry about it.
+Only the given block of the context containing the test is always evaluated. parent context given blocks are evaluated lazily when accessed from the given block.
+
+an example from `GivenTest.kt`:
+
+```kotlin
+                describe("the given of a parent context", given = { "parentContextGiven" }) {
+                    describe(
+                        "is available in the given block of the child",
+                        given = {
+                            val parentGiven = given()
+                            assertEquals("parentContextGiven", parentGiven)
+                            "ok"
+                        }
+                    ) {
+                        it("first test") { assertEquals("ok", given) }
+                    }
+                }
+```
+
+This may sound cool, but it is really not a good idea to use highly nested given blocks. Keep your test context self-contained, nobody wants to go hunting in parent contexts to see all dependencies on a test.
+So give each of your contexts a self contained given block and if you want to reuse things put them into a class or into functions.

@@ -15,3 +15,4 @@ Failgood runs your tests in parallel, so you need to avoid global state.
 * if you need a database create a db with a random name for each test. (see the.orm)
   or run the test in a transaction that is rolled back at the end
 
+

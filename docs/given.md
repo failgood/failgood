@@ -10,6 +10,8 @@ describe("context with given lambda", given = { "StringDependency" }) {
 }
 ```
 
+#### Nesting Given blocks
+
 Only the given block of the context containing the test is always evaluated. parent context given blocks are evaluated lazily when accessed from the given block.
 
 an example from `GivenTest.kt`:
@@ -29,5 +31,9 @@ an example from `GivenTest.kt`:
                 }
 ```
 
-This may sound cool, but it is really not a good idea to use highly nested given blocks. Keep your test context self-contained, nobody wants to go hunting in parent contexts to see all dependencies on a test.
-So give each of your contexts a self contained given block and if you want to reuse things put them into a class or into functions.
+This may sound cool, but it is really not a good idea to use highly nested given blocks. Keep your test context self-contained, nobody wants to go hunting in parent contexts to see all dependencies on a test. If you want to reuse things put them into a class or into functions.
+
+#### Given and isolation
+
+Given blocks are evaluated for each test even if context isolation is turned off. Turning off context isolation and putting all test dependencies in the given block
+is a great way to write good readable fast tests.

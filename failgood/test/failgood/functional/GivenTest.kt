@@ -128,12 +128,45 @@ class GivenTest {
             }
         }
         describe("withSharedGiven") {
-            describe("in a describe block with a given", given = { "blah" }) {
-                withSharedGiven({ "blerg" }) {
-                    it("the given block can be overridden", ignored = Ignored.TODO) {
-                        assertEquals("blerg", given)
+            it(
+                "overrides the given with a block that is shared between tests",
+                ignored = Ignored.TODO
+            ) {
+                var rootGivenInvocations = 0
+                var sharedGivenInvocations = 0
+                val tests =
+                    failgood.describe(
+                        given = {
+                            rootGivenInvocations++
+                            "rootGiven"
+                        }
+                    ) {
+                        it("first test that gets the root given") {
+                            assertEquals("rootGiven", given)
+                        }
+                        it("second test that gets the root given") {
+                            assertEquals("rootGiven", given)
+                        }
+                        withSharedGiven({
+                            sharedGivenInvocations++
+                            "sharedGiven"
+                        }) {
+                            it("first test with shared given") {
+                                assertEquals("sharedGiven", given)
+                            }
+                            it("second test with shared given") {
+                                assertEquals("sharedGiven", given)
+                            }
+                        }
+                        it("third test that gets the root given") {
+                            assertEquals("rootGiven", given)
+                        }
                     }
-                }
+                val results = Suite(tests).run(silent = true)
+                assert(results.allOk)
+                assert(results.allTests.size == 4)
+                assert(rootGivenInvocations == 3)
+                assert(sharedGivenInvocations == 1)
             }
         }
     }

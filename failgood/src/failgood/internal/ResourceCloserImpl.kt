@@ -14,7 +14,7 @@ import kotlinx.coroutines.async
 internal class ResourceCloserImpl(private val scope: CoroutineScope) :
     ResourcesCloser, ContextOnlyResourceDSL {
     override fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T {
-        addCloseable(LambdaAutoCloseable(wrapped, closeFunction))
+        addCloseable(Closer(wrapped, closeFunction))
         return wrapped
     }
 
@@ -31,7 +31,7 @@ internal class ResourceCloserImpl(private val scope: CoroutineScope) :
         closer: suspend (T) -> Unit
     ): TestDependency<T> {
         val result = scope.async(Dispatchers.IO) { kotlin.runCatching { creator() } }
-        addCloseable(LambdaAutoCloseable(result) { closer(result.await().getOrThrow()) })
+        addCloseable(Closer(result) { closer(result.await().getOrThrow()) })
         return JVMTestDependency(result)
     }
 
@@ -63,4 +63,11 @@ internal class ResourceCloserImpl(private val scope: CoroutineScope) :
 
     private val closeables = ConcurrentLinkedQueue<SuspendAutoCloseable>()
     private val afterEachCallbacks = ConcurrentLinkedQueue<suspend TestDSL.(TestResult) -> Unit>()
+
+    private class Closer<T>(private val closeable: T, val closer: suspend (T) -> Unit) :
+        SuspendAutoCloseable {
+        override suspend fun close() {
+            closer(closeable)
+        }
+    }
 }

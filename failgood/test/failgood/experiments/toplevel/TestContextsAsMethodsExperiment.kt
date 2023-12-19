@@ -3,7 +3,7 @@ package failgood.experiments.toplevel
 import failgood.Ignored
 import failgood.RootContext
 import failgood.Test
-import failgood.dsl.ContextLambda
+import failgood.dsl.ContextFunction
 
 /*
 this already works, but it's not yet possible to run via the icon on the method. it is possible to run via the class
@@ -20,6 +20,6 @@ class TestContextsAsMethodsExperiment {
         ignored: Ignored? = null,
         order: Int = 0,
         isolation: Boolean = true,
-        function: ContextLambda
+        function: ContextFunction
     ): RootContext = RootContext("todo", ignored, order, isolation, function = function)
 }

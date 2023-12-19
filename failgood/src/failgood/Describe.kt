@@ -1,8 +1,8 @@
 package failgood
 
 import failgood.dsl.ContextDSL
-import failgood.dsl.ContextLambda
-import failgood.dsl.ContextLambdaWithGiven
+import failgood.dsl.ContextFunction
+import failgood.dsl.ContextFunctionWithGiven
 import failgood.internal.util.niceString
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -13,7 +13,7 @@ fun describe(
     ignored: Ignored? = null,
     order: Int = 0,
     isolation: Boolean = true,
-    function: ContextLambda
+    function: ContextFunction
 ): RootContext =
     RootContext(
         subjectDescription,
@@ -30,7 +30,7 @@ fun <RootGiven> describe(
     order: Int = 0,
     isolation: Boolean = true,
     given: (suspend () -> RootGiven),
-    function: ContextLambdaWithGiven<RootGiven>
+    function: ContextFunctionWithGiven<RootGiven>
 ): RootContextWithGiven<RootGiven> =
     RootContextWithGiven(
         subjectDescription,
@@ -45,7 +45,7 @@ fun describe(
     ignored: Ignored? = null,
     order: Int = 0,
     isolation: Boolean = true,
-    function: ContextLambda
+    function: ContextFunction
 ): RootContext =
     RootContext("root", ignored, order, isolation, addClassName = true, function = function)
 
@@ -54,7 +54,7 @@ fun <RootGiven> describe(
     order: Int = 0,
     isolation: Boolean = true,
     given: (suspend () -> RootGiven),
-    function: ContextLambdaWithGiven<RootGiven>
+    function: ContextFunctionWithGiven<RootGiven>
 ): RootContextWithGiven<RootGiven> =
     RootContextWithGiven(
         "root",
@@ -71,7 +71,7 @@ inline fun <reified T> describe(
     ignored: Ignored? = null,
     order: Int = 0,
     isolation: Boolean = true,
-    noinline function: ContextLambda
+    noinline function: ContextFunction
 ): RootContext = describe(typeOf<T>(), ignored, order, isolation, function)
 
 fun describe(
@@ -79,7 +79,7 @@ fun describe(
     ignored: Ignored? = null,
     order: Int = 0,
     isolation: Boolean = true,
-    function: ContextLambda
+    function: ContextFunction
 ): RootContext =
     RootContext(subjectType.niceString(), ignored, order, isolation, function = function)
 
@@ -88,7 +88,7 @@ fun describe(
     ignored: Ignored? = null,
     order: Int = 0,
     isolation: Boolean = true,
-    function: ContextLambda
+    function: ContextFunction
 ): RootContext =
     RootContext("${subjectType.simpleName}", ignored, order, isolation, function = function)
 
@@ -96,5 +96,5 @@ suspend inline fun <reified Class> ContextDSL<*>.describe(
     tags: Set<String> = setOf(),
     isolation: Boolean? = null,
     ignored: Ignored? = null,
-    noinline contextLambda: ContextLambda
-) = this.describe(Class::class.simpleName!!, tags, isolation, ignored, contextLambda)
+    noinline contextFunction: ContextFunction
+) = this.describe(Class::class.simpleName!!, tags, isolation, ignored, contextFunction)

@@ -1,7 +1,7 @@
 package failgood.internal.execution.context
 
 import failgood.*
-import failgood.dsl.TestLambda
+import failgood.dsl.TestFunction
 import failgood.internal.*
 import failgood.internal.given.GivenDSLHandler
 import kotlinx.coroutines.*
@@ -47,7 +47,7 @@ internal class ContextStateCollector<RootGiven>(
 
     fun <GivenType> executeTest(
         testDescription: TestDescription,
-        function: TestLambda<GivenType>,
+        function: TestFunction<GivenType>,
         resourcesCloser: ResourcesCloser,
         isolation: Boolean,
         givenDSLHandler: GivenDSLHandler<GivenType>,
@@ -140,8 +140,8 @@ internal class ContextStateCollector<RootGiven>(
                                             null
                                         ),
                                         resourcesCloser,
-                                        staticConfig.rootContextLambda,
-                                        staticConfig.given
+                                        staticConfig.rootContextFunction,
+                                        staticConfig.givenFunction
                                     )
                                     .execute()
                             TestPlusResult(testDescription, result)

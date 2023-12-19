@@ -1,4 +1,4 @@
 import failgood.describe
-import failgood.dsl.ContextLambda
+import failgood.dsl.ContextFunction
 
-fun xdescribe(name: String, function: ContextLambda) = describe(name, function = function)
+fun xdescribe(name: String, function: ContextFunction) = describe(name, function = function)

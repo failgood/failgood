@@ -1,12 +1,12 @@
 package failgood.internal.given
 
 import failgood.dsl.GivenDSL
-import failgood.dsl.GivenLambda
+import failgood.dsl.GivenFunction
 
 interface GivenDSLHandler<ParentType> : GivenDSL<ParentType> {
     override suspend fun given(): ParentType
 
-    fun <GivenType> add(given: GivenLambda<ParentType, GivenType>): GivenDSLHandler<GivenType>
+    fun <GivenType> add(given: GivenFunction<ParentType, GivenType>): GivenDSLHandler<GivenType>
 }
 
 class RootGivenDSLHandler<GivenType>(private val given: suspend () -> GivenType) :
@@ -17,14 +17,14 @@ class RootGivenDSLHandler<GivenType>(private val given: suspend () -> GivenType)
         return g()
     }
 
-    override fun <GivenT> add(given: GivenLambda<GivenType, GivenT>): GivenDSLHandler<GivenT> {
+    override fun <GivenT> add(given: GivenFunction<GivenType, GivenT>): GivenDSLHandler<GivenT> {
         @Suppress("UNCHECKED_CAST")
-        return ChildGivenDSLHandler(given as GivenLambda<*, GivenT>, this)
+        return ChildGivenDSLHandler(given as GivenFunction<*, GivenT>, this)
     }
 }
 
 private class ChildGivenDSLHandler<ParentType>(
-    private val given: GivenLambda<*, ParentType>,
+    private val given: GivenFunction<*, ParentType>,
     private val parent: GivenDSLHandler<*>
 ) : GivenDSLHandler<ParentType> {
 
@@ -34,9 +34,9 @@ private class ChildGivenDSLHandler<ParentType>(
     }
 
     override fun <GivenType> add(
-        given: GivenLambda<ParentType, GivenType>
+        given: GivenFunction<ParentType, GivenType>
     ): ChildGivenDSLHandler<GivenType> {
         @Suppress("UNCHECKED_CAST")
-        return ChildGivenDSLHandler(given as GivenLambda<*, GivenType>, this)
+        return ChildGivenDSLHandler(given as GivenFunction<*, GivenType>, this)
     }
 }

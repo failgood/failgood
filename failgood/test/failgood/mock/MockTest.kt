@@ -79,11 +79,11 @@ class MockTest {
                     @Suppress("UNCHECKED_CAST")
                     val m =
                         mock<UserManager> {
-                            method { functionThatHasLambdaParameter {} }
+                            method { functionThatHasFunctionParameter {} }
                                 .will { (it.arguments.last() as () -> Unit)() }
                         }
                     var lambdaCalled = false
-                    m.functionThatHasLambdaParameter { lambdaCalled = true }
+                    m.functionThatHasFunctionParameter { lambdaCalled = true }
                     assert(lambdaCalled)
                 }
             }

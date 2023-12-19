@@ -1,5 +1,6 @@
 package failgood.dsl
 
+import failgood.SuspendAutoCloseable
 import failgood.TestDependency
 import failgood.TestResult
 
@@ -13,7 +14,9 @@ interface ResourcesDSL {
      * beforeEach/afterEach In contexts with isolation the AutoClosable is closed after the test, in
      * contexts without isolation after the suite
      */
-    fun <T : AutoCloseable> autoClose(wrapped: T): T
+    fun <T : AutoCloseable> autoClose(autoCloseable: T): T
+
+    fun <T : SuspendAutoCloseable> autoClose(autoCloseable: T): T
 
     /**
      * Create a test dependency that should be closed after the test run. use this instead of

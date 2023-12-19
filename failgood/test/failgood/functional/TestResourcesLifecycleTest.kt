@@ -3,6 +3,7 @@ package failgood.functional
 import failgood.Failure
 import failgood.Suite
 import failgood.SuiteResult
+import failgood.SuspendAutoCloseable
 import failgood.Test
 import failgood.describe
 import failgood.mock.call
@@ -85,9 +86,9 @@ class TestResourcesLifecycleTest {
                 }
                 it("closes autocloseables without callback") {
                     var ac1: AutoCloseable? = null
-                    var ac2: AutoCloseable? = null
+                    var ac2: SuspendAutoCloseable? = null
                     var resource1: AutoCloseable? = null
-                    var resource2: AutoCloseable? = null
+                    var resource2: SuspendAutoCloseable? = null
                     val totalEvents = CopyOnWriteArrayList<List<String>>()
                     expectThat(
                             Suite {
@@ -95,7 +96,9 @@ class TestResourcesLifecycleTest {
                                     totalEvents.add(events)
                                     ac1 = AutoCloseable { events.add("first close callback") }
                                     resource1 = autoClose(ac1!!)
-                                    ac2 = AutoCloseable { events.add("second close callback") }
+                                    ac2 = SuspendAutoCloseable {
+                                        events.add("second close callback")
+                                    }
                                     resource2 = autoClose(ac2!!)
                                     test("first test") { events.add("first test") }
                                     test("second test") { events.add("second test") }

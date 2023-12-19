@@ -1,5 +1,6 @@
 package failgood.internal
 
+import failgood.SuspendAutoCloseable
 import failgood.TestDependency
 import failgood.TestResult
 import failgood.dsl.ContextOnlyResourceDSL
@@ -13,7 +14,7 @@ import kotlinx.coroutines.async
 internal class ResourceCloserImpl(private val scope: CoroutineScope) :
     ResourcesCloser, ContextOnlyResourceDSL {
     override fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T {
-        addClosable(SuspendAutoCloseable(wrapped, closeFunction))
+        addCloseable(LambdaAutoCloseable(wrapped, closeFunction))
         return wrapped
     }
 
@@ -30,13 +31,17 @@ internal class ResourceCloserImpl(private val scope: CoroutineScope) :
         closer: suspend (T) -> Unit
     ): TestDependency<T> {
         val result = scope.async(Dispatchers.IO) { kotlin.runCatching { creator() } }
-        addClosable(SuspendAutoCloseable(result) { closer(result.await().getOrThrow()) })
+        addCloseable(LambdaAutoCloseable(result) { closer(result.await().getOrThrow()) })
         return JVMTestDependency(result)
     }
 
-    override fun <T : AutoCloseable> autoClose(wrapped: T): T = autoClose(wrapped) { it.close() }
+    override fun <T : AutoCloseable> autoClose(autoCloseable: T): T =
+        autoClose(autoCloseable) { it.close() }
 
-    override fun <T> addClosable(autoCloseable: SuspendAutoCloseable<T>) {
+    override fun <T : SuspendAutoCloseable> autoClose(autoCloseable: T): T =
+        autoCloseable.also { addCloseable(it) }
+
+    override fun addCloseable(autoCloseable: SuspendAutoCloseable) {
         closeables.add(autoCloseable)
     }
 
@@ -56,6 +61,6 @@ internal class ResourceCloserImpl(private val scope: CoroutineScope) :
         error?.let { throw it }
     }
 
-    private val closeables = ConcurrentLinkedQueue<SuspendAutoCloseable<*>>()
+    private val closeables = ConcurrentLinkedQueue<SuspendAutoCloseable>()
     private val afterEachCallbacks = ConcurrentLinkedQueue<suspend TestDSL.(TestResult) -> Unit>()
 }

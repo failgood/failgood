@@ -142,7 +142,7 @@ class SingleTestExecutorTest {
                             .execute()
                     expectThat(result).isA<Failure>().get { failure }.isEqualTo(runtimeException)
                 }
-                it("reports exceptions in the autoclose lambda as test failures") {
+                it("reports exceptions in the autoclose function as test failures") {
                     val runtimeException = RuntimeException()
                     val contextThatThrows =
                         RootContext("root context") {

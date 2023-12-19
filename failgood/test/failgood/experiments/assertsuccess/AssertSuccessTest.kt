@@ -12,7 +12,7 @@ import failgood.mock.mock
 private fun <E> List<E>.containsExactly(vararg matcher: (E) -> Boolean): CheckResult<Unit> {
     val errors =
         this.mapIndexed { idx: Int, e: E ->
-                if (matcher[idx](e)) null else "element $e did not match "
+                if (matcher[idx](e)) null else "element $e did not match"
             }
             .filterNotNull()
     return if (errors.isEmpty()) Success(Unit) else CheckResult.Failure(errors.joinToString())
@@ -40,7 +40,7 @@ object AssertSuccessTest {
                 }
             }
             describe("asserting on lists") {
-                it("could use a lambda matcher") {
+                it("can use a function matcher") {
                     data class Song(val artist: String, val title: String)
 
                     val songs =

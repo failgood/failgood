@@ -11,7 +11,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Given is now accessed via `given` instead of a parameter to the test lambda
+- Given is now accessed via a `given` property instead of a parameter to the test function
 - Given block can now lazily access the parent context
 - Private test classes now throw an error instead of being ignored. Now that we find tests by annotation it
   makes no sense to mark a class as test and make it private.
@@ -117,7 +117,7 @@ This version will be the last before 0.9 where all deprecated methods will be re
 
 ### Added
 
-- Add support for given. Contexts can now define a lambda whose result is passed to tests
+- Add support for given. Contexts can now define a function whose result is passed to tests
 - Experimental run tests by tag. describe,it,test and context now have a `tags` parameter, and you can run a subset of tests
   by setting the env variable FAILGOOD_TAG. Currently, only contexts that are in the root can be tagged, tags in subcontexts
   of subcontexts are currently not found

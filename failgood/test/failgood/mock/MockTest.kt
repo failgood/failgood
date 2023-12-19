@@ -75,16 +75,16 @@ class MockTest {
                     expectThat(otherMock.functionThatReturnsNullableString())
                         .isEqualTo("otherResultString")
                 }
-                it("can call lambdas") {
+                it("can call functions") {
                     @Suppress("UNCHECKED_CAST")
                     val m =
                         mock<UserManager> {
                             method { functionThatHasFunctionParameter {} }
                                 .will { (it.arguments.last() as () -> Unit)() }
                         }
-                    var lambdaCalled = false
-                    m.functionThatHasFunctionParameter { lambdaCalled = true }
-                    assert(lambdaCalled)
+                    var functionCalled = false
+                    m.functionThatHasFunctionParameter { functionCalled = true }
+                    assert(functionCalled)
                 }
             }
             it("can return function calls for normal asserting") {

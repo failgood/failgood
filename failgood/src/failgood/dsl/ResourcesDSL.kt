@@ -35,8 +35,8 @@ interface ContextOnlyResourceDSL {
     fun afterEach(function: suspend TestDSL.(TestResult) -> Unit)
     /**
      * Asynchronously create a dependency. This is great for blocking dependencies, like a docker
-     * container. The creator lambda runs on the IO dispatcher to make a cpu thread free for a test.
-     * the close function works just like in [ResourcesDSL.autoClose]
+     * container. The creator function runs on the IO dispatcher to make a cpu thread free for a
+     * test. the close function works just like in [ResourcesDSL.autoClose]
      */
     suspend fun <T> dependency(
         creator: suspend () -> T,

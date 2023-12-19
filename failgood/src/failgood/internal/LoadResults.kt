@@ -15,43 +15,45 @@ import kotlinx.coroutines.async
 private val timeoutMillis: Long = Suite.parseTimeout(getenv("TIMEOUT"))
 private val tag = getenv("FAILGOOD_TAG")
 
-internal class LoadResults(private val loadResults: List<LoadResult>) {
+internal class LoadResults(private val loadResults: List<ContextCreator>) {
     fun investigate(
         coroutineScope: CoroutineScope,
         executeTests: Boolean = true,
         executionFilter: TestFilterProvider = ExecuteAllTestFilterProvider,
         listener: ExecutionListener = NullExecutionListener
     ): List<Deferred<ContextResult>> {
-        return loadResults.map { loadResult: LoadResult ->
-            when (loadResult) {
-                is CouldNotLoadContext ->
-                    CompletableDeferred(
-                        FailedRootContext(
-                            Context(loadResult.kClass.simpleName ?: "unknown"),
-                            loadResult.reason
+        return loadResults
+            .flatMap { it.getContexts() }
+            .map { loadResult: LoadResult ->
+                when (loadResult) {
+                    is CouldNotLoadContext ->
+                        CompletableDeferred(
+                            FailedRootContext(
+                                Context(loadResult.kClass.simpleName ?: "unknown"),
+                                loadResult.reason
+                            )
                         )
-                    )
-                is RootContextWithGiven<*> -> {
-                    val testFilter =
-                        loadResult.context.sourceInfo?.className?.let {
-                            executionFilter.forClass(it)
-                        } ?: ExecuteAllTests
-                    coroutineScope.async {
-                        if (loadResult.ignored?.isIgnored() == null) {
-                            ContextExecutor(
-                                    loadResult,
-                                    coroutineScope,
-                                    !executeTests,
-                                    listener,
-                                    testFilter,
-                                    timeoutMillis,
-                                    runOnlyTag = tag
-                                )
-                                .execute()
-                        } else ContextInfo(emptyList(), mapOf(), setOf())
+                    is RootContextWithGiven<*> -> {
+                        val testFilter =
+                            loadResult.context.sourceInfo?.className?.let {
+                                executionFilter.forClass(it)
+                            } ?: ExecuteAllTests
+                        coroutineScope.async {
+                            if (loadResult.ignored?.isIgnored() == null) {
+                                ContextExecutor(
+                                        loadResult,
+                                        coroutineScope,
+                                        !executeTests,
+                                        listener,
+                                        testFilter,
+                                        timeoutMillis,
+                                        runOnlyTag = tag
+                                    )
+                                    .execute()
+                            } else ContextInfo(emptyList(), mapOf(), setOf())
+                        }
                     }
                 }
             }
-        }
     }
 }

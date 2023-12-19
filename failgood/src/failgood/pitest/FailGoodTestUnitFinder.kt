@@ -24,7 +24,7 @@ object FailGoodTestUnitFinder : TestUnitFinder {
     ): List<TestUnit> {
         val contexts =
             try {
-                ObjectContextProvider(clazz).getContexts()
+                ObjectContextProvider(clazz).getContextCreators()
             } catch (e: ExceptionInInitializerError) {
                 return listOf()
             } catch (e: Exception) {

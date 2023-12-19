@@ -5,15 +5,64 @@ import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 import kotlin.reflect.KClass
 
-fun interface ContextProvider {
+interface ContextCreator {
+    val dependencies: List<Class<*>>
+    val method: Method?
+
     fun getContexts(): List<RootContextWithGiven<*>>
 }
 
-class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvider {
-    constructor(kClass: KClass<*>) : this(kClass.java)
+fun interface ContextProvider {
+    fun getContextCreators(): List<ContextCreator>
+}
+
+class ObjectContextProvider<Cls : Any>(private val jClass: Class<out Cls>) : ContextProvider {
+    constructor(kClass: KClass<Cls>) : this(kClass.java)
+
+    data class ContextCreatorImpl<Cls>(
+        private val jClass: Class<out Cls>,
+        private val instance: Any?,
+        override val method: Method,
+        override val dependencies: List<Class<*>>
+    ) : ContextCreator {
+        override fun getContexts(): List<RootContext> {
+            val contexts =
+                try {
+                    // the most common case is that the getter has no parameters
+                    if (method.parameters.isEmpty()) method.invoke(instance)
+                    else {
+                        // for private properties the kotlin compiler seems to sometimes generate a
+                        // static getter that takes the instance as single parameter
+                        val typeOfSingleParameter = method.parameters.singleOrNull()?.type
+                        if (
+                            typeOfSingleParameter != null &&
+                                instance != null &&
+                                typeOfSingleParameter == instance::class.java
+                        )
+                            method.invoke(null, instance)
+                        else
+                            throw ErrorLoadingContextsFromClass(
+                                "context method ${method.niceString(jClass)} takes unexpected parameters",
+                                jClass.kotlin
+                            )
+                    }
+                } catch (e: ErrorLoadingContextsFromClass) {
+                    throw e
+                } catch (e: Exception) {
+                    throw ErrorLoadingContextsFromClass(
+                        "error invoking ${method.niceString(jClass)}",
+                        jClass.kotlin,
+                        e
+                    )
+                }
+            @Suppress("UNCHECKED_CAST")
+            return contexts as? List<RootContext> ?: listOf(contexts as RootContext)
+        }
+    }
 
     /** get root contexts from a class or object or defined at the top level */
-    override fun getContexts(): List<RootContext> {
+    @Deprecated("use getContextCreators")
+    fun getContexts(): List<RootContext> {
         // the RootContext constructor tries to determine its file and line number.
         // if the root context is created by a utility method outside the test class the file and
         // line info
@@ -31,6 +80,69 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
     }
 
     private fun getContextsInternal(): List<RootContext> {
+        val instance = createInstance()
+
+        // get contexts from all methods returning RootContext or List<RootContext>
+        val methodsReturningRootContext = getMethodsReturningContexts()
+        return methodsReturningRootContext.flatMap { getContexts(it, instance) }
+    }
+
+    private fun getContexts(it: Method, instance: Any?): List<RootContext> {
+        val contexts =
+            try {
+                // the most common case is that the getter has no parameters
+                if (it.parameters.isEmpty()) it.invoke(instance)
+                else {
+                    // for private properties the kotlin compiler seems to sometimes generate a
+                    // static getter that takes the instance as single parameter
+                    val typeOfSingleParameter = it.parameters.singleOrNull()?.type
+                    if (
+                        typeOfSingleParameter != null &&
+                            instance != null &&
+                            typeOfSingleParameter == instance::class.java
+                    )
+                        it.invoke(null, instance)
+                    else
+                        throw ErrorLoadingContextsFromClass(
+                            "context method ${it.niceString(jClass)} takes unexpected parameters",
+                            jClass.kotlin
+                        )
+                }
+            } catch (e: ErrorLoadingContextsFromClass) {
+                throw e
+            } catch (e: Exception) {
+                throw ErrorLoadingContextsFromClass(
+                    "error invoking ${it.niceString(jClass)}",
+                    jClass.kotlin,
+                    e
+                )
+            }
+        @Suppress("UNCHECKED_CAST")
+        return contexts as? List<RootContext> ?: listOf(contexts as RootContext)
+    }
+
+    private fun getMethodsReturningContexts(): List<Method> {
+        val methodsReturningRootContext =
+            jClass.methods
+                .filter {
+                    it.returnType == RootContextWithGiven::class.java ||
+                        it.returnType == List::class.java &&
+                            it.genericReturnType.let { genericReturnType ->
+                                genericReturnType is ParameterizedType &&
+                                    genericReturnType.actualTypeArguments.singleOrNull().let {
+                                        actualTypArg ->
+                                        actualTypArg is ParameterizedType &&
+                                            actualTypArg.rawType == RootContextWithGiven::class.java
+                                    }
+                            }
+                }
+                .ifEmpty {
+                    throw ErrorLoadingContextsFromClass("no contexts found in class", jClass.kotlin)
+                }
+        return methodsReturningRootContext
+    }
+
+    private fun createInstance(): Any? {
         val instance =
             try {
                 instantiateClassOrObject(jClass)
@@ -52,62 +164,25 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
                     jClass.kotlin
                 )
             }
-
-        // get contexts from all methods returning RootContext or List<RootContext>
-        val methodsReturningRootContext =
-            jClass.methods
-                .filter {
-                    it.returnType == RootContextWithGiven::class.java ||
-                        it.returnType == List::class.java &&
-                            it.genericReturnType.let { genericReturnType ->
-                                genericReturnType is ParameterizedType &&
-                                    genericReturnType.actualTypeArguments.singleOrNull().let {
-                                        actualTypArg ->
-                                        actualTypArg is ParameterizedType &&
-                                            actualTypArg.rawType == RootContextWithGiven::class.java
-                                    }
-                            }
-                }
-                .ifEmpty {
-                    throw ErrorLoadingContextsFromClass("no contexts found in class", jClass.kotlin)
-                }
-        return methodsReturningRootContext.flatMap {
-            val contexts =
-                try {
-                    // the most common case is that the getter has no parameters
-                    if (it.parameters.isEmpty()) it.invoke(instance)
-                    else {
-                        // for private properties the kotlin compiler seems to sometimes generate a
-                        // static getter that takes the instance as single parameter
-                        val typeOfSingleParameter = it.parameters.singleOrNull()?.type
-                        if (
-                            typeOfSingleParameter != null &&
-                                instance != null &&
-                                typeOfSingleParameter == instance::class.java
-                        )
-                            it.invoke(null, instance)
-                        else
-                            throw ErrorLoadingContextsFromClass(
-                                "context method ${it.niceString()} takes unexpected parameters",
-                                jClass.kotlin
-                            )
-                    }
-                } catch (e: ErrorLoadingContextsFromClass) {
-                    throw e
-                } catch (e: Exception) {
-                    throw ErrorLoadingContextsFromClass(
-                        "error invoking ${it.niceString()}",
-                        jClass.kotlin,
-                        e
-                    )
-                }
-            @Suppress("UNCHECKED_CAST")
-            contexts as? List<RootContext> ?: listOf(contexts as RootContext)
-        }
+        return instance
     }
 
-    private fun Method.niceString() =
-        "${jClass.name}.$name(${parameters.joinToString { it.name + " " + it.type.simpleName }})"
+    override fun getContextCreators(): List<ContextCreator> {
+        val instance = createInstance()
+
+        // get contexts from all methods returning RootContext or List<RootContext>
+        val methodsReturningRootContext = getMethodsReturningContexts()
+        return methodsReturningRootContext.map { method ->
+            ContextCreatorImpl(
+                jClass,
+                instance,
+                method,
+                method.parameters
+                    .map { parameter -> parameter.type }
+                    .filter { clazz -> clazz != jClass }
+            )
+        }
+    }
 
     companion object {
         fun instantiateClassOrObject(clazz: Class<out Any>): Any? {
@@ -129,3 +204,6 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
         }
     }
 }
+
+private fun Method.niceString(clazz: Class<*>) =
+    "${clazz.name}.$name(${parameters.joinToString { it.name + " " + it.type.simpleName }})"

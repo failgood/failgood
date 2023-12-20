@@ -71,7 +71,6 @@ class NewJunitEngine : TestEngine {
                     listener = failgoodListener,
                     silent = true
                 )
-            if (!silent) results.printSummary(printSlowest = true, printPending = false)
             // report the failing root contexts
             results.failedRootContexts.forEach {
                 val node = TestPlanNode.Container(it.context.name, it.context.displayName)
@@ -93,7 +92,7 @@ class NewJunitEngine : TestEngine {
                 )
             }
             junitListener.executionFinished(root, TestExecutionResult.successful())
-            failureLogger
+            if (!silent) results.printSummary(printSlowest = true, printPending = false)
         } catch (e: Exception) {
             failureLogger.add("events", loggingEngineExecutionListener.eventsString())
             failureLogger.fail(e)

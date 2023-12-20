@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Added SuspendAutoCloseable interface with a suspend close function and support it in the autoClose method
 - The Root context can now also have a given block
 - New junit platform engine that is totally async
   To try it out add -Dfailgood.new.junit=true to your test run or set it in junit-platform.properties.

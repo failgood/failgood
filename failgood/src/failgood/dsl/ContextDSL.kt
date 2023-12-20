@@ -23,8 +23,8 @@ interface ContextDSL<GivenType> : ResourcesDSL, ContextOnlyResourceDSL {
         tags: Set<String> = setOf(),
         isolation: Boolean? = null,
         ignored: Ignored? = null,
-        given: GivenLambda<GivenType, ContextGiven>,
-        contextLambda: suspend ContextDSL<ContextGiven>.() -> Unit
+        given: GivenFunction<GivenType, ContextGiven>,
+        contextFunction: suspend ContextDSL<ContextGiven>.() -> Unit
     )
 
     /**
@@ -36,8 +36,8 @@ interface ContextDSL<GivenType> : ResourcesDSL, ContextOnlyResourceDSL {
         tags: Set<String> = setOf(),
         isolation: Boolean? = null,
         ignored: Ignored? = null,
-        function: ContextLambda
-    ) = describe(name, tags, isolation, ignored, {}, function)
+        contextFunction: ContextFunction
+    ) = describe(name, tags, isolation, ignored, {}, contextFunction)
 
     /**
      * Define a test that describes one aspect of a subject.
@@ -55,7 +55,7 @@ interface ContextDSL<GivenType> : ResourcesDSL, ContextOnlyResourceDSL {
         name: String,
         tags: Set<String> = setOf(),
         ignored: Ignored? = null,
-        function: TestLambda<GivenType>
+        function: TestFunction<GivenType>
     )
 
     /** Register a callback to be called after all tests have completed */
@@ -66,10 +66,10 @@ interface ContextDSL<GivenType> : ResourcesDSL, ContextOnlyResourceDSL {
         name: String,
         tags: Set<String> = setOf(),
         isolation: Boolean? = null,
-        given: GivenLambda<GivenType, ContextGiven>,
+        given: GivenFunction<GivenType, ContextGiven>,
         ignored: Ignored? = null,
-        contextLambda: suspend ContextDSL<ContextGiven>.() -> Unit
-    ) = describe(name, tags, isolation, ignored, given, contextLambda)
+        contextFunction: suspend ContextDSL<ContextGiven>.() -> Unit
+    ) = describe(name, tags, isolation, ignored, given, contextFunction)
 
     /** Define a test context. see [describe] */
     suspend fun context(
@@ -77,25 +77,25 @@ interface ContextDSL<GivenType> : ResourcesDSL, ContextOnlyResourceDSL {
         tags: Set<String> = setOf(),
         isolation: Boolean? = null,
         ignored: Ignored? = null,
-        function: ContextLambda
-    ) = describe(name, tags, isolation, ignored, function)
+        contextFunction: ContextFunction
+    ) = describe(name, tags, isolation, ignored, contextFunction)
 
     /** Define a test. see [it] */
     suspend fun test(
         name: String,
         tags: Set<String> = setOf(),
         ignored: Ignored? = null,
-        function: TestLambda<GivenType>
+        function: TestFunction<GivenType>
     ) = it(name, tags, ignored, function)
 }
 
-internal typealias ContextLambda = suspend ContextDSL<Unit>.() -> Unit
+internal typealias ContextFunction = suspend ContextDSL<Unit>.() -> Unit
 
-internal typealias ContextLambdaWithGiven<Given> = suspend ContextDSL<Given>.() -> Unit
+internal typealias ContextFunctionWithGiven<Given> = suspend ContextDSL<Given>.() -> Unit
 
-internal typealias TestLambda<GivenType> = suspend TestDSLWithGiven<GivenType>.() -> Unit
+internal typealias TestFunction<GivenType> = suspend TestDSLWithGiven<GivenType>.() -> Unit
 
-internal typealias GivenLambda<ParentGivenType, GivenType> =
+internal typealias GivenFunction<ParentGivenType, GivenType> =
     suspend GivenDSL<ParentGivenType>.() -> GivenType
 
 fun interface GivenDSL<ParentGivenType> {

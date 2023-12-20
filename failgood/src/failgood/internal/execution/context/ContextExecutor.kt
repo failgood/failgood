@@ -59,7 +59,7 @@ internal class ContextExecutor<RootGiven>(
                         false,
                         stateCollector.investigatedContexts.contains(rootContext),
                         startTime,
-                        RootGivenDSLHandler(staticExecutionConfig.given)
+                        RootGivenDSLHandler(staticExecutionConfig.givenFunction)
                     )
                 try {
                     withTimeout(staticExecutionConfig.timeoutMillis) { visitor.function() }

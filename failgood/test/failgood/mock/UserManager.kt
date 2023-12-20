@@ -9,7 +9,7 @@ interface UserManager {
 
     fun overloadedFunction(i: Int): String
 
-    fun functionThatHasLambdaParameter(f: () -> Unit)
+    fun functionThatHasFunctionParameter(f: () -> Unit)
 
     fun function()
 

@@ -13,18 +13,18 @@ import failgood.internal.given.RootGivenDSLHandler
  */
 internal class SingleTestExecutor<RootGiven, TestGivenType>(
     private val test: ContextPath,
-    val testDSL: ClonableTestContext<TestGivenType>,
+    val testContextHandler: ClonableTestContext<TestGivenType>,
     val resourcesCloser: ResourcesCloser,
-    private val rootContextLambda: ContextLambdaWithGiven<RootGiven>,
-    val given: suspend () -> RootGiven
+    private val rootContextFunction: ContextFunctionWithGiven<RootGiven>,
+    val givenFunction: suspend () -> RootGiven
 ) {
     private val startTime = System.nanoTime()
 
     suspend fun execute(): TestResult {
         val dsl: ContextDSL<RootGiven> =
-            ContextFinder(test.container.path.drop(1), RootGivenDSLHandler(given))
+            ContextFinder(test.container.path.drop(1), RootGivenDSLHandler(givenFunction))
         return try {
-            dsl.(rootContextLambda)()
+            dsl.(rootContextFunction)()
             throw FailGoodException(
                 "test not found: $test.\n" +
                     "please make sure your test names contain no random parts"
@@ -53,25 +53,25 @@ internal class SingleTestExecutor<RootGiven, TestGivenType>(
             tags: Set<String>,
             isolation: Boolean?,
             ignored: Ignored?,
-            given: GivenLambda<GivenType, ContextDependency>,
-            contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
+            given: GivenFunction<GivenType, ContextDependency>,
+            contextFunction: suspend ContextDSL<ContextDependency>.() -> Unit
         ) {
             if (findTest || contexts.first() != name) return
 
-            ContextFinder(contexts.drop(1), givenDSLHandler.add(given)).contextLambda()
+            ContextFinder(contexts.drop(1), givenDSLHandler.add(given)).contextFunction()
         }
 
         override suspend fun it(
             name: String,
             tags: Set<String>,
             ignored: Ignored?,
-            function: TestLambda<GivenType>
+            function: TestFunction<GivenType>
         ) {
             if (findTest && test.name == name) {
                 @Suppress("UNCHECKED_CAST")
                 throw TestResultAvailable(
                     executeTest(
-                        function as TestLambda<TestGivenType>,
+                        function as TestFunction<TestGivenType>,
                         givenDSLHandler as GivenDSLHandler<TestGivenType>
                     )
                 )
@@ -79,17 +79,17 @@ internal class SingleTestExecutor<RootGiven, TestGivenType>(
         }
 
         private suspend fun executeTest(
-            function: TestLambda<TestGivenType>,
+            function: TestFunction<TestGivenType>,
             givenDSLHandler: GivenDSLHandler<TestGivenType>
         ): TestResult {
             try {
                 val given = givenDSLHandler.given()
-                val testDSLWithGiven = testDSL.withGiven(given)
+                val testDSLWithGiven = testContextHandler.withGiven(given)
                 (testDSLWithGiven as TestDSLWithGiven<TestGivenType>).function()
             } catch (e: Throwable) {
                 val failure = Failure(e)
                 try {
-                    resourcesCloser.callAfterEach(testDSL, failure)
+                    resourcesCloser.callAfterEach(testContextHandler, failure)
                 } catch (_: Throwable) {}
                 try {
                     resourcesCloser.closeAutoCloseables()
@@ -99,7 +99,7 @@ internal class SingleTestExecutor<RootGiven, TestGivenType>(
             val success =
                 try {
                     val success = Success((System.nanoTime() - startTime) / 1000)
-                    resourcesCloser.callAfterEach(testDSL, success)
+                    resourcesCloser.callAfterEach(testContextHandler, success)
                     success
                 } catch (e: Throwable) {
                     Failure(e)

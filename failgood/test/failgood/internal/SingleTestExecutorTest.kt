@@ -1,7 +1,7 @@
 package failgood.internal
 
 import failgood.*
-import failgood.dsl.ContextLambda
+import failgood.dsl.ContextFunction
 import failgood.mock.mock
 import kotlin.test.assertEquals
 import kotlinx.coroutines.coroutineScope
@@ -26,7 +26,7 @@ class SingleTestExecutorTest {
             val events = mutableListOf<String>()
             describe("test execution") {
                 describe("a context without given") {
-                    val ctx: ContextLambda = {
+                    val ctx: ContextFunction = {
                         events.add("root context")
                         test("test 1") { events.add("test 1") }
                         test("test 2") { events.add("test 2") }
@@ -72,7 +72,7 @@ class SingleTestExecutorTest {
                     }
                 }
                 describe("a context with given") {
-                    val ctx: ContextLambda = {
+                    val ctx: ContextFunction = {
                         events.add("root context")
                         test("test 1") { events.add("test 1") }
                         test("test 2") { events.add("test 2") }
@@ -113,7 +113,7 @@ class SingleTestExecutorTest {
                 }
             }
             it("also supports describe / it") {
-                val context: ContextLambda = {
+                val context: ContextFunction = {
                     describe("with a valid root context") {
                         it("returns number of tests") {}
                         it("returns contexts") {}
@@ -142,7 +142,7 @@ class SingleTestExecutorTest {
                             .execute()
                     expectThat(result).isA<Failure>().get { failure }.isEqualTo(runtimeException)
                 }
-                it("reports exceptions in the autoclose lambda as test failures") {
+                it("reports exceptions in the autoclose function as test failures") {
                     val runtimeException = RuntimeException()
                     val contextThatThrows =
                         RootContext("root context") {

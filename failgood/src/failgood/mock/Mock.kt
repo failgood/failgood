@@ -25,9 +25,9 @@ inline fun <reified Mock : Any> mock() = mock(Mock::class)
  *                 }```
  */
 suspend inline fun <reified Mock : Any> mock(
-    noinline lambda: suspend MockConfigureDSL<Mock>.() -> Unit
+    noinline function: suspend MockConfigureDSL<Mock>.() -> Unit
 ): Mock {
-    return the(mock(Mock::class), lambda)
+    return the(mock(Mock::class), function)
 }
 
 /**
@@ -39,9 +39,12 @@ suspend inline fun <reified Mock : Any> mock(
  *                 method { stringReturningFunction() }.returns("resultString")
  *             }```
  */
-suspend fun <Mock : Any> the(mock: Mock, lambda: suspend MockConfigureDSL<Mock>.() -> Unit): Mock {
+suspend fun <Mock : Any> the(
+    mock: Mock,
+    configFunction: suspend MockConfigureDSL<Mock>.() -> Unit
+): Mock {
     val dsl = MockConfigureDSLImpl(mock)
-    dsl.lambda()
+    dsl.configFunction()
     return mock
 }
 
@@ -58,8 +61,8 @@ suspend fun <Mock : Any> the(mock: Mock, lambda: suspend MockConfigureDSL<Mock>.
  * verify(mock) { mock.manage("jack") } // throws
  * ```
  */
-suspend fun <Mock : Any> verify(mock: Mock, lambda: suspend Mock.() -> Unit) {
-    getHandler(mock).verify(lambda)
+suspend fun <Mock : Any> verify(mock: Mock, expectedCalls: suspend Mock.() -> Unit) {
+    getHandler(mock).verify(expectedCalls)
 }
 
 /**
@@ -77,7 +80,7 @@ class MockException internal constructor(msg: String) : AssertionError(msg)
 
 @Suppress("SameReturnValue")
 interface MockConfigureDSL<Mock> {
-    suspend fun <Result> method(lambda: suspend Mock.() -> Result): MockReplyRecorder<Result>
+    suspend fun <Result> method(function: suspend Mock.() -> Result): MockReplyRecorder<Result>
 
     // these are just placeholders for mock setup.
     // currently you could use any string instead of anyString, because parameter values are not
@@ -110,8 +113,8 @@ private class MockConfigureDSLImpl<Mock : Any>(val mock: Mock) : MockConfigureDS
     } // fail fast if the mock is not a mock
 
     override suspend fun <Result> method(
-        lambda: suspend Mock.() -> Result
-    ): MockReplyRecorder<Result> = getHandler(mock).whenever(lambda)
+        function: suspend Mock.() -> Result
+    ): MockReplyRecorder<Result> = getHandler(mock).whenever(function)
 }
 
 fun <Mock : Any> mock(kClass: KClass<Mock>): Mock {
@@ -154,37 +157,37 @@ internal fun getHandler(mock: Any): MockHandler {
 }
 
 internal class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
-    val results = mutableMapOf<Method, (MethodWithArguments) -> Any?>()
+    val resultFunctions = mutableMapOf<Method, (MethodWithArguments) -> Any?>()
     internal val calls = CopyOnWriteArrayList<MethodWithArguments>()
 
     override fun invoke(proxy: Any, method: Method, arguments: Array<out Any>?): Any? {
         val nonCoroutinesArgs = cleanArguments(arguments)
         val methodWithArguments = MethodWithArguments(method, nonCoroutinesArgs)
         calls.add(methodWithArguments)
-        val result = results[method]
-        if (result == null) {
+        val resultFunction = resultFunctions[method]
+        if (resultFunction == null) {
             if (method.name == "equals") return proxy === arguments?.singleOrNull()
             else if (method.name == "toString" && nonCoroutinesArgs.isEmpty())
                 return "mock<${kClass.simpleName}>"
         }
-        // if there is a result lambda defined, call that, otherwise return null
-        return result?.invoke(methodWithArguments)
+        // if there is a result function defined, call that, otherwise return null
+        return resultFunction?.invoke(methodWithArguments)
     }
 
     fun <T> defineResult(method: Method, result: (MethodWithArguments) -> T) {
-        results[method] = result
+        resultFunctions[method] = result
     }
 
     suspend fun <Mock : Any, Reply> whenever(
-        lambda: suspend Mock.() -> Reply
+        function: suspend Mock.() -> Reply
     ): MockReplyRecorder<Reply> {
         val recordingHandler = RecordingHandler()
-        makeProxy<Mock>(recordingHandler).lambda()
+        makeProxy<Mock>(recordingHandler).function()
         return MockReplyRecorderImpl(this, recordingHandler)
     }
 
-    suspend fun <T : Any> verify(lambda: suspend T.() -> Unit) =
-        makeProxy<T>(VerifyingHandler(this)).lambda()
+    suspend fun <T : Any> verify(function: suspend T.() -> Unit) =
+        makeProxy<T>(VerifyingHandler(this)).function()
 
     private fun <T : Any> makeProxy(handler: InvocationHandler): T {
         @Suppress("UNCHECKED_CAST")

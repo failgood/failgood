@@ -41,7 +41,7 @@ object FailGood {
         classIncludeRegex: Regex = Regex(".*.class\$"),
         newerThan: FileTime? = null,
         runTestFixtures: Boolean = false,
-        matchLambda: (String) -> Boolean = { true }
+        matcher: (String) -> Boolean = { true }
     ): MutableList<KClass<*>> {
         val results = mutableListOf<KClass<*>>()
         Files.walkFileTree(
@@ -55,7 +55,7 @@ object FailGood {
                     ) {
                         val className =
                             path.substringBefore(".class").replace(File.separatorChar, '.')
-                        if (matchLambda(className)) {
+                        if (matcher(className)) {
                             val clazz = classloader.loadClass(className)
                             if (
                                 clazz.isAnnotationPresent(Test::class.java) ||

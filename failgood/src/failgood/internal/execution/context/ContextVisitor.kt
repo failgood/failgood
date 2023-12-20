@@ -7,7 +7,7 @@ import failgood.Skipped
 import failgood.TestDescription
 import failgood.TestPlusResult
 import failgood.dsl.*
-import failgood.dsl.TestLambda
+import failgood.dsl.TestFunction
 import failgood.internal.ContextPath
 import failgood.internal.ResourcesCloser
 import failgood.internal.given.GivenDSLHandler
@@ -46,7 +46,7 @@ internal class ContextVisitor<RootGiven, GivenType>(
         name: String,
         tags: Set<String>,
         ignored: Ignored?,
-        function: TestLambda<GivenType>
+        function: TestFunction<GivenType>
     ) {
         if (onlyRunSubcontexts) return
 
@@ -102,8 +102,8 @@ internal class ContextVisitor<RootGiven, GivenType>(
         tags: Set<String>,
         isolation: Boolean?,
         ignored: Ignored?,
-        given: GivenLambda<GivenType, ContextDependency>,
-        contextLambda: suspend ContextDSL<ContextDependency>.() -> Unit
+        given: GivenFunction<GivenType, ContextDependency>,
+        contextFunction: suspend ContextDSL<ContextDependency>.() -> Unit
     ) {
         checkForDuplicateName(name)
         if (!shouldRun(tags)) return
@@ -164,7 +164,7 @@ internal class ContextVisitor<RootGiven, GivenType>(
         this.mutable = false
         try {
             visitor.mutable = true
-            visitor.contextLambda()
+            visitor.contextFunction()
             contextStateCollector.investigatedContexts.add(context)
         } catch (_: ContextFinished) {} catch (exceptionInContext: ImmutableContextException) {
             // this is fatal, and we treat the whole root context as failed, so we just rethrow

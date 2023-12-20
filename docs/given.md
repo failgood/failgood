@@ -1,9 +1,9 @@
 ### Given
 
-Contexts can define a `given` block, which will be evaluated for every test and can be accessed inside the tests via a `given` getter.
+Contexts can define a `given` block, which will be evaluated for every test and can be accessed inside the tests via a `given` property.
 
 ```kotlin
-describe("context with given lambda", given = { "StringDependency" }) {
+describe("context with given function", given = { "StringDependency" }) {
     test("test that takes a string dependency") {
         expectThat(given).isEqualTo("StringDependency")
     }

@@ -1,22 +1,29 @@
 @file:Suppress("GradlePackageUpdate")
 
+import com.adarshr.gradle.testlogger.TestLoggerExtension
+import com.adarshr.gradle.testlogger.theme.ThemeType
 import failgood.versions.*
 import info.solidsoft.gradle.pitest.PitestPluginExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm")
+    java
+    kotlin("multiplatform")
     `maven-publish`
     id("info.solidsoft.pitest")
     signing
-    id("failgood.common")
-    id("failgood.publishing")
+//    id("failgood.common")
+//    id("failgood.publishing")
     id("com.bnorm.power.kotlin-power-assert") version "0.13.0"
     id("org.jetbrains.kotlinx.kover") version "0.7.5"
     id("org.jetbrains.dokka") version "1.9.10"
+    id("com.adarshr.test-logger")
+    id("com.ncorti.ktfmt.gradle")
+
 }
 // to release:
 // ./gradlew publishToSonatype closeSonatypeStagingRepository (or ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository)
-
+/*
 dependencies {
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     api("org.junit.platform:junit-platform-commons:$junitPlatformVersion")
@@ -65,6 +72,97 @@ task("autotest", JavaExec::class) {
 }
 
 tasks.check { dependsOn(testMain, multiThreadedTest) }
+*/
+val enableJs = true
+kotlin {
+/* waiting for compatible libraries
+    wasmWasi {
+        nodejs()
+        binaries.executable()
+    }*/
+    if (enableJs) {
+        js {
+            nodejs {}
+        }
+    }
+    jvm {
+        compilations.all {
+            kotlinOptions.jvmTarget = "1.8"
+        }
+        withJava()
+        testRuns["test"].executionTask.configure {
+            useJUnitPlatform {}
+        }
+        compilations.getByName("test") {
+            val testMain =
+                task("testMain", JavaExec::class) {
+                    mainClass.set("failgood.FailGoodBootstrapKt")
+                    classpath(runtimeDependencyFiles, output)
+                }
+            val multiThreadedTest =
+                task("multiThreadedTest", JavaExec::class) {
+                    mainClass.set("failgood.MultiThreadingPerformanceTestKt")
+                    classpath(runtimeDependencyFiles, output)
+                    systemProperties = mapOf("kotlinx.coroutines.scheduler.core.pool.size" to "1000")
+                }
+            task("autotest", JavaExec::class) {
+                mainClass.set("failgood.AutoTestMainKt")
+                classpath(runtimeDependencyFiles, output)
+            }
+
+            tasks.check { dependsOn(testMain, multiThreadedTest) }
+
+        }
+    }
+    sourceSets {
+        val commonMain by getting {
+            kotlin.srcDir("src@common")
+            dependencies {
+                api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+            }
+        }
+        val commonTest by getting {
+            kotlin.srcDir("test@common")
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
+        if (enableJs) {
+            val jsMain by getting { kotlin.srcDir("src@js") }
+            val jsTest by getting { kotlin.srcDir("test@js") }
+        }
+
+        val jvmMain by getting {
+            kotlin.srcDir("src")
+            resources.srcDir("resources")
+            dependencies {
+                api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+                api("org.junit.platform:junit-platform-commons:$junitPlatformVersion")
+//                runtimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-debug:$coroutinesVersion")
+                // to enable running test in idea without having to add the dependency manually
+                api("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
+                compileOnly("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
+
+                implementation(kotlin("stdlib-jdk8"))
+                compileOnly("org.pitest:pitest:$pitestVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+            }
+        }
+        val jvmTest by getting {
+            kotlin.srcDir("test")
+            resources.srcDir("testResources")
+            dependencies {
+                implementation("io.strikt:strikt-core:$striktVersion")
+                implementation("org.pitest:pitest:$pitestVersion")
+                implementation("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
+                implementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
+                implementation("io.projectreactor.tools:blockhound:1.0.6.RELEASE")
+                implementation(kotlin("test"))
+
+            }
+        }
+    }
+}
 
 plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
@@ -102,3 +200,37 @@ tasks.register<Test>("runSingleNonFailgoodTest") {
 
 // this seems to be no longer necessary, but keeping it here for now
 // tasks.withType<Jar> { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }
+tasks {
+    test {
+        useJUnitPlatform {
+// use all engine for now because we want to see the playground engines output
+            //            includeEngines = setOf("failgood")
+        }
+        outputs.upToDateWhen { false }
+    }
+
+    withType<JavaCompile> {
+        sourceCompatibility = "1.8"
+        targetCompatibility = "1.8"
+    }
+    withType<KotlinCompile> {
+        kotlinOptions {
+            if (System.getenv("CI") != null)
+                allWarningsAsErrors = true
+            jvmTarget = "1.8"
+            freeCompilerArgs = listOf("-opt-in=kotlin.RequiresOptIn")
+            languageVersion = "1.9"
+            apiVersion = "1.9"
+        }
+    }
+}
+configure<TestLoggerExtension> {
+    theme = ThemeType.MOCHA_PARALLEL
+    showSimpleNames = true
+    showFullStackTraces = true
+}
+tasks.getByName("check").dependsOn(tasks.getByName("ktfmtCheck"))
+
+ktfmt {
+    kotlinLangStyle()
+}

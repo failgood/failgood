@@ -92,6 +92,7 @@ fun describe(
 ): RootContext =
     RootContext("${subjectType.simpleName}", ignored, order, isolation, function = function)
 
+@Deprecated("This is going away in 0.9.1 because it causes problems for given support.", replaceWith = ReplaceWith("this.describe(Class::class.simpleName!!, tags, isolation, ignored, contextFunction)"))
 suspend inline fun <reified Class> ContextDSL<*>.describe(
     tags: Set<String> = setOf(),
     isolation: Boolean? = null,

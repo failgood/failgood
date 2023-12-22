@@ -134,6 +134,7 @@ internal fun findCallerSTE(): StackTraceElement =
             !(it.endsWith("FailGood.kt") ||
                 it.endsWith("SourceInfo.kt") ||
                 it.endsWith("Types.kt") ||
+                it.endsWith("Tests.kt") ||
                 it.endsWith("Describe.kt"))
         } ?: true
     }

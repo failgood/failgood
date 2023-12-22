@@ -6,9 +6,9 @@ import kotlin.reflect.KClass
 
 fun <RootGiven> tests(
     subjectDescription: String,
-    ignored: Ignored?,
-    order: Int,
-    isolation: Boolean,
+    ignored: Ignored? = null,
+    order: Int = 0,
+    isolation: Boolean = true,
     given: suspend () -> RootGiven,
     function: ContextFunctionWithGiven<RootGiven>
 ) = RootContextWithGiven(
@@ -22,9 +22,9 @@ fun <RootGiven> tests(
 
 
 fun tests(
-    ignored: Ignored?,
-    order: Int,
-    isolation: Boolean,
+    ignored: Ignored? = null,
+    order: Int = 0,
+    isolation: Boolean = true,
     function: ContextFunction
 ) = RootContext(
     "root",
@@ -37,9 +37,9 @@ fun tests(
 
 fun tests(
     subjectDescription: String,
-    ignored: Ignored?,
-    order: Int,
-    isolation: Boolean,
+    ignored: Ignored? = null,
+    order: Int = 0,
+    isolation: Boolean = true,
     function: ContextFunction
 ) = RootContext(
     subjectDescription,
@@ -51,9 +51,9 @@ fun tests(
 )
 
 fun <RootGiven> tests(
-    ignored: Ignored?,
-    order: Int,
-    isolation: Boolean,
+    ignored: Ignored? = null,
+    order: Int = 0,
+    isolation: Boolean = true,
     given: suspend () -> RootGiven,
     function: ContextFunctionWithGiven<RootGiven>
 ) = RootContextWithGiven(
@@ -68,9 +68,9 @@ fun <RootGiven> tests(
 
 fun tests(
     subjectType: KClass<*>,
-    ignored: Ignored?,
-    order: Int,
-    isolation: Boolean,
+    ignored: Ignored? = null,
+    order: Int = 0,
+    isolation: Boolean = true,
     function: ContextFunction
 ) = RootContext("${subjectType.simpleName}", ignored, order, isolation, function = function)
 

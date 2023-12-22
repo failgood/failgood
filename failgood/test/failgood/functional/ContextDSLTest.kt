@@ -11,7 +11,7 @@ object ContextDSLTest {
         describe("ContextDSL::describe") {
             it("works for class") {
                 val e = NestedEvents()
-                val results = Suite { describe<String> { it("test") { e.addEvent() } } }.run()
+                @Suppress("DEPRECATION") val results = Suite { describe<String> { it("test") { e.addEvent() } } }.run()
                 val test = assertNotNull(results.allTests.singleOrNull())
                 assert(test.test.context.name == "String")
                 assert(e.globalEvents.isNotEmpty())

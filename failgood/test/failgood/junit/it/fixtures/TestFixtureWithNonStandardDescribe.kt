@@ -1,8 +1,6 @@
 package failgood.junit.it.fixtures
 
-import failgood.describe
 import failgood.internal.TestFixture
-import xdescribe
 
 @TestFixture
 object TestFixtureWithNonStandardDescribe {

@@ -180,7 +180,7 @@ class ObjectContextProviderTest {
     }
 
     class ClassWithContextMethodWithParameter {
-        fun context(@Suppress("UNUSED_PARAMETER") parameter: String): RootContext = describe {}
+        fun context(@Suppress("UNUSED_PARAMETER") parameter: String): RootContext = tests {}
     }
 
     class ClassThatThrowsAtContextGetter {
@@ -193,11 +193,11 @@ private class TestClassThatUsesUtilityMethodToCreateTestContexts {
 }
 
 private object ContextTools {
-    fun createContexts() = listOf(describe("Anything") {}, describe("Another thing") {})
+    fun createContexts() = listOf(tests("Anything") {}, tests("Another thing") {})
 }
 
 private class OrdinaryTestClass {
-    @Suppress("unused") val context = listOf(describe("Anything") {}, describe("Another thing") {})
+    @Suppress("unused") val context = listOf(tests("Anything") {}, tests("Another thing") {})
 }
 
 class ContainsNoTests

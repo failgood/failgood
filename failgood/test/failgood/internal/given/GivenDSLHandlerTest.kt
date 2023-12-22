@@ -2,11 +2,12 @@ package failgood.internal.given
 
 import failgood.Test
 import failgood.describe
+import failgood.tests
 import kotlin.test.assertEquals
 
 @Test
 object GivenDSLHandlerTest {
-    val tests = describe {
+    val tests = tests {
         it("returns unit when there is no parent") {
             val rootHandler = RootGivenDSLHandler {}
             assertEquals(Unit, rootHandler.given())

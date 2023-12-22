@@ -29,6 +29,7 @@ import failgood.junit.it.fixtures.TestFixtureWithNonStandardDescribe
 import failgood.junit.it.fixtures.TestOrderFixture
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture
 import failgood.softly.softly
+import failgood.tests
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.reflect.KClass
@@ -56,8 +57,8 @@ object JunitPlatformFunctionalTest {
 
     val context =
         listOf(
-            describe("The Junit Platform Engine") { tests(false) },
-            describe("The New Junit Platform Engine") { tests(true) }
+            tests("The Junit Platform Engine") { tests(false) },
+            tests("The New Junit Platform Engine") { tests(true) }
         )
 
     private suspend fun ContextDSL<Unit>.tests(newEngine: Boolean) {

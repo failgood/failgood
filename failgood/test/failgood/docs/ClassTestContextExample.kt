@@ -2,6 +2,7 @@ package failgood.docs
 
 import failgood.Test
 import failgood.describe
+import failgood.tests
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
@@ -10,17 +11,17 @@ import strikt.assertions.isEqualTo
 class ClassTestContextExample {
     // contexts can be declared as fields of type RootContext (what describe returns)
     val tests =
-        describe("test context defined in a kotlin class") {
+        tests("test context defined in a kotlin class") {
             it("describes behavior") { expectThat("test").isEqualTo("test") }
         }
     val moreTests =
-        describe("another test context defined in a kotlin class") {
+        tests("another test context defined in a kotlin class") {
             it("describes behavior") { expectThat("test").isEqualTo("test") }
         }
 
     // contexts can also be defined via a method returning a context
     fun tests() =
-        describe("a test context returned by a function") {
+        tests("a test context returned by a function") {
             it("describes behavior") { expectThat("test").isEqualTo("test") }
         }
 }

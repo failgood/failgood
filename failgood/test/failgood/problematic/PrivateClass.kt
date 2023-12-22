@@ -3,7 +3,8 @@
 package failgood.problematic
 
 import failgood.describe
+import failgood.tests
 
 private class PrivateClass {
-    val context = describe("root") {}
+    val context = tests("root") {}
 }

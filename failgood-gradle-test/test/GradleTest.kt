@@ -2,6 +2,7 @@ package failgood.gradle
 
 import failgood.Test
 import failgood.describe
+import failgood.tests
 import java.io.File
 import kotlin.io.path.createTempDirectory
 import org.gradle.tooling.GradleConnector
@@ -13,7 +14,7 @@ import org.gradle.tooling.events.test.internal.DefaultTestStartEvent
 @Test
 class GradleTest {
     val context =
-        describe("running via gradle") {
+        tests("running via gradle") {
             it("works") {
                 val rootDirectory =
                     File(GradleTest::class.java.protectionDomain.codeSource.location.toURI())

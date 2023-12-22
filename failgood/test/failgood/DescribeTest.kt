@@ -6,7 +6,7 @@ import strikt.assertions.isEqualTo
 @Test
 class DescribeTest {
     val context =
-        describe("The describe top level method") {
+        tests("The describe top level method") {
             it("creates a context named '<className>' when called with a class") {
                 expectThat(describe(String::class) {}) { get { context.name }.isEqualTo("String") }
             }

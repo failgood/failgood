@@ -3,11 +3,12 @@ package failgood.examples
 import failgood.Ignored
 import failgood.Test
 import failgood.describe
+import failgood.tests
 
 @Test
 class FailGoodDSLExample {
     val context =
-        describe("The Failgood DSL") {
+        tests("The Failgood DSL") {
             it("supports describe/it syntax") { assert(true) }
             describe("nested contexts") {
                 it("can contain tests too") { assert(true) }
@@ -25,7 +26,7 @@ class FailGoodDSLExample {
                 context("context/test syntax is also supported") {
                     test(
                         "I prefer describe/it but if there is no subject to describe I use " +
-                            "context/test"
+                                "context/test"
                     ) {}
                 }
 

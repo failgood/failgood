@@ -2,6 +2,7 @@ package failgood.docs
 
 import failgood.Test
 import failgood.describe
+import failgood.tests
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
@@ -17,10 +18,10 @@ class ContextListExample {
     */
     val contexts =
         listOf(
-            describe("first of multiple contexts defined in one object", order = 0) {
+            tests("first of multiple contexts defined in one object", order = 0) {
                 it("describes behavior") { expectThat("test").isEqualTo("test") }
             },
-            describe("second of multiple contexts defined in one object", order = 1) {
+            tests("second of multiple contexts defined in one object", order = 1) {
                 it("describes behavior") { expectThat("test").isEqualTo("test") }
             }
         )

@@ -3,6 +3,7 @@ package failgood.pitest
 import failgood.Ignored
 import failgood.Test
 import failgood.describe
+import failgood.tests
 import org.pitest.testapi.Description
 import org.pitest.testapi.ResultCollector
 import org.pitest.testapi.TestUnit
@@ -21,7 +22,7 @@ val failure = AssertionError("failed")
 
 object Tests {
     val context =
-        describe("tests with different results") {
+        tests("tests with different results") {
             test("failing test") { throw failure }
             test("pending test", ignored = Ignored.Because("testing ignored tests")) {}
             test("successful test") {}

@@ -55,20 +55,20 @@ object ContextExecutorTest {
         assertNotNull(TypicalTestContext().execute() as? ContextInfo)
 
     @Suppress("SimplifiableCallChain") // for better kotlin-power-assert output
-    val context = describe {
+    val context = tests {
         describe("with a typical valid root context") {
             describe("executing all the tests", given = { executedTestContext() }) {
                 it("returns tests in the same order as they are declared in the file") {
                     assert(
                         given.tests.keys.map { it.testName } ==
-                            listOf(
-                                "test 1",
-                                "test 2",
-                                "ignored test",
-                                "failed test",
-                                "test 3",
-                                "test 4"
-                            )
+                                listOf(
+                                    "test 1",
+                                    "test 2",
+                                    "ignored test",
+                                    "failed test",
+                                    "test 3",
+                                    "test 4"
+                                )
                     )
                 }
                 it("returns deferred test results") {
@@ -78,7 +78,7 @@ object ContextExecutorTest {
                     val skipped = assertNotNull(testResults.filter { it.isSkipped }.singleOrNull())
                     assert(
                         successful.map { it.test.testName } ==
-                            listOf("test 1", "test 2", "test 3", "test 4")
+                                listOf("test 1", "test 2", "test 3", "test 4")
                     )
                     assert(failed.test.testName == "failed test")
                     assert(skipped.test.testName == "ignored test")
@@ -91,11 +91,11 @@ object ContextExecutorTest {
                 }
                 it("reports time of successful tests") {
                     expectThat(
-                            given.tests.values
-                                .awaitAll()
-                                .map { it.result }
-                                .filterIsInstance<Success>()
-                        )
+                        given.tests.values
+                            .awaitAll()
+                            .map { it.result }
+                            .filterIsInstance<Success>()
+                    )
                         .isNotEmpty()
                         .all { get { timeMicro }.isGreaterThanOrEqualTo(1) }
                 }
@@ -166,7 +166,7 @@ object ContextExecutorTest {
                     val contextResult =
                         given.execute(
                             testFilter =
-                                StringListTestFilter(listOf("other root context", "test 1"))
+                            StringListTestFilter(listOf("other root context", "test 1"))
                         )
                     val contextInfo = expectThat(contextResult).isA<ContextInfo>().subject
                     expectThat(contextInfo) {
@@ -327,7 +327,7 @@ object ContextExecutorTest {
                     val contextResult = execute(context)
                     assert(
                         contextResult is ContextInfo &&
-                            contextResult.tests.values.awaitAll().all { !it.isFailure }
+                                contextResult.tests.values.awaitAll().all { !it.isFailure }
                     )
                 }
                 test("tests can not contain nested contexts") {
@@ -358,14 +358,14 @@ object ContextExecutorTest {
                     with(singleSkippedTest.test) {
                         assert(
                             testName ==
-                                "context ignored because We are testing that it is correctly reported"
+                                    "context ignored because We are testing that it is correctly reported"
                         )
                         assert(context.name == "context 1")
                         assert(sourceInfo.className.contains("ContextExecutorTest"))
                     }
                     assert(
                         (singleSkippedTest.result as Skipped).reason ==
-                            "We are testing that it is correctly reported"
+                                "We are testing that it is correctly reported"
                     )
                 }
             }
@@ -383,9 +383,9 @@ object ContextExecutorTest {
                 val result = execute(ctx)
                 assert(
                     result is FailedRootContext &&
-                        result.failure.message!!.contains(
-                            "duplicate name \"dup test name\" in context \"root\""
-                        )
+                            result.failure.message!!.contains(
+                                "duplicate name \"dup test name\" in context \"root\""
+                            )
                 )
             }
             it("does not fail when the tests with the same name are in different contexts") {
@@ -490,10 +490,10 @@ object ContextExecutorTest {
             it(
                 "can filter tests in a subcontext",
                 ignored =
-                    Because(
-                        "This can currently not work " +
+                Because(
+                    "This can currently not work " +
                             "because we don't find the tests in the subcontext without executing the context"
-                    )
+                )
             ) {
                 val context = RootContext {
                     describe("context without the tag") {

@@ -2,12 +2,13 @@ package failgood.mock
 
 import failgood.Test
 import failgood.describe
+import failgood.tests
 import kotlin.test.assertNotNull
 
 @Test
 class MockExample {
     val context =
-        describe("new mock syntax") {
+        tests("new mock syntax") {
             it("looks like this") {
                 val userManager: UserManager = mock()
                 // how to create a mock and define its return values:
@@ -41,21 +42,21 @@ class MockExample {
 
                 // the next line will throw because the parameters are different
                 assertNotNull(
-                        kotlin
-                            .runCatching {
-                                verify(userManager) { functionWithParameters(2, "blah") }
-                            }
-                            .exceptionOrNull()
-                    )
+                    kotlin
+                        .runCatching {
+                            verify(userManager) { functionWithParameters(2, "blah") }
+                        }
+                        .exceptionOrNull()
+                )
                     .let {
                         assert(
                             it is MockException &&
-                                it.message ==
+                                    it.message ==
                                     "expected call functionWithParameters(2, blah) never happened. calls: " +
-                                        "stringReturningFunction(), " +
-                                        "functionWithParameters(1, blah), " +
-                                        "functionWithDataClassParameters(User(name=blah)), " +
-                                        "functionThatReturnsNullableString()"
+                                    "stringReturningFunction(), " +
+                                    "functionWithParameters(1, blah), " +
+                                    "functionWithDataClassParameters(User(name=blah)), " +
+                                    "functionThatReturnsNullableString()"
                         )
                     }
                 // or the other way that gives you more flexibility:

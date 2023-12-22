@@ -3,12 +3,13 @@ package failgood.functional
 import failgood.Suite
 import failgood.Test
 import failgood.describe
+import failgood.tests
 import kotlin.test.assertNotNull
 
 @Test
 object ContextDSLTest {
     val context =
-        describe("ContextDSL::describe") {
+        tests("ContextDSL::describe") {
             it("works for class") {
                 val e = NestedEvents()
                 @Suppress("DEPRECATION") val results = Suite { describe<String> { it("test") { e.addEvent() } } }.run()

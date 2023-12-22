@@ -5,6 +5,7 @@ import failgood.describe
 import failgood.internal.StringListTestFilter
 import failgood.junit.it.fixtures.packagewith1test.SimpleTestFixture
 import failgood.problematic.NonFailgoodTest
+import failgood.tests
 import java.nio.file.Paths
 import kotlin.test.assertNotNull
 import org.junit.platform.engine.UniqueId
@@ -18,7 +19,7 @@ import strikt.assertions.containsExactlyInAnyOrder
 class ContextFinderTest {
     private val rootName = "the ContextFinder"
     val context =
-        describe(rootName) {
+        tests(rootName) {
             val contextFinder = ContextFinder(runTestFixtures = true)
             val testName = "finds a single test with a uniqueId selector"
             it(testName) {
@@ -62,7 +63,7 @@ class ContextFinderTest {
                             .configurationParameters(
                                 mapOf(
                                     FailGoodJunitTestEngineConstants.CONFIG_KEY_RUN_TEST_FIXTURES to
-                                        "true"
+                                            "true"
                                 )
                             )
                             .filters(
@@ -84,10 +85,10 @@ class ContextFinderTest {
                 it("works when the root contexts contains brackets") {
                     val (className, filterStringList) =
                         DiscoverySelectors.selectUniqueId(
-                                UniqueId.parse(
-                                    "[engine:failgood]/[class:Root Context (with brackets)(className)]/[method:test name]"
-                                )
+                            UniqueId.parse(
+                                "[engine:failgood]/[class:Root Context (with brackets)(className)]/[method:test name]"
                             )
+                        )
                             .toClassFilter()
                     assert(filterStringList == listOf("Root Context (with brackets)", "test name"))
                     assert(className == "className")

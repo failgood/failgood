@@ -16,7 +16,7 @@ internal class SingleTestExecutor<RootGiven, TestGivenType>(
     val testContextHandler: ClonableTestContext<TestGivenType>,
     val resourcesCloser: ResourcesCloser,
     private val rootContextFunction: ContextFunctionWithGiven<RootGiven>,
-    val givenFunction: suspend () -> RootGiven
+    private val givenFunction: suspend () -> RootGiven
 ) {
     private val startTime = System.nanoTime()
 

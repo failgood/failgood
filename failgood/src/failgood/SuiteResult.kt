@@ -57,7 +57,7 @@ data class SuiteResult(
             return true
         } else {
             val message = failedTests.joinToString(separator = "\n") { it.prettyPrint() }
-            @Suppress("unused") println("${Colors.RED}FAILED:${Colors.RESET}\n$message")
+            println("${Colors.RED}FAILED:${Colors.RESET}\n$message")
             println(
                 "$totalTests tests. ${failedTests.size} failed. total time: ${uptime(totalTests)}"
             )

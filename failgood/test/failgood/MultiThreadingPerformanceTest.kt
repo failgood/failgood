@@ -9,7 +9,7 @@ class MultiThreadingPerformanceTest {
         testsAbout("multi threaded test running") {
             repeat(1000) {
                 test("sleeping test ${it + 1}") {
-                    @Suppress("BlockingMethodInNonBlockingContext") Thread.sleep(1000)
+                    Thread.sleep(1000)
                 }
             }
         }

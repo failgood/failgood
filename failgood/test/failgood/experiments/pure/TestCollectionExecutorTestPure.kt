@@ -17,7 +17,7 @@ import kotlinx.coroutines.delay
  */
 object TestCollectionExecutorTestPure {
     class Given {
-        val assertionError: java.lang.AssertionError = AssertionError("failed")
+        private val assertionError: java.lang.AssertionError = AssertionError("failed")
         val context: TestCollection<Unit> =
             TestCollection("root context") {
                 test("test 1") { delay(1) }

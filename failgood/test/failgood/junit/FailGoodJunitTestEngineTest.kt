@@ -1,7 +1,6 @@
 package failgood.junit
 
 import failgood.Test
-import failgood.describe
 import failgood.testsAbout
 
 @Test

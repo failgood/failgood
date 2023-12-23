@@ -157,7 +157,7 @@ internal fun getHandler(mock: Any): MockHandler {
 }
 
 internal class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
-    val resultFunctions = mutableMapOf<Method, (MethodWithArguments) -> Any?>()
+    private val resultFunctions = mutableMapOf<Method, (MethodWithArguments) -> Any?>()
     internal val calls = CopyOnWriteArrayList<MethodWithArguments>()
 
     override fun invoke(proxy: Any, method: Method, arguments: Array<out Any>?): Any? {

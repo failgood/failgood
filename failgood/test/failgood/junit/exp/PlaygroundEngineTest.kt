@@ -1,7 +1,6 @@
 package failgood.junit.exp
 
 import failgood.Test
-import failgood.describe
 import failgood.testsAbout
 import org.junit.platform.launcher.core.EngineDiscoveryOrchestrator
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder

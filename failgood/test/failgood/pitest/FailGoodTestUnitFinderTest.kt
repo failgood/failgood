@@ -2,7 +2,6 @@ package failgood.pitest
 
 import failgood.Ignored
 import failgood.Test
-import failgood.describe
 import failgood.testsAbout
 import org.pitest.testapi.Description
 import org.pitest.testapi.ResultCollector

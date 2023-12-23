@@ -55,9 +55,7 @@ publishing {
     }
 }
 java {
-    @Suppress("UnstableApiUsage")
     withJavadocJar()
-    @Suppress("UnstableApiUsage")
     withSourcesJar()
 }
 

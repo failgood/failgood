@@ -1,7 +1,6 @@
 package failgood.pitest
 
 import failgood.Test
-import failgood.describe
 import failgood.testsAbout
 import org.pitest.testapi.TestPluginFactory
 import strikt.api.expectThat

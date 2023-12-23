@@ -17,7 +17,7 @@ private fun asyncTest() {
         runBlocking(dispatcher) {
             (0 until 1000)
                 .map {
-                    async { @Suppress("BlockingMethodInNonBlockingContext") Thread.sleep(1000) }
+                    async { Thread.sleep(1000) }
                 }
                 .awaitAll()
             println(uptime() + " " + threadPool)

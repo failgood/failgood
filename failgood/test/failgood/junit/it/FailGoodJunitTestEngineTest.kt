@@ -1,7 +1,6 @@
 package failgood.junit.it
 
 import failgood.Test
-import failgood.describe
 import failgood.junit.FailGoodEngineDescriptor
 import failgood.junit.FailGoodJunitTestEngine
 import failgood.junit.FailGoodJunitTestEngineConstants
@@ -14,13 +13,17 @@ import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.ROOT_C
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.TEST2_NAME
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.TEST_NAME
 import failgood.testsAbout
-import java.util.concurrent.ConcurrentLinkedQueue
-import org.junit.platform.engine.*
+import org.junit.platform.engine.EngineExecutionListener
+import org.junit.platform.engine.ExecutionRequest
+import org.junit.platform.engine.TestDescriptor
+import org.junit.platform.engine.TestExecutionResult
+import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.discovery.DiscoverySelectors
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 import strikt.assertions.isTrue
 import strikt.assertions.single
+import java.util.concurrent.ConcurrentLinkedQueue
 
 /** This tests the old junit engine, so it will probably go away at some point */
 @Test

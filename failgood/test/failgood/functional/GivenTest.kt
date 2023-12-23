@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package failgood.functional
 
 import failgood.Failure

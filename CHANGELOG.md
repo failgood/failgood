@@ -3,7 +3,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 0.9.0 - "Pork Roast" - 2023-12-23
+## 0.9.0 "Pork Roast" - 2023-12-23
 
 Highlights of 0.9 are the new junit engine and the extended support for fixtures via `given`
 There are also new deprecations while the api is fine-tuned in response to using failgood in all kinds

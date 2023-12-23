@@ -1,7 +1,7 @@
 package failgood.junit.it.fixtures
 
-import failgood.describe
 import failgood.internal.TestFixture
+import failgood.testsAbout
 
 @TestFixture
 class TestWithNestedContextsFixture {
@@ -13,8 +13,8 @@ class TestWithNestedContextsFixture {
         const val TEST2_NAME = "another test"
     }
 
-    val context =
-        describe(ROOT_CONTEXT_NAME) {
+    val tests =
+        testsAbout(ROOT_CONTEXT_NAME) {
             describe(CHILD_CONTEXT_1_NAME) {
                 describe(CHILD_CONTEXT_2_NAME) {
                     test(TEST_NAME) {}

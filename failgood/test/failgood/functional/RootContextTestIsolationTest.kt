@@ -23,8 +23,8 @@ class RootContextTestIsolationTest {
         const val CONTEXT_2_EXECUTED = "context 2 executed"
     }
 
-    val context =
-        describe("test isolation for root contexts") {
+    val tests =
+        testsAbout("test isolation for root contexts") {
             val afterEachParameters = ConcurrentHashMap<String, TestResult>()
             val totalEvents = CopyOnWriteArrayList<List<String>>()
             suspend fun ContextDSL<Unit>.contextFixture() {
@@ -105,10 +105,10 @@ class RootContextTestIsolationTest {
             }
             describe("a root context with isolation set to false") {
                 Suite(
-                        failgood.describe("root context without isolation", isolation = false) {
-                            contextFixture()
-                        }
-                    )
+                    testsAbout("root context without isolation", isolation = false) {
+                        contextFixture()
+                    }
+                )
                     .run(silent = true)
                 it("runs tests without recreating the dependencies") {
                     // here we just know that the root context start is the first event and the

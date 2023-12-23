@@ -4,10 +4,10 @@ package failgood.functional
 
 import failgood.Failure
 import failgood.RootContext
-import failgood.RootContextWithGiven
 import failgood.Suite
 import failgood.Test
-import failgood.describe
+import failgood.tests
+import failgood.testsAbout
 import java.util.UUID
 import kotlin.test.assertEquals
 import strikt.api.expectThat
@@ -19,10 +19,10 @@ import strikt.assertions.isEqualTo
 
 @Test
 class GivenTest {
-    val context = describe {
+    val tests = tests {
         it("passes the value of the contests given block to the test") {
             val context =
-                RootContextWithGiven(
+                testsAbout(
                     "TestContext for dependency Injection",
                     given = { "root dependency" }
                 ) {
@@ -74,13 +74,13 @@ class GivenTest {
                 val result = Suite(context).run(silent = true).allTests
                 assert(
                     result.size == 2 &&
-                        result.all {
-                            it.isFailure && (it.result as Failure).failure.message == "given error"
-                        }
+                            result.all {
+                                it.isFailure && (it.result as Failure).failure.message == "given error"
+                            }
                 )
                 assert(
                     result.map { it.test.testName } ==
-                        listOf("will make the first tests fail", "will make the second tests fail")
+                            listOf("will make the first tests fail", "will make the second tests fail")
                 )
             }
         }

@@ -3,16 +3,16 @@ package failgood.functional
 import failgood.ExecutionListener
 import failgood.Suite
 import failgood.Test
-import failgood.describe
 import failgood.experiments.assertsuccess.assert
 import failgood.experiments.assertsuccess.isCallTo
 import failgood.mock.getCalls
 import failgood.mock.mock
+import failgood.testsAbout
 
 @Test
 object EventsTest {
     val tests =
-        describe("Events callbacks") {
+        testsAbout("Events callbacks") {
             val suite = Suite {
                 describe("child") {
                     it("test1") {}
@@ -36,7 +36,7 @@ object EventsTest {
                 it("reports test discovered for every test") {
                     assert(
                         calls.getCalls(ExecutionListener::testDiscovered).map { it.testName } ==
-                            listOf("test1", "test2")
+                                listOf("test1", "test2")
                     )
                 }
             }

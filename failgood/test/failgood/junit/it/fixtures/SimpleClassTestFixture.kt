@@ -1,9 +1,9 @@
 package failgood.junit.it.fixtures
 
-import failgood.describe
 import failgood.internal.TestFixture
+import failgood.testsAbout
 
 @TestFixture
 class SimpleClassTestFixture {
-    val context = describe("the root context (with brackets)") { it("the test name") {} }
+    val tests = testsAbout("the root context (with brackets)") { it("the test name") {} }
 }

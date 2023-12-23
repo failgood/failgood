@@ -10,21 +10,21 @@ import strikt.assertions.isEqualTo
 
 @Test
 class SuiteTest {
-    val context =
-        describe(Suite::class) {
+    val tests =
+        testsAbout(Suite::class) {
             test("Empty Suite fails") {
                 expectThrows<RuntimeException> { Suite(listOf<ContextProvider>()) }
             }
             test("Suite {} creates a root context") {
                 expectThat(
-                        Suite { test("test") {} }
-                            .contextProviders
-                            .single()
-                            .getContexts()
-                            .single()
-                            .context
-                            .name
-                    )
+                    Suite { test("test") {} }
+                        .contextProviders
+                        .single()
+                        .getContexts()
+                        .single()
+                        .context
+                        .name
+                )
                     .isEqualTo("root")
             }
             describe("coroutine scope") {
@@ -67,8 +67,8 @@ class SuiteTest {
                         )
                     assert(
                         contextResult is FailedRootContext &&
-                            (contextResult.failure.message == "the error" &&
-                                contextResult.context.name == MyErrorTest::class.simpleName)
+                                (contextResult.failure.message == "the error" &&
+                                        contextResult.context.name == MyErrorTest::class.simpleName)
                     )
                 }
             }

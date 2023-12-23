@@ -5,6 +5,7 @@ package failgood.internal
 import failgood.SourceInfo
 import failgood.Test
 import failgood.describe
+import failgood.testsAbout
 import strikt.api.expectThat
 import strikt.assertions.allIndexed
 import strikt.assertions.contains
@@ -13,8 +14,8 @@ import strikt.assertions.trim
 
 @Test
 class ExceptionPrettyPrinterTest {
-    val context =
-        describe(ExceptionPrettyPrinter::class) {
+    val tests =
+        testsAbout(ExceptionPrettyPrinter::class) {
             val assertionError = AssertionError("message")
             val epp = ExceptionPrettyPrinter(assertionError)
             it("pretty prints the exception with stack trace") {
@@ -33,8 +34,8 @@ class ExceptionPrettyPrinterTest {
                         .first { it.className.startsWith(prefix) }
                         .let { SourceInfo(it.className, it.fileName, it.lineNumber) }
                 expectThat(
-                        ExceptionPrettyPrinter(assertionError, sourceInfo).prettyPrint().split("\n")
-                    )
+                    ExceptionPrettyPrinter(assertionError, sourceInfo).prettyPrint().split("\n")
+                )
                     .allIndexed { idx ->
                         if (idx == 0) contains("message") else contains(sourceInfo.className)
                     }

@@ -2,14 +2,14 @@ package failgood.internal.execution.context
 
 import failgood.Context
 import failgood.Test
-import failgood.describe
 import failgood.internal.given.RootGivenDSLHandler
 import failgood.mock.mock
+import failgood.tests
 import kotlinx.coroutines.coroutineScope
 
 @Test
 object ContextVisitorTest {
-    val tests = describe {
+    val tests = tests {
         it("can be easily created") {
             coroutineScope {
                 val staticConfig = StaticContextExecutionConfig({}, this, givenFunction = {})

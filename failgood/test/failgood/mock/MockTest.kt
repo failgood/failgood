@@ -1,7 +1,7 @@
 package failgood.mock
 
 import failgood.Test
-import failgood.describe
+import failgood.testsAbout
 import kotlin.test.assertNotNull
 import strikt.api.expectThat
 import strikt.api.expectThrows
@@ -9,8 +9,8 @@ import strikt.assertions.*
 
 @Test
 class MockTest {
-    val context =
-        describe("the mocking framework") {
+    val tests =
+        testsAbout("the mocking framework") {
             val mock = mock<UserManager>()
             describe("records function calls") {
                 mock.function()
@@ -48,10 +48,10 @@ class MockTest {
                                 .will { throw RuntimeException("message") }
                         }
                         expectThat(
-                                kotlin
-                                    .runCatching { mock.stringReturningFunction() }
-                                    .exceptionOrNull()
-                            )
+                            kotlin
+                                .runCatching { mock.stringReturningFunction() }
+                                .exceptionOrNull()
+                        )
                             .isA<RuntimeException>()
                             .message
                             .isEqualTo("message")

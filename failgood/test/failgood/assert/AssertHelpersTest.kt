@@ -1,12 +1,12 @@
 package failgood.assert
 
 import failgood.Test
-import failgood.describe
+import failgood.tests
 
 @Test
 object AssertHelpersTest {
     val tests =
-        describe("AssertHelpers") {
+        tests {
             describe("containsExactlyInAnyOrder") {
                 describe("simple") {
                     it("returns true when the elements are the same") {

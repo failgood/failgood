@@ -16,8 +16,8 @@ import strikt.assertions.single
 
 @Test
 class CreateResponseTest {
-    val context =
-        describe(::createResponse.name) {
+    val tests =
+        testsAbout(::createResponse.name) {
             val sourceInfo = SourceInfo("package.ClassName", "file", 100)
             val rootContext = Context("root context name", null, sourceInfo)
             val suiteExecutionContext = SuiteExecutionContext(1)
@@ -113,7 +113,7 @@ class CreateResponseTest {
                                     listOf(rootContext, Context("sub context name", rootContext)),
                                     mapOf(
                                         test to
-                                            CompletableDeferred(TestPlusResult(test, Success(10)))
+                                                CompletableDeferred(TestPlusResult(test, Success(10)))
                                     ),
                                     setOf()
                                 )

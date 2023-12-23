@@ -1,13 +1,13 @@
 package failgood.junit.it.fixtures
 
 import failgood.Ignored
-import failgood.describe
 import failgood.internal.TestFixture
+import failgood.testsAbout
 
 @TestFixture
 object IgnoredContextFixture {
-    val context =
-        describe("root context") {
+    val tests =
+        testsAbout("root context") {
             describe(
                 "ignored context",
                 ignored = Ignored.Because("we are testing subcontext ignoring")

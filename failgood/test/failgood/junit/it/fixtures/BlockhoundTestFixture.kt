@@ -1,7 +1,7 @@
 package failgood.junit.it.fixtures
 
-import failgood.describe
 import failgood.internal.TestFixture
+import failgood.testsAbout
 import reactor.blockhound.BlockHound
 import reactor.blockhound.integration.BlockHoundIntegration
 
@@ -11,8 +11,8 @@ class BlockhoundTestFixture {
         BlockHound.install(StriktIntegration())
     }
 
-    val context =
-        describe("interop with blockhound") {
+    val tests =
+        testsAbout("interop with blockhound") {
             describe("context that blocks") {
                 @Suppress("BlockingMethodInNonBlockingContext") Thread.sleep(10)
             }

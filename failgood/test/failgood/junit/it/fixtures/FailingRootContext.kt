@@ -1,7 +1,7 @@
 package failgood.junit.it.fixtures
 
-import failgood.describe
 import failgood.internal.TestFixture
+import failgood.testsAbout
 
 @TestFixture
 class FailingRootContext {
@@ -10,5 +10,5 @@ class FailingRootContext {
     }
 
     // when the root context fails the other contexts should still work
-    @Suppress("unused") val context = describe("Failing Root Context") { throw thrownException }
+    @Suppress("unused") val context = testsAbout("Failing Root Context") { throw thrownException }
 }

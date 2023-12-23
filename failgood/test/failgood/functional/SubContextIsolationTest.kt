@@ -4,7 +4,7 @@ import failgood.Suite
 import failgood.Test
 import failgood.assert.containsExactlyInAnyOrder
 import failgood.assert.endsWith
-import failgood.describe
+import failgood.testsAbout
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.test.assertNotNull
@@ -12,21 +12,21 @@ import kotlin.test.assertNotNull
 @Test
 object SubContextIsolationTest {
     val tests =
-        describe("sub context isolation") {
+        testsAbout("sub context isolation") {
             describe("on a root context with default isolation (true)") {
                 val evt = NestedEvents()
                 describe("turning off isolation for a subcontext") {
                     it("executes all the tests in that context in one go") {
                         Suite(
-                                failgood.describe("root") {
-                                    val events = evt.addEvent()
-                                    describe("child", isolation = false) {
-                                        events.add("childContext")
-                                        it("test1") { events.add("test1") }
-                                        it("test2") { events.add("test2") }
-                                    }
+                            testsAbout("root") {
+                                val events = evt.addEvent()
+                                describe("child", isolation = false) {
+                                    events.add("childContext")
+                                    it("test1") { events.add("test1") }
+                                    it("test2") { events.add("test2") }
                                 }
-                            )
+                            }
+                        )
                             .run(silent = true)
                         val singleEvent = assertNotNull(evt.globalEvents.singleOrNull())
                         assert(
@@ -38,20 +38,20 @@ object SubContextIsolationTest {
                     it("does not affect other contexts") {
                         assert(
                             Suite(
-                                    failgood.describe("root") {
-                                        val events = evt.addEvent()
-                                        describe("child", isolation = false) {
-                                            events.add("childContext")
-                                            it("test1") { events.add("test1") }
-                                            it("test2") { events.add("test2") }
-                                        }
-                                        describe("child with isolation") {
-                                            events.add("child with isolation")
-                                            it("test3") { events.add("test3") }
-                                            it("test4") { events.add("test4") }
-                                        }
+                                testsAbout("root") {
+                                    val events = evt.addEvent()
+                                    describe("child", isolation = false) {
+                                        events.add("childContext")
+                                        it("test1") { events.add("test1") }
+                                        it("test2") { events.add("test2") }
                                     }
-                                )
+                                    describe("child with isolation") {
+                                        events.add("child with isolation")
+                                        it("test3") { events.add("test3") }
+                                        it("test4") { events.add("test4") }
+                                    }
+                                }
+                            )
                                 .run(silent = true)
                                 .allOk
                         )
@@ -66,29 +66,29 @@ object SubContextIsolationTest {
                         var givenCalls = 0
                         val givenValues = ConcurrentLinkedQueue<Int>()
                         Suite(
-                                failgood.describe("root") {
-                                    val events = evt.addEvent()
-                                    describe(
-                                        "child",
-                                        isolation = false,
-                                        given = {
-                                            // make sure that the block is not called twice before
-                                            // the counter increments
-                                            synchronized(givenValues) { givenCalls++ }
-                                        }
-                                    ) {
-                                        events.add("childContext")
-                                        it("test1") {
-                                            events.add("test1")
-                                            givenValues.add(given)
-                                        }
-                                        it("test2") {
-                                            events.add("test2")
-                                            givenValues.add(given)
-                                        }
+                            testsAbout("root") {
+                                val events = evt.addEvent()
+                                describe(
+                                    "child",
+                                    isolation = false,
+                                    given = {
+                                        // make sure that the block is not called twice before
+                                        // the counter increments
+                                        synchronized(givenValues) { givenCalls++ }
+                                    }
+                                ) {
+                                    events.add("childContext")
+                                    it("test1") {
+                                        events.add("test1")
+                                        givenValues.add(given)
+                                    }
+                                    it("test2") {
+                                        events.add("test2")
+                                        givenValues.add(given)
                                     }
                                 }
-                            )
+                            }
+                        )
                             .run(silent = true)
                         val singleEvent = assertNotNull(evt.globalEvents.singleOrNull())
                         assert(
@@ -102,22 +102,22 @@ object SubContextIsolationTest {
                     it("calls callbacks at the correct time") {
                         assert(
                             Suite(
-                                    failgood.describe("root") {
-                                        val events = evt.addEvent()
-                                        describe("child", isolation = false) {
-                                            afterEach { events.add("no-isolation-afterEach") }
-                                            autoClose("yo") { events.add("no-isolation-autoClose") }
-                                            events.add("childContext")
-                                            it("test1") { events.add("test1") }
-                                            it("test2") { events.add("test2") }
-                                        }
-                                        describe("child with isolation") {
-                                            events.add("child with isolation")
-                                            it("test3") { events.add("test3") }
-                                            it("test4") { events.add("test4") }
-                                        }
+                                testsAbout("root") {
+                                    val events = evt.addEvent()
+                                    describe("child", isolation = false) {
+                                        afterEach { events.add("no-isolation-afterEach") }
+                                        autoClose("yo") { events.add("no-isolation-autoClose") }
+                                        events.add("childContext")
+                                        it("test1") { events.add("test1") }
+                                        it("test2") { events.add("test2") }
                                     }
-                                )
+                                    describe("child with isolation") {
+                                        events.add("child with isolation")
+                                        it("test3") { events.add("test3") }
+                                        it("test4") { events.add("test4") }
+                                    }
+                                }
+                            )
                                 .run(silent = true)
                                 .allOk
                         )
@@ -151,23 +151,23 @@ object SubContextIsolationTest {
                     it("does not allow to turn isolation on when it was already off") {
                         val result =
                             Suite(
-                                    failgood.describe(
-                                        "root context without isolation",
-                                        isolation = false
+                                testsAbout(
+                                    "root context without isolation",
+                                    isolation = false
+                                ) {
+                                    describe(
+                                        "sub context that tries to turn isolation on",
+                                        isolation = true
                                     ) {
-                                        describe(
-                                            "sub context that tries to turn isolation on",
-                                            isolation = true
-                                        ) {
-                                            test("this test should never run") { e.addEvent() }
-                                        }
+                                        test("this test should never run") { e.addEvent() }
                                     }
-                                )
+                                }
+                            )
                                 .run(silent = true)
                         val failedContext = assertNotNull(result.failedTests.singleOrNull()?.test)
                         assert(
                             failedContext.testName == "error in context" &&
-                                failedContext.context.name ==
+                                    failedContext.context.name ==
                                     "sub context that tries to turn isolation on"
                         )
                         assert(e.globalEvents.isEmpty())

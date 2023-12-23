@@ -5,13 +5,13 @@ import strikt.assertions.isTrue
 
 @Test
 class ThousandTestsTest {
-    val context =
-        describe("a test suite with 1000 tests in one context") {
+    val tests =
+        testsAbout("a test suite with 1000 tests in one context") {
             test("runs pretty fast") {
                 expectThat(
-                        Suite(RootContext("the context") { repeat(1000) { test("test $it") {} } })
-                            .run(silent = true)
-                    )
+                    Suite(RootContext("the context") { repeat(1000) { test("test $it") {} } })
+                        .run(silent = true)
+                )
                     .get { allOk }
                     .isTrue()
             }

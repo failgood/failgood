@@ -13,6 +13,7 @@ import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.CHILD_
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.ROOT_CONTEXT_NAME
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.TEST2_NAME
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.TEST_NAME
+import failgood.testsAbout
 import java.util.concurrent.ConcurrentLinkedQueue
 import org.junit.platform.engine.*
 import org.junit.platform.engine.discovery.DiscoverySelectors
@@ -24,8 +25,8 @@ import strikt.assertions.single
 /** This tests the old junit engine, so it will probably go away at some point */
 @Test
 class FailGoodJunitTestEngineTest {
-    val context =
-        describe(FailGoodJunitTestEngine::class) {
+    val tests =
+        testsAbout(FailGoodJunitTestEngine::class) {
             val engine = FailGoodJunitTestEngine()
             describe(
                 "can discover tests",
@@ -78,19 +79,19 @@ class FailGoodJunitTestEngineTest {
                     val listener = RememberingExecutionListener()
                     engine.execute(ExecutionRequest(testDescriptor, listener, null))
                     expectThat(
-                            listener.list
-                                .toList()
-                                .replace(
-                                    // we don't know in what order the tests will run
-                                    setOf(
-                                        "start-$TEST_NAME",
-                                        "stop-$TEST_NAME",
-                                        "start-$TEST2_NAME",
-                                        "stop-$TEST2_NAME"
-                                    ),
-                                    "some-test-event"
-                                )
-                        )
+                        listener.list
+                            .toList()
+                            .replace(
+                                // we don't know in what order the tests will run
+                                setOf(
+                                    "start-$TEST_NAME",
+                                    "stop-$TEST_NAME",
+                                    "start-$TEST2_NAME",
+                                    "stop-$TEST2_NAME"
+                                ),
+                                "some-test-event"
+                            )
+                    )
                         .isEqualTo(
                             listOf(
                                 "start-${FailGoodJunitTestEngineConstants.DISPLAY_NAME}",

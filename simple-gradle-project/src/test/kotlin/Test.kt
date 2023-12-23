@@ -5,7 +5,7 @@ import failgood.describe
 
 @Test
 class GradleTest {
-    val context = describe("running via gradle") {
+    val tests = describe("running via gradle") {
         it("works") {}
     }
 }

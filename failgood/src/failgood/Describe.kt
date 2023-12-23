@@ -8,6 +8,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
+@Deprecated("going away before 1.0", replaceWith = ReplaceWith("tests(subjectDescription, ignored, order, isolation, function)"))
 fun describe(
     subjectDescription: String,
     ignored: Ignored? = null,
@@ -15,15 +16,9 @@ fun describe(
     isolation: Boolean = true,
     function: ContextFunction
 ): RootContext =
-    RootContext(
-        subjectDescription,
-        ignored,
-        order,
-        isolation,
-        addClassName = true,
-        function = function
-    )
+    testsAbout(subjectDescription, ignored, order, isolation, function)
 
+@Deprecated("going away before 1.0", replaceWith = ReplaceWith("tests(subjectDescription, ignored, order, isolation, given, function)"))
 fun <RootGiven> describe(
     subjectDescription: String,
     ignored: Ignored? = null,
@@ -32,23 +27,18 @@ fun <RootGiven> describe(
     given: (suspend () -> RootGiven),
     function: ContextFunctionWithGiven<RootGiven>
 ): RootContextWithGiven<RootGiven> =
-    RootContextWithGiven(
-        subjectDescription,
-        ignored,
-        order,
-        isolation,
-        given = given,
-        function = function
-    )
+    testsAbout(subjectDescription, ignored, order, isolation, given, function)
 
+@Deprecated("going away before 1.0", replaceWith = ReplaceWith("tests(ignored, order, isolation, function)"))
 fun describe(
     ignored: Ignored? = null,
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextFunction
-): RootContext =
-    RootContext("root", ignored, order, isolation, addClassName = true, function = function)
+): RootContext = tests(ignored, order, isolation, function)
 
+
+@Deprecated("going away before 1.0", replaceWith = ReplaceWith("tests(ignored, order, isolation, given, function)"))
 fun <RootGiven> describe(
     ignored: Ignored? = null,
     order: Int = 0,
@@ -56,17 +46,11 @@ fun <RootGiven> describe(
     given: (suspend () -> RootGiven),
     function: ContextFunctionWithGiven<RootGiven>
 ): RootContextWithGiven<RootGiven> =
-    RootContextWithGiven(
-        "root",
-        ignored,
-        order,
-        isolation,
-        addClassName = true,
-        given = given,
-        function = function
-    )
+    tests(ignored, order, isolation, given, function)
+
 
 @JvmName("describe2")
+@Deprecated("going away before 1.0", replaceWith = ReplaceWith("testsAbout(T::class, ignored, order, isolation, function)"))
 inline fun <reified T> describe(
     ignored: Ignored? = null,
     order: Int = 0,
@@ -74,7 +58,8 @@ inline fun <reified T> describe(
     noinline function: ContextFunction
 ): RootContext = describe(typeOf<T>(), ignored, order, isolation, function)
 
-fun describe(
+@PublishedApi
+internal fun describe(
     subjectType: KType,
     ignored: Ignored? = null,
     order: Int = 0,
@@ -83,6 +68,7 @@ fun describe(
 ): RootContext =
     RootContext(subjectType.niceString(), ignored, order, isolation, function = function)
 
+@Deprecated("going away before 1.0", replaceWith = ReplaceWith("testsAbout(subjectType, ignored, order, isolation, function)"))
 fun describe(
     subjectType: KClass<*>,
     ignored: Ignored? = null,
@@ -90,7 +76,8 @@ fun describe(
     isolation: Boolean = true,
     function: ContextFunction
 ): RootContext =
-    RootContext("${subjectType.simpleName}", ignored, order, isolation, function = function)
+    testsAbout(subjectType, ignored, order, isolation, function)
+
 
 @Deprecated("This is going away in 0.9.1 because it causes problems for given support.", replaceWith = ReplaceWith("this.describe(Class::class.simpleName!!, tags, isolation, ignored, contextFunction)"))
 suspend inline fun <reified Class> ContextDSL<*>.describe(

@@ -1,8 +1,8 @@
 package failgood.examples
 
 import failgood.Test
-import failgood.describe
 import failgood.dsl.ContextDSL
+import failgood.testsAbout
 import java.util.LinkedList
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
@@ -11,8 +11,8 @@ import strikt.assertions.isEqualTo
 // https://github.com/dmcg/minutest/blob/master/core/src/test/kotlin/dev/minutest/examples/ContractsExampleTests.kt
 @Test
 class ContractsTest {
-    val context =
-        describe("Contracts") {
+    val tests =
+        testsAbout("Contracts") {
             describe("ArrayList") { behavesAsMutableCollection(ArrayList()) }
             describe("LinkedList") { behavesAsMutableCollection(LinkedList()) }
         }

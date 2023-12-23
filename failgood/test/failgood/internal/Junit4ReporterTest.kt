@@ -2,14 +2,15 @@ package failgood.internal
 
 import failgood.Test
 import failgood.describe
+import failgood.testsAbout
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 
 @Test
 class Junit4ReporterTest {
-    val context =
+    val tests =
         @Suppress("ktlint")
-        describe(Junit4Reporter::class) {
+        (testsAbout(Junit4Reporter::class) {
             it("reports test results") {
                 val control = Junit4Reporter(TestResultFixtures.testResults).stringReport()
 
@@ -30,5 +31,5 @@ class Junit4ReporterTest {
                         )
                     )
             }
-        }
+        })
 }

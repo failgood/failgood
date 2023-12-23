@@ -5,12 +5,19 @@ All notable changes to this project will be documented in this file.
 
 ## 0.9.0 - Unreleased
 
+Highlights of 0.9 are the new junit engine and the extended support for fixtures via `given`
+There are also new deprecations while the api is fine-tuned in response to using failgood in all kinds
+of test suites.
+Use idea inspect code to automatically replace deprecated versions.
+
 ### Fixed
 
 - afterEach and dependency are no longer available in the TestDSL, where it makes no sense to have them.
 
 ### Changed
 
+- tests are now created via `val tests = tests { ... } ` or `val tests = testsFor("...") {} `. top level `describe`
+  functions are deprecated. Use idea inspect code to automatically replace deprecated versions.
 - Given is now accessed via a `given` property instead of a parameter to the test function
 - Given block can now lazily access the parent context
 - Private test classes now throw an error instead of being ignored. Now that we find tests by Annotation, it

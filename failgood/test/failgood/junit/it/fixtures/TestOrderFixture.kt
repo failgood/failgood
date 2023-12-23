@@ -1,13 +1,13 @@
 package failgood.junit.it.fixtures
 
-import failgood.describe
 import failgood.dsl.ContextDSL
 import failgood.internal.TestFixture
+import failgood.testsAbout
 
 @TestFixture
 class TestOrderFixture {
-    val context =
-        describe("test order fixture") {
+    val tests =
+        testsAbout("test order fixture") {
             fourTests()
             context("context 1") { fourTests() }
             context("context 2") { fourTests() }

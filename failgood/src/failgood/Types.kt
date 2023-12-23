@@ -36,14 +36,8 @@ fun RootContext(
     sourceInfo: SourceInfo = callerSourceInfo(),
     addClassName: Boolean = false,
     function: ContextFunction
-): RootContext =
-    RootContext(
-        Context(name, null, sourceInfo, isolation),
-        order,
-        ignored,
-        addClassName,
-        function = function
-    )
+): TestCollection<Unit> =
+    RootContextWithGiven(name, ignored, order, isolation, sourceInfo, addClassName, {}, function)
 
 fun <RootGiven> RootContextWithGiven(
     name: String = "root",
@@ -55,7 +49,7 @@ fun <RootGiven> RootContextWithGiven(
     given: (suspend () -> RootGiven),
     function: ContextFunctionWithGiven<RootGiven>
 ) =
-    RootContextWithGiven(
+    TestCollection(
         Context(name, null, sourceInfo, isolation),
         order,
         ignored,
@@ -64,9 +58,7 @@ fun <RootGiven> RootContextWithGiven(
         function = function
     )
 
-typealias RootContext = RootContextWithGiven<Unit>
-
-data class RootContextWithGiven<RootGiven>(
+data class TestCollection<RootGiven>(
     val context: Context,
     override val order: Int = 0,
     val ignored: Ignored?,

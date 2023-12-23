@@ -8,7 +8,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.withTimeout
 
 internal class ContextExecutor<RootGiven>(
-    private val rootContext: RootContextWithGiven<RootGiven>,
+    private val rootContext: TestCollection<RootGiven>,
     scope: CoroutineScope,
     lazy: Boolean = false,
     listener: ExecutionListener = NullExecutionListener,

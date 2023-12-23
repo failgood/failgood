@@ -6,14 +6,14 @@ import java.lang.reflect.ParameterizedType
 import kotlin.reflect.KClass
 
 fun interface ContextProvider {
-    fun getContexts(): List<RootContextWithGiven<*>>
+    fun getContexts(): List<TestCollection<*>>
 }
 
 class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvider {
     constructor(kClass: KClass<*>) : this(kClass.java)
 
     /** get root contexts from a class or object or defined at the top level */
-    override fun getContexts(): List<RootContext> {
+    override fun getContexts(): List<TestCollection<Unit>> {
         // the RootContext constructor tries to determine its file and line number.
         // if the root context is created by a utility method outside the test class the file and
         // line info
@@ -30,7 +30,7 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
         }
     }
 
-    private fun getContextsInternal(): List<RootContext> {
+    private fun getContextsInternal(): List<TestCollection<Unit>> {
         val instance =
             try {
                 instantiateClassOrObject(jClass)
@@ -57,14 +57,14 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
         val methodsReturningRootContext =
             jClass.methods
                 .filter {
-                    it.returnType == RootContextWithGiven::class.java ||
+                    it.returnType == TestCollection::class.java ||
                         it.returnType == List::class.java &&
                             it.genericReturnType.let { genericReturnType ->
                                 genericReturnType is ParameterizedType &&
                                     genericReturnType.actualTypeArguments.singleOrNull().let {
                                         actualTypArg ->
                                         actualTypArg is ParameterizedType &&
-                                            actualTypArg.rawType == RootContextWithGiven::class.java
+                                            actualTypArg.rawType == TestCollection::class.java
                                     }
                             }
                 }
@@ -102,7 +102,7 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
                     )
                 }
             @Suppress("UNCHECKED_CAST")
-            contexts as? List<RootContext> ?: listOf(contexts as RootContext)
+            contexts as? List<TestCollection<Unit>> ?: listOf(contexts as TestCollection<Unit>)
         }
     }
 

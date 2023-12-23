@@ -4,6 +4,7 @@ import failgood.ExecutionListener
 import failgood.Ignored
 import failgood.NullExecutionListener
 import failgood.RootContext
+import failgood.TestCollection
 import failgood.internal.ContextInfo
 import failgood.internal.ContextResult
 import failgood.internal.execution.context.ContextExecutor
@@ -18,7 +19,7 @@ import kotlinx.coroutines.delay
 object ContextExecutorTestPort {
     class Given {
         val assertionError: java.lang.AssertionError = AssertionError("failed")
-        val context: RootContext =
+        val context: TestCollection<Unit> =
             RootContext("root context") {
                 test("test 1") { delay(1) }
                 test("test 2") { delay(1) }

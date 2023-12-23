@@ -19,7 +19,7 @@ object ContextExecutorTest {
     val assertionError: java.lang.AssertionError = AssertionError("failed")
 
     class TypicalTestContext {
-        val context: RootContext =
+        val context: TestCollection<Unit> =
             RootContext("root context") {
                 test("test 1") { delay(1) }
                 test("test 2") { delay(1) }
@@ -40,12 +40,12 @@ object ContextExecutorTest {
         ): ContextResult {
             return coroutineScope {
                 ContextExecutor(
-                        context,
-                        this,
-                        runOnlyTag = tag,
-                        listener = listener,
-                        testFilter = testFilter
-                    )
+                    context,
+                    this,
+                    runOnlyTag = tag,
+                    listener = listener,
+                    testFilter = testFilter
+                )
                     .execute()
             }
         }
@@ -531,7 +531,7 @@ object ContextExecutorTest {
     }
 
     private suspend fun execute(
-        context: RootContext,
+        context: TestCollection<Unit>,
         tag: String? = null,
         listener: ExecutionListener = NullExecutionListener
     ): ContextResult {

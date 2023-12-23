@@ -13,8 +13,8 @@ All notable changes to this project will be documented in this file.
 
 - Given is now accessed via a `given` property instead of a parameter to the test function
 - Given block can now lazily access the parent context
-- Private test classes now throw an error instead of being ignored. Now that we find tests by annotation it
-  makes no sense to mark a class as test and make it private.
+- Private test classes now throw an error instead of being ignored. Now that we find tests by Annotation, it
+  makes no sense to mark a class as a Test and make it private.
 - The Root context name now contains the name of the test file when it makes sense
 
 ### Added

@@ -3,17 +3,16 @@ package failgood.functional
 import failgood.ExecutionListener
 import failgood.Suite
 import failgood.Test
-import failgood.describe
 import failgood.experiments.assertsuccess.assert
 import failgood.experiments.assertsuccess.isCallTo
 import failgood.mock.getCalls
 import failgood.mock.mock
-import failgood.tests
+import failgood.testsAbout
 
 @Test
 object EventsTest {
     val tests =
-        tests("Events callbacks") {
+        testsAbout("Events callbacks") {
             val suite = Suite {
                 describe("child") {
                     it("test1") {}

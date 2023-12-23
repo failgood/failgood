@@ -1,11 +1,11 @@
 package failgood.fixtures
 
 import failgood.RootContext
-import failgood.describe
 import failgood.tests
+import failgood.testsAbout
 
 class PrivateContextFixture {
-    private val otherContext = tests("context fixture") {}
+    private val otherContext = testsAbout("context fixture") {}
     val context: RootContext = tests {
         it("test") {
             val testContext = otherContext

@@ -55,7 +55,7 @@ object ContextExecutorTest {
         assertNotNull(TypicalTestContext().execute() as? ContextInfo)
 
     @Suppress("SimplifiableCallChain") // for better kotlin-power-assert output
-    val context = tests {
+    val tests = tests {
         describe("with a typical valid root context") {
             describe("executing all the tests", given = { executedTestContext() }) {
                 it("returns tests in the same order as they are declared in the file") {

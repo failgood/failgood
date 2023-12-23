@@ -1,14 +1,13 @@
 package failgood.junit.it.fixtures
 
-import failgood.describe
 import failgood.internal.TestFixture
-import failgood.tests
+import failgood.testsAbout
 
 // to reproduce https://github.com/failgood/failgood/issues/10 ( manually :(( )
 @TestFixture
 class FailingContext {
     val context =
-        tests("root") {
+        testsAbout("root") {
             describe("failing context") { throw RuntimeException() }
             describe("context") { test("test") {} }
         }

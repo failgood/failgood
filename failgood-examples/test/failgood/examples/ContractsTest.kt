@@ -1,9 +1,8 @@
 package failgood.examples
 
 import failgood.Test
-import failgood.describe
 import failgood.dsl.ContextDSL
-import failgood.tests
+import failgood.testsAbout
 import java.util.LinkedList
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
@@ -13,7 +12,7 @@ import strikt.assertions.isEqualTo
 @Test
 class ContractsTest {
     val context =
-        tests("Contracts") {
+        testsAbout("Contracts") {
             describe("ArrayList") { behavesAsMutableCollection(ArrayList()) }
             describe("LinkedList") { behavesAsMutableCollection(LinkedList()) }
         }

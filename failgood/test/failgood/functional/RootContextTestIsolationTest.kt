@@ -24,7 +24,7 @@ class RootContextTestIsolationTest {
     }
 
     val context =
-        tests("test isolation for root contexts") {
+        testsAbout("test isolation for root contexts") {
             val afterEachParameters = ConcurrentHashMap<String, TestResult>()
             val totalEvents = CopyOnWriteArrayList<List<String>>()
             suspend fun ContextDSL<Unit>.contextFixture() {
@@ -105,7 +105,7 @@ class RootContextTestIsolationTest {
             }
             describe("a root context with isolation set to false") {
                 Suite(
-                    tests("root context without isolation", isolation = false) {
+                    testsAbout("root context without isolation", isolation = false) {
                         contextFixture()
                     }
                 )

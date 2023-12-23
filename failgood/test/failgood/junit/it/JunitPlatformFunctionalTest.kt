@@ -3,7 +3,6 @@ package failgood.junit.it
 import failgood.Ignored
 import failgood.Test
 import failgood.assert.containsExactlyInAnyOrder
-import failgood.describe
 import failgood.dsl.ContextDSL
 import failgood.junit.FailGoodJunitTestEngine
 import failgood.junit.it.JunitPlatformFunctionalTest.TEListener.Event.Type.FINISHED
@@ -29,7 +28,7 @@ import failgood.junit.it.fixtures.TestFixtureWithNonStandardDescribe
 import failgood.junit.it.fixtures.TestOrderFixture
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture
 import failgood.softly.softly
-import failgood.tests
+import failgood.testsAbout
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.reflect.KClass
@@ -57,8 +56,8 @@ object JunitPlatformFunctionalTest {
 
     val context =
         listOf(
-            tests("The Junit Platform Engine") { tests(false) },
-            tests("The New Junit Platform Engine") { tests(true) }
+            testsAbout("The Junit Platform Engine") { tests(false) },
+            testsAbout("The New Junit Platform Engine") { tests(true) }
         )
 
     private suspend fun ContextDSL<Unit>.tests(newEngine: Boolean) {

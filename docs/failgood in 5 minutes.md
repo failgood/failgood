@@ -25,7 +25,7 @@ import failgood.describe
 
 @Test
 class MyFirstFailgoodTests {
-    val context = describe("my perfect test suite") {
+    val tests = describe("my perfect test suite") {
         it("runs super fast") {
             assert(true)
         }

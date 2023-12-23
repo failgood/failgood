@@ -5,7 +5,7 @@ import failgood.internal.FailedRootContext
 @Test
 class SuiteResultTest {
     val context =
-        describe(SuiteResult::class) {
+        testsAbout(SuiteResult::class) {
             describe("when there are failing contexts") {
                 val result =
                     SuiteResult(

@@ -2,7 +2,6 @@ package failgood.internal.execution.context
 
 import failgood.Context
 import failgood.Test
-import failgood.describe
 import failgood.internal.given.RootGivenDSLHandler
 import failgood.mock.mock
 import failgood.tests

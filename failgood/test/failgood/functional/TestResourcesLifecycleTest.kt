@@ -5,12 +5,11 @@ import failgood.Suite
 import failgood.SuiteResult
 import failgood.SuspendAutoCloseable
 import failgood.Test
-import failgood.describe
 import failgood.mock.call
 import failgood.mock.getCalls
 import failgood.mock.mock
 import failgood.mock.verify
-import failgood.tests
+import failgood.testsAbout
 import java.util.concurrent.CopyOnWriteArrayList
 import strikt.api.expectThat
 import strikt.assertions.all
@@ -26,7 +25,7 @@ import strikt.assertions.map
 @Test
 class TestResourcesLifecycleTest {
     val context =
-        tests("closing test resources") {
+        testsAbout("closing test resources") {
             describe("autoclosable") {
                 it("is closed in reverse order of creation") {
                     val closeable1 = mock<AutoCloseable>()

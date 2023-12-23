@@ -1,9 +1,8 @@
 package failgood.examples
 
 import failgood.Test
-import failgood.describe
 import failgood.dsl.TestDSL
-import failgood.tests
+import failgood.testsAbout
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
@@ -16,7 +15,7 @@ import org.slf4j.Logger
 @Test
 class LoggingTest {
     val context =
-        tests("Logging support") {
+        testsAbout("Logging support") {
             it("injects a logger") { LoggingComponent(kLogger()).functionThatLogs() }
         }
 }

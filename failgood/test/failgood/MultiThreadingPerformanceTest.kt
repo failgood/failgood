@@ -6,7 +6,7 @@ fun main() {
 
 class MultiThreadingPerformanceTest {
     val context =
-        tests("multi threaded test running") {
+        testsAbout("multi threaded test running") {
             repeat(1000) {
                 test("sleeping test ${it + 1}") {
                     @Suppress("BlockingMethodInNonBlockingContext") Thread.sleep(1000)

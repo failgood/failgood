@@ -1,7 +1,6 @@
 package failgood.util
 
 import failgood.Test
-import failgood.describe
 import failgood.tests
 import kotlin.test.assertNotNull
 import kotlin.time.Duration.Companion.milliseconds

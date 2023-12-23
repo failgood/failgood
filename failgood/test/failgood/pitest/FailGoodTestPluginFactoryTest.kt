@@ -2,6 +2,7 @@ package failgood.pitest
 
 import failgood.Test
 import failgood.describe
+import failgood.testsAbout
 import org.pitest.testapi.TestPluginFactory
 import strikt.api.expectThat
 import strikt.assertions.isEmpty
@@ -10,7 +11,7 @@ import strikt.assertions.isEqualTo
 @Test
 class FailGoodTestPluginFactoryTest {
     val context =
-        describe(FailGoodTestPluginFactory::class) {
+        testsAbout(FailGoodTestPluginFactory::class) {
             it("provides description and name") {
                 val factory: TestPluginFactory = FailGoodTestPluginFactory()
                 expectThat(factory) {

@@ -1,7 +1,6 @@
 package failgood.junit.it.fixtures
 
-import failgood.describe
 import failgood.dsl.ContextFunction
-import failgood.tests
+import failgood.testsAbout
 
-fun xdescribe(name: String, function: ContextFunction) = tests(name, function = function)
+fun xdescribe(name: String, function: ContextFunction) = testsAbout(name, function = function)

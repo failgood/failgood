@@ -2,9 +2,8 @@
 
 package failgood.problematic
 
-import failgood.describe
-import failgood.tests
+import failgood.testsAbout
 
 private class PrivateClass {
-    val context = tests("root") {}
+    val tests = testsAbout("root") {}
 }

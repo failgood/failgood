@@ -4,11 +4,11 @@ import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
 @Test
-class DescribeTest {
+class TopLevelTestsMethodsTest {
     val context =
-        tests("The describe top level method") {
+        testsAbout("The testsAbout top level method") {
             it("creates a context named '<className>' when called with a class") {
-                expectThat(describe(String::class) {}) { get { context.name }.isEqualTo("String") }
+                expectThat(testsAbout(String::class) {}) { get { context.name }.isEqualTo("String") }
             }
         }
 }

@@ -2,8 +2,7 @@ package failgood.functional
 
 import failgood.Suite
 import failgood.Test
-import failgood.describe
-import failgood.tests
+import failgood.testsAbout
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.isTrue
@@ -11,17 +10,17 @@ import strikt.assertions.isTrue
 @Test
 class ContextOrderTest {
     val context =
-        tests("Root Context Order") {
+        testsAbout("Root Context Order") {
             it("is determined by the order field low to high") {
                 val events = mutableListOf<String>()
                 expectThat(
                     Suite(
                         listOf(
-                            tests("context 1", order = 1) {
+                            testsAbout("context 1", order = 1) {
                                 events.add("context 1")
                                 test("test") {}
                             },
-                            tests("context 2", order = 0) {
+                            testsAbout("context 2", order = 0) {
                                 events.add("context 2")
                                 test("test") {}
                             }

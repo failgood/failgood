@@ -1,14 +1,13 @@
 package failgood.junit.it.fixtures
 
 import failgood.Ignored
-import failgood.describe
 import failgood.internal.TestFixture
-import failgood.tests
+import failgood.testsAbout
 
 @TestFixture
 object IgnoredTestFixture {
     val context =
-        tests("root context") {
+        testsAbout("root context") {
             it("pending test", ignored = Ignored.Because("ignore-reason")) {}
         }
 }

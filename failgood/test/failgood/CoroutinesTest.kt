@@ -8,7 +8,7 @@ import strikt.assertions.containsExactly
 @Test
 class CoroutinesTest {
     val context =
-        tests("a coroutine scope inside failgood tests") {
+        testsAbout("a coroutine scope inside failgood tests") {
             it("works as expected") {
                 val events = mutableListOf<String>()
                 val newWorkStealingPool =

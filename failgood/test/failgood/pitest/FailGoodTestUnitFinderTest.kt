@@ -3,7 +3,7 @@ package failgood.pitest
 import failgood.Ignored
 import failgood.Test
 import failgood.describe
-import failgood.tests
+import failgood.testsAbout
 import org.pitest.testapi.Description
 import org.pitest.testapi.ResultCollector
 import org.pitest.testapi.TestUnit
@@ -22,7 +22,7 @@ val failure = AssertionError("failed")
 
 object Tests {
     val context =
-        tests("tests with different results") {
+        testsAbout("tests with different results") {
             test("failing test") { throw failure }
             test("pending test", ignored = Ignored.Because("testing ignored tests")) {}
             test("successful test") {}
@@ -38,7 +38,7 @@ object NoTests {
 @Test
 class FailGoodTestUnitFinderTest {
     val context =
-        describe(FailGoodTestUnitFinder::class) {
+        testsAbout(FailGoodTestUnitFinder::class) {
             it("creates a test unit for each test") {
                 val finder: TestUnitFinder = FailGoodTestUnitFinder
                 val testUnits = finder.findTestUnits(Tests::class.java, null)
@@ -87,7 +87,7 @@ class FailGoodTestUnitFinderTest {
             it("returns an no tests when the test class cannot be instantiated") {
                 assert(
                     FailGoodTestUnitFinder.findTestUnits(NoTests::class.java, null) ==
-                        listOf<TestUnit>()
+                            listOf<TestUnit>()
                 )
             }
         }

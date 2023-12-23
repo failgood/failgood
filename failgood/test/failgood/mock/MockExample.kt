@@ -1,14 +1,13 @@
 package failgood.mock
 
 import failgood.Test
-import failgood.describe
-import failgood.tests
+import failgood.testsAbout
 import kotlin.test.assertNotNull
 
 @Test
 class MockExample {
     val context =
-        tests("new mock syntax") {
+        testsAbout("new mock syntax") {
             it("looks like this") {
                 val userManager: UserManager = mock()
                 // how to create a mock and define its return values:

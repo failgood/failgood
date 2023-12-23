@@ -26,7 +26,7 @@ In Failgood you just start your dependencies where you declare them, and define 
 equivalent of the above code is just:
 
 ```kotlin
-val context = describe(MyServer::class) {
+val tests = describe(MyServer::class) {
     val myWebserver = autoClose(Server()) {it.close()}
 }
 

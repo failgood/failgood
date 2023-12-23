@@ -1,8 +1,7 @@
 package failgood.mock
 
 import failgood.Test
-import failgood.describe
-import failgood.tests
+import failgood.testsAbout
 import kotlin.test.assertNotNull
 import strikt.api.expectThat
 import strikt.api.expectThrows
@@ -11,7 +10,7 @@ import strikt.assertions.*
 @Test
 class MockTest {
     val context =
-        tests("the mocking framework") {
+        testsAbout("the mocking framework") {
             val mock = mock<UserManager>()
             describe("records function calls") {
                 mock.function()

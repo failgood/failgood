@@ -7,7 +7,7 @@ import strikt.assertions.containsExactlyInAnyOrder
 @Test
 class TestFinderTest {
     val context =
-        tests("test finder") {
+        testsAbout("test finder") {
             it("can find Test classes") {
                 val cl = TestFinderTest::class.java.classLoader
                 val topLevelClass = cl.loadClass(testContextsOnTopLevelExampleClassName).kotlin

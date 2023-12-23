@@ -2,13 +2,12 @@ package failgood.examples
 
 import failgood.Ignored
 import failgood.Test
-import failgood.describe
-import failgood.tests
+import failgood.testsAbout
 
 @Test
 class FailGoodDSLExample {
     val context =
-        tests("The Failgood DSL") {
+        testsAbout("The Failgood DSL") {
             it("supports describe/it syntax") { assert(true) }
             describe("nested contexts") {
                 it("can contain tests too") { assert(true) }

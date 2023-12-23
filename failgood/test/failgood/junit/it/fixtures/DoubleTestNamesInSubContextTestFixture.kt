@@ -1,13 +1,12 @@
 package failgood.junit.it.fixtures
 
-import failgood.describe
 import failgood.internal.TestFixture
-import failgood.tests
+import failgood.testsAbout
 
 @TestFixture
 class DoubleTestNamesInSubContextTestFixture {
     val context =
-        tests("failing tests") {
+        testsAbout("failing tests") {
             describe("subcontext") {
                 it("test") {}
                 it("test") {}

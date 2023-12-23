@@ -1,11 +1,10 @@
 package failgood.junit
 
 import failgood.Test
-import failgood.describe
 import failgood.internal.StringListTestFilter
 import failgood.junit.it.fixtures.packagewith1test.SimpleTestFixture
 import failgood.problematic.NonFailgoodTest
-import failgood.tests
+import failgood.testsAbout
 import java.nio.file.Paths
 import kotlin.test.assertNotNull
 import org.junit.platform.engine.UniqueId
@@ -19,7 +18,7 @@ import strikt.assertions.containsExactlyInAnyOrder
 class ContextFinderTest {
     private val rootName = "the ContextFinder"
     val context =
-        tests(rootName) {
+        testsAbout(rootName) {
             val contextFinder = ContextFinder(runTestFixtures = true)
             val testName = "finds a single test with a uniqueId selector"
             it(testName) {

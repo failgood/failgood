@@ -4,7 +4,6 @@ import failgood.Context
 import failgood.ExecutionListener
 import failgood.SourceInfo
 import failgood.Test
-import failgood.describe
 import failgood.experiments.assertsuccess.CheckResult.Success
 import failgood.mock.getCalls
 import failgood.mock.mock
@@ -21,8 +20,8 @@ private fun <E> List<E>.containsExactly(vararg matcher: (E) -> Boolean): CheckRe
 
 @Test
 object AssertSuccessTest {
-    val context =
-        tests("assertSuccess") {
+    val tests =
+        tests {
             describe("is useful for asserting on mocks") {
                 val listener = mock<ExecutionListener>()
                 listener.contextDiscovered(

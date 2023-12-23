@@ -16,7 +16,7 @@ fun describe(
     isolation: Boolean = true,
     function: ContextFunction
 ): RootContext =
-    tests(subjectDescription, ignored, order, isolation, function)
+    testsAbout(subjectDescription, ignored, order, isolation, function)
 
 @Deprecated("going away before 1.0", replaceWith = ReplaceWith("tests(subjectDescription, ignored, order, isolation, given, function)"))
 fun <RootGiven> describe(
@@ -27,7 +27,7 @@ fun <RootGiven> describe(
     given: (suspend () -> RootGiven),
     function: ContextFunctionWithGiven<RootGiven>
 ): RootContextWithGiven<RootGiven> =
-    tests(subjectDescription, ignored, order, isolation, given, function)
+    testsAbout(subjectDescription, ignored, order, isolation, given, function)
 
 @Deprecated("going away before 1.0", replaceWith = ReplaceWith("tests(ignored, order, isolation, function)"))
 fun describe(
@@ -38,6 +38,7 @@ fun describe(
 ): RootContext = tests(ignored, order, isolation, function)
 
 
+@Deprecated("going away before 1.0", replaceWith = ReplaceWith("tests(ignored, order, isolation, given, function)"))
 fun <RootGiven> describe(
     ignored: Ignored? = null,
     order: Int = 0,
@@ -49,6 +50,7 @@ fun <RootGiven> describe(
 
 
 @JvmName("describe2")
+@Deprecated("going away before 1.0", replaceWith = ReplaceWith("testsAbout(T::class, ignored, order, isolation, function)"))
 inline fun <reified T> describe(
     ignored: Ignored? = null,
     order: Int = 0,
@@ -66,6 +68,7 @@ internal fun describe(
 ): RootContext =
     RootContext(subjectType.niceString(), ignored, order, isolation, function = function)
 
+@Deprecated("going away before 1.0", replaceWith = ReplaceWith("testsAbout(subjectType, ignored, order, isolation, function)"))
 fun describe(
     subjectType: KClass<*>,
     ignored: Ignored? = null,
@@ -73,7 +76,7 @@ fun describe(
     isolation: Boolean = true,
     function: ContextFunction
 ): RootContext =
-    tests(subjectType, ignored, order, isolation, function)
+    testsAbout(subjectType, ignored, order, isolation, function)
 
 
 @Deprecated("This is going away in 0.9.1 because it causes problems for given support.", replaceWith = ReplaceWith("this.describe(Class::class.simpleName!!, tags, isolation, ignored, contextFunction)"))

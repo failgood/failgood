@@ -13,7 +13,7 @@ import strikt.assertions.single
 @Test
 class TestContextTest {
     val context =
-        describe(TestDSL::class) {
+        testsAbout(TestDSL::class) {
             val testDescription =
                 TestDescription(Context("root"), "testname", SourceInfo("a", "b", 1))
             val listener = mock<ExecutionListener>()

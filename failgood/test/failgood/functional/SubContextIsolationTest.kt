@@ -4,8 +4,7 @@ import failgood.Suite
 import failgood.Test
 import failgood.assert.containsExactlyInAnyOrder
 import failgood.assert.endsWith
-import failgood.describe
-import failgood.tests
+import failgood.testsAbout
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.test.assertNotNull
@@ -13,13 +12,13 @@ import kotlin.test.assertNotNull
 @Test
 object SubContextIsolationTest {
     val tests =
-        tests("sub context isolation") {
+        testsAbout("sub context isolation") {
             describe("on a root context with default isolation (true)") {
                 val evt = NestedEvents()
                 describe("turning off isolation for a subcontext") {
                     it("executes all the tests in that context in one go") {
                         Suite(
-                            tests("root") {
+                            testsAbout("root") {
                                 val events = evt.addEvent()
                                 describe("child", isolation = false) {
                                     events.add("childContext")
@@ -39,7 +38,7 @@ object SubContextIsolationTest {
                     it("does not affect other contexts") {
                         assert(
                             Suite(
-                                tests("root") {
+                                testsAbout("root") {
                                     val events = evt.addEvent()
                                     describe("child", isolation = false) {
                                         events.add("childContext")
@@ -67,7 +66,7 @@ object SubContextIsolationTest {
                         var givenCalls = 0
                         val givenValues = ConcurrentLinkedQueue<Int>()
                         Suite(
-                            tests("root") {
+                            testsAbout("root") {
                                 val events = evt.addEvent()
                                 describe(
                                     "child",
@@ -103,7 +102,7 @@ object SubContextIsolationTest {
                     it("calls callbacks at the correct time") {
                         assert(
                             Suite(
-                                tests("root") {
+                                testsAbout("root") {
                                     val events = evt.addEvent()
                                     describe("child", isolation = false) {
                                         afterEach { events.add("no-isolation-afterEach") }
@@ -152,7 +151,7 @@ object SubContextIsolationTest {
                     it("does not allow to turn isolation on when it was already off") {
                         val result =
                             Suite(
-                                tests(
+                                testsAbout(
                                     "root context without isolation",
                                     isolation = false
                                 ) {

@@ -6,7 +6,7 @@ import failgood.NullExecutionListener
 import failgood.TestCollection
 import failgood.internal.ContextInfo
 import failgood.internal.ContextResult
-import failgood.internal.execution.context.ContextExecutor
+import failgood.internal.execution.TestCollectionExecutor
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -37,7 +37,7 @@ object ContextExecutorTestPort {
             listener: ExecutionListener = NullExecutionListener
         ): ContextResult {
             return coroutineScope {
-                ContextExecutor(context, this, runOnlyTag = tag, listener = listener).execute()
+                TestCollectionExecutor(context, this, runOnlyTag = tag, listener = listener).execute()
             }
         }
     }

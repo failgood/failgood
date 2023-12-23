@@ -1,4 +1,4 @@
-package failgood.internal.execution.context
+package failgood.internal.execution
 
 import failgood.Context
 import failgood.FailGoodException

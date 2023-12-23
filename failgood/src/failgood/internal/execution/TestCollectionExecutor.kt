@@ -1,4 +1,4 @@
-package failgood.internal.execution.context
+package failgood.internal.execution
 
 import failgood.*
 import failgood.internal.*
@@ -7,7 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.withTimeout
 
-internal class ContextExecutor<RootGiven>(
+internal class TestCollectionExecutor<RootGiven>(
     private val testCollection: TestCollection<RootGiven>,
     scope: CoroutineScope,
     lazy: Boolean = false,
@@ -93,17 +93,17 @@ internal class ContextExecutor<RootGiven>(
         } else testCollection1
 }
 
-// this is thrown when a context is finished, and we can not do anything meaningful in this pass
+// this is thrown to save time when the context is finished, and we cannot do anything meaningful in this pass
 class ContextFinished : DSLGotoException()
 
 fun sourceInfo(): SourceInfo {
-    // find the first stack trace element that is not in this class or ContextDSL
+    // find the first stack trace element not in this class or ContextDSL
     // (ContextDSL because of default parameters defined there)
     val first =
         RuntimeException().stackTrace.first {
             !(it.fileName?.let { fileName ->
                 fileName.endsWith("ContextVisitor.kt") ||
-                    fileName.endsWith("ContextExecutor.kt") ||
+                    fileName.endsWith("TestCollectionExecutor.kt") ||
                     fileName.endsWith("ContextDSL.kt")
             } ?: true)
         }

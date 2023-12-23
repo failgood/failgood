@@ -1,7 +1,10 @@
-package failgood.internal.execution.context
+package failgood.internal.execution
 
 import failgood.Context
 import failgood.Test
+import failgood.internal.execution.ContextStateCollector
+import failgood.internal.execution.ContextVisitor
+import failgood.internal.execution.StaticContextExecutionConfig
 import failgood.internal.given.RootGivenDSLHandler
 import failgood.mock.mock
 import failgood.tests

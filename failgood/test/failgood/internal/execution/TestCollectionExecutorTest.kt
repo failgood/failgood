@@ -1,11 +1,11 @@
-package failgood.internal.execution.context
+package failgood.internal.execution
 
 import failgood.*
 import failgood.Ignored.Because
 import failgood.internal.*
-import failgood.internal.execution.context.RecordingListener.Event
-import failgood.internal.execution.context.RecordingListener.Type.CONTEXT_DISCOVERED
-import failgood.internal.execution.context.RecordingListener.Type.TEST_DISCOVERED
+import failgood.internal.execution.RecordingListener.Event
+import failgood.internal.execution.RecordingListener.Type.CONTEXT_DISCOVERED
+import failgood.internal.execution.RecordingListener.Type.TEST_DISCOVERED
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.test.assertEquals
@@ -15,7 +15,7 @@ import strikt.api.expectThat
 import strikt.assertions.*
 
 @Test
-object ContextExecutorTest {
+object TestCollectionExecutorTest {
     val assertionError: java.lang.AssertionError = AssertionError("failed")
 
     class TypicalTestContext {
@@ -39,7 +39,7 @@ object ContextExecutorTest {
             testFilter: TestFilter = ExecuteAllTests,
         ): ContextResult {
             return coroutineScope {
-                ContextExecutor(
+                TestCollectionExecutor(
                     context,
                     this,
                     runOnlyTag = tag,
@@ -202,7 +202,7 @@ object ContextExecutorTest {
                     expectThat(contextInfo.contexts).all {
                         get { sourceInfo }
                             .isNotNull()
-                            .and { get { fileName }.isEqualTo("ContextExecutorTest.kt") }
+                            .and { get { fileName }.isEqualTo("TestCollectionExecutorTest.kt") }
                     }
                 }
                 it("returns line number for contexts") {
@@ -227,7 +227,7 @@ object ContextExecutorTest {
                 it("reports file name for all tests") {
                     expectThat(contextInfo.tests.keys).all {
                         get { sourceInfo }
-                            .and { get { fileName }.isEqualTo("ContextExecutorTest.kt") }
+                            .and { get { fileName }.isEqualTo("TestCollectionExecutorTest.kt") }
                     }
                 }
                 it("reports line number for all tests") {
@@ -260,7 +260,7 @@ object ContextExecutorTest {
                 val ctx = TestCollection("root context") { test("test 1") { testExecuted = true } }
                 coroutineScope {
                     val contextInfo =
-                        ContextExecutor(ctx, this, lazy = true, testFilter = ExecuteAllTests)
+                        TestCollectionExecutor(ctx, this, lazy = true, testFilter = ExecuteAllTests)
                             .execute()
 
                     expectThat(testExecuted).isEqualTo(false)
@@ -278,7 +278,7 @@ object ContextExecutorTest {
                 val scope = CoroutineScope(Dispatchers.Unconfined)
                 // this timeout is huge because of slow ci, that does not mean it takes 1 second
                 // in normal use
-                withTimeout(1000) { assert(ContextExecutor(ctx, scope).execute() is ContextInfo) }
+                withTimeout(1000) { assert(TestCollectionExecutor(ctx, scope).execute() is ContextInfo) }
                 scope.cancel()
             }
         }
@@ -307,7 +307,7 @@ object ContextExecutorTest {
                     assert(context.name == "context 1")
                     with(sourceInfo) {
                         assert(lineNumber == getLineNumber(error) - 1)
-                        assert(className.contains("ContextExecutorTest"))
+                        assert(className.contains("TestCollectionExecutorTest"))
                     }
                 }
             }
@@ -361,7 +361,7 @@ object ContextExecutorTest {
                                     "context ignored because We are testing that it is correctly reported"
                         )
                         assert(context.name == "context 1")
-                        assert(sourceInfo.className.contains("ContextExecutorTest"))
+                        assert(sourceInfo.className.contains("TestCollectionExecutorTest"))
                     }
                     assert(
                         (singleSkippedTest.result as Skipped).reason ==
@@ -394,7 +394,7 @@ object ContextExecutorTest {
                     context("context") { test("duplicate test name") {} }
                 }
                 coroutineScope {
-                    ContextExecutor(ctx, this, testFilter = ExecuteAllTests).execute()
+                    TestCollectionExecutor(ctx, this, testFilter = ExecuteAllTests).execute()
                 }
             }
         }
@@ -418,7 +418,7 @@ object ContextExecutorTest {
                     context("context") { test("same context name") {} }
                 }
                 coroutineScope {
-                    ContextExecutor(ctx, this, testFilter = ExecuteAllTests).execute()
+                    TestCollectionExecutor(ctx, this, testFilter = ExecuteAllTests).execute()
                 }
             }
             it("fails when a context has the same name as a test in the same contexts") {
@@ -536,7 +536,7 @@ object ContextExecutorTest {
         listener: ExecutionListener = NullExecutionListener
     ): ContextResult {
         return coroutineScope {
-            ContextExecutor(context, this, runOnlyTag = tag, listener = listener).execute()
+            TestCollectionExecutor(context, this, runOnlyTag = tag, listener = listener).execute()
         }
     }
 

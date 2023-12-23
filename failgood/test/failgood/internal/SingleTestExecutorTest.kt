@@ -121,7 +121,7 @@ class SingleTestExecutorTest {
                 }
                 val test =
                     ContextPath(
-                        Context("with a valid root context", Context("ContextExecutor", null)),
+                        Context("with a valid root context", Context("TestCollectionExecutor", null)),
                         "returns contexts"
                     )
                 val executor = SingleTestExecutor(test, testDSL, resourceCloser, context, {})

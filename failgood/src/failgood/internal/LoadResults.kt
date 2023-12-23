@@ -4,7 +4,7 @@ import failgood.*
 import failgood.CouldNotLoadTestCollection
 import failgood.LoadResult
 import failgood.NullExecutionListener
-import failgood.internal.execution.context.ContextExecutor
+import failgood.internal.execution.TestCollectionExecutor
 import failgood.internal.util.getenv
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -38,7 +38,7 @@ internal class LoadResults(private val loadResults: List<LoadResult>) {
                         } ?: ExecuteAllTests
                     coroutineScope.async {
                         if (loadResult.ignored?.isIgnored() == null) {
-                            ContextExecutor(
+                            TestCollectionExecutor(
                                     loadResult,
                                     coroutineScope,
                                     !executeTests,

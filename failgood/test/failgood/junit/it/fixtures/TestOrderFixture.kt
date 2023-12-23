@@ -6,7 +6,7 @@ import failgood.testsAbout
 
 @TestFixture
 class TestOrderFixture {
-    val context =
+    val tests =
         testsAbout("test order fixture") {
             fourTests()
             context("context 1") { fourTests() }

@@ -28,7 +28,7 @@ class Example(private val stringProvider: StringProvider) {
 
 @Test
 class MultiThreadingCoroutinesInteropTest {
-    val context =
+    val tests =
         testsAbout("multi threading issue from spek") {
             val stringProvider = mockk<StringProvider> { coEvery { world() } returns "world 2" }
             val example = Example(stringProvider)

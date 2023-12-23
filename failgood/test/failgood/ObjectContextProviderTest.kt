@@ -10,7 +10,7 @@ import strikt.assertions.*
 
 @Test
 class ObjectContextProviderTest {
-    val context =
+    val tests =
         testsAbout(ObjectContextProvider::class) {
             it("provides a context from an class in a kotlin class (MyTest::class.java)") {
                 expectThat(ObjectContextProvider(ClassTestContextExample::class).getContexts())

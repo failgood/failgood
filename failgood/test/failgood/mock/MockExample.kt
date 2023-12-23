@@ -6,7 +6,7 @@ import kotlin.test.assertNotNull
 
 @Test
 class MockExample {
-    val context =
+    val tests =
         testsAbout("new mock syntax") {
             it("looks like this") {
                 val userManager: UserManager = mock()

@@ -6,7 +6,7 @@ import failgood.testsAbout
 
 @TestFixture
 object IgnoredContextFixture {
-    val context =
+    val tests =
         testsAbout("root context") {
             describe(
                 "ignored context",

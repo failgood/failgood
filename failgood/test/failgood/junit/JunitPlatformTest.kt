@@ -6,7 +6,7 @@ import org.junit.platform.engine.UniqueId
 
 @Test
 class JunitPlatformTest {
-    val context =
+    val tests =
         testsAbout("junit platform observations") {
             describe("UniqueId") {
                 it("replaces + with space when parsing") {

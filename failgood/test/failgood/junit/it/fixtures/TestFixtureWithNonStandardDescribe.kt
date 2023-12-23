@@ -4,7 +4,7 @@ import failgood.internal.TestFixture
 
 @TestFixture
 object TestFixtureWithNonStandardDescribe {
-    val context =
+    val tests =
         xdescribe("the root context (with brackets)") {
             it("a test in the root context") {}
             describe("a context in the root context") {

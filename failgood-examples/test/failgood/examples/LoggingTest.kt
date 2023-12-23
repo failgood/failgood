@@ -14,7 +14,7 @@ import org.slf4j.Logger
 
 @Test
 class LoggingTest {
-    val context =
+    val tests =
         testsAbout("Logging support") {
             it("injects a logger") { LoggingComponent(kLogger()).functionThatLogs() }
         }

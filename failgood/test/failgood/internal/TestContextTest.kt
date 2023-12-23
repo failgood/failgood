@@ -12,7 +12,7 @@ import strikt.assertions.single
 
 @Test
 class TestContextTest {
-    val context =
+    val tests =
         testsAbout(TestDSL::class) {
             val testDescription =
                 TestDescription(Context("root"), "testname", SourceInfo("a", "b", 1))

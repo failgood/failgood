@@ -9,7 +9,7 @@ import strikt.assertions.isTrue
 
 @Test
 class ContextOrderTest {
-    val context =
+    val tests =
         testsAbout("Root Context Order") {
             it("is determined by the order field low to high") {
                 val events = mutableListOf<String>()

@@ -14,7 +14,7 @@ import strikt.assertions.trim
 
 @Test
 class ExceptionPrettyPrinterTest {
-    val context =
+    val tests =
         testsAbout(ExceptionPrettyPrinter::class) {
             val assertionError = AssertionError("message")
             val epp = ExceptionPrettyPrinter(assertionError)

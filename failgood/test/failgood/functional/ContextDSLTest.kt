@@ -8,7 +8,7 @@ import kotlin.test.assertNotNull
 
 @Test
 object ContextDSLTest {
-    val context =
+    val tests =
         testsAbout("ContextDSL::describe") {
             it("works for class") {
                 val e = NestedEvents()

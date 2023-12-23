@@ -24,7 +24,7 @@ import strikt.assertions.map
 
 @Test
 class TestResourcesLifecycleTest {
-    val context =
+    val tests =
         testsAbout("closing test resources") {
             describe("autoclosable") {
                 it("is closed in reverse order of creation") {

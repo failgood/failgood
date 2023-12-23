@@ -21,7 +21,7 @@ fun throwableToString(t: Throwable) = t.stackTraceToString().lineSequence().take
 val failure = AssertionError("failed")
 
 object Tests {
-    val context =
+    val tests =
         testsAbout("tests with different results") {
             test("failing test") { throw failure }
             test("pending test", ignored = Ignored.Because("testing ignored tests")) {}
@@ -37,7 +37,7 @@ object NoTests {
 
 @Test
 class FailGoodTestUnitFinderTest {
-    val context =
+    val tests =
         testsAbout(FailGoodTestUnitFinder::class) {
             it("creates a test unit for each test") {
                 val finder: TestUnitFinder = FailGoodTestUnitFinder

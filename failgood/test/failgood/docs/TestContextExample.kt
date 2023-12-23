@@ -5,7 +5,7 @@ import failgood.testsAbout
 
 @Test
 class TestContextExample {
-    val context =
+    val tests =
         testsAbout("examples for the test context dsl") {
             it("published println calls in the junit runner") {
                 // this will output

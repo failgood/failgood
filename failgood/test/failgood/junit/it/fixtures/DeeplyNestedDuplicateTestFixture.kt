@@ -5,7 +5,7 @@ import failgood.testsAbout
 
 @TestFixture
 class DeeplyNestedDuplicateTestFixture {
-    val context =
+    val tests =
         testsAbout("1") {
             describe("2") {
                 describe("3") {

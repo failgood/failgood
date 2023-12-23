@@ -10,7 +10,7 @@ import strikt.assertions.isEqualTo
 
 @Test
 class FailGoodTestPluginFactoryTest {
-    val context =
+    val tests =
         testsAbout(FailGoodTestPluginFactory::class) {
             it("provides description and name") {
                 val factory: TestPluginFactory = FailGoodTestPluginFactory()

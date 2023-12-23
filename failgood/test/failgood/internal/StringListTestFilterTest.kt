@@ -10,7 +10,7 @@ import strikt.assertions.isTrue
 
 @Test
 class StringListTestFilterTest {
-    val context =
+    val tests =
         testsAbout(StringListTestFilter::class) {
             val f = StringListTestFilter(listOf("path", "to", "context"))
             it("executes a path that leads to a context") {

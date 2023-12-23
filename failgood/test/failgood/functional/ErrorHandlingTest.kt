@@ -12,7 +12,7 @@ import strikt.assertions.*
 
 @Test
 class ErrorHandlingTest {
-    val context =
+    val tests =
         testsAbout("Error Handling") {
             describe("Non deterministic test names") {
                 it("make their test count as failed") {

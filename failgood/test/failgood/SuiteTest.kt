@@ -10,7 +10,7 @@ import strikt.assertions.isEqualTo
 
 @Test
 class SuiteTest {
-    val context =
+    val tests =
         testsAbout(Suite::class) {
             test("Empty Suite fails") {
                 expectThrows<RuntimeException> { Suite(listOf<ContextProvider>()) }

@@ -5,7 +5,7 @@ import strikt.assertions.isTrue
 
 @Test
 class ThousandTestsTest {
-    val context =
+    val tests =
         testsAbout("a test suite with 1000 tests in one context") {
             test("runs pretty fast") {
                 expectThat(

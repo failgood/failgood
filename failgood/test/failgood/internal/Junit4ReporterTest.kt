@@ -8,7 +8,7 @@ import strikt.assertions.containsExactly
 
 @Test
 class Junit4ReporterTest {
-    val context =
+    val tests =
         @Suppress("ktlint")
         (testsAbout(Junit4Reporter::class) {
             it("reports test results") {

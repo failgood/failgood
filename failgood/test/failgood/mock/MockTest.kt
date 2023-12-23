@@ -9,7 +9,7 @@ import strikt.assertions.*
 
 @Test
 class MockTest {
-    val context =
+    val tests =
         testsAbout("the mocking framework") {
             val mock = mock<UserManager>()
             describe("records function calls") {

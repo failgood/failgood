@@ -7,7 +7,7 @@ import kotlin.test.DefaultAsserter.fail
 
 @TestFixture
 object TestFixtureWithFailingTestAndAfterEach {
-    val context =
+    val tests =
         testsAbout("root context") {
             it("the test name") { fail("fail") }
             afterEach { throw RuntimeException() }

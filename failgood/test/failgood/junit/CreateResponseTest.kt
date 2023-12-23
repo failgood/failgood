@@ -16,7 +16,7 @@ import strikt.assertions.single
 
 @Test
 class CreateResponseTest {
-    val context =
+    val tests =
         testsAbout(::createResponse.name) {
             val sourceInfo = SourceInfo("package.ClassName", "file", 100)
             val rootContext = Context("root context name", null, sourceInfo)

@@ -12,7 +12,7 @@ import org.gradle.tooling.events.test.internal.DefaultTestStartEvent
 
 @Test
 class GradleTest {
-    val context =
+    val tests =
         testsAbout("running via gradle") {
             it("works") {
                 val rootDirectory =

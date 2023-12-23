@@ -17,7 +17,7 @@ val sourceInfo = SourceInfo("class", "file", 123)
 
 @Test
 class ContextTreeReporterTest {
-    val context =
+    val tests =
         testsAbout(ContextTreeReporter::class) {
             val reporter = ContextTreeReporter()
             it("outputs test results in tree form") {

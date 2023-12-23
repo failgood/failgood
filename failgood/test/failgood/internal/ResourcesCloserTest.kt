@@ -12,7 +12,7 @@ import strikt.assertions.containsExactly
 
 @Test
 class ResourcesCloserTest {
-    val context =
+    val tests =
         testsAbout(ResourcesCloser::class) {
             val subject = coroutineScope { ResourceCloserImpl(this) }
             describe(ResourcesCloser::closeAutoCloseables.name) {

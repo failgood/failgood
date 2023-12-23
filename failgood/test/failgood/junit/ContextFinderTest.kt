@@ -17,7 +17,7 @@ import strikt.assertions.containsExactlyInAnyOrder
 @Test
 class ContextFinderTest {
     private val rootName = "the ContextFinder"
-    val context =
+    val tests =
         testsAbout(rootName) {
             val contextFinder = ContextFinder(runTestFixtures = true)
             val testName = "finds a single test with a uniqueId selector"

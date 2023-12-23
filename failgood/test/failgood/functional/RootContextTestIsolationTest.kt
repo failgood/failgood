@@ -23,7 +23,7 @@ class RootContextTestIsolationTest {
         const val CONTEXT_2_EXECUTED = "context 2 executed"
     }
 
-    val context =
+    val tests =
         testsAbout("test isolation for root contexts") {
             val afterEachParameters = ConcurrentHashMap<String, TestResult>()
             val totalEvents = CopyOnWriteArrayList<List<String>>()

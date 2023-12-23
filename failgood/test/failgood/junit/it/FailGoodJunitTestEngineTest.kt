@@ -25,7 +25,7 @@ import strikt.assertions.single
 /** This tests the old junit engine, so it will probably go away at some point */
 @Test
 class FailGoodJunitTestEngineTest {
-    val context =
+    val tests =
         testsAbout(FailGoodJunitTestEngine::class) {
             val engine = FailGoodJunitTestEngine()
             describe(

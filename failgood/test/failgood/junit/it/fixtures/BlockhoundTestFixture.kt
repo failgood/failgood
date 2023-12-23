@@ -11,7 +11,7 @@ class BlockhoundTestFixture {
         BlockHound.install(StriktIntegration())
     }
 
-    val context =
+    val tests =
         testsAbout("interop with blockhound") {
             describe("context that blocks") {
                 @Suppress("BlockingMethodInNonBlockingContext") Thread.sleep(10)

@@ -11,7 +11,7 @@ import strikt.assertions.isEqualTo
 // https://github.com/dmcg/minutest/blob/master/core/src/test/kotlin/dev/minutest/examples/ContractsExampleTests.kt
 @Test
 class ContractsTest {
-    val context =
+    val tests =
         testsAbout("Contracts") {
             describe("ArrayList") { behavesAsMutableCollection(ArrayList()) }
             describe("LinkedList") { behavesAsMutableCollection(LinkedList()) }

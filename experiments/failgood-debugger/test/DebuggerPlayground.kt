@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 
 @Test
 object DebuggerPlayground {
-    val context =
+    val tests =
         testsAbout("experimenting with debugging") {
             test("can start a class in a new vm and get variable values for every line") {
                 val mainClass = Debuggee::class.java.name

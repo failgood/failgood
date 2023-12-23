@@ -8,7 +8,7 @@ import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 
 @Test
 class PlaygroundEngineTest {
-    val context =
+    val tests =
         testsAbout(PlaygroundEngine::class) {
             it("returns a valid test plan") {
                 val orchestrator = EngineDiscoveryOrchestrator(listOf(PlaygroundEngine()), listOf())

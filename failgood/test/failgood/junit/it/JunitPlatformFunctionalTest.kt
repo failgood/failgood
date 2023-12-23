@@ -54,7 +54,7 @@ object JunitPlatformFunctionalTest {
         val testEvents: List<TEListener.Event>
     )
 
-    val context =
+    val tests =
         listOf(
             testsAbout("The Junit Platform Engine") { tests(false) },
             testsAbout("The New Junit Platform Engine") { tests(true) }

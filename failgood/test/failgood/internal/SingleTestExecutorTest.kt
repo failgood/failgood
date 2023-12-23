@@ -12,7 +12,7 @@ import strikt.assertions.isEqualTo
 
 @Test
 class SingleTestExecutorTest {
-    val context =
+    val tests =
         testsAbout(SingleTestExecutor::class) {
             val testDSL =
                 TestContext<Unit>(

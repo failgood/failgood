@@ -14,7 +14,7 @@ class ObjectContextProviderTest {
         testsAbout(ObjectContextProvider::class) {
             it("provides a context from an class in a kotlin class (MyTest::class.java)") {
                 expectThat(ObjectContextProvider(ClassTestContextExample::class).getContexts())
-                    .map { it.context.name }
+                    .map { it.rootContext.name }
                     .containsExactlyInAnyOrder(
                         "test context defined in a kotlin class",
                         "another test context defined in a kotlin class",
@@ -25,13 +25,13 @@ class ObjectContextProviderTest {
                 expectThat(ObjectContextProvider(TestFinderTest::class.java).getContexts())
                     .single()
                     .isA<TestCollection<Unit>>()
-                    .and { get { context.name }.isEqualTo("test finder") }
+                    .and { get { rootContext.name }.isEqualTo("test finder") }
             }
             it("provides a context from an object in a kotlin class (MyTest::class)") {
                 expectThat(ObjectContextProvider(TestFinderTest::class).getContexts())
                     .single()
                     .isA<TestCollection<Unit>>()
-                    .and { get { context.name }.isEqualTo("test finder") }
+                    .and { get { rootContext.name }.isEqualTo("test finder") }
             }
             it("provides a list of contexts from an object in a kotlin class (MyTest::class)") {
                 expectThat(ObjectContextProvider(ContextListExample::class).getContexts())
@@ -44,13 +44,13 @@ class ObjectContextProviderTest {
                 expectThat(ObjectContextProvider(clazz.kotlin).getContexts())
                     .single()
                     .isA<TestCollection<Unit>>()
-                    .and { get { context.name }.isEqualTo("test context declared on top level") }
+                    .and { get { rootContext.name }.isEqualTo("test context declared on top level") }
             }
             it("handles weird contexts defined in private vals gracefully") {
                 assert(
                     ObjectContextProvider(PrivateContextFixture::class)
                         .getContexts()
-                        .map { it.context.name }
+                        .map { it.rootContext.name }
                         .size == 2
                 )
             }

@@ -8,7 +8,7 @@ class TopLevelTestsMethodsTest {
     val tests =
         testsAbout("The testsAbout top level method") {
             it("creates a context named '<className>' when called with a class") {
-                expectThat(testsAbout(String::class) {}) { get { context.name }.isEqualTo("String") }
+                expectThat(testsAbout(String::class) {}) { get { rootContext.name }.isEqualTo("String") }
             }
         }
 }

@@ -22,7 +22,7 @@ internal sealed interface LoadResult {
     val order: Int
 }
 
-internal data class CouldNotLoadContext(val reason: Throwable, val kClass: KClass<out Any>) :
+internal data class CouldNotLoadTestCollection(val reason: Throwable, val kClass: KClass<out Any>) :
     LoadResult {
     override val order: Int
         get() = 0
@@ -59,7 +59,7 @@ fun <RootGiven> TestCollection(
     )
 
 data class TestCollection<RootGiven>(
-    val context: Context,
+    val rootContext: Context,
     override val order: Int = 0,
     val ignored: Ignored?,
     val addClassName: Boolean = false,
@@ -71,10 +71,10 @@ data class TestCollection<RootGiven>(
 ) : LoadResult, failgood.internal.Path {
     val sourceInfo: SourceInfo
         get() =
-            context.sourceInfo!! // in the root context we are sure that we always have a sourceInfo
+            rootContext.sourceInfo!! // in the root context we are sure that we always have a sourceInfo
 
     override val path: List<String>
-        get() = listOf(context.name)
+        get() = listOf(rootContext.name)
 }
 
 /** something that contains tests */

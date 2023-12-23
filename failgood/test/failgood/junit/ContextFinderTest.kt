@@ -34,7 +34,7 @@ class ContextFinderTest {
                         .singleOrNull()
                         ?.getContexts()
                         ?.singleOrNull()
-                        ?.context
+                        ?.rootContext
                         ?.name == rootName
                 )
                 assert(
@@ -75,7 +75,7 @@ class ContextFinderTest {
                     val contextNames =
                         suiteAndFilters.suite.contextProviders
                             .flatMap { it.getContexts() }
-                            .map { it.context.name }
+                            .map { it.rootContext.name }
                     expectThat(contextNames)
                         .containsExactlyInAnyOrder(SimpleTestFixture.CONTEXT_NAME)
                 }

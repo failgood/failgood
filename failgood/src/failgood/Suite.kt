@@ -78,7 +78,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                         try {
                             it.getContexts()
                         } catch (e: ErrorLoadingContextsFromClass) {
-                            listOf(CouldNotLoadContext(e, e.kClass))
+                            listOf(CouldNotLoadTestCollection(e, e.kClass))
                         }
                     }
                 }

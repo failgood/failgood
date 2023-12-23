@@ -22,7 +22,7 @@ class SuiteTest {
                         .single()
                         .getContexts()
                         .single()
-                        .context
+                        .rootContext
                         .name
                 )
                     .isEqualTo("root")

@@ -24,8 +24,8 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
         // overwrite that information with a pointer to the first line of the class we just loaded.
 
         return getContextsInternal().map {
-            if (it.context.sourceInfo?.className != jClass.name)
-                it.copy(context = it.context.copy(sourceInfo = SourceInfo(jClass.name, null, 1)))
+            if (it.rootContext.sourceInfo?.className != jClass.name)
+                it.copy(rootContext = it.rootContext.copy(sourceInfo = SourceInfo(jClass.name, null, 1)))
             else it
         }
     }

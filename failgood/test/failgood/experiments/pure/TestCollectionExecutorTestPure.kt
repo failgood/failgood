@@ -15,7 +15,7 @@ import kotlinx.coroutines.delay
  * here I am trying to port one of the most complex tests to the pure given dsl. nothing to see here
  * for now.
  */
-object ContextExecutorTestPort {
+object TestCollectionExecutorTestPure {
     class Given {
         val assertionError: java.lang.AssertionError = AssertionError("failed")
         val context: TestCollection<Unit> =

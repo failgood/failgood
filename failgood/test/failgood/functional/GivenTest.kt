@@ -3,7 +3,7 @@
 package failgood.functional
 
 import failgood.Failure
-import failgood.RootContext
+import failgood.TestCollection
 import failgood.Suite
 import failgood.Test
 import failgood.tests
@@ -62,7 +62,7 @@ class GivenTest {
         describe("error handling") {
             it("treats errors in the given block as test failures") {
                 val context =
-                    RootContext("root") {
+                    TestCollection("root") {
                         describe(
                             "context with a given that throws",
                             given = { throw RuntimeException("given error") }

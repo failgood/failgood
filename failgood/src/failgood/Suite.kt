@@ -153,4 +153,4 @@ fun Suite(kClasses: List<KClass<*>>) = Suite(kClasses.map { ObjectContextProvide
 
 fun <RootGiven> Suite(rootContext: TestCollection<RootGiven>) = Suite(listOf(rootContext))
 
-fun Suite(function: ContextFunction) = Suite(RootContext("root", order = 0, function = function))
+fun Suite(function: ContextFunction) = Suite(TestCollection("root", order = 0, function = function))

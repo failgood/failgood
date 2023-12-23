@@ -3,7 +3,6 @@ package failgood.experiments.pure
 import failgood.ExecutionListener
 import failgood.Ignored
 import failgood.NullExecutionListener
-import failgood.RootContext
 import failgood.TestCollection
 import failgood.internal.ContextInfo
 import failgood.internal.ContextResult
@@ -20,7 +19,7 @@ object ContextExecutorTestPort {
     class Given {
         val assertionError: java.lang.AssertionError = AssertionError("failed")
         val context: TestCollection<Unit> =
-            RootContext("root context") {
+            TestCollection("root context") {
                 test("test 1") { delay(1) }
                 test("test 2") { delay(1) }
                 test("ignored test", ignored = Ignored.Because("testing")) {}

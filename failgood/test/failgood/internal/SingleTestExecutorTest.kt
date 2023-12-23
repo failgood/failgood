@@ -130,7 +130,7 @@ class SingleTestExecutorTest {
             describe("error handling") {
                 it("reports exceptions in the context as test failures") {
                     val runtimeException = RuntimeException()
-                    val contextThatThrows = RootContext("root context") { throw runtimeException }
+                    val contextThatThrows = TestCollection("root context") { throw runtimeException }
                     val result =
                         SingleTestExecutor(
                             ContextPath(Context("root context", null), "test"),
@@ -145,7 +145,7 @@ class SingleTestExecutorTest {
                 it("reports exceptions in the autoclose function as test failures") {
                     val runtimeException = RuntimeException()
                     val contextThatThrows =
-                        RootContext("root context") {
+                        TestCollection("root context") {
                             autoClose("String") { throw runtimeException }
                             it("test") {}
                         }

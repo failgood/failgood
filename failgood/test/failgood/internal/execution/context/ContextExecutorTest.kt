@@ -20,7 +20,7 @@ object ContextExecutorTest {
 
     class TypicalTestContext {
         val context: TestCollection<Unit> =
-            RootContext("root context") {
+            TestCollection("root context") {
                 test("test 1") { delay(1) }
                 test("test 2") { delay(1) }
                 test("ignored test", ignored = Because("testing")) {}
@@ -182,7 +182,7 @@ object ContextExecutorTest {
                 var test1Line = 0
                 var test2Line = 0
                 val ctx =
-                    RootContext("root context") {
+                    TestCollection("root context") {
                         rootContextLine = RuntimeException().stackTrace.first().lineNumber - 1
                         describe("context 1") {
                             context1Line = RuntimeException().stackTrace.first().lineNumber - 1
@@ -242,7 +242,7 @@ object ContextExecutorTest {
             it("are reported") {
                 val result =
                     execute(
-                        RootContext("root context") {
+                        TestCollection("root context") {
                             it(
                                 "contains a single ignored test",
                                 ignored = Because("testing ignoring")
@@ -257,7 +257,7 @@ object ContextExecutorTest {
         describe("supports lazy execution") {
             it("postpones test execution until the deferred is awaited when lazy is set to true") {
                 var testExecuted = false
-                val ctx = RootContext("root context") { test("test 1") { testExecuted = true } }
+                val ctx = TestCollection("root context") { test("test 1") { testExecuted = true } }
                 coroutineScope {
                     val contextInfo =
                         ContextExecutor(ctx, this, lazy = true, testFilter = ExecuteAllTests)
@@ -274,7 +274,7 @@ object ContextExecutorTest {
         describe("timing") {
             it("reports context structure before tests finish") {
                 val ctx =
-                    RootContext("root context") { repeat(10) { test("test $it") { delay(2000) } } }
+                    TestCollection("root context") { repeat(10) { test("test $it") { delay(2000) } } }
                 val scope = CoroutineScope(Dispatchers.Unconfined)
                 // this timeout is huge because of slow ci, that does not mean it takes 1 second
                 // in normal use
@@ -287,7 +287,7 @@ object ContextExecutorTest {
             var error: Throwable? = null
 
             val ctx =
-                RootContext("root context") {
+                TestCollection("root context") {
                     test("test 1") {}
                     test("test 2") {}
                     context("context 1") {
@@ -318,7 +318,7 @@ object ContextExecutorTest {
         describe("handling of special cases:") {
             describe("strange contexts:") {
                 it("a context with only one ignored test") {
-                    val context = RootContext {
+                    val context = TestCollection {
                         describe("context") {
                             it("pending", ignored = Because("testing a pending test")) {}
                         }
@@ -337,7 +337,7 @@ object ContextExecutorTest {
 
             describe("an ignored sub-context:") {
                 val ctx =
-                    RootContext("root context") {
+                    TestCollection("root context") {
                         test("test 1") {}
                         test("test 2") {}
                         context(
@@ -371,12 +371,12 @@ object ContextExecutorTest {
             }
         }
         it("handles failing root contexts") {
-            val ctx = RootContext("root context") { throw RuntimeException("root context failed") }
+            val ctx = TestCollection("root context") { throw RuntimeException("root context failed") }
             assert(execute(ctx) is FailedRootContext)
         }
         describe("detects duplicated tests") {
             it("fails with duplicate tests in one context") {
-                val ctx = RootContext {
+                val ctx = TestCollection {
                     test("dup test name") {}
                     test("dup test name") {}
                 }
@@ -389,7 +389,7 @@ object ContextExecutorTest {
                 )
             }
             it("does not fail when the tests with the same name are in different contexts") {
-                val ctx = RootContext {
+                val ctx = TestCollection {
                     test("duplicate test name") {}
                     context("context") { test("duplicate test name") {} }
                 }
@@ -400,7 +400,7 @@ object ContextExecutorTest {
         }
         describe("detects duplicate contexts") {
             it("fails with duplicate contexts in one context") {
-                val ctx = RootContext {
+                val ctx = TestCollection {
                     context("dup ctx") {}
                     context("dup ctx") {}
                 }
@@ -413,7 +413,7 @@ object ContextExecutorTest {
                     .contains("duplicate name \"dup ctx\" in context \"root\"")
             }
             it("does not fail when the contexts with the same name are in different contexts") {
-                val ctx = RootContext {
+                val ctx = TestCollection {
                     test("same context name") {}
                     context("context") { test("same context name") {} }
                 }
@@ -422,7 +422,7 @@ object ContextExecutorTest {
                 }
             }
             it("fails when a context has the same name as a test in the same contexts") {
-                val ctx = RootContext {
+                val ctx = TestCollection {
                     test("same name") {}
                     context("same name") {}
                 }
@@ -440,7 +440,7 @@ object ContextExecutorTest {
 
             // start with the easy version
             it("can filter contexts in the root context by tag") {
-                val context = RootContext {
+                val context = TestCollection {
                     describe("context without the tag") { events.add("context without tag") }
                     describe("context with the tag", tags = setOf("single")) {
                         events.add("context with tag")
@@ -467,7 +467,7 @@ object ContextExecutorTest {
                     )
             }
             it("can filter tests in the root context by tag") {
-                val context = RootContext {
+                val context = TestCollection {
                     describe("context without the tag") { events.add("context without tag") }
                     test("test with the tag", tags = setOf("single")) {
                         events.add("test in root context with tag")
@@ -495,7 +495,7 @@ object ContextExecutorTest {
                             "because we don't find the tests in the subcontext without executing the context"
                 )
             ) {
-                val context = RootContext {
+                val context = TestCollection {
                     describe("context without the tag") {
                         events.add("context without tag")
                         it("test in context without the tag") {

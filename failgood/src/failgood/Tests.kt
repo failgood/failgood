@@ -2,10 +2,7 @@ package failgood
 
 import failgood.dsl.ContextFunction
 import failgood.dsl.ContextFunctionWithGiven
-import failgood.internal.util.niceString
 import kotlin.reflect.KClass
-import kotlin.reflect.KType
-import kotlin.reflect.typeOf
 
 /**
  * An unnamed collection of tests. It will get the name of the test class file in the reports. No root given is defined
@@ -24,7 +21,7 @@ fun <RootGiven> tests(
     isolation: Boolean = true,
     given: suspend () -> RootGiven,
     function: ContextFunctionWithGiven<RootGiven>
-) = RootContextWithGiven(
+) = TestCollection(
     "root",
     ignored,
     order,
@@ -58,7 +55,7 @@ fun <RootGiven> testsAbout(
     isolation: Boolean = true,
     given: suspend () -> RootGiven,
     function: ContextFunctionWithGiven<RootGiven>
-) = RootContextWithGiven(
+) = TestCollection(
     subjectDescription,
     ignored,
     order,
@@ -90,7 +87,7 @@ fun <RootGiven> testsAbout(
     isolation: Boolean = true,
     given: suspend () -> RootGiven,
     function: ContextFunctionWithGiven<RootGiven>
-) = RootContextWithGiven(
+) = TestCollection(
     "${subjectType.simpleName}",
     ignored,
     order,

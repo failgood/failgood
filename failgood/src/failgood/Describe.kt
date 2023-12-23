@@ -75,7 +75,7 @@ internal fun describe(
     isolation: Boolean = true,
     function: ContextFunction
 ): TestCollection<Unit> =
-    RootContext(subjectType.niceString(), ignored, order, isolation, function = function)
+    TestCollection(subjectType.niceString(), ignored, order, isolation, function = function)
 
 @Deprecated(
     "going away before 1.0",

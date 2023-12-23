@@ -28,7 +28,7 @@ internal data class CouldNotLoadContext(val reason: Throwable, val kClass: KClas
         get() = 0
 }
 
-fun RootContext(
+fun TestCollection(
     name: String = "root",
     ignored: Ignored? = null,
     order: Int = 0,
@@ -37,9 +37,9 @@ fun RootContext(
     addClassName: Boolean = false,
     function: ContextFunction
 ): TestCollection<Unit> =
-    RootContextWithGiven(name, ignored, order, isolation, sourceInfo, addClassName, {}, function)
+    TestCollection(name, ignored, order, isolation, sourceInfo, addClassName, {}, function)
 
-fun <RootGiven> RootContextWithGiven(
+fun <RootGiven> TestCollection(
     name: String = "root",
     ignored: Ignored? = null,
     order: Int = 0,

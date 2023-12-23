@@ -31,7 +31,7 @@ class SuiteTest {
                 it("does not wait for tests before returning context info") {
                     val contexts =
                         (1..10).map {
-                            RootContext("root context") {
+                            TestCollection("root context") {
                                 repeat(10) { test("test $it") { delay(1000) } }
                             }
                         }

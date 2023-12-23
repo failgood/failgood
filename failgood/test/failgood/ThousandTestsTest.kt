@@ -9,7 +9,7 @@ class ThousandTestsTest {
         testsAbout("a test suite with 1000 tests in one context") {
             test("runs pretty fast") {
                 expectThat(
-                    Suite(RootContext("the context") { repeat(1000) { test("test $it") {} } })
+                    Suite(TestCollection("the context") { repeat(1000) { test("test $it") {} } })
                         .run(silent = true)
                 )
                     .get { allOk }

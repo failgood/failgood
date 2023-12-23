@@ -1,10 +1,10 @@
 package failgood.internal
 
 import failgood.*
-import failgood.CouldNotLoadContext
+import failgood.CouldNotLoadTestCollection
 import failgood.LoadResult
 import failgood.NullExecutionListener
-import failgood.internal.execution.context.ContextExecutor
+import failgood.internal.execution.TestCollectionExecutor
 import failgood.internal.util.getenv
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -24,21 +24,21 @@ internal class LoadResults(private val loadResults: List<LoadResult>) {
     ): List<Deferred<ContextResult>> {
         return loadResults.map { loadResult: LoadResult ->
             when (loadResult) {
-                is CouldNotLoadContext ->
+                is CouldNotLoadTestCollection ->
                     CompletableDeferred(
                         FailedRootContext(
                             Context(loadResult.kClass.simpleName ?: "unknown"),
                             loadResult.reason
                         )
                     )
-                is RootContextWithGiven<*> -> {
+                is TestCollection<*> -> {
                     val testFilter =
-                        loadResult.context.sourceInfo?.className?.let {
+                        loadResult.rootContext.sourceInfo?.className?.let {
                             executionFilter.forClass(it)
                         } ?: ExecuteAllTests
                     coroutineScope.async {
                         if (loadResult.ignored?.isIgnored() == null) {
-                            ContextExecutor(
+                            TestCollectionExecutor(
                                     loadResult,
                                     coroutineScope,
                                     !executeTests,

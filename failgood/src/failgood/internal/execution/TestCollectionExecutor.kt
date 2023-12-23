@@ -1,4 +1,4 @@
-package failgood.internal.execution.context
+package failgood.internal.execution
 
 import failgood.*
 import failgood.internal.*
@@ -7,8 +7,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.withTimeout
 
-internal class ContextExecutor<RootGiven>(
-    private val rootContext: RootContextWithGiven<RootGiven>,
+internal class TestCollectionExecutor<RootGiven>(
+    private val testCollection: TestCollection<RootGiven>,
     scope: CoroutineScope,
     lazy: Boolean = false,
     listener: ExecutionListener = NullExecutionListener,
@@ -18,18 +18,18 @@ internal class ContextExecutor<RootGiven>(
 ) {
     private val staticExecutionConfig =
         StaticContextExecutionConfig(
-            rootContext.function,
+            testCollection.function,
             scope,
             listener,
             testFilter,
             timeoutMillis,
             if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT,
             runOnlyTag,
-            rootContext.given
+            testCollection.given
         )
 
     private val stateCollector =
-        ContextStateCollector(staticExecutionConfig, !rootContext.context.isolation)
+        ContextStateCollector(staticExecutionConfig, !testCollection.rootContext.isolation)
 
     /**
      * Execute the rootContext.
@@ -40,11 +40,11 @@ internal class ContextExecutor<RootGiven>(
      * context path of that test together with the test.
      */
     suspend fun execute(): ContextResult {
-        val incomingRootContext = fixRootName()
-        if (!staticExecutionConfig.testFilter.shouldRun(incomingRootContext))
+        val theTestCollection = fixRootName(testCollection)
+        if (!staticExecutionConfig.testFilter.shouldRun(theTestCollection))
             return ContextInfo(listOf(), mapOf(), setOf())
-        val function = rootContext.function
-        val rootContext = incomingRootContext.context
+        val function = testCollection.function
+        val rootContext = theTestCollection.rootContext
         staticExecutionConfig.listener.contextDiscovered(rootContext)
         try {
             do {
@@ -83,27 +83,27 @@ internal class ContextExecutor<RootGiven>(
         )
     }
 
-    private fun fixRootName() =
-        if (rootContext.addClassName) {
-            val shortClassName = rootContext.sourceInfo.className.substringAfterLast(".")
+    private fun fixRootName(testCollection1: TestCollection<RootGiven>) =
+        if (testCollection1.addClassName) {
+            val shortClassName = testCollection1.sourceInfo.className.substringAfterLast(".")
             val newName =
-                if (rootContext.context.name == "root") shortClassName
-                else "$shortClassName: ${rootContext.context.name}"
-            rootContext.copy(context = rootContext.context.copy(displayName = newName))
-        } else rootContext
+                if (testCollection1.rootContext.name == "root") shortClassName
+                else "$shortClassName: ${testCollection1.rootContext.name}"
+            testCollection1.copy(rootContext = testCollection1.rootContext.copy(displayName = newName))
+        } else testCollection1
 }
 
-// this is thrown when a context is finished, and we can not do anything meaningful in this pass
+// this is thrown to save time when the context is finished, and we cannot do anything meaningful in this pass
 class ContextFinished : DSLGotoException()
 
 fun sourceInfo(): SourceInfo {
-    // find the first stack trace element that is not in this class or ContextDSL
+    // find the first stack trace element not in this class or ContextDSL
     // (ContextDSL because of default parameters defined there)
     val first =
         RuntimeException().stackTrace.first {
             !(it.fileName?.let { fileName ->
                 fileName.endsWith("ContextVisitor.kt") ||
-                    fileName.endsWith("ContextExecutor.kt") ||
+                    fileName.endsWith("TestCollectionExecutor.kt") ||
                     fileName.endsWith("ContextDSL.kt")
             } ?: true)
         }

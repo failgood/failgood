@@ -78,7 +78,7 @@ class Suite(val contextProviders: Collection<ContextProvider>) {
                         try {
                             it.getContexts()
                         } catch (e: ErrorLoadingContextsFromClass) {
-                            listOf(CouldNotLoadContext(e, e.kClass))
+                            listOf(CouldNotLoadTestCollection(e, e.kClass))
                         }
                     }
                 }
@@ -146,11 +146,11 @@ internal fun printResults(
     }
 }
 
-fun Suite(rootContexts: Collection<RootContextWithGiven<*>>) =
+fun Suite(rootContexts: Collection<TestCollection<*>>) =
     Suite(rootContexts.map { ContextProvider { listOf(it) } })
 
 fun Suite(kClasses: List<KClass<*>>) = Suite(kClasses.map { ObjectContextProvider(it) })
 
-fun <RootGiven> Suite(rootContext: RootContextWithGiven<RootGiven>) = Suite(listOf(rootContext))
+fun <RootGiven> Suite(rootContext: TestCollection<RootGiven>) = Suite(listOf(rootContext))
 
-fun Suite(function: ContextFunction) = Suite(RootContext("root", order = 0, function = function))
+fun Suite(function: ContextFunction) = Suite(TestCollection("root", order = 0, function = function))

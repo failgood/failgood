@@ -1,6 +1,6 @@
 package failgood.experiments.stresstest
 
-import failgood.RootContext
+import failgood.TestCollection
 import failgood.dsl.ContextDSL
 
 /*
@@ -41,5 +41,5 @@ fun runMultipleTimes(
     name: String,
     times: Int,
     tests: suspend ContextDSL<*>.() -> Unit
-): List<RootContext> =
-    (1..times).map { index -> RootContext(name + index, order = index) { tests() } }
+): List<TestCollection<Unit>> =
+    (1..times).map { index -> TestCollection(name + index, order = index) { tests() } }

@@ -3,10 +3,10 @@ package failgood.experiments.pure
 import failgood.ExecutionListener
 import failgood.Ignored
 import failgood.NullExecutionListener
-import failgood.RootContext
+import failgood.TestCollection
 import failgood.internal.ContextInfo
 import failgood.internal.ContextResult
-import failgood.internal.execution.context.ContextExecutor
+import failgood.internal.execution.TestCollectionExecutor
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -15,11 +15,11 @@ import kotlinx.coroutines.delay
  * here I am trying to port one of the most complex tests to the pure given dsl. nothing to see here
  * for now.
  */
-object ContextExecutorTestPort {
+object TestCollectionExecutorTestPure {
     class Given {
         val assertionError: java.lang.AssertionError = AssertionError("failed")
-        val context: RootContext =
-            RootContext("root context") {
+        val context: TestCollection<Unit> =
+            TestCollection("root context") {
                 test("test 1") { delay(1) }
                 test("test 2") { delay(1) }
                 test("ignored test", ignored = Ignored.Because("testing")) {}
@@ -37,7 +37,7 @@ object ContextExecutorTestPort {
             listener: ExecutionListener = NullExecutionListener
         ): ContextResult {
             return coroutineScope {
-                ContextExecutor(context, this, runOnlyTag = tag, listener = listener).execute()
+                TestCollectionExecutor(context, this, runOnlyTag = tag, listener = listener).execute()
             }
         }
     }

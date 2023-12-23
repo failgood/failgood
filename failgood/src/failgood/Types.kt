@@ -22,13 +22,13 @@ internal sealed interface LoadResult {
     val order: Int
 }
 
-internal data class CouldNotLoadContext(val reason: Throwable, val kClass: KClass<out Any>) :
+internal data class CouldNotLoadTestCollection(val reason: Throwable, val kClass: KClass<out Any>) :
     LoadResult {
     override val order: Int
         get() = 0
 }
 
-fun RootContext(
+fun TestCollection(
     name: String = "root",
     ignored: Ignored? = null,
     order: Int = 0,
@@ -36,16 +36,10 @@ fun RootContext(
     sourceInfo: SourceInfo = callerSourceInfo(),
     addClassName: Boolean = false,
     function: ContextFunction
-): RootContext =
-    RootContext(
-        Context(name, null, sourceInfo, isolation),
-        order,
-        ignored,
-        addClassName,
-        function = function
-    )
+): TestCollection<Unit> =
+    TestCollection(name, ignored, order, isolation, sourceInfo, addClassName, {}, function)
 
-fun <RootGiven> RootContextWithGiven(
+fun <RootGiven> TestCollection(
     name: String = "root",
     ignored: Ignored? = null,
     order: Int = 0,
@@ -55,7 +49,7 @@ fun <RootGiven> RootContextWithGiven(
     given: (suspend () -> RootGiven),
     function: ContextFunctionWithGiven<RootGiven>
 ) =
-    RootContextWithGiven(
+    TestCollection(
         Context(name, null, sourceInfo, isolation),
         order,
         ignored,
@@ -64,10 +58,8 @@ fun <RootGiven> RootContextWithGiven(
         function = function
     )
 
-typealias RootContext = RootContextWithGiven<Unit>
-
-data class RootContextWithGiven<RootGiven>(
-    val context: Context,
+data class TestCollection<RootGiven>(
+    val rootContext: Context,
     override val order: Int = 0,
     val ignored: Ignored?,
     val addClassName: Boolean = false,
@@ -79,10 +71,10 @@ data class RootContextWithGiven<RootGiven>(
 ) : LoadResult, failgood.internal.Path {
     val sourceInfo: SourceInfo
         get() =
-            context.sourceInfo!! // in the root context we are sure that we always have a sourceInfo
+            rootContext.sourceInfo!! // in the root context we are sure that we always have a sourceInfo
 
     override val path: List<String>
-        get() = listOf(context.name)
+        get() = listOf(rootContext.name)
 }
 
 /** something that contains tests */

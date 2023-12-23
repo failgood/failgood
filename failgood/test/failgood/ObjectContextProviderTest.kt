@@ -14,7 +14,7 @@ class ObjectContextProviderTest {
         testsAbout(ObjectContextProvider::class) {
             it("provides a context from an class in a kotlin class (MyTest::class.java)") {
                 expectThat(ObjectContextProvider(ClassTestContextExample::class).getContexts())
-                    .map { it.context.name }
+                    .map { it.rootContext.name }
                     .containsExactlyInAnyOrder(
                         "test context defined in a kotlin class",
                         "another test context defined in a kotlin class",
@@ -24,33 +24,33 @@ class ObjectContextProviderTest {
             it("provides a context from an object in a java class (MyTest::class.java)") {
                 expectThat(ObjectContextProvider(TestFinderTest::class.java).getContexts())
                     .single()
-                    .isA<RootContext>()
-                    .and { get { context.name }.isEqualTo("test finder") }
+                    .isA<TestCollection<Unit>>()
+                    .and { get { rootContext.name }.isEqualTo("test finder") }
             }
             it("provides a context from an object in a kotlin class (MyTest::class)") {
                 expectThat(ObjectContextProvider(TestFinderTest::class).getContexts())
                     .single()
-                    .isA<RootContext>()
-                    .and { get { context.name }.isEqualTo("test finder") }
+                    .isA<TestCollection<Unit>>()
+                    .and { get { rootContext.name }.isEqualTo("test finder") }
             }
             it("provides a list of contexts from an object in a kotlin class (MyTest::class)") {
                 expectThat(ObjectContextProvider(ContextListExample::class).getContexts())
                     .hasSize(2)
-                    .all { isA<RootContext>() }
+                    .all { isA<TestCollection<Unit>>() }
             }
             it("provides a top level context from a kotlin class") {
                 val classLoader = ObjectContextProviderTest::class.java.classLoader
                 val clazz = classLoader.loadClass(testContextsOnTopLevelExampleClassName)
                 expectThat(ObjectContextProvider(clazz.kotlin).getContexts())
                     .single()
-                    .isA<RootContext>()
-                    .and { get { context.name }.isEqualTo("test context declared on top level") }
+                    .isA<TestCollection<Unit>>()
+                    .and { get { rootContext.name }.isEqualTo("test context declared on top level") }
             }
             it("handles weird contexts defined in private vals gracefully") {
                 assert(
                     ObjectContextProvider(PrivateContextFixture::class)
                         .getContexts()
-                        .map { it.context.name }
+                        .map { it.rootContext.name }
                         .size == 2
                 )
             }
@@ -180,11 +180,11 @@ class ObjectContextProviderTest {
     }
 
     class ClassWithContextMethodWithParameter {
-        fun context(@Suppress("UNUSED_PARAMETER") parameter: String): RootContext = tests {}
+        fun context(@Suppress("UNUSED_PARAMETER") parameter: String): TestCollection<Unit> = tests {}
     }
 
     class ClassThatThrowsAtContextGetter {
-        val context: RootContext = throw RuntimeException("boo i failed")
+        val context: TestCollection<Unit> = throw RuntimeException("boo i failed")
     }
 }
 

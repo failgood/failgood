@@ -1,7 +1,7 @@
 package failgood.experiments.toplevel
 
 import failgood.Ignored
-import failgood.RootContext
+import failgood.TestCollection
 import failgood.Test
 import failgood.dsl.ContextFunction
 
@@ -21,5 +21,5 @@ class TestContextsAsMethodsExperiment {
         order: Int = 0,
         isolation: Boolean = true,
         function: ContextFunction
-    ): RootContext = RootContext("todo", ignored, order, isolation, function = function)
+    ): TestCollection<Unit> = TestCollection("todo", ignored, order, isolation, function = function)
 }

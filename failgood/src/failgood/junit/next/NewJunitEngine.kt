@@ -48,7 +48,14 @@ class NewJunitEngine : TestEngine {
             ContextFinder(runTestFixtures).findContexts(discoveryRequest)
                 ?: return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.DISPLAY_NAME)
 
-        return FailGoodEngineDescriptor(uniqueId, id, suiteAndFilters)
+        return FailGoodEngineDescriptor(uniqueId, id, suiteAndFilters).also {
+            failureLogger.add("Engine Descriptor", it.toString())
+
+            if (debug) {
+                // write the debug file here. sometimes execute is just never called
+                writeDebugFile()
+            }
+        }
     }
 
     override fun execute(request: ExecutionRequest) {
@@ -99,14 +106,18 @@ class NewJunitEngine : TestEngine {
         } finally {
             if (debug) {
                 failureLogger.add("events", loggingEngineExecutionListener.eventsString())
-                File(DEBUG_TXT_FILENAME).writeText(failureLogger.envString())
+                writeDebugFile()
             }
         }
     }
 
-    internal class FailGoodEngineDescriptor(
-        uniqueId: UniqueId?,
-        displayName: String?,
+    private fun writeDebugFile() {
+        File(DEBUG_TXT_FILENAME).writeText(failureLogger.envString())
+    }
+
+    internal data class FailGoodEngineDescriptor(
+        private val uniqueId: UniqueId?,
+        private val displayName: String?,
         val suiteAndFilters: SuiteAndFilters
     ) : EngineDescriptor(uniqueId, displayName)
 }

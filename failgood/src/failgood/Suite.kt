@@ -19,7 +19,7 @@ import kotlinx.coroutines.runBlocking
 
 const val DEFAULT_TIMEOUT: Long = 40000
 
-class Suite(val contextProviders: Collection<ContextProvider>) {
+data class Suite(val contextProviders: Collection<ContextProvider>) {
     init {
         if (contextProviders.isEmpty()) throw EmptySuiteException()
     }

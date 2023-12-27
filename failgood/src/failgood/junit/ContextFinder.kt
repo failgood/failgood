@@ -116,13 +116,3 @@ internal fun UniqueIdSelector.toClassFilter(): ClassFilter {
     return ClassFilter(className, filterString)
 }
 
-internal fun EngineDiscoveryRequest.niceString(): String {
-    val allSelectors = getSelectorsByType(DiscoverySelector::class.java)
-    val allFilters = getFiltersByType(DiscoveryFilter::class.java)
-    val allPostDiscoveryFilters =
-        if (this is LauncherDiscoveryRequest) postDiscoveryFilters.joinToString()
-        else "UNKNOWN (${this::class.java.name})"
-    return "selectors:${allSelectors.joinToString()}\n" +
-        "filters:${allFilters.joinToString()}\n" +
-        "postDiscoveryFilters:$allPostDiscoveryFilters"
-}

@@ -27,7 +27,7 @@ internal class ContextStateCollector<RootGiven>(
     val finishedPaths = mutableSetOf<ContextPath>()
 
     /*
-     * A context is reported as failure by reporting it as a context with a single failed test as child.
+     * A context is reported as failure by reporting it as a context with a failed test as only child.
      */
     suspend fun recordContextAsFailed(
         context: Context,

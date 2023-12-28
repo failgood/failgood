@@ -49,8 +49,8 @@ class NewJunitEngine : TestEngine {
                 ?: return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.DISPLAY_NAME)
 
         return FailGoodEngineDescriptor(uniqueId, id, suiteAndFilters).also {
-            // add one fake child because idea does not call execute when the test plan is totally empty
-            // (but not always, only when running all tests in project (instead of just one module)
+            // add one fake child because IDEA does not call `execute` when the test plan is totally empty
+            // (but not always, only when running "all tests in Project" (instead of just one module)
             it.addChild(DynamicTestDescriptor(TestPlanNode.Test("test", "test"), it))
             failureLogger.add("Engine Descriptor", it.toString())
 

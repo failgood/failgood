@@ -19,7 +19,7 @@ suspend fun main() {
 }
 
 suspend fun execute(selectors: List<DiscoverySelector>) {
-    val listener = TEListener()
+    val listener = TEListener(false)
     LauncherFactory.create()
         .execute(
             LauncherDiscoveryRequestBuilder.request()

@@ -42,6 +42,7 @@ internal class ContextStateCollector<RootGiven>(
 
         finishedPaths.add(contextPath) // don't visit this context again
         foundContexts.add(context)
+        staticConfig.listener.testStarted(testDescriptor)
         staticConfig.listener.testFinished(testPlusResult)
     }
 

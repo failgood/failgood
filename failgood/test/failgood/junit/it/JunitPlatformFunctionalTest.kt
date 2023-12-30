@@ -4,6 +4,7 @@ import failgood.Ignored
 import failgood.Test
 import failgood.assert.containsExactlyInAnyOrder
 import failgood.dsl.ContextDSL
+import failgood.experiments.pure.test
 import failgood.junit.FailGoodJunitTestEngine
 import failgood.junit.it.JunitPlatformFunctionalTest.TEListener.Event.Type.FINISHED
 import failgood.junit.it.JunitPlatformFunctionalTest.TEListener.Event.Type.REGISTERED
@@ -62,7 +63,7 @@ object JunitPlatformFunctionalTest {
 
     private suspend fun ContextDSL<Unit>.tests(newEngine: Boolean) {
         suspend fun execute(discoverySelectors: List<DiscoverySelector>): Results {
-            val listener = TEListener()
+            val listener = TEListener(newEngine)
 
             LauncherFactory.create()
                 .execute(launcherDiscoveryRequest(discoverySelectors, newEngine), listener)
@@ -76,6 +77,7 @@ object JunitPlatformFunctionalTest {
                         "Test execution timed out. received results:${listener.results}"
                     )
                 }
+            assert(listener.errors.isEmpty())
             return Results(rootResult, listener.results, listener.testEvents)
         }
 
@@ -335,7 +337,7 @@ object JunitPlatformFunctionalTest {
         }
     }
 
-    class TEListener : TestExecutionListener {
+    class TEListener(val checkEventsOrder: Boolean) : TestExecutionListener {
         data class Event(val type: Type, val test: TestIdentifier) {
             enum class Type {
                 STARTED,
@@ -344,17 +346,24 @@ object JunitPlatformFunctionalTest {
                 SKIPPED
             }
         }
-
+        val startedTests = ConcurrentHashMap.newKeySet<TestIdentifier>()
+        val registeredTests = ConcurrentHashMap.newKeySet<TestIdentifier>()
+        val errors =  CopyOnWriteArrayList<String>()
         val testEvents = CopyOnWriteArrayList<Event>()
         val rootResult = CompletableDeferred<TestExecutionResult>()
         val results = ConcurrentHashMap<TestIdentifier, TestExecutionResult>()
 
         override fun dynamicTestRegistered(testIdentifier: TestIdentifier) {
             super.dynamicTestRegistered(testIdentifier)
+            registeredTests.add(testIdentifier)
             testEvents.add(Event(REGISTERED, testIdentifier))
         }
 
         override fun executionStarted(testIdentifier: TestIdentifier) {
+            // the root test identifier is already registered so we check only elements with parentId
+            if (testIdentifier.parentId.isPresent && checkEventsOrder && !registeredTests.contains(testIdentifier))
+                errors.add("start event received for $testIdentifier which was not registered")
+            startedTests.add(testIdentifier)
             super.executionStarted(testIdentifier)
             testEvents.add(Event(STARTED, testIdentifier))
         }
@@ -368,6 +377,8 @@ object JunitPlatformFunctionalTest {
             testIdentifier: TestIdentifier,
             testExecutionResult: TestExecutionResult
         ) {
+            if (!startedTests.contains(testIdentifier))
+                errors.add("finished event received for $testIdentifier which was not started")
             testEvents.add(Event(FINISHED, testIdentifier))
             results[testIdentifier] = testExecutionResult
             val parentId = testIdentifier.parentId

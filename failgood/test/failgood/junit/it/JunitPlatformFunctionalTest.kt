@@ -76,7 +76,7 @@ object JunitPlatformFunctionalTest {
                         "Test execution timed out. received results:${listener.results}"
                     )
                 }
-            assert(listener.errors.isEmpty())
+            assert(listener.errors.isEmpty()) { listener.errors }
             return Results(rootResult, listener.results, listener.testEvents)
         }
 
@@ -354,9 +354,8 @@ object JunitPlatformFunctionalTest {
             }
         }
 
-        val startedTests = ConcurrentHashMap.newKeySet<TestIdentifier>()
         val startedTestUniqueIds = ConcurrentHashMap.newKeySet<String>()
-        val registeredTests = ConcurrentHashMap.newKeySet<TestIdentifier>()
+        val registeredTestUniqueIds = ConcurrentHashMap.newKeySet<String>()
         val errors = CopyOnWriteArrayList<String>()
         val testEvents = CopyOnWriteArrayList<Event>()
         val rootResult = CompletableDeferred<TestExecutionResult>()
@@ -364,8 +363,8 @@ object JunitPlatformFunctionalTest {
 
         override fun dynamicTestRegistered(testIdentifier: TestIdentifier) {
             super.dynamicTestRegistered(testIdentifier)
-            if (!registeredTests.add(testIdentifier))
-                errors.add("duplicate test identifier registered: $testIdentifier")
+            if (!registeredTestUniqueIds.add(testIdentifier.uniqueId))
+                errors.add("duplicate test identifier registered: ${testIdentifier.uniqueId}. registered uniqueIds: $registeredTestUniqueIds")
             testEvents.add(Event(REGISTERED, testIdentifier))
         }
 
@@ -373,7 +372,7 @@ object JunitPlatformFunctionalTest {
             // the root test identifier is already registered, so we check only elements with parentId
             if (testIdentifier.parentId.isPresent) {
                 // check that the test that is starting was registered
-                if (checkRegisterEvent && !registeredTests.contains(testIdentifier)) errors.add("start event received for $testIdentifier which was not registered")
+                if (checkRegisterEvent && !registeredTestUniqueIds.contains(testIdentifier.uniqueId)) errors.add("start event received for ${testIdentifier.uniqueId} which was not registered")
                 // check that the parent is already started
                 testIdentifier.parentId.get()
                     .let { if (!startedTestUniqueIds.contains(it)) errors.add("start event received for $testIdentifier whose parent with uniqueid $it was not started") }
@@ -381,9 +380,6 @@ object JunitPlatformFunctionalTest {
 
             if (!startedTestUniqueIds.add(testIdentifier.uniqueId))
                 errors.add("duplicate uniqueid started: ${testIdentifier.uniqueId}")
-
-            if (!startedTests.add(testIdentifier))
-                errors.add("duplicate test started: $testIdentifier")
 
             super.executionStarted(testIdentifier)
             testEvents.add(Event(STARTED, testIdentifier))
@@ -398,7 +394,7 @@ object JunitPlatformFunctionalTest {
             testIdentifier: TestIdentifier,
             testExecutionResult: TestExecutionResult
         ) {
-            if (!startedTests.contains(testIdentifier))
+            if (!startedTestUniqueIds.contains(testIdentifier.uniqueId))
                 errors.add("finished event received for $testIdentifier which was not started")
             testEvents.add(Event(FINISHED, testIdentifier))
             results[testIdentifier] = testExecutionResult

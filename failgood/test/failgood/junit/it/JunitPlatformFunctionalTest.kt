@@ -4,7 +4,6 @@ import failgood.Ignored
 import failgood.Test
 import failgood.assert.containsExactlyInAnyOrder
 import failgood.dsl.ContextDSL
-import failgood.experiments.pure.test
 import failgood.junit.FailGoodJunitTestEngine
 import failgood.junit.it.JunitPlatformFunctionalTest.TEListener.Event.Type.FINISHED
 import failgood.junit.it.JunitPlatformFunctionalTest.TEListener.Event.Type.REGISTERED
@@ -346,9 +345,10 @@ object JunitPlatformFunctionalTest {
                 SKIPPED
             }
         }
+
         val startedTests = ConcurrentHashMap.newKeySet<TestIdentifier>()
         val registeredTests = ConcurrentHashMap.newKeySet<TestIdentifier>()
-        val errors =  CopyOnWriteArrayList<String>()
+        val errors = CopyOnWriteArrayList<String>()
         val testEvents = CopyOnWriteArrayList<Event>()
         val rootResult = CompletableDeferred<TestExecutionResult>()
         val results = ConcurrentHashMap<TestIdentifier, TestExecutionResult>()

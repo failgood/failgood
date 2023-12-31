@@ -5,10 +5,10 @@ import failgood.Test
 import failgood.assert.containsExactlyInAnyOrder
 import failgood.dsl.ContextDSL
 import failgood.junit.FailGoodJunitTestEngine
-import failgood.junit.it.JunitPlatformFunctionalTest.TEListener.Event.Type.FINISHED
-import failgood.junit.it.JunitPlatformFunctionalTest.TEListener.Event.Type.REGISTERED
-import failgood.junit.it.JunitPlatformFunctionalTest.TEListener.Event.Type.SKIPPED
-import failgood.junit.it.JunitPlatformFunctionalTest.TEListener.Event.Type.STARTED
+import failgood.junit.it.JunitPlatformFunctionalTest.TestTestExecutionListener.Event.Type.FINISHED
+import failgood.junit.it.JunitPlatformFunctionalTest.TestTestExecutionListener.Event.Type.REGISTERED
+import failgood.junit.it.JunitPlatformFunctionalTest.TestTestExecutionListener.Event.Type.SKIPPED
+import failgood.junit.it.JunitPlatformFunctionalTest.TestTestExecutionListener.Event.Type.STARTED
 import failgood.junit.it.fixtures.BlockhoundTestFixture
 import failgood.junit.it.fixtures.DeeplyNestedDuplicateTestFixture
 import failgood.junit.it.fixtures.DoubleTestNamesInRootContextTestFixture
@@ -51,7 +51,7 @@ object JunitPlatformFunctionalTest {
     data class Results(
         val rootResult: TestExecutionResult,
         val results: Map<TestIdentifier, TestExecutionResult>,
-        val testEvents: List<TEListener.Event>
+        val testEvents: List<TestTestExecutionListener.Event>
     )
 
     val tests =
@@ -62,7 +62,7 @@ object JunitPlatformFunctionalTest {
 
     private suspend fun ContextDSL<Unit>.tests(newEngine: Boolean) {
         suspend fun execute(discoverySelectors: List<DiscoverySelector>): Results {
-            val listener = TEListener(newEngine)
+            val listener = TestTestExecutionListener(newEngine)
 
             LauncherFactory.create()
                 .execute(launcherDiscoveryRequest(discoverySelectors, newEngine), listener)
@@ -344,7 +344,7 @@ object JunitPlatformFunctionalTest {
      * checked for the new engine because in the old engine all tests are returned at discover time and need not be
      * registered
      */
-    class TEListener(val checkRegisterEvent: Boolean) : TestExecutionListener {
+    class TestTestExecutionListener(private val checkRegisterEvent: Boolean) : TestExecutionListener {
         data class Event(val type: Type, val test: TestIdentifier) {
             enum class Type {
                 STARTED,
@@ -364,7 +364,8 @@ object JunitPlatformFunctionalTest {
 
         override fun dynamicTestRegistered(testIdentifier: TestIdentifier) {
             super.dynamicTestRegistered(testIdentifier)
-            registeredTests.add(testIdentifier)
+            if (!registeredTests.add(testIdentifier))
+                errors.add("duplicate test identifier registered: $testIdentifier")
             testEvents.add(Event(REGISTERED, testIdentifier))
         }
 
@@ -378,8 +379,12 @@ object JunitPlatformFunctionalTest {
                     .let { if (!startedTestUniqueIds.contains(it)) errors.add("start event received for $testIdentifier whose parent with uniqueid $it was not started") }
             }
 
-            startedTestUniqueIds.add(testIdentifier.uniqueId)
-            startedTests.add(testIdentifier)
+            if (!startedTestUniqueIds.add(testIdentifier.uniqueId))
+                errors.add("duplicate uniqueid started: ${testIdentifier.uniqueId}")
+
+            if (!startedTests.add(testIdentifier))
+                errors.add("duplicate test started: $testIdentifier")
+
             super.executionStarted(testIdentifier)
             testEvents.add(Event(STARTED, testIdentifier))
         }

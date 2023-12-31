@@ -2,7 +2,7 @@ package failgood.junit.exp.events
 
 import failgood.junit.FailGoodJunitTestEngineConstants
 import failgood.junit.it.JunitPlatformFunctionalTest.Results
-import failgood.junit.it.JunitPlatformFunctionalTest.TEListener
+import failgood.junit.it.JunitPlatformFunctionalTest.TestTestExecutionListener
 import failgood.junit.it.fixtures.SimpleClassTestFixture
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.function.BiConsumer
@@ -19,7 +19,7 @@ suspend fun main() {
 }
 
 suspend fun execute(selectors: List<DiscoverySelector>) {
-    val listener = TEListener(false)
+    val listener = TestTestExecutionListener(false)
     LauncherFactory.create()
         .execute(
             LauncherDiscoveryRequestBuilder.request()

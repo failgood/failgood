@@ -1,14 +1,18 @@
 package failgood.functional
 
 import failgood.Failure
+import failgood.Ignored
 import failgood.Suite
 import failgood.Test
 import failgood.testsAbout
-import java.lang.RuntimeException
-import java.util.*
-import kotlin.test.assertNotNull
 import strikt.api.expectThat
-import strikt.assertions.*
+import strikt.assertions.contains
+import strikt.assertions.isA
+import strikt.assertions.isNotNull
+import strikt.assertions.single
+import strikt.assertions.startsWith
+import java.util.UUID
+import kotlin.test.assertNotNull
 
 @Test
 class ErrorHandlingTest {
@@ -71,6 +75,15 @@ class ErrorHandlingTest {
                     it("test") {}
                 }
                     .run(silent = true)
+            }
+            describe("duplicate root context names") {
+                it("reports duplicate Test Collection names as error", ignored = Ignored.TODO) {
+                    val results = Suite(
+                        listOf(testsAbout("duplicate name") {},
+                            testsAbout("duplicate name") {})
+                    ).run(silent = true)
+                    assert(!results.allOk)
+                }
             }
         }
 }

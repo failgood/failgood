@@ -51,7 +51,7 @@ class ObjectContextProviderTest {
                     ObjectContextProvider(PrivateContextFixture::class)
                         .getContexts()
                         .map { it.rootContext.name }
-                        .size == 2
+                        .size == 1
                 )
             }
 

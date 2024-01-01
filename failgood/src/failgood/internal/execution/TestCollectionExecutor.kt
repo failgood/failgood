@@ -40,11 +40,10 @@ internal class TestCollectionExecutor<RootGiven>(
      * context path of that test together with the test.
      */
     suspend fun execute(): TestCollectionExecutionResult {
-        val theTestCollection = fixRootName(testCollection)
-        if (!staticExecutionConfig.testFilter.shouldRun(theTestCollection))
+        if (!staticExecutionConfig.testFilter.shouldRun(testCollection))
             return TestResults(listOf(), mapOf(), setOf())
         val function = testCollection.function
-        val rootContext = theTestCollection.rootContext
+        val rootContext = testCollection.rootContext
         staticExecutionConfig.listener.contextDiscovered(rootContext)
         try {
             do {
@@ -63,7 +62,8 @@ internal class TestCollectionExecutor<RootGiven>(
                     )
                 try {
                     withTimeout(staticExecutionConfig.timeoutMillis) { visitor.function() }
-                } catch (_: ContextFinished) {}
+                } catch (_: ContextFinished) {
+                }
                 stateCollector.investigatedContexts.add(rootContext)
                 if (stateCollector.containsContextsWithoutIsolation) {
                     stateCollector.afterSuiteCallbacks.add { resourcesCloser.closeAutoCloseables() }
@@ -75,7 +75,7 @@ internal class TestCollectionExecutor<RootGiven>(
         // context order: first root context, then sub-contexts ordered by line number
         val contexts =
             listOf(rootContext) +
-                stateCollector.foundContexts.sortedBy { it.sourceInfo!!.lineNumber }
+                    stateCollector.foundContexts.sortedBy { it.sourceInfo!!.lineNumber }
         return TestResults(
             contexts,
             stateCollector.deferredTestResults,
@@ -83,14 +83,6 @@ internal class TestCollectionExecutor<RootGiven>(
         )
     }
 
-    private fun fixRootName(testCollection1: TestCollection<RootGiven>) =
-        if (testCollection1.addClassName) {
-            val shortClassName = testCollection1.sourceInfo.className.substringAfterLast(".")
-            val newName =
-                if (testCollection1.rootContext.name == "root") shortClassName
-                else "$shortClassName: ${testCollection1.rootContext.name}"
-            testCollection1.copy(rootContext = testCollection1.rootContext.copy(displayName = newName))
-        } else testCollection1
 }
 
 // this is thrown to save time when the context is finished, and we cannot do anything meaningful in this pass

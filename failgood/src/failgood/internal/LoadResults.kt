@@ -16,6 +16,21 @@ private val timeoutMillis: Long = Suite.parseTimeout(getenv("TIMEOUT"))
 private val tag = getenv("FAILGOOD_TAG")
 
 internal class LoadResults(private val loadResults: List<LoadResult>) {
+    private fun fixRootName(tc: TestCollection<*>) =
+        if (tc.addClassName) {
+            val shortClassName = tc.sourceInfo.className.substringAfterLast(".")
+            // if the root context name is just "root", it is an unnamed context and so
+            // we replace it and we change the name and the display name
+            val unnamedContext = tc.rootContext.name == "root"
+
+            val newName =
+                if (unnamedContext) shortClassName
+                else "$shortClassName: ${tc.rootContext.name}"
+            if (unnamedContext)
+                tc.copy(rootContext = tc.rootContext.copy(displayName = newName, name = newName))
+            else
+                tc.copy(rootContext = tc.rootContext.copy(displayName = newName))
+        } else tc
     fun investigate(
         coroutineScope: CoroutineScope,
         executeTests: Boolean = true,
@@ -39,7 +54,7 @@ internal class LoadResults(private val loadResults: List<LoadResult>) {
                     coroutineScope.async {
                         if (loadResult.ignored?.isIgnored() == null) {
                             TestCollectionExecutor(
-                                    loadResult,
+                                    fixRootName(loadResult),
                                     coroutineScope,
                                     !executeTests,
                                     listener,

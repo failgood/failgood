@@ -1,11 +1,11 @@
 package failgood
 
 import failgood.dsl.ContextFunction
-import failgood.internal.ContextInfo
-import failgood.internal.ContextResult
+import failgood.internal.TestResults
+import failgood.internal.TestCollectionExecutionResult
 import failgood.internal.ContextTreeReporter
 import failgood.internal.ExecuteAllTestFilterProvider
-import failgood.internal.FailedRootContext
+import failgood.internal.FailedTestCollectionExecution
 import failgood.internal.LoadResults
 import failgood.internal.SuiteExecutionContext
 import failgood.internal.TestFilterProvider
@@ -65,7 +65,7 @@ data class Suite(val contextProviders: Collection<ContextProvider>) {
         executeTests: Boolean = true,
         filter: TestFilterProvider = ExecuteAllTestFilterProvider,
         listener: ExecutionListener = NullExecutionListener
-    ): List<Deferred<ContextResult>> {
+    ): List<Deferred<TestCollectionExecutionResult>> {
         return getRootContexts(coroutineScope)
             .investigate(coroutineScope, executeTests, filter, listener)
     }
@@ -99,10 +99,10 @@ internal object NullExecutionListener : ExecutionListener {
     ) {}
 }
 
-internal suspend fun awaitTestResults(resolvedContexts: List<ContextResult>): SuiteResult {
-    val successfulContexts = resolvedContexts.filterIsInstance<ContextInfo>()
-    val failedRootContexts: List<FailedRootContext> =
-        resolvedContexts.filterIsInstance<FailedRootContext>()
+internal suspend fun awaitTestResults(resolvedContexts: List<TestCollectionExecutionResult>): SuiteResult {
+    val successfulContexts = resolvedContexts.filterIsInstance<TestResults>()
+    val failedRootContexts: List<FailedTestCollectionExecution> =
+        resolvedContexts.filterIsInstance<FailedTestCollectionExecution>()
     val results = successfulContexts.flatMap { it.tests.values }.awaitAll()
     successfulContexts.forEach {
         it.afterSuiteCallbacks.forEach { callback ->
@@ -122,21 +122,21 @@ internal suspend fun awaitTestResults(resolvedContexts: List<ContextResult>): Su
 
 internal fun printResults(
     coroutineScope: CoroutineScope,
-    contextInfos: List<Deferred<ContextResult>>
+    contextInfos: List<Deferred<TestCollectionExecutionResult>>
 ) {
     contextInfos.forEach {
         coroutineScope.launch {
             val context = it.await()
             val contextTreeReporter = ContextTreeReporter()
             when (context) {
-                is ContextInfo -> {
+                is TestResults -> {
                     println(
                         contextTreeReporter
                             .stringReport(context.tests.values.awaitAll(), context.contexts)
                             .joinToString("\n")
                     )
                 }
-                is FailedRootContext -> {
+                is FailedTestCollectionExecution -> {
                     println(
                         "context ${context.context} failed: ${context.failure.stackTraceToString()}"
                     )

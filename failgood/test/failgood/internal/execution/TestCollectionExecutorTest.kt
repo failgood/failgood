@@ -37,7 +37,7 @@ object TestCollectionExecutorTest {
             tag: String? = null,
             listener: ExecutionListener = NullExecutionListener,
             testFilter: TestFilter = ExecuteAllTests,
-        ): ContextResult {
+        ): TestCollectionExecutionResult {
             return coroutineScope {
                 TestCollectionExecutor(
                     context,
@@ -52,7 +52,7 @@ object TestCollectionExecutorTest {
     }
 
     private suspend fun executedTestContext() =
-        assertNotNull(TypicalTestContext().execute() as? ContextInfo)
+        assertNotNull(TypicalTestContext().execute() as? TestResults)
 
     @Suppress("SimplifiableCallChain") // for better kotlin-power-assert output
     val tests = tests {
@@ -126,7 +126,7 @@ object TestCollectionExecutorTest {
                     val listener = RecordingListener()
                     assertNotNull(
                         assertNotNull(
-                            TypicalTestContext().execute(listener = listener) as? ContextInfo
+                            TypicalTestContext().execute(listener = listener) as? TestResults
                         )
                     )
                     listener
@@ -156,8 +156,8 @@ object TestCollectionExecutorTest {
                         given.execute(
                             testFilter = StringListTestFilter(listOf("root context", "test 1"))
                         )
-                    val contextInfo = expectThat(contextResult).isA<ContextInfo>().subject
-                    expectThat(contextInfo) {
+                    val testResults = expectThat(contextResult).isA<TestResults>().subject
+                    expectThat(testResults) {
                         get { tests.keys }.map { it.testName }.containsExactly("test 1")
                         get { contexts }.map { it.name }.containsExactly("root context")
                     }
@@ -168,8 +168,8 @@ object TestCollectionExecutorTest {
                             testFilter =
                             StringListTestFilter(listOf("other root context", "test 1"))
                         )
-                    val contextInfo = expectThat(contextResult).isA<ContextInfo>().subject
-                    expectThat(contextInfo) {
+                    val testResults = expectThat(contextResult).isA<TestResults>().subject
+                    expectThat(testResults) {
                         get { tests }.isEmpty()
                         get { contexts }.isEmpty()
                     }
@@ -197,16 +197,16 @@ object TestCollectionExecutorTest {
                             }
                         }
                     }
-                val contextInfo = assertNotNull(execute(ctx) as? ContextInfo)
+                val testResults = assertNotNull(execute(ctx) as? TestResults)
                 it("returns file info for all subcontexts") {
-                    expectThat(contextInfo.contexts).all {
+                    expectThat(testResults.contexts).all {
                         get { sourceInfo }
                             .isNotNull()
                             .and { get { fileName }.isEqualTo("TestCollectionExecutorTest.kt") }
                     }
                 }
                 it("returns line number for contexts") {
-                    expectThat(contextInfo.contexts) {
+                    expectThat(testResults.contexts) {
                         get(0)
                             .get { sourceInfo }
                             .isNotNull()
@@ -225,13 +225,13 @@ object TestCollectionExecutorTest {
                     }
                 }
                 it("reports file name for all tests") {
-                    expectThat(contextInfo.tests.keys).all {
+                    expectThat(testResults.tests.keys).all {
                         get { sourceInfo }
                             .and { get { fileName }.isEqualTo("TestCollectionExecutorTest.kt") }
                     }
                 }
                 it("reports line number for all tests") {
-                    expectThat(contextInfo.tests.keys.toList()) {
+                    expectThat(testResults.tests.keys.toList()) {
                         get(0).get { sourceInfo }.get { lineNumber }.isEqualTo(test1Line)
                         get(1).get { sourceInfo }.get { lineNumber }.isEqualTo(test2Line)
                     }
@@ -249,8 +249,8 @@ object TestCollectionExecutorTest {
                             ) {}
                         }
                     )
-                val contextInfo = assertNotNull(result as? ContextInfo)
-                val test = assertNotNull(contextInfo.tests.keys.singleOrNull())
+                val testResults = assertNotNull(result as? TestResults)
+                val test = assertNotNull(testResults.tests.keys.singleOrNull())
                 assert(test.testName == "contains a single ignored test")
             }
         }
@@ -264,8 +264,8 @@ object TestCollectionExecutorTest {
                             .execute()
 
                     expectThat(testExecuted).isEqualTo(false)
-                    expectThat(contextInfo).isA<ContextInfo>()
-                    val deferred = (contextInfo as ContextInfo).tests.values.single()
+                    expectThat(contextInfo).isA<TestResults>()
+                    val deferred = (contextInfo as TestResults).tests.values.single()
                     expectThat(deferred.await().result).isA<Success>()
                     expectThat(testExecuted).isEqualTo(true)
                 }
@@ -278,7 +278,7 @@ object TestCollectionExecutorTest {
                 val scope = CoroutineScope(Dispatchers.Unconfined)
                 // this timeout is huge because of slow ci, that does not mean it takes 1 second
                 // in normal use
-                withTimeout(1000) { assert(TestCollectionExecutor(ctx, scope).execute() is ContextInfo) }
+                withTimeout(1000) { assert(TestCollectionExecutor(ctx, scope).execute() is TestResults) }
                 scope.cancel()
             }
         }
@@ -296,7 +296,7 @@ object TestCollectionExecutorTest {
                     }
                     context("context 4") { test("test 4") {} }
                 }
-            val results = assertNotNull(execute(ctx) as? ContextInfo)
+            val results = assertNotNull(execute(ctx) as? TestResults)
 
             it("it is reported as a failing test inside that context") {
                 val failures = results.tests.values.awaitAll().filter { it.isFailure }
@@ -326,7 +326,7 @@ object TestCollectionExecutorTest {
                     }
                     val contextResult = execute(context)
                     assert(
-                        contextResult is ContextInfo &&
+                        contextResult is TestResults &&
                                 contextResult.tests.values.awaitAll().all { !it.isFailure }
                     )
                 }
@@ -346,7 +346,7 @@ object TestCollectionExecutorTest {
                         ) {}
                         context("context 4") { test("test 4") {} }
                     }
-                val results = assertNotNull(execute(ctx) as? ContextInfo)
+                val results = assertNotNull(execute(ctx) as? TestResults)
 
                 it("reports the context as a context") {
                     assert(results.contexts.map { it.name }.contains("context 1"))
@@ -372,7 +372,7 @@ object TestCollectionExecutorTest {
         }
         it("handles failing root contexts") {
             val ctx = TestCollection("root context") { throw RuntimeException("root context failed") }
-            assert(execute(ctx) is FailedRootContext)
+            assert(execute(ctx) is FailedTestCollectionExecution)
         }
         describe("detects duplicated tests") {
             it("fails with duplicate tests in one context") {
@@ -382,7 +382,7 @@ object TestCollectionExecutorTest {
                 }
                 val result = execute(ctx)
                 assert(
-                    result is FailedRootContext &&
+                    result is FailedTestCollectionExecution &&
                             result.failure.message!!.contains(
                                 "duplicate name \"dup test name\" in context \"root\""
                             )
@@ -406,7 +406,7 @@ object TestCollectionExecutorTest {
                 }
                 val result = execute(ctx)
                 expectThat(result)
-                    .isA<FailedRootContext>()
+                    .isA<FailedTestCollectionExecution>()
                     .get { failure }
                     .message
                     .isNotNull()
@@ -428,7 +428,7 @@ object TestCollectionExecutorTest {
                 }
                 val result = execute(ctx)
                 expectThat(result)
-                    .isA<FailedRootContext>()
+                    .isA<FailedTestCollectionExecution>()
                     .get { failure }
                     .message
                     .isNotNull()
@@ -523,10 +523,10 @@ object TestCollectionExecutorTest {
         }
     }
 
-    private suspend fun expectSuccess(contextResult: ContextResult) {
+    private suspend fun expectSuccess(testCollectionExecutionResult: TestCollectionExecutionResult) {
         assert(
-            contextResult is ContextInfo &&
-                contextResult.tests.values.awaitAll().all { it.isSuccess }
+            testCollectionExecutionResult is TestResults &&
+                testCollectionExecutionResult.tests.values.awaitAll().all { it.isSuccess }
         )
     }
 
@@ -534,7 +534,7 @@ object TestCollectionExecutorTest {
         context: TestCollection<Unit>,
         tag: String? = null,
         listener: ExecutionListener = NullExecutionListener
-    ): ContextResult {
+    ): TestCollectionExecutionResult {
         return coroutineScope {
             TestCollectionExecutor(context, this, runOnlyTag = tag, listener = listener).execute()
         }

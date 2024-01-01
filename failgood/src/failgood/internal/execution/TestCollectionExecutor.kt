@@ -39,10 +39,10 @@ internal class TestCollectionExecutor<RootGiven>(
      * all other tests in that context we create a SingleTestExecutor that executes the whole
      * context path of that test together with the test.
      */
-    suspend fun execute(): ContextResult {
+    suspend fun execute(): TestCollectionExecutionResult {
         val theTestCollection = fixRootName(testCollection)
         if (!staticExecutionConfig.testFilter.shouldRun(theTestCollection))
-            return ContextInfo(listOf(), mapOf(), setOf())
+            return TestResults(listOf(), mapOf(), setOf())
         val function = testCollection.function
         val rootContext = theTestCollection.rootContext
         staticExecutionConfig.listener.contextDiscovered(rootContext)
@@ -70,13 +70,13 @@ internal class TestCollectionExecutor<RootGiven>(
                 }
             } while (visitor.contextsLeft)
         } catch (e: Throwable) {
-            return FailedRootContext(rootContext, e)
+            return FailedTestCollectionExecution(rootContext, e)
         }
         // context order: first root context, then sub-contexts ordered by line number
         val contexts =
             listOf(rootContext) +
                 stateCollector.foundContexts.sortedBy { it.sourceInfo!!.lineNumber }
-        return ContextInfo(
+        return TestResults(
             contexts,
             stateCollector.deferredTestResults,
             stateCollector.afterSuiteCallbacks

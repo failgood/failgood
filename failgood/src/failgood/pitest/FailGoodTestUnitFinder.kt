@@ -8,7 +8,7 @@ import failgood.Success
 import failgood.Suite
 import failgood.TestDescription
 import failgood.TestPlusResult
-import failgood.internal.ContextInfo
+import failgood.internal.TestResults
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -36,7 +36,7 @@ object FailGoodTestUnitFinder : TestUnitFinder {
                         .findTests(GlobalScope, false)
                         .awaitAll()
                 }
-                .filterIsInstance<ContextInfo>()
+                .filterIsInstance<TestResults>()
         return tests.flatMap { it.tests.entries }.map { FailGoodTestUnit(it.key, it.value, clazz) }
     }
 

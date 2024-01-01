@@ -1,7 +1,7 @@
 package failgood.junit
 
-import failgood.internal.ContextResult
-import failgood.internal.FailedRootContext
+import failgood.internal.TestCollectionExecutionResult
+import failgood.internal.FailedTestCollectionExecution
 import failgood.internal.SuiteExecutionContext
 import java.util.*
 import org.junit.platform.engine.TestSource
@@ -11,11 +11,11 @@ import org.junit.platform.engine.support.descriptor.EngineDescriptor
 
 internal class FailGoodEngineDescriptor(
     uniqueId: UniqueId,
-    val testResult: List<ContextResult>,
+    val testResult: List<TestCollectionExecutionResult>,
     val executionListener: ChannelExecutionListener,
     val suiteExecutionContext: SuiteExecutionContext
 ) : EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.DISPLAY_NAME) {
-    val failedRootContexts = mutableListOf<FailedRootContext>()
+    val failedRootContexts = mutableListOf<FailedTestCollectionExecution>()
     val mapper = TestMapper()
 
     fun allDescendants(): String {

@@ -5,12 +5,12 @@ import failgood.TestDescription
 import failgood.TestPlusResult
 import kotlinx.coroutines.Deferred
 
-sealed interface ContextResult
+sealed interface TestCollectionExecutionResult
 
-internal data class ContextInfo(
+internal data class TestResults(
     val contexts: List<Context>,
     val tests: Map<TestDescription, Deferred<TestPlusResult>>,
     val afterSuiteCallbacks: Set<suspend () -> Unit>
-) : ContextResult
+) : TestCollectionExecutionResult
 
-data class FailedRootContext(val context: Context, val failure: Throwable) : ContextResult
+data class FailedTestCollectionExecution(val context: Context, val failure: Throwable) : TestCollectionExecutionResult

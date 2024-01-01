@@ -21,12 +21,12 @@ internal class LoadResults(private val loadResults: List<LoadResult>) {
         executeTests: Boolean = true,
         executionFilter: TestFilterProvider = ExecuteAllTestFilterProvider,
         listener: ExecutionListener = NullExecutionListener
-    ): List<Deferred<ContextResult>> {
+    ): List<Deferred<TestCollectionExecutionResult>> {
         return loadResults.map { loadResult: LoadResult ->
             when (loadResult) {
                 is CouldNotLoadTestCollection ->
                     CompletableDeferred(
-                        FailedRootContext(
+                        FailedTestCollectionExecution(
                             Context(loadResult.kClass.simpleName ?: "unknown"),
                             loadResult.reason
                         )
@@ -48,7 +48,7 @@ internal class LoadResults(private val loadResults: List<LoadResult>) {
                                     runOnlyTag = tag
                                 )
                                 .execute()
-                        } else ContextInfo(emptyList(), mapOf(), setOf())
+                        } else TestResults(emptyList(), mapOf(), setOf())
                     }
                 }
             }

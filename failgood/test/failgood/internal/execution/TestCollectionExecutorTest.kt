@@ -315,8 +315,8 @@ object TestCollectionExecutorTest {
                 assert(results.contexts.map { it.name }.contains("context 1"))
             }
         }
-        describe("handling of special cases:") {
-            describe("strange contexts:") {
+        describe("handling of special cases") {
+            describe("strange contexts") {
                 it("a context with only one ignored test") {
                     val context = TestCollection {
                         describe("context") {
@@ -335,7 +335,7 @@ object TestCollectionExecutorTest {
                 }
             }
 
-            describe("an ignored sub-context:") {
+            describe("an ignored sub-context") {
                 val ctx =
                     TestCollection("root context") {
                         test("test 1") {}

@@ -3,12 +3,17 @@
 
 All notable changes to this project will be documented in this file.
 
-## 0.9.1 "Bollerwagen" - Unlreleased
+## 0.9.1 "Bollerwagen" - Unreleased
 
 ### Fixed
 
 - Send executionStarted event for failed contexts. Idea will ignore executionFinished events for not started tests
   so the error message would not appear in the test runner. (it would appear in the console output of the test runner)
+- Fix some edge cases with the new junit engine.
+
+### Changed
+
+- Improve handling of duplicate root context names by making them unique by adding a number(tests, tests-1, tests-2)
 
 ## 0.9.0 "Pork Roast" - 2023-12-23
 

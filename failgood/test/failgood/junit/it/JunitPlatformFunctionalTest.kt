@@ -76,7 +76,13 @@ object JunitPlatformFunctionalTest {
                         "Test execution timed out. received results:${listener.results}"
                     )
                 }
-            assert(listener.errors.isEmpty()) { listener.errors }
+            assert(listener.errors.isEmpty()) {
+                "errors: ${listener.errors} events: ${
+                    listener.testEvents.joinToString("\n") {
+                        "${it.type}:${it.test.uniqueId}"
+                    }
+                }"
+            }
             return Results(rootResult, listener.results, listener.testEvents)
         }
 
@@ -364,15 +370,20 @@ object JunitPlatformFunctionalTest {
         override fun dynamicTestRegistered(testIdentifier: TestIdentifier) {
             super.dynamicTestRegistered(testIdentifier)
             if (!registeredTestUniqueIds.add(testIdentifier.uniqueId))
-                errors.add("duplicate test identifier registered: ${testIdentifier.uniqueId}. registered uniqueIds: $registeredTestUniqueIds")
+                errors.add(
+                    "duplicate test uniqueid registered: ${testIdentifier.uniqueId}. \nregistered uniqueIds: $registeredTestUniqueIds\n"
+                )
             testEvents.add(Event(REGISTERED, testIdentifier))
+            println("registered: ${testIdentifier.uniqueId}")
         }
 
         override fun executionStarted(testIdentifier: TestIdentifier) {
             // the root test identifier is already registered, so we check only elements with parentId
             if (testIdentifier.parentId.isPresent) {
                 // check that the test that is starting was registered
-                if (checkRegisterEvent && !registeredTestUniqueIds.contains(testIdentifier.uniqueId)) errors.add("start event received for ${testIdentifier.uniqueId} which was not registered")
+                if (checkRegisterEvent && !registeredTestUniqueIds.contains(testIdentifier.uniqueId)) errors.add(
+                    "start event received for ${testIdentifier.uniqueId} which was not registered"
+                )
                 // check that the parent is already started
                 testIdentifier.parentId.get()
                     .let { if (!startedTestUniqueIds.contains(it)) errors.add("start event received for $testIdentifier whose parent with uniqueid $it was not started") }

@@ -20,7 +20,7 @@ class DelegatingJunitEngine : TestEngine {
         uniqueId: UniqueId
     ): TestDescriptor {
         val useNew =
-            discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_NEW_JUNIT).orElse(false)
+            discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_NEW_JUNIT).orElse(true)
         currentEngine = if (useNew) NewJunitEngine() else FailGoodJunitTestEngine()
         return currentEngine.discover(discoveryRequest, uniqueId)
     }

@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Improve handling of duplicate root context names by making them unique by adding a number(tests, tests-1, tests-2)
+- Default to the new junit engine. you can still use `-Dfailgood.new.junit=false` to use the old one
 
 ## 0.9.0 "Pork Roast" - 2023-12-23
 

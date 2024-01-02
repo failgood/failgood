@@ -1,18 +1,50 @@
 package failgood.internal.execution
 
-import failgood.*
+import failgood.Context
+import failgood.ExecutionListener
+import failgood.Failure
 import failgood.Ignored.Because
-import failgood.internal.*
-import failgood.internal.execution.RecordingListener.Event
-import failgood.internal.execution.RecordingListener.Type.CONTEXT_DISCOVERED
-import failgood.internal.execution.RecordingListener.Type.TEST_DISCOVERED
+import failgood.NullExecutionListener
+import failgood.Skipped
+import failgood.Success
+import failgood.Test
+import failgood.TestCollection
+import failgood.TestDescription
+import failgood.internal.ExecuteAllTests
+import failgood.internal.FailedTestCollectionExecution
+import failgood.internal.StringListTestFilter
+import failgood.internal.TestCollectionExecutionResult
+import failgood.internal.TestFilter
+import failgood.internal.TestResults
+import failgood.internal.execution.DiscoveryListener.Event
+import failgood.internal.execution.DiscoveryListener.Type.CONTEXT_DISCOVERED
+import failgood.internal.execution.DiscoveryListener.Type.TEST_DISCOVERED
+import failgood.tests
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeout
+import strikt.api.expectThat
+import strikt.assertions.all
+import strikt.assertions.contains
+import strikt.assertions.containsExactly
+import strikt.assertions.containsExactlyInAnyOrder
+import strikt.assertions.get
+import strikt.assertions.isA
+import strikt.assertions.isEmpty
+import strikt.assertions.isEqualTo
+import strikt.assertions.isGreaterThanOrEqualTo
+import strikt.assertions.isNotEmpty
+import strikt.assertions.isNotNull
+import strikt.assertions.map
+import strikt.assertions.message
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlinx.coroutines.*
-import strikt.api.expectThat
-import strikt.assertions.*
 
 @Test
 object TestCollectionExecutorTest {
@@ -26,6 +58,7 @@ object TestCollectionExecutorTest {
                 test("ignored test", ignored = Because("testing")) {}
                 test("failed test") { throw assertionError }
                 context("context 1") {
+                    test("context 1 test") {}
                     // comment to make sure that context1 and context2 are not on the same
                     // line
                     context("context 2") { test("test 3") { delay(1) } }
@@ -66,6 +99,7 @@ object TestCollectionExecutorTest {
                                     "test 2",
                                     "ignored test",
                                     "failed test",
+                                    "context 1 test",
                                     "test 3",
                                     "test 4"
                                 )
@@ -78,7 +112,7 @@ object TestCollectionExecutorTest {
                     val skipped = assertNotNull(testResults.filter { it.isSkipped }.singleOrNull())
                     assert(
                         successful.map { it.test.testName } ==
-                                listOf("test 1", "test 2", "test 3", "test 4")
+                                listOf("test 1", "test 2", "context 1 test", "test 3", "test 4")
                     )
                     assert(failed.test.testName == "failed test")
                     assert(skipped.test.testName == "ignored test")
@@ -123,7 +157,7 @@ object TestCollectionExecutorTest {
             describe(
                 "with a listener",
                 given = {
-                    val listener = RecordingListener()
+                    val listener = DiscoveryListener()
                     assertNotNull(
                         assertNotNull(
                             TypicalTestContext().execute(listener = listener) as? TestResults
@@ -141,6 +175,7 @@ object TestCollectionExecutorTest {
                             Event(TEST_DISCOVERED, "ignored test"),
                             Event(TEST_DISCOVERED, "failed test"),
                             Event(CONTEXT_DISCOVERED, "context 1"),
+                            Event(TEST_DISCOVERED, "context 1 test"),
                             Event(CONTEXT_DISCOVERED, "context 2"),
                             Event(TEST_DISCOVERED, "test 3"),
                             Event(CONTEXT_DISCOVERED, "context 3"),
@@ -526,7 +561,7 @@ object TestCollectionExecutorTest {
     private suspend fun expectSuccess(testCollectionExecutionResult: TestCollectionExecutionResult) {
         assert(
             testCollectionExecutionResult is TestResults &&
-                testCollectionExecutionResult.tests.values.awaitAll().all { it.isSuccess }
+                    testCollectionExecutionResult.tests.values.awaitAll().all { it.isSuccess }
         )
     }
 
@@ -544,20 +579,24 @@ object TestCollectionExecutorTest {
         runtimeException!!.stackTrace.first().lineNumber
 }
 
-class RecordingListener : ExecutionListener {
+class DiscoveryListener : ExecutionListener {
     enum class Type {
         TEST_DISCOVERED,
-        CONTEXT_DISCOVERED,
+        CONTEXT_DISCOVERED/*,
         TEST_STARTED,
         FINISHED,
-        TEST_EVENT
+        TEST_EVENT */
     }
 
     private fun event(type: Type, name: String) {
         events.add(Event(type, name))
     }
 
-    data class Event(val type: Type, val testDescription: String)
+    data class Event(val type: Type, val testDescription: String) {
+        override fun toString(): String {
+            return "$testDescription $type"
+        }
+    }
 
     val events = CopyOnWriteArrayList<Event>()
 

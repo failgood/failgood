@@ -124,7 +124,9 @@ internal class ContextVisitor<RootGiven, GivenType>(
         val sourceInfo = sourceInfo()
         val context = Context(name, context, sourceInfo, subContextShouldHaveIsolation)
         val ignoreReason = ignored?.isIgnored()
-        staticConfig.listener.contextDiscovered(context)
+        if (!contextStateCollector.investigatedContexts.contains(context)) {
+            staticConfig.listener.contextDiscovered(context)
+        }
         if (ignoreReason != null) {
             // we report an ignored context as a context with one ignored test.
             val testDescriptor =

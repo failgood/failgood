@@ -1,5 +1,6 @@
 package failgood.junit.next
 
+import failgood.FailGoodException
 import failgood.junit.appendContext
 import failgood.junit.appendTest
 import java.util.Optional
@@ -33,7 +34,9 @@ class DynamicTestDescriptor(
     override fun getParent(): Optional<TestDescriptor> = Optional.ofNullable(parent)
 
     override fun setParent(parent: TestDescriptor?) {
-        TODO("Not yet implemented")
+        // we don't allow changing our parent, but if junit calls us with the parent we already have that's ok
+        if (parent != this.parent)
+            throw IllegalStateException()
     }
 
     override fun getChildren(): MutableSet<out TestDescriptor> = children

@@ -19,6 +19,7 @@ import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestEngine
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.UniqueId
+import org.junit.platform.engine.discovery.ClasspathRootSelector
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
 
 class NewJunitEngine : TestEngine {
@@ -49,9 +50,11 @@ class NewJunitEngine : TestEngine {
                 ?: return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.DISPLAY_NAME)
 
         return FailGoodEngineDescriptor(uniqueId, id, suiteAndFilters).also {
-            // add one fake child because IDEA does not call `execute` when the test plan is totally empty
-            // (but not always, only when running "all tests in Project" (instead of just one module)
-            it.addChild(DynamicTestDescriptor(TestPlanNode.Test("test", "test"), it))
+            // add one fake child because IDEA does not call `execute` when the test plan is totally empty.
+            // This does not happen always but only when running "all tests in Project" (instead of just one module)
+            // we try to detect this case and add a fake test
+            if (discoveryRequest.getSelectorsByType(ClasspathRootSelector::class.java).size > 1)
+                it.addChild(DynamicTestDescriptor(TestPlanNode.Test("test", "empty-test-please-ignore"), it))
             failureLogger.add("Engine Descriptor", it.toString())
 
             if (debug) {

@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file.
 - Send executionStarted event for failed contexts. Idea will ignore executionFinished events for not started tests
   so the error message would not appear in the test runner. (it would appear in the console output of the test runner)
 - Fix some edge cases with the new junit engine.
+- Fix running "all tests in project" by adding a fake test, because idea does not tests when the initial test plan is empty
+
 
 ### Changed
 

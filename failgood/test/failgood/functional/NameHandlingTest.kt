@@ -27,12 +27,13 @@ object NameHandlingTest {
             }
         }
         describe("duplicate test collection names") {
-            it("makes duplicate test collection names unique", ignored = Ignored.TODO) {
+            it("makes duplicate test collection names unique") {
                 val results = Suite(
-                    listOf(testsAbout("duplicate name") {},
-                        testsAbout("duplicate name") {})
+                    listOf(testsAbout("duplicate name") {}.withNewClassName("test"),
+                        testsAbout("duplicate name") {}.withNewClassName("test"))
                 ).run(silent = true)
-                assertEquals(listOf("duplicate name", "duplicate name 1"), results.contexts.map { it.name })
+                assertEquals(listOf("duplicate name", "duplicate name-1"), results.contexts.map { it.name })
+                assertEquals(listOf("test: duplicate name", "test: duplicate name-1"), results.contexts.map { it.displayName })
             }
         }
 

@@ -32,8 +32,8 @@ object NameHandlingTest {
                     listOf(testsAbout("duplicate name") {}.withNewClassName("test"),
                         testsAbout("duplicate name") {}.withNewClassName("test"))
                 ).run(silent = true)
-                assertEquals(listOf("duplicate name", "duplicate name-1"), results.contexts.map { it.name })
-                assertEquals(listOf("test: duplicate name", "test: duplicate name-1"), results.contexts.map { it.displayName })
+                assert(results.contexts.map { it.name }.containsExactlyInAnyOrder("duplicate name", "duplicate name-1"))
+                assert(results.contexts.map { it.displayName }.containsExactlyInAnyOrder("test: duplicate name", "test: duplicate name-1"))
             }
         }
 

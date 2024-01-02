@@ -2,7 +2,7 @@ package failgood
 
 import failgood.internal.Colors
 import failgood.internal.ContextTreeReporter
-import failgood.internal.FailedRootContext
+import failgood.internal.FailedTestCollectionExecution
 import failgood.internal.Junit4Reporter
 import failgood.internal.sysinfo.uptime
 import failgood.internal.util.getenv
@@ -15,7 +15,7 @@ data class SuiteResult(
     val allTests: List<TestPlusResult>,
     val failedTests: List<TestPlusResult>,
     val contexts: List<Context>,
-    val failedRootContexts: List<FailedRootContext>
+    val failedRootContexts: List<FailedTestCollectionExecution>
 ) {
     val allOk = failedTests.isEmpty() && failedRootContexts.isEmpty()
 

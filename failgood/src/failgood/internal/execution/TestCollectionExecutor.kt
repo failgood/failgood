@@ -39,12 +39,11 @@ internal class TestCollectionExecutor<RootGiven>(
      * all other tests in that context we create a SingleTestExecutor that executes the whole
      * context path of that test together with the test.
      */
-    suspend fun execute(): ContextResult {
-        val theTestCollection = fixRootName(testCollection)
-        if (!staticExecutionConfig.testFilter.shouldRun(theTestCollection))
-            return ContextInfo(listOf(), mapOf(), setOf())
+    suspend fun execute(): TestCollectionExecutionResult {
+        if (!staticExecutionConfig.testFilter.shouldRun(testCollection))
+            return TestResults(listOf(), mapOf(), setOf())
         val function = testCollection.function
-        val rootContext = theTestCollection.rootContext
+        val rootContext = testCollection.rootContext
         staticExecutionConfig.listener.contextDiscovered(rootContext)
         try {
             do {
@@ -63,34 +62,27 @@ internal class TestCollectionExecutor<RootGiven>(
                     )
                 try {
                     withTimeout(staticExecutionConfig.timeoutMillis) { visitor.function() }
-                } catch (_: ContextFinished) {}
+                } catch (_: ContextFinished) {
+                }
                 stateCollector.investigatedContexts.add(rootContext)
                 if (stateCollector.containsContextsWithoutIsolation) {
                     stateCollector.afterSuiteCallbacks.add { resourcesCloser.closeAutoCloseables() }
                 }
             } while (visitor.contextsLeft)
         } catch (e: Throwable) {
-            return FailedRootContext(rootContext, e)
+            return FailedTestCollectionExecution(rootContext, e)
         }
         // context order: first root context, then sub-contexts ordered by line number
         val contexts =
             listOf(rootContext) +
-                stateCollector.foundContexts.sortedBy { it.sourceInfo!!.lineNumber }
-        return ContextInfo(
+                    stateCollector.foundContexts.sortedBy { it.sourceInfo!!.lineNumber }
+        return TestResults(
             contexts,
             stateCollector.deferredTestResults,
             stateCollector.afterSuiteCallbacks
         )
     }
 
-    private fun fixRootName(testCollection1: TestCollection<RootGiven>) =
-        if (testCollection1.addClassName) {
-            val shortClassName = testCollection1.sourceInfo.className.substringAfterLast(".")
-            val newName =
-                if (testCollection1.rootContext.name == "root") shortClassName
-                else "$shortClassName: ${testCollection1.rootContext.name}"
-            testCollection1.copy(rootContext = testCollection1.rootContext.copy(displayName = newName))
-        } else testCollection1
 }
 
 // this is thrown to save time when the context is finished, and we cannot do anything meaningful in this pass

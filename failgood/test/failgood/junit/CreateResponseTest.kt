@@ -1,8 +1,8 @@
 package failgood.junit
 
 import failgood.*
-import failgood.internal.ContextInfo
-import failgood.internal.FailedRootContext
+import failgood.internal.TestResults
+import failgood.internal.FailedTestCollectionExecution
 import failgood.internal.SuiteExecutionContext
 import kotlinx.coroutines.CompletableDeferred
 import org.junit.platform.engine.TestDescriptor
@@ -27,7 +27,7 @@ class CreateResponseTest {
                     createResponse(
                         UniqueId.forEngine("failgood"),
                         listOf(
-                            ContextInfo(
+                            TestResults(
                                 listOf(rootContext, Context("sub context name", rootContext)),
                                 mapOf(),
                                 setOf()
@@ -36,7 +36,7 @@ class CreateResponseTest {
                         FailGoodEngineDescriptor(
                             UniqueId.forEngine("failgood"),
                             listOf(
-                                ContextInfo(
+                                TestResults(
                                     listOf(rootContext, Context("sub context name", rootContext)),
                                     mapOf(),
                                     setOf()
@@ -68,10 +68,10 @@ class CreateResponseTest {
                 val rootContextDescriptor =
                     createResponse(
                         UniqueId.forEngine("failgood"),
-                        listOf(FailedRootContext(rootContext, RuntimeException())),
+                        listOf(FailedTestCollectionExecution(rootContext, RuntimeException())),
                         FailGoodEngineDescriptor(
                             UniqueId.forEngine("failgood"),
-                            listOf(FailedRootContext(rootContext, RuntimeException())),
+                            listOf(FailedTestCollectionExecution(rootContext, RuntimeException())),
                             failGoodEngineDescriptor,
                             suiteExecutionContext
                         )
@@ -98,7 +98,7 @@ class CreateResponseTest {
                     createResponse(
                         UniqueId.forEngine("failgood"),
                         listOf(
-                            ContextInfo(
+                            TestResults(
                                 listOf(rootContext, Context("sub context name", rootContext)),
                                 mapOf(
                                     test to CompletableDeferred(TestPlusResult(test, Success(10)))
@@ -109,7 +109,7 @@ class CreateResponseTest {
                         FailGoodEngineDescriptor(
                             UniqueId.forEngine("failgood"),
                             listOf(
-                                ContextInfo(
+                                TestResults(
                                     listOf(rootContext, Context("sub context name", rootContext)),
                                     mapOf(
                                         test to

@@ -46,12 +46,12 @@ class ObjectContextProviderTest {
                     .isA<TestCollection<Unit>>()
                     .and { get { rootContext.name }.isEqualTo("test context declared on top level") }
             }
-            it("handles weird contexts defined in private vals gracefully") {
+            it("handles and ignores weird contexts defined in private vals gracefully") {
                 assert(
                     ObjectContextProvider(PrivateContextFixture::class)
                         .getContexts()
                         .map { it.rootContext.name }
-                        .size == 2
+                        .size == 1
                 )
             }
 

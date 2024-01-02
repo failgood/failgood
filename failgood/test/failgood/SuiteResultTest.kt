@@ -1,6 +1,6 @@
 package failgood
 
-import failgood.internal.FailedRootContext
+import failgood.internal.FailedTestCollectionExecution
 
 @Test
 class SuiteResultTest {
@@ -12,7 +12,7 @@ class SuiteResultTest {
                         listOf(),
                         listOf(),
                         listOf(),
-                        listOf(FailedRootContext(Context("context"), failure = RuntimeException()))
+                        listOf(FailedTestCollectionExecution(Context("context"), failure = RuntimeException()))
                     )
                 test("allOk is false") { assert(!result.allOk) }
             }

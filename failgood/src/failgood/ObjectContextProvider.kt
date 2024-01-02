@@ -57,16 +57,17 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
         val methodsReturningRootContext =
             jClass.methods
                 .filter {
-                    it.returnType == TestCollection::class.java ||
-                        it.returnType == List::class.java &&
-                            it.genericReturnType.let { genericReturnType ->
-                                genericReturnType is ParameterizedType &&
-                                    genericReturnType.actualTypeArguments.singleOrNull().let {
-                                        actualTypArg ->
-                                        actualTypArg is ParameterizedType &&
-                                            actualTypArg.rawType == TestCollection::class.java
-                                    }
-                            }
+                    !it.isSynthetic && (
+                            it.returnType == TestCollection::class.java ||
+                                    it.returnType == List::class.java &&
+                                    it.genericReturnType.let { genericReturnType ->
+                                        genericReturnType is ParameterizedType &&
+                                                genericReturnType.actualTypeArguments.singleOrNull()
+                                                    .let { actualTypArg ->
+                                                        actualTypArg is ParameterizedType &&
+                                                                actualTypArg.rawType == TestCollection::class.java
+                                                    }
+                                    })
                 }
                 .ifEmpty {
                     throw ErrorLoadingContextsFromClass("no contexts found in class", jClass.kotlin)
@@ -74,23 +75,12 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
         return methodsReturningRootContext.flatMap {
             val contexts =
                 try {
-                    // the most common case is that the getter has no parameters
                     if (it.parameters.isEmpty()) it.invoke(instance)
                     else {
-                        // for private properties the kotlin compiler seems to sometimes generate a
-                        // static getter that takes the instance as single parameter
-                        val typeOfSingleParameter = it.parameters.singleOrNull()?.type
-                        if (
-                            typeOfSingleParameter != null &&
-                                instance != null &&
-                                typeOfSingleParameter == instance::class.java
+                        throw ErrorLoadingContextsFromClass(
+                            "context method ${it.niceString()} takes unexpected parameters",
+                            jClass.kotlin
                         )
-                            it.invoke(null, instance)
-                        else
-                            throw ErrorLoadingContextsFromClass(
-                                "context method ${it.niceString()} takes unexpected parameters",
-                                jClass.kotlin
-                            )
                     }
                 } catch (e: ErrorLoadingContextsFromClass) {
                     throw e
@@ -120,7 +110,7 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
             val obj =
                 if (instanceField != null)
                 // its a kotlin object
-                instanceField.get(null)
+                    instanceField.get(null)
                 else {
                     // it's a kotlin class or a top level context
                     clazz.constructors.singleOrNull()?.newInstance()

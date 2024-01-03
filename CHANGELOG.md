@@ -3,7 +3,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 0.9.1 "Bollerwagen" - 2024-01-02
+## 0.9.1 "Bollerwagen" - 2024-01-03
 
 ### Fixed
 

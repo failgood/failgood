@@ -374,7 +374,6 @@ object JunitPlatformFunctionalTest {
                     "duplicate test uniqueid registered: ${testIdentifier.uniqueId}. \nregistered uniqueIds: $registeredTestUniqueIds\n"
                 )
             testEvents.add(Event(REGISTERED, testIdentifier))
-            println("registered: ${testIdentifier.uniqueId}")
         }
 
         override fun executionStarted(testIdentifier: TestIdentifier) {

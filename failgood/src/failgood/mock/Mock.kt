@@ -72,9 +72,10 @@ suspend fun <Mock : Any> verify(mock: Mock, expectedCalls: suspend Mock.() -> Un
  * `expectThat(getCalls(mock)).single() .isEqualTo(call(Class::method, parameter1, parameter2,
  * ...))`
  */
-fun getCalls(mock: Any) = getHandler(mock).calls.map { FunctionCall(it.method.name, it.arguments) }
+fun <T:Any> getCalls(mock: T): List<FunctionCall<T>> = getHandler(mock).calls.map { FunctionCall(it.method.name, it.arguments) }
 
-data class FunctionCall(val function: String, val arguments: List<Any?>)
+@Suppress("unused")
+data class FunctionCall<T>(val function: String, val arguments: List<Any?>)
 
 class MockException internal constructor(msg: String) : AssertionError(msg)
 

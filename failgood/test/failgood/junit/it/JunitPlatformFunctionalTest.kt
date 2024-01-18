@@ -22,6 +22,7 @@ import failgood.junit.it.fixtures.IgnoredTestFixture
 import failgood.junit.it.fixtures.SimpleClassTestFixture
 import failgood.junit.it.fixtures.SimpleTestFixture
 import failgood.junit.it.fixtures.SimpleTestFixtureWithMultipleTests
+import failgood.junit.it.fixtures.SimpleUnnamedTestFixtureWithMultipleTests
 import failgood.junit.it.fixtures.TestFixtureThatFailsAfterFirstPass
 import failgood.junit.it.fixtures.TestFixtureWithFailingTestAndAfterEach
 import failgood.junit.it.fixtures.TestFixtureWithNonStandardDescribe
@@ -294,26 +295,38 @@ object JunitPlatformFunctionalTest {
                     "our unique ids must contain the class name"
                 }
             }
-            it("returns uniqueIds that it understands (uniqueid round-trip test)") {
-                // run a test by className
-                val result = executeSingleTest(SimpleTestFixtureWithMultipleTests::class)
-                assertTestExecutionSucceeded(result)
+            describe("returns uniqueIds that it understands (uniqueid round-trip test)") {
+                suspend fun roundTrip(testClass: KClass<*>): String? {
+                    val result = executeSingleTest(testClass)
+                    assertTestExecutionSucceeded(result)
 
-                val testName = "a test in the subcontext"
-                val descriptor: TestIdentifier =
-                    assertNotNull(result.results.keys.singleOrNull { it.displayName == testName })
-                val uniqueId = descriptor.uniqueId
-                assert(
-                    uniqueId
-                        .toString()
-                        .contains(SimpleTestFixtureWithMultipleTests::class.simpleName!!)
-                ) {
-                    "our unique ids must contain the class name"
+                    val testName = "a test in the subcontext"
+                    val descriptor: TestIdentifier =
+                        assertNotNull(result.results.keys.singleOrNull { it.displayName == testName })
+                    val uniqueId = descriptor.uniqueId
+                    assert(
+                        uniqueId
+                            .toString()
+                            .contains(testClass.simpleName!!)
+                    ) {
+                        "our unique ids must contain the class name"
+                    }
+                    // now use the uniqueid that we just returned to run the same test again
+                    val newResult = execute(listOf(selectUniqueId(uniqueId)))
+                    val tests = newResult.results.keys.filter { it.isTest }.map { it.displayName }
+                    assert(tests.singleOrNull() == testName)
+                    return uniqueId
                 }
-                // now use the uniqueid that we just returned to run the same test again
-                val newResult = execute(listOf(selectUniqueId(uniqueId)))
-                val tests = newResult.results.keys.filter { it.isTest }.map { it.displayName }
-                assert(tests.singleOrNull() == testName)
+                it("works for named test collections") {
+                    roundTrip(SimpleTestFixtureWithMultipleTests::class)
+                }
+                it("works for unnamed test collections") {
+                    assertEquals(
+                        // document how the uniqueid looks
+                        "[engine:failgood]/[class:SimpleUnnamedTestFixtureWithMultipleTests(failgood.junit.it.fixtures.SimpleUnnamedTestFixtureWithMultipleTests)]/[class:a context in the root context]/[method:a test in the subcontext]",
+                        roundTrip(SimpleUnnamedTestFixtureWithMultipleTests::class)
+                    )
+                }
             }
         }
         describe("error handling") {

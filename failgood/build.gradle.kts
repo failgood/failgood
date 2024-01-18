@@ -10,7 +10,7 @@ plugins {
     signing
     id("failgood.common")
     id("failgood.publishing")
-    id("com.bnorm.power.kotlin-power-assert") version "0.13.0"
+//    id("com.bnorm.power.kotlin-power-assert") version "0.13.0"
     id("org.jetbrains.kotlinx.kover") version "0.7.5"
     id("org.jetbrains.dokka") version "1.9.10"
 }
@@ -83,7 +83,7 @@ plugins.withId("info.solidsoft.pitest") {
         outputFormats = setOf("XML", "HTML")
     }
 }
-
+/*
 configure<com.bnorm.power.PowerAssertGradleExtension> {
     functions = listOf(
         "kotlin.assert",
@@ -92,7 +92,7 @@ configure<com.bnorm.power.PowerAssertGradleExtension> {
         "failgood.softly.AssertDSL.assert"
     )
 }
-
+*/
 // reproduce https://github.com/failgood/failgood/issues/93
 tasks.register<Test>("runSingleNonFailgoodTest") {
     outputs.upToDateWhen { false }

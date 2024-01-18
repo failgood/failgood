@@ -53,7 +53,9 @@ class NewJunitEngine : TestEngine {
             // Add one fake child because IDEA does not call `execute` when the test plan is totally empty.
             // This does not happen always but only when running "all tests in Project" (instead of just one module)
             // We try to detect this case and add a fake test
-            if (discoveryRequest.getSelectorsByType(ClasspathRootSelector::class.java).size > 1)
+            val classPathRootSelectors = discoveryRequest.getSelectorsByType(ClasspathRootSelector::class.java)
+            // idea adds classpath roots for kotlin, java and resources, so for one root it adds 3
+            if (classPathRootSelectors.size > 3)
                 it.addChild(DynamicTestDescriptor(TestPlanNode.Test("test", "empty-test-please-ignore"), it))
             failureLogger.add("Engine Descriptor", it.toString())
 

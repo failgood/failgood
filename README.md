@@ -29,9 +29,9 @@ While other test-runners are still busy scanning your classpath for tests, failg
 This is failgood running its own test suite on a Macbook Air:
 
 ```
-147 tests. 145 ok, 2 pending. time: 403ms. load:312%. 364 tests/sec
+239 tests. 235 ok, 4 pending. time: 479ms. load:508%. 498 tests/sec
 ```
-147 Tests in 0.4 seconds. Your test suite could be so fast too.
+239 Tests in 0.4 seconds. Your test suite could be so fast too.
 
 ### Boring
 Failgood is boring at runtime. Every test runs with fresh dependencies, just like in JUnit, see [test lifecycle](docs/how%20to%20write%20tests%20with%20failgood.md). For advanced lifecycle option look at [More on lifecycle](docs/isolation.md)

@@ -11,7 +11,7 @@ object IgnoreUntilTest {
             assert(Until("2020-01-20").isIgnored() == null)
         }
         it("returns a reason after now") {
-            assert(Until("2029-01-20").isIgnored() == "2024-01-20 is after now")
+            assert(Until("2029-01-20").isIgnored() == "2029-01-20 is after now")
         }
     }
 }

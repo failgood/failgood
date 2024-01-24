@@ -26,7 +26,7 @@ class MyFirstFailgoodTest {
 
 ### It's Fast
 While other test-runners are still busy scanning your classpath for tests, failgood is already running them in parallel, and if your test suite is lightweight and well written maybe its already finished.
-This is failgood running its own test suite on a Macbook Air:
+This is failgood running its own test suite on a Macbook Pro M1:
 
 ```
 239 tests. 235 ok, 4 pending. time: 479ms. load:508%. 498 tests/sec

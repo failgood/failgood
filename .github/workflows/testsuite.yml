@@ -57,7 +57,7 @@ jobs:
         with:
           name: build-reports-${{ matrix.os }}-${{ matrix.java }}
           path: failgood/build/reports
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           #        token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
           files: failgood/build/reports/kover/xml/report.xml

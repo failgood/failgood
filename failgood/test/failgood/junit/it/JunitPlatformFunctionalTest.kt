@@ -78,7 +78,7 @@ object JunitPlatformFunctionalTest {
                     )
                 }
             assert(listener.errors.isEmpty()) {
-                "errors: ${listener.errors} events: ${
+                "errors: ${listener.errors}\nevents: ${
                     listener.testEvents.joinToString("\n") {
                         "${it.type}:${it.test.uniqueId}"
                     }
@@ -398,7 +398,7 @@ object JunitPlatformFunctionalTest {
                 )
                 // check that the parent is already started
                 testIdentifier.parentId.get()
-                    .let { if (!startedTestUniqueIds.contains(it)) errors.add("start event received for $testIdentifier whose parent with uniqueid $it was not started") }
+                    .let { if (!startedTestUniqueIds.contains(it)) errors.add("start event received for ${testIdentifier.uniqueId} whose parent with uniqueid $it was not started") }
             }
 
             if (!startedTestUniqueIds.add(testIdentifier.uniqueId))

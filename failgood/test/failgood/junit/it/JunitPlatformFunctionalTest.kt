@@ -4,7 +4,8 @@ import failgood.Ignored
 import failgood.Test
 import failgood.assert.containsExactlyInAnyOrder
 import failgood.dsl.ContextDSL
-import failgood.junit.FailGoodJunitTestEngine
+import failgood.junit.FailGoodJunitTestEngineConstants
+import failgood.junit.legacy.LegacyJUnitTestEngine
 import failgood.junit.it.JunitPlatformFunctionalTest.TestTestExecutionListener.Event.Type.FINISHED
 import failgood.junit.it.JunitPlatformFunctionalTest.TestTestExecutionListener.Event.Type.REGISTERED
 import failgood.junit.it.JunitPlatformFunctionalTest.TestTestExecutionListener.Event.Type.SKIPPED
@@ -107,7 +108,7 @@ object JunitPlatformFunctionalTest {
                     val className = IgnoredContextFixture::class.simpleName
                     assertEquals(
                         listOf(
-                            Pair(STARTED, "failgood-new"),
+                            Pair(STARTED, FailGoodJunitTestEngineConstants.ID),
                             Pair(REGISTERED, "$className: root context"),
                             Pair(REGISTERED, "ignored context"),
                             Pair(
@@ -122,7 +123,7 @@ object JunitPlatformFunctionalTest {
                             ),
                             Pair(FINISHED, "ignored context"),
                             Pair(FINISHED, "$className: root context"),
-                            Pair(FINISHED, "failgood-new")
+                            Pair(FINISHED, FailGoodJunitTestEngineConstants.ID)
                         ),
                         result.testEvents.map { Pair(it.type, it.test.displayName) }
                     )
@@ -140,7 +141,7 @@ object JunitPlatformFunctionalTest {
                     assert(getFailedTests(result).isEmpty())
                     assertEquals(
                         listOf(
-                            Pair(STARTED, "failgood-new"),
+                            Pair(STARTED, FailGoodJunitTestEngineConstants.ID),
                             Pair(
                                 REGISTERED,
                                 "${IgnoredTestFixture::class.simpleName}: root context"
@@ -149,7 +150,7 @@ object JunitPlatformFunctionalTest {
                             Pair(STARTED, "${IgnoredTestFixture::class.simpleName}: root context"),
                             Pair(SKIPPED, "pending test"),
                             Pair(FINISHED, "${IgnoredTestFixture::class.simpleName}: root context"),
-                            Pair(FINISHED, "failgood-new")
+                            Pair(FINISHED, FailGoodJunitTestEngineConstants.ID)
                         ),
                         result.testEvents.map { Pair(it.type, it.test.displayName) }
                     )
@@ -259,7 +260,7 @@ object JunitPlatformFunctionalTest {
                 LauncherFactory.create(
                     LauncherConfig.builder()
                         .enableTestEngineAutoRegistration(false)
-                        .addTestEngines(FailGoodJunitTestEngine())
+                        .addTestEngines(LegacyJUnitTestEngine())
                         .build()
                 )
                     .discover(

@@ -1,12 +1,12 @@
-package failgood.junit
+package failgood.junit.legacy
 
 import failgood.Test
 import failgood.testsAbout
 
 @Test
-object FailGoodJunitTestEngineTest {
+object LegacyJUnitTestEngineTest {
     val tests =
-        testsAbout(FailGoodJunitTestEngine::class) {
+        testsAbout(LegacyJUnitTestEngine::class) {
             it("parses a filter string") {
                 val filters =
                     parseFilterString(

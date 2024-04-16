@@ -1,8 +1,10 @@
-package failgood.junit
+package failgood.junit.legacy
 
 import failgood.internal.TestCollectionExecutionResult
 import failgood.internal.FailedTestCollectionExecution
 import failgood.internal.SuiteExecutionContext
+import failgood.junit.FailGoodJunitTestEngineConstants
+import failgood.junit.TestMapper
 import java.util.*
 import org.junit.platform.engine.TestSource
 import org.junit.platform.engine.UniqueId
@@ -27,7 +29,7 @@ internal class FailGoodEngineDescriptor(
     }
 
     private val failgoodClass: Optional<TestSource> =
-        Optional.of(ClassSource.from(FailGoodJunitTestEngine::class.java))
+        Optional.of(ClassSource.from(LegacyJUnitTestEngine::class.java))
 
     override fun getSource(): Optional<TestSource> = failgoodClass
 }

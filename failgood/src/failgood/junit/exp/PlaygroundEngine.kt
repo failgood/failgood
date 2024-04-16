@@ -1,7 +1,7 @@
 package failgood.junit.exp
 
-import failgood.junit.next.DynamicTestDescriptor
-import failgood.junit.next.TestPlanNode
+import failgood.junit.DynamicTestDescriptor
+import failgood.junit.TestPlanNode
 import java.util.Optional
 import org.junit.platform.engine.EngineDiscoveryRequest
 import org.junit.platform.engine.ExecutionRequest

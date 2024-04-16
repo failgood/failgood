@@ -1,4 +1,4 @@
-package failgood.junit.next
+package failgood.junit
 
 sealed interface TestPlanNode {
     val name: String

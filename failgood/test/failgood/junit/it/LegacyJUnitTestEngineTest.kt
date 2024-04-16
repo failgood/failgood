@@ -1,8 +1,8 @@
 package failgood.junit.it
 
 import failgood.Test
-import failgood.junit.FailGoodEngineDescriptor
-import failgood.junit.FailGoodJunitTestEngine
+import failgood.junit.legacy.FailGoodEngineDescriptor
+import failgood.junit.legacy.LegacyJUnitTestEngine
 import failgood.junit.FailGoodJunitTestEngineConstants
 import failgood.junit.it.fixtures.IgnoredTestFixture
 import failgood.junit.it.fixtures.SimpleTestFixture
@@ -27,10 +27,10 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 /** This tests the old junit engine, so it will probably go away at some point */
 @Test
-class FailGoodJunitTestEngineTest {
+class LegacyJUnitTestEngineTest {
     val tests =
-        testsAbout(FailGoodJunitTestEngine::class) {
-            val engine = FailGoodJunitTestEngine()
+        testsAbout(LegacyJUnitTestEngine::class) {
+            val engine = LegacyJUnitTestEngine()
             describe(
                 "can discover tests",
                 given = {

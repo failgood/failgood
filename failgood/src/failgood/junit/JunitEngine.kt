@@ -1,16 +1,8 @@
-package failgood.junit.next
+package failgood.junit
 
 import failgood.Context
-import failgood.junit.ContextFinder
-import failgood.junit.FailGoodJunitTestEngineConstants
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_SILENT
 import failgood.junit.FailGoodJunitTestEngineConstants.DEBUG_TXT_FILENAME
-import failgood.junit.FailureLogger
-import failgood.junit.FailureLoggingEngineExecutionListener
-import failgood.junit.LoggingEngineExecutionListener
-import failgood.junit.SuiteAndFilters
-import failgood.junit.TestMapper
-import failgood.junit.niceString
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import org.junit.platform.engine.EngineDiscoveryRequest
@@ -22,8 +14,8 @@ import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.discovery.ClasspathRootSelector
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
 
-class NewJunitEngine : TestEngine {
-    override fun getId(): String = "failgood-new"
+class JunitEngine : TestEngine {
+    override fun getId(): String = FailGoodJunitTestEngineConstants.ID
 
     private var debug: Boolean = false
     private val failureLogger = FailureLogger()
@@ -79,7 +71,7 @@ class NewJunitEngine : TestEngine {
         try {
             val testMapper = TestMapper()
             val failgoodListener =
-                NewExecutionListener(root, junitListener, startedContexts, testMapper)
+                ExecutionListener(root, junitListener, startedContexts, testMapper)
             val results =
                 root.suiteAndFilters.suite.run(
                     filter = root.suiteAndFilters.filter,

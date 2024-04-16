@@ -1,4 +1,4 @@
-package failgood.junit
+package failgood.junit.legacy
 
 import failgood.*
 import failgood.Skipped
@@ -10,10 +10,13 @@ import failgood.internal.SuiteExecutionContext
 import failgood.internal.sysinfo.upt
 import failgood.internal.sysinfo.uptime
 import failgood.internal.util.getenv
-import failgood.junit.ChannelExecutionListener.TestExecutionEvent
+import failgood.junit.*
+import failgood.junit.legacy.ChannelExecutionListener.TestExecutionEvent
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_RUN_TEST_FIXTURES
 import failgood.junit.FailGoodJunitTestEngineConstants.DEBUG_TXT_FILENAME
+import failgood.junit.FailureLogger
+import failgood.junit.FailureLoggingEngineExecutionListener
 import java.io.File
 import java.util.Timer
 import kotlin.concurrent.schedule
@@ -41,10 +44,13 @@ const val TEST_SEGMENT_TYPE = "method"
 // an optional watchdog that throws an exception when failgood hangs or takes too long
 private val watchdogMillis = getenv("FAILGOOD_WATCHDOG_MILLIS")?.toLong()
 
-class FailGoodJunitTestEngine : TestEngine {
+class LegacyJUnitTestEngine : TestEngine {
+    companion object {
+        val ID="failgood-legacy"
+    }
     private var debug: Boolean = false
 
-    override fun getId(): String = FailGoodJunitTestEngineConstants.ID
+    override fun getId(): String = ID
 
     private val failureLogger = FailureLogger()
 
@@ -97,15 +103,15 @@ class FailGoodJunitTestEngine : TestEngine {
                     testResult
                 }
             return createResponse(
+                uniqueId,
+                testResult,
+                FailGoodEngineDescriptor(
                     uniqueId,
                     testResult,
-                    FailGoodEngineDescriptor(
-                        uniqueId,
-                        testResult,
-                        executionListener,
-                        suiteExecutionContext
-                    )
+                    executionListener,
+                    suiteExecutionContext
                 )
+            )
                 .also {
                     val allDescendants = it.allDescendants()
                     failureLogger.add("nodes returned", allDescendants)
@@ -186,6 +192,7 @@ class FailGoodJunitTestEngine : TestEngine {
                                         junitListener.executionStarted(mapping)
                                     }
                                 }
+
                                 is TestExecutionEvent.Stopped -> {
                                     val testPlusResult = event.testResult
                                     when (testPlusResult.result) {
@@ -206,6 +213,7 @@ class FailGoodJunitTestEngine : TestEngine {
                                                 )
                                             }
                                         }
+
                                         is Success ->
                                             withContext(Dispatchers.IO) {
                                                 junitListener.executionFinished(
@@ -213,6 +221,7 @@ class FailGoodJunitTestEngine : TestEngine {
                                                     TestExecutionResult.successful()
                                                 )
                                             }
+
                                         is Skipped -> {
                                             withContext(Dispatchers.IO) {
                                                 startParentContexts(event.testResult.test)
@@ -224,6 +233,7 @@ class FailGoodJunitTestEngine : TestEngine {
                                         }
                                     }
                                 }
+
                                 is TestExecutionEvent.TestEvent ->
                                     withContext(Dispatchers.IO) {
                                         junitListener.reportingEntryPublished(

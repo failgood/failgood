@@ -1,7 +1,7 @@
 package failgood.junit.it
 
-import failgood.junit.FailGoodJunitTestEngine
 import failgood.junit.FailGoodJunitTestEngineConstants
+import failgood.junit.legacy.LegacyJUnitTestEngine
 import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.launcher.EngineFilter
 import org.junit.platform.launcher.LauncherDiscoveryRequest
@@ -21,7 +21,7 @@ fun launcherDiscoveryRequest(
             else put(FailGoodJunitTestEngineConstants.CONFIG_KEY_NEW_JUNIT, "false")
         }
     return LauncherDiscoveryRequestBuilder.request()
-        .filters(EngineFilter.includeEngines(FailGoodJunitTestEngine().id))
+        .filters(EngineFilter.includeEngines(FailGoodJunitTestEngineConstants.ID, LegacyJUnitTestEngine.ID))
         .configurationParameters(configurationParameters)
         .selectors(selectors)
         .build()

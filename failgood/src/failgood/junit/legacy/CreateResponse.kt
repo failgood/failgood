@@ -1,20 +1,15 @@
-package failgood.junit
+package failgood.junit.legacy
 
 import failgood.Context
-import failgood.SourceInfo
 import failgood.TestDescription
 import failgood.internal.TestResults
 import failgood.internal.TestCollectionExecutionResult
 import failgood.internal.FailedTestCollectionExecution
 import failgood.internal.util.StringUniquer
-import java.io.File
+import failgood.junit.createClassSource
+import failgood.junit.createFileSource
 import org.junit.platform.engine.TestDescriptor
-import org.junit.platform.engine.TestSource
 import org.junit.platform.engine.UniqueId
-import org.junit.platform.engine.support.descriptor.ClassSource
-import org.junit.platform.engine.support.descriptor.FilePosition
-import org.junit.platform.engine.support.descriptor.FileSource
-import org.junit.platform.engine.support.descriptor.MethodSource
 
 internal fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor {
     val testSource = createFileSource(this.sourceInfo, this.testName)
@@ -24,29 +19,6 @@ internal fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescripto
         this.testName,
         testSource
     )
-}
-
-private val fs = File.separator
-
-// Roots for guessing source files.
-// It's ok if this fails.
-// If we don't find the source file, "navigate to source" in IDEAs junit runner does not work.
-private val sourceRoots: List<String> =
-    listOf("src${fs}test${fs}kotlin", "src${fs}test${fs}java", "test", "jvm${fs}test")
-
-internal fun createFileSource(sourceInfo: SourceInfo, testOrContextName: String): TestSource? {
-    val className = sourceInfo.className
-    val filePosition = FilePosition.from(sourceInfo.lineNumber)
-    val classFilePath = "${className.substringBefore("$").replace(".", "/")}.kt"
-    val file = sourceRoots.asSequence().map { File("$it/$classFilePath") }.firstOrNull(File::exists)
-    return if (file != null) FileSource.from(file, filePosition)
-    else MethodSource.from(className, testOrContextName.replace(" ", "+"))
-}
-
-internal fun createClassSource(sourceInfo: SourceInfo): TestSource? {
-    val className = sourceInfo.className
-    val filePosition = FilePosition.from(sourceInfo.lineNumber)
-    return ClassSource.from(className, filePosition)
 }
 
 internal fun createResponse(

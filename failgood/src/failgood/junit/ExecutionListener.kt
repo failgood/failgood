@@ -1,22 +1,20 @@
-package failgood.junit.next
+package failgood.junit
 
-import failgood.Context
+import failgood.*
 import failgood.ExecutionListener
-import failgood.FailGoodException
-import failgood.Failure
 import failgood.Skipped
-import failgood.Success
-import failgood.TestDescription
-import failgood.TestPlusResult
-import failgood.junit.TestMapper
-import failgood.junit.createClassSource
-import failgood.junit.createFileSource
 import org.junit.platform.engine.EngineExecutionListener
 import org.junit.platform.engine.TestExecutionResult
+import org.junit.platform.engine.TestSource
 import org.junit.platform.engine.reporting.ReportEntry
+import org.junit.platform.engine.support.descriptor.ClassSource
+import org.junit.platform.engine.support.descriptor.FilePosition
+import org.junit.platform.engine.support.descriptor.FileSource
+import org.junit.platform.engine.support.descriptor.MethodSource
+import java.io.File
 
-internal class NewExecutionListener(
-    private val root: NewJunitEngine.FailGoodEngineDescriptor,
+internal class ExecutionListener(
+    private val root: JunitEngine.FailGoodEngineDescriptor,
     private val listener: EngineExecutionListener,
     private val startedContexts: MutableSet<Context>,
     private val testMapper: TestMapper
@@ -24,8 +22,7 @@ internal class NewExecutionListener(
     override suspend fun testDiscovered(testDescription: TestDescription) {
         /*
         Every event handler in this class is synchronized for now because we must make sure that
-        events have the correct order.
-        When everything is feature complete and stable we can see if we should optimize this.
+        events have the correct order. This should be optimized at some point now that everthing is stable
         */
         synchronized(this) {
             val parent = testMapper.getMapping(testDescription.context)
@@ -116,4 +113,27 @@ internal class NewExecutionListener(
             ReportEntry.from(type, payload)
         )
     }
+}
+
+private val fs = File.separator
+
+// Roots for guessing source files.
+// It's ok if this fails.
+// If we don't find the source file, "navigate to source" in IDEAs junit runner does not work.
+private val sourceRoots: List<String> =
+    listOf("src${fs}test${fs}kotlin", "src${fs}test${fs}java", "test", "jvm${fs}test")
+
+internal fun createFileSource(sourceInfo: SourceInfo, testOrContextName: String): TestSource? {
+    val className = sourceInfo.className
+    val filePosition = FilePosition.from(sourceInfo.lineNumber)
+    val classFilePath = "${className.substringBefore("$").replace(".", "/")}.kt"
+    val file = sourceRoots.asSequence().map { File("$it/$classFilePath") }.firstOrNull(File::exists)
+    return if (file != null) FileSource.from(file, filePosition)
+    else MethodSource.from(className, testOrContextName.replace(" ", "+"))
+}
+
+internal fun createClassSource(sourceInfo: SourceInfo): TestSource? {
+    val className = sourceInfo.className
+    val filePosition = FilePosition.from(sourceInfo.lineNumber)
+    return ClassSource.from(className, filePosition)
 }

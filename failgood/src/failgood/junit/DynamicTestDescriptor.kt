@@ -1,8 +1,7 @@
-package failgood.junit.next
+package failgood.junit
 
-import failgood.FailGoodException
-import failgood.junit.appendContext
-import failgood.junit.appendTest
+import failgood.junit.legacy.appendContext
+import failgood.junit.legacy.appendTest
 import java.util.Optional
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestSource

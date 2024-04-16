@@ -1,4 +1,4 @@
-package failgood.junit
+package failgood.junit.legacy
 
 import failgood.ExecutionListener
 import failgood.TestDescription

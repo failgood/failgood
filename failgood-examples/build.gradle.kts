@@ -20,7 +20,7 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.10")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
-    implementation("org.slf4j:slf4j-api:2.0.12")
+    implementation("org.slf4j:slf4j-api:2.0.13")
 }
 
 tasks {
@@ -38,7 +38,7 @@ plugins.withId("info.solidsoft.pitest") {
         avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))
         targetClasses.set(setOf("failgood.examples.*")) // by default "${project.group}.*"
         targetTests.set(setOf("failgood.examples.*Test", "failgood.examples.**.*Test"))
-        pitestVersion.set("1.15.3")
+        pitestVersion.set("1.16.0")
         threads.set(
             System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()
         )

@@ -4,8 +4,11 @@ import failgood.Test
 import failgood.testsAbout
 import org.junit.platform.engine.UniqueId
 
+/*
+ * Tests that do not test failgood but document behavior that could be interesting about junit go here.
+ */
 @Test
-class JunitPlatformTest {
+class JunitPlatformObservations {
     val tests =
         testsAbout("junit platform observations") {
             describe("UniqueId") {

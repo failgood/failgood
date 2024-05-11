@@ -41,7 +41,7 @@ object JunitPlatformFunctionalTest {
 
     val tests =
         listOf(
-            testsAbout("The Junit Platform Engine") { tests(false) },
+            testsAbout("The Legacy Junit Platform Engine") { tests(false) },
             testsAbout("The New Junit Platform Engine") { tests(true) }
         )
 

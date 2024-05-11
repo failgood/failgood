@@ -5,30 +5,13 @@ import failgood.Test
 import failgood.assert.containsExactlyInAnyOrder
 import failgood.dsl.ContextDSL
 import failgood.junit.FailGoodJunitTestEngineConstants
-import failgood.junit.legacy.LegacyJUnitTestEngine
+import failgood.junit.JunitEngine
 import failgood.junit.it.JunitPlatformFunctionalTest.TestTestExecutionListener.Event.Type.FINISHED
 import failgood.junit.it.JunitPlatformFunctionalTest.TestTestExecutionListener.Event.Type.REGISTERED
 import failgood.junit.it.JunitPlatformFunctionalTest.TestTestExecutionListener.Event.Type.SKIPPED
 import failgood.junit.it.JunitPlatformFunctionalTest.TestTestExecutionListener.Event.Type.STARTED
-import failgood.junit.it.fixtures.BlockhoundTestFixture
-import failgood.junit.it.fixtures.DeeplyNestedDuplicateTestFixture
-import failgood.junit.it.fixtures.DoubleTestNamesInRootContextTestFixture
-import failgood.junit.it.fixtures.DoubleTestNamesInSubContextTestFixture
-import failgood.junit.it.fixtures.DuplicateRootWithOneTest
-import failgood.junit.it.fixtures.DuplicateTestNameTest
-import failgood.junit.it.fixtures.FailingContext
-import failgood.junit.it.fixtures.FailingRootContext
-import failgood.junit.it.fixtures.IgnoredContextFixture
-import failgood.junit.it.fixtures.IgnoredTestFixture
-import failgood.junit.it.fixtures.SimpleClassTestFixture
-import failgood.junit.it.fixtures.SimpleTestFixture
-import failgood.junit.it.fixtures.SimpleTestFixtureWithMultipleTests
-import failgood.junit.it.fixtures.SimpleUnnamedTestFixtureWithMultipleTests
-import failgood.junit.it.fixtures.TestFixtureThatFailsAfterFirstPass
-import failgood.junit.it.fixtures.TestFixtureWithFailingTestAndAfterEach
-import failgood.junit.it.fixtures.TestFixtureWithNonStandardDescribe
-import failgood.junit.it.fixtures.TestOrderFixture
-import failgood.junit.it.fixtures.TestWithNestedContextsFixture
+import failgood.junit.it.fixtures.*
+import failgood.junit.legacy.LegacyJUnitTestEngine
 import failgood.softly.softly
 import failgood.testsAbout
 import kotlinx.coroutines.CompletableDeferred
@@ -66,8 +49,13 @@ object JunitPlatformFunctionalTest {
         suspend fun execute(discoverySelectors: List<DiscoverySelector>): Results {
             val listener = TestTestExecutionListener(newEngine)
 
-            LauncherFactory.create()
-                .execute(launcherDiscoveryRequest(discoverySelectors, newEngine), listener)
+
+            LauncherFactory.create(
+                LauncherConfig.builder()
+                    .enableTestEngineAutoRegistration(false)
+                    .addTestEngines(if (newEngine) JunitEngine() else LegacyJUnitTestEngine()).build()
+            )
+                .execute(launcherDiscoveryRequest(discoverySelectors), listener)
 
             // await with timeout to make sure the test does not hang
             val rootResult =
@@ -324,7 +312,8 @@ object JunitPlatformFunctionalTest {
                 it("works for unnamed test collections") {
                     assertEquals(
                         // document how the uniqueid looks
-                        "[engine:failgood]/[class:SimpleUnnamedTestFixtureWithMultipleTests(failgood.junit.it.fixtures.SimpleUnnamedTestFixtureWithMultipleTests)]/[class:a context in the root context]/[method:a test in the subcontext]",
+                        if (newEngine) "[engine:failgood]/[class:SimpleUnnamedTestFixtureWithMultipleTests(failgood.junit.it.fixtures.SimpleUnnamedTestFixtureWithMultipleTests)]/[class:a context in the root context]/[method:a test in the subcontext]"
+                        else "[engine:failgood-legacy]/[class:SimpleUnnamedTestFixtureWithMultipleTests(failgood.junit.it.fixtures.SimpleUnnamedTestFixtureWithMultipleTests)]/[class:a context in the root context]/[method:a test in the subcontext]",
                         roundTrip(SimpleUnnamedTestFixtureWithMultipleTests::class)
                     )
                 }

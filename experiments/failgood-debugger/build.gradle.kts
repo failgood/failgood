@@ -9,7 +9,7 @@ plugins {
     id("failgood.common")
 //    id("failgood.publishing")
     id("com.bnorm.power.kotlin-power-assert") version "0.13.0"
-    id("org.jetbrains.kotlinx.kover") version "0.7.6"
+    id("org.jetbrains.kotlinx.kover") version "0.8.0"
     id("org.jetbrains.dokka") version "1.9.20"
 }
 

@@ -5,7 +5,7 @@ package failgood.experiments.anotherdsl
 import failgood.junit.ContextFinder
 
 class AnotherDSLExperiment {
-    val tests = testCollection("the context finder") {
+    val tests = testCollection("collection name") {
         val contextFinder = subject { ContextFinder(runTestFixtures = true) }
         contextFinder.will("find contexts") {
             // test body

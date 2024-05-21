@@ -1,4 +1,4 @@
-@file:Suppress("UNUSED_PARAMETER", "SameParameterValue", "unused")
+@file:Suppress("UNUSED_PARAMETER", "SameParameterValue", "unused", "RemoveEmptyClassBody")
 
 package failgood.experiments.andanotherdsl
 

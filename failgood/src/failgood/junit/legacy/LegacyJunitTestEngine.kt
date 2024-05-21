@@ -49,7 +49,7 @@ private val watchdogMillis = getenv("FAILGOOD_WATCHDOG_MILLIS")?.toLong()
  */
 class LegacyJUnitTestEngine : TestEngine {
     companion object {
-        val ID="failgood-legacy"
+        const val ID="failgood-legacy"
     }
     private var debug: Boolean = false
 

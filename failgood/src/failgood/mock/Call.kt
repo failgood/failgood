@@ -36,10 +36,10 @@ fun <A, B, C, D> call(kFunction3: KFunction3<A, B, C, D>, b: B, c: C): FunctionC
 
 @JvmName("callSuspend")
 fun <A, B, C, D> call(kFunction3: KSuspendFunction3<A, B, C, D>, b: B, c: C): FunctionCall<A> =
-    FunctionCall<A>((kFunction3 as KCallable<*>).name, listOf(b, c))
+    FunctionCall((kFunction3 as KCallable<*>).name, listOf(b, c))
 
 fun <A, B, C, D, E> call(kFunction4: KFunction4<A, B, C, D, E>, b: B, c: C, d: D): FunctionCall<A> =
-    FunctionCall<A>((kFunction4 as KCallable<*>).name, listOf(b, c, d))
+    FunctionCall((kFunction4 as KCallable<*>).name, listOf(b, c, d))
 
 @JvmName("callSuspend")
 fun <A, B, C, D, E> call(
@@ -47,7 +47,7 @@ fun <A, B, C, D, E> call(
     b: B,
     c: C,
     d: D
-): FunctionCall<A> = FunctionCall<A>((kFunction4 as KCallable<*>).name, listOf(b, c, d))
+): FunctionCall<A> = FunctionCall((kFunction4 as KCallable<*>).name, listOf(b, c, d))
 
 fun <A, B, C, D, E, F> call(
     kFunction5: KFunction5<A, B, C, D, E, F>,
@@ -55,7 +55,7 @@ fun <A, B, C, D, E, F> call(
     c: C,
     d: D,
     e: E
-): FunctionCall<A> = FunctionCall<A>((kFunction5 as KCallable<*>).name, listOf(b, c, d, e))
+): FunctionCall<A> = FunctionCall((kFunction5 as KCallable<*>).name, listOf(b, c, d, e))
 
 @JvmName("callSuspend")
 fun <A, B, C, D, E, F> call(
@@ -64,7 +64,7 @@ fun <A, B, C, D, E, F> call(
     c: C,
     d: D,
     e: E
-): FunctionCall<A> = FunctionCall<A>((kFunction5 as KCallable<*>).name, listOf(b, c, d, e))
+): FunctionCall<A> = FunctionCall((kFunction5 as KCallable<*>).name, listOf(b, c, d, e))
 
 fun <A, B, C, D, E, F, G> call(
     kFunction6: KFunction6<A, B, C, D, E, F, G>,
@@ -73,7 +73,7 @@ fun <A, B, C, D, E, F, G> call(
     d: D,
     e: E,
     f: F
-): FunctionCall<A> = FunctionCall<A>((kFunction6 as KCallable<*>).name, listOf(b, c, d, e, f))
+): FunctionCall<A> = FunctionCall((kFunction6 as KCallable<*>).name, listOf(b, c, d, e, f))
 
 @JvmName("callSuspend")
 fun <A, B, C, D, E, F, G> call(
@@ -83,7 +83,7 @@ fun <A, B, C, D, E, F, G> call(
     d: D,
     e: E,
     f: F
-): FunctionCall<A> = FunctionCall<A>((kFunction6 as KCallable<*>).name, listOf(b, c, d, e, f))
+): FunctionCall<A> = FunctionCall((kFunction6 as KCallable<*>).name, listOf(b, c, d, e, f))
 
 @Suppress("UNCHECKED_CAST")
 @JvmName("getCalls3")

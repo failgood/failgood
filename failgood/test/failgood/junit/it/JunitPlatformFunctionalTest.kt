@@ -76,6 +76,7 @@ object JunitPlatformFunctionalTest {
             return Results(rootResult, listener.results, listener.testEvents)
         }
 
+        @Suppress("RedundantSuspendModifier") // IDEA BUG
         suspend fun executeSingleTest(singleTest: KClass<*>): Results =
             execute(listOf(selectClass(singleTest.qualifiedName)))
 
@@ -285,6 +286,7 @@ object JunitPlatformFunctionalTest {
                 }
             }
             describe("returns uniqueIds that it understands (uniqueid round-trip test)") {
+                @Suppress("RedundantSuspendModifier") // IDEA BUG
                 suspend fun roundTrip(testClass: KClass<*>): String? {
                     val result = executeSingleTest(testClass)
                     assertTestExecutionSucceeded(result)
@@ -363,8 +365,8 @@ object JunitPlatformFunctionalTest {
             }
         }
 
-        val startedTestUniqueIds = ConcurrentHashMap.newKeySet<String>()
-        val registeredTestUniqueIds = ConcurrentHashMap.newKeySet<String>()
+        private val startedTestUniqueIds = ConcurrentHashMap.newKeySet<String>()!!
+        private val registeredTestUniqueIds = ConcurrentHashMap.newKeySet<String>()!!
         val errors = CopyOnWriteArrayList<String>()
         val testEvents = CopyOnWriteArrayList<Event>()
         val rootResult = CompletableDeferred<TestExecutionResult>()

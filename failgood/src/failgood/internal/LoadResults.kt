@@ -20,7 +20,7 @@ private val timeoutMillis: Long = Suite.parseTimeout(getenv("TIMEOUT"))
 private val tag = getenv("FAILGOOD_TAG")
 
 internal class LoadResults(private val loadResults: List<LoadResult>) {
-    val testCollectionNameUniquer = StringUniquer()
+    private val testCollectionNameUniquer = StringUniquer()
     private fun fixRootName(tc: TestCollection<*>): TestCollection<out Any?> {
         // if the root context name is just "root", it is an unnamed context and so
         // we replace it and we change the name and the display name

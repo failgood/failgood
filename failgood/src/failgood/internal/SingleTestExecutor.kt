@@ -8,7 +8,7 @@ import failgood.internal.given.GivenDSLHandler
 import failgood.internal.given.RootGivenDSLHandler
 
 /**
- * Executes a single test with all its parent contexts. Called by [TestCollectionExecutor] to execute all
+ * Executes a single test with all its parent contexts. Called by [failgood.internal.execution.TestCollectionExecutor] to execute all
  * tests that it does not have to execute itself
  */
 internal class SingleTestExecutor<RootGiven, TestGivenType>(

@@ -44,6 +44,9 @@ const val TEST_SEGMENT_TYPE = "method"
 // an optional watchdog that throws an exception when failgood hangs or takes too long
 private val watchdogMillis = getenv("FAILGOOD_WATCHDOG_MILLIS")?.toLong()
 
+/**
+ * this engine was going to be removed, but now it could stay if the new dsl gets implemented and we know all tests upfront
+ */
 class LegacyJUnitTestEngine : TestEngine {
     companion object {
         val ID="failgood-legacy"

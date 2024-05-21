@@ -10,7 +10,7 @@ plugins {
     signing
     id("failgood.common")
     id("failgood.publishing")
-    id("com.bnorm.power.kotlin-power-assert") version "0.13.0"
+    kotlin("plugin.power-assert") version "2.0.0"
     id("org.jetbrains.kotlinx.kover") version "0.8.0"
     id("org.jetbrains.dokka") version "1.9.20"
 }
@@ -84,7 +84,7 @@ plugins.withId("info.solidsoft.pitest") {
     }
 }
 
-configure<com.bnorm.power.PowerAssertGradleExtension> {
+powerAssert {
     functions = listOf(
         "kotlin.assert",
         "kotlin.test.assertTrue",

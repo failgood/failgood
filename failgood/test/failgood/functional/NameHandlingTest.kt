@@ -1,13 +1,11 @@
 package failgood.functional
 
-import failgood.Ignored
 import failgood.Suite
 import failgood.Test
 import failgood.TestCollection
 import failgood.assert.containsExactlyInAnyOrder
 import failgood.tests
 import failgood.testsAbout
-import kotlin.test.assertEquals
 
 @Test
 object NameHandlingTest {

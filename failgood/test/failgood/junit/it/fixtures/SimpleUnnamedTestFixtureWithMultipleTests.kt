@@ -2,7 +2,6 @@ package failgood.junit.it.fixtures
 
 import failgood.internal.TestFixture
 import failgood.tests
-import failgood.testsAbout
 
 @TestFixture
 object SimpleUnnamedTestFixtureWithMultipleTests {

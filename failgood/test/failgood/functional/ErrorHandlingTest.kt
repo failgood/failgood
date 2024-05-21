@@ -1,11 +1,8 @@
 package failgood.functional
 
 import failgood.Failure
-import failgood.Ignored
 import failgood.Suite
 import failgood.Test
-import failgood.assert.containsExactlyInAnyOrder
-import failgood.internal.FailedTestCollectionExecution
 import failgood.testsAbout
 import strikt.api.expectThat
 import strikt.assertions.contains
@@ -14,7 +11,6 @@ import strikt.assertions.isNotNull
 import strikt.assertions.single
 import strikt.assertions.startsWith
 import java.util.UUID
-import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 @Test

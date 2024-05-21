@@ -1,4 +1,4 @@
-@file:Suppress("UNUSED_PARAMETER", "SameParameterValue", "unused")
+@file:Suppress("UNUSED_PARAMETER", "SameParameterValue", "unused", "EmptyMethod")
 
 package failgood.experiments.anotherdsl
 

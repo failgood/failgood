@@ -61,7 +61,7 @@ object JunitPlatformFunctionalTest {
             val rootResult =
                 try {
                     withTimeout(5000) { listener.rootResult.await() }
-                } catch (e: TimeoutCancellationException) {
+                } catch (_: TimeoutCancellationException) {
                     throw AssertionError(
                         "Test execution timed out. received results:${listener.results}"
                     )

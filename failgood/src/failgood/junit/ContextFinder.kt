@@ -8,9 +8,6 @@ import failgood.Test
 import failgood.internal.ClassTestFilterProvider
 import failgood.internal.TestFilterProvider
 import failgood.internal.TestFixture
-import java.nio.file.Paths
-import java.util.LinkedList
-import org.junit.platform.engine.DiscoveryFilter
 import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.engine.EngineDiscoveryRequest
 import org.junit.platform.engine.discovery.ClassNameFilter
@@ -19,7 +16,8 @@ import org.junit.platform.engine.discovery.ClasspathRootSelector
 import org.junit.platform.engine.discovery.MethodSelector
 import org.junit.platform.engine.discovery.PackageNameFilter
 import org.junit.platform.engine.discovery.UniqueIdSelector
-import org.junit.platform.launcher.LauncherDiscoveryRequest
+import java.nio.file.Paths
+import java.util.LinkedList
 
 internal data class SuiteAndFilters(
     val suite: Suite,

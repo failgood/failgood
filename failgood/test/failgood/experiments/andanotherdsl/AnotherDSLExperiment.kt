@@ -83,9 +83,9 @@ sealed interface Node {
 
 
 class Investigator {
-    fun discover(tests: TestCollection): List<Node> = discover(tests.function)
+    suspend fun discover(tests: TestCollection): List<Node> = discover(tests.function)
 
-    private fun discover(testFunction: TestFunction): List<Node> {
+    private suspend fun discover(testFunction: TestFunction): List<Node> {
         val nodes = mutableListOf<Node>()
 
         class DiscoveringTestDSL : TestDSL {
@@ -97,12 +97,12 @@ class Investigator {
                 }
             }
 
-            override fun test(testName: String, function: () -> Unit) {
+            override suspend fun test(testName: String, function: () -> Unit) {
                 nodes.add(Test(testName))
 
             }
 
-            override fun context(contextName: String, function: TestFunction) {
+            override suspend fun context(contextName: String, function: TestFunction) {
                 nodes.add(TestGroup(contextName, discover(function)))
             }
 
@@ -134,15 +134,15 @@ class MyDependency {
 
 interface TestDSL {
     fun <SubjectType> beforeEach(function: () -> SubjectType): Dependency<SubjectType>
-    fun test(testName: String, function: () -> Unit)
-    fun context(contextName: String, function: TestFunction)
+    suspend fun test(testName: String, function: () -> Unit)
+    suspend fun context(contextName: String, function: TestFunction)
 }
 
 interface Dependency<T> {
     operator fun getValue(owner: Any?, property: KProperty<*>): T
 }
 
-typealias TestFunction = TestDSL.() -> Unit
+typealias TestFunction = suspend TestDSL.() -> Unit
 
 private fun testCollection(name: String, function: TestFunction) = TestCollection(name, function)
 

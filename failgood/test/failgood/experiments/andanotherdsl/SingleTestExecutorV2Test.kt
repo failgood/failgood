@@ -1,0 +1,92 @@
+package failgood.experiments.andanotherdsl
+
+import failgood.*
+import failgood.internal.ContextPath
+import strikt.api.expectThat
+import strikt.assertions.containsExactly
+import strikt.assertions.isA
+import strikt.assertions.isEqualTo
+
+@Test
+class SingleTestExecutorV2Test {
+    val tests =
+        tests(ignored = Ignored.TODO)  {
+
+            val events = mutableListOf<String>()
+            describe("test execution") {
+                describe("a context without given") {
+                    val ctx: TestFunction = {
+                        events.add("root context")
+                        test("test 1") { events.add("test 1") }
+                        test("test 2") { events.add("test 2") }
+                        context("context 1") {
+                            events.add("context 1")
+
+                            context("context 2") {
+                                events.add("context 2")
+                                test("test 3") { events.add("test 3") }
+                            }
+                        }
+                    }
+                    val rootContext = Context("root context", null)
+                    val context1 = Context("context 1", rootContext)
+                    val context2 = Context("context 2", context1)
+
+                    it("executes a single test") {
+                        val result =
+                            executeTest(
+                                ContextPath(rootContext, "test 1"),
+                                ctx
+                            )
+
+                        expectThat(events).containsExactly("root context", "test 1")
+                        expectThat(result).isA<Success>()
+                    }
+                    it("executes a nested single test") {
+                        val result =
+                            executeTest(
+                                ContextPath(context2, "test 3"),
+                                ctx
+                            )
+
+                        expectThat(events)
+                            .containsExactly("root context", "context 1", "context 2", "test 3")
+                        expectThat(result).isA<Success>()
+                    }
+                }
+            }
+            describe("error handling") {
+                it("reports exceptions in the context as test failures") {
+                    val runtimeException = RuntimeException()
+                    val contextThatThrows = TestCollection("root context") { throw runtimeException }
+                    val result =
+                        executeTest(
+                            ContextPath(Context("root context", null), "test"),
+                            contextThatThrows.function
+                        )
+
+                    expectThat(result).isA<Failure>().get { failure }.isEqualTo(runtimeException)
+                }
+                it("reports exceptions in the before each function as test failures") {
+                    val runtimeException = RuntimeException()
+                    val contextThatThrows =
+                        TestCollection("root context") {
+                            beforeEach { throw runtimeException }
+                            test("test") {}
+                        }
+                    val result =
+                        executeTest(
+                            ContextPath(Context("root context", null), "test"),
+                            contextThatThrows.function
+                        )
+
+                    expectThat(result).isA<Failure>().get { failure }.isEqualTo(runtimeException)
+                }
+            }
+        }
+}
+
+internal fun executeTest(contextPath: ContextPath, ctx: suspend TestDSL.() -> Unit
+) : TestResult {
+    return Failure(RuntimeException())
+}

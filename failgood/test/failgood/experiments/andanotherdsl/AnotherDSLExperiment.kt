@@ -2,7 +2,12 @@
 
 package failgood.experiments.andanotherdsl
 
+import failgood.FailGoodException
+import failgood.Test
+import failgood.experiments.andanotherdsl.Node.*
+import failgood.tests
 import kotlin.reflect.KProperty
+import kotlin.test.assertEquals
 
 /**
  * with this test DSL we can discover tests upfront very fast without creating dependencies or executing tests.
@@ -12,7 +17,7 @@ import kotlin.reflect.KProperty
  * Or another possibility would be to just compile a list of all the beforeEach and test lambdas and then execute those for each test
  * but then the references to the dependencies would become more complex and need to resolve to different values depending on the test
  */
-class AnotherDSLExperiment {
+object AnotherDSLExperiment {
     val tests = testCollection("collection name") {
         // these dependencies are resolved when the test runs
         val myDependency by beforeEach { MyDependency() }
@@ -21,7 +26,14 @@ class AnotherDSLExperiment {
         test("test name") {
             // now the dependencies are resolved
             myOtherDependency.doStuff()
-            // test body
+            // ...
+        }
+
+        val thirdDependency by beforeEach { MyOtherDependency(myDependency) }
+        test("another test") {
+            // this test also has access to "thirdDependency"
+            thirdDependency.doStuff()
+            // ...
         }
         context("test group") {
             val contextDependency by beforeEach { ContextDependency(myOtherDependency) }
@@ -35,6 +47,73 @@ class AnotherDSLExperiment {
 
     }
 }
+
+@Test
+object InvestigatorTest {
+    val tests = tests {
+        it("can get a list of tests") {
+            val result = Investigator().discover(testCollection("collection name") {
+                test("test name") {
+                }
+                test("another test") {
+                }
+            })
+            assertEquals(listOf(Test("test name"), Test("another test")), result)
+        }
+        it("can get a list of tests and contexts") {
+            val result = Investigator().discover(AnotherDSLExperiment.tests)
+            assertEquals(
+                listOf(
+                    Test("test name"),
+                    Test("another test"),
+                    TestGroup("test group", listOf(Test("test name")))
+                ), result
+            )
+        }
+
+    }
+}
+
+sealed interface Node {
+    val name: String
+
+    data class Test(override val name: String) : Node
+    data class TestGroup(override val name: String, val children: List<Node>) : Node
+}
+
+
+class Investigator {
+    fun discover(tests: TestCollection): List<Node> = discover(tests.function)
+
+    private fun discover(testFunction: TestFunction): List<Node> {
+        val nodes = mutableListOf<Node>()
+
+        class DiscoveringTestDSL : TestDSL {
+            override fun <SubjectType> beforeEach(function: () -> SubjectType): Dependency<SubjectType> {
+                return object : Dependency<SubjectType> {
+                    override fun getValue(owner: Any?, property: KProperty<*>): SubjectType {
+                        throw FailGoodException("dependencies should not be read during discovery")
+                    }
+                }
+            }
+
+            override fun test(testName: String, function: () -> Unit) {
+                nodes.add(Test(testName))
+
+            }
+
+            override fun context(contextName: String, function: TestFunction) {
+                nodes.add(TestGroup(contextName, discover(function)))
+            }
+
+        }
+
+        testFunction(DiscoveringTestDSL())
+        return nodes
+    }
+
+}
+
 
 class ContextDependency(myDependency: MyOtherDependency) {
     fun doStuff() {
@@ -53,28 +132,18 @@ class MyDependency {
 
 }
 
-interface MyDSL {
-
-    fun <SubjectType> beforeEach(function: () -> SubjectType): Dependency<SubjectType> {
-        TODO("Not yet implemented")
-    }
-
-    fun test(testName: String, function: () -> Unit) {
-        TODO("Not yet implemented")
-    }
-
-    fun context(contextName: String, function: () -> Unit) {
-        TODO("Not yet implemented")
-    }
-
+interface TestDSL {
+    fun <SubjectType> beforeEach(function: () -> SubjectType): Dependency<SubjectType>
+    fun test(testName: String, function: () -> Unit)
+    fun context(contextName: String, function: TestFunction)
 }
 
 interface Dependency<T> {
-    operator fun getValue(owner: Any?, property: KProperty<*>): T {
-        TODO("Not yet implemented")
-    }
-
+    operator fun getValue(owner: Any?, property: KProperty<*>): T
 }
 
-private fun testCollection(name: String, function: MyDSL.() -> Unit) {
-}
+typealias TestFunction = TestDSL.() -> Unit
+
+private fun testCollection(name: String, function: TestFunction) = TestCollection(name, function)
+
+data class TestCollection(val name: String, val function: TestFunction)

@@ -6,6 +6,7 @@ import failgood.FailGoodException
 import failgood.Test
 import failgood.experiments.andanotherdsl.Node.*
 import failgood.tests
+import kotlinx.coroutines.delay
 import kotlin.reflect.KProperty
 import kotlin.test.assertEquals
 
@@ -20,7 +21,7 @@ import kotlin.test.assertEquals
 object AnotherDSLExperiment {
     val tests = testCollection("collection name") {
         // these dependencies are resolved when the test runs
-        val myDependency by beforeEach { MyDependency() }
+        val myDependency by beforeEach { MyDependency() }.tearDown { it.close() }
         val myOtherDependency by beforeEach { MyOtherDependency(myDependency) }
 
         test("test name") {
@@ -74,6 +75,10 @@ object InvestigatorTest {
     }
 }
 
+/*
+ a test of a group of tests
+ */
+// TODO: add source info (file, line number)
 sealed interface Node {
     val name: String
 
@@ -83,17 +88,20 @@ sealed interface Node {
 
 
 class Investigator {
+    @Suppress("RedundantSuspendModifier") // IDEA BUG
     suspend fun discover(tests: TestCollection): List<Node> = discover(tests.function)
 
     private suspend fun discover(testFunction: TestFunction): List<Node> {
         val nodes = mutableListOf<Node>()
 
         class DiscoveringTestDSL : TestDSL {
-            override fun <SubjectType> beforeEach(function: () -> SubjectType): Dependency<SubjectType> {
-                return object : Dependency<SubjectType> {
-                    override fun getValue(owner: Any?, property: KProperty<*>): SubjectType {
+            override fun <T> beforeEach(function: () -> T): Dependency<T> {
+                return object : Dependency<T> {
+                    override fun getValue(owner: Any?, property: KProperty<*>): T {
                         throw FailGoodException("dependencies should not be read during discovery")
                     }
+
+                    override fun tearDown(function: suspend (T) -> Unit): Dependency<T> = this
                 }
             }
 
@@ -129,7 +137,9 @@ class MyOtherDependency(myDependency: MyDependency) {
 }
 
 class MyDependency {
-
+    suspend fun close() {
+        delay(0)
+    }
 }
 
 interface TestDSL {
@@ -140,6 +150,7 @@ interface TestDSL {
 
 interface Dependency<T> {
     operator fun getValue(owner: Any?, property: KProperty<*>): T
+    fun tearDown(function: suspend (T) -> Unit): Dependency<T>
 }
 
 typealias TestFunction = suspend TestDSL.() -> Unit

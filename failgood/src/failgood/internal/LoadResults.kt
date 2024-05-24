@@ -1,12 +1,6 @@
 package failgood.internal
 
-import failgood.Context
-import failgood.CouldNotLoadTestCollection
-import failgood.ExecutionListener
-import failgood.LoadResult
-import failgood.NullExecutionListener
-import failgood.Suite
-import failgood.TestCollection
+import failgood.*
 import failgood.internal.execution.TestCollectionExecutor
 import failgood.internal.util.StringUniquer
 import failgood.internal.util.getenv
@@ -61,10 +55,11 @@ internal class LoadResults(private val loadResults: List<LoadResult>) {
                         loadResult.rootContext.sourceInfo?.className?.let {
                             executionFilter.forClass(it)
                         } ?: ExecuteAllTests
-                    coroutineScope.async {
-                        if (loadResult.ignored?.isIgnored() == null) {
+                    if (loadResult.ignored?.isIgnored() == null) {
+                        val testCollection = fixRootName(loadResult)
+                        coroutineScope.async {
                             TestCollectionExecutor(
-                                fixRootName(loadResult),
+                                testCollection,
                                 coroutineScope,
                                 !executeTests,
                                 listener,
@@ -73,8 +68,8 @@ internal class LoadResults(private val loadResults: List<LoadResult>) {
                                 runOnlyTag = tag
                             )
                                 .execute()
-                        } else TestResults(emptyList(), mapOf(), setOf())
-                    }
+                        }
+                    } else CompletableDeferred(TestResults(emptyList(), mapOf(), setOf()))
                 }
             }
         }

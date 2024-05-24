@@ -28,14 +28,11 @@ class SingleTestExecutorV2Test {
                             }
                         }
                     }
-                    val rootContext = Context("root context", null)
-                    val context1 = Context("context 1", rootContext)
-                    val context2 = Context("context 2", context1)
 
                     it("executes a single test") {
                         val result =
                             executeTest(
-                                ContextPath(rootContext, "test 1"),
+                                listOf("root context", "test 1"),
                                 ctx
                             )
 
@@ -45,7 +42,7 @@ class SingleTestExecutorV2Test {
                     it("executes a nested single test") {
                         val result =
                             executeTest(
-                                ContextPath(context2, "test 3"),
+                                listOf("root context", "context 1", "context 2", "test 3"),
                                 ctx
                             )
 
@@ -61,7 +58,7 @@ class SingleTestExecutorV2Test {
                     val contextThatThrows = TestCollection("root context") { throw runtimeException }
                     val result =
                         executeTest(
-                            ContextPath(Context("root context", null), "test"),
+                            listOf("root context", "test 1"),
                             contextThatThrows.function
                         )
 
@@ -76,7 +73,7 @@ class SingleTestExecutorV2Test {
                         }
                     val result =
                         executeTest(
-                            ContextPath(Context("root context", null), "test"),
+                            listOf("root context", "test 1"),
                             contextThatThrows.function
                         )
 
@@ -86,7 +83,8 @@ class SingleTestExecutorV2Test {
         }
 }
 
-internal fun executeTest(contextPath: ContextPath, ctx: suspend TestDSL.() -> Unit
+@Suppress("UNUSED_PARAMETER")
+internal fun executeTest(contextPath: List<String>, ctx: suspend TestDSL.() -> Unit
 ) : TestResult {
     return Failure(RuntimeException())
 }

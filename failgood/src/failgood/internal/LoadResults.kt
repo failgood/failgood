@@ -4,6 +4,7 @@ import failgood.*
 import failgood.internal.execution.TestCollectionExecutor
 import failgood.internal.util.StringUniquer
 import failgood.internal.util.getenv
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -14,6 +15,8 @@ private val timeoutMillis: Long = Suite.parseTimeout(getenv("TIMEOUT"))
 private val tag = getenv("FAILGOOD_TAG")
 
 internal class LoadResults(private val loadResults: List<LoadResult>) {
+    private val logger = KotlinLogging.logger {}
+
     private val testCollectionNameUniquer = StringUniquer()
     private fun fixRootName(tc: TestCollection<*>): TestCollection<out Any?> {
         // if the root context name is just "root", it is an unnamed context and so
@@ -27,11 +30,15 @@ internal class LoadResults(private val loadResults: List<LoadResult>) {
             if (unnamedContext) shortClassName
             else "$shortClassName: $name"
         } else name
-        val uniqueNewName = testCollectionNameUniquer.makeUnique(newDisplayName)
+        val uniqueNewDisplayName = testCollectionNameUniquer.makeUnique(newDisplayName)
+        logger.debug { "uniqueNewDisplayName: $uniqueNewDisplayName" }
         return if (unnamedContext)
-            tc.copy(rootContext = tc.rootContext.copy(displayName = uniqueNewName, name = uniqueNewName))
-        else
-            tc.copy(rootContext = tc.rootContext.copy(displayName = uniqueNewName, name= testCollectionNameUniquer.makeUnique(name)))
+            tc.copy(rootContext = tc.rootContext.copy(displayName = uniqueNewDisplayName, name = uniqueNewDisplayName))
+        else {
+            val uniqueNewName = testCollectionNameUniquer.makeUnique(name)
+            logger.debug { "uniqueNewName: $uniqueNewName" }
+            tc.copy(rootContext = tc.rootContext.copy(displayName = uniqueNewDisplayName, name= uniqueNewName))
+        }
     }
 
     fun investigate(

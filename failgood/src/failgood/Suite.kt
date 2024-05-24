@@ -3,6 +3,7 @@ package failgood
 import failgood.dsl.ContextFunction
 import failgood.internal.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.slf4j.MDCContext
 import kotlin.reflect.KClass
 
 internal const val DEFAULT_TIMEOUT: Long = 40000
@@ -22,7 +23,7 @@ data class Suite(val contextProviders: Collection<ContextProvider>, val repeat: 
             if (!silent)
                 println("starting test suite with parallelism = ${suiteExecutionContext.parallelism}")
             suiteExecutionContext.coroutineDispatcher.use { dispatcher ->
-                runBlocking(dispatcher) {
+                runBlocking(dispatcher + MDCContext()) {
                     val contextInfos =
                         findAndStartTests(
                             this,

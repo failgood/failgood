@@ -40,6 +40,16 @@ object NameHandlingTest {
                     assert(results.contexts.map { it.displayName }.containsExactlyInAnyOrder("test: duplicate name", "test: duplicate name-1"))
                 }
             }
+            it("makes unnamed collection names unique") {
+                val results = Suite(
+                    listOf(tests {}.withClassName("test"),
+                        tests {}.withClassName("test"))
+                ).run(silent = true)
+                softly {
+                    assert(results.contexts.map { it.name }.containsExactlyInAnyOrder("test", "test-1"))
+                    assert(results.contexts.map { it.displayName }.containsExactlyInAnyOrder("test", "test-1"))
+                }
+            }
         }
 
     }

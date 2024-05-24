@@ -12,6 +12,7 @@ import failgood.internal.ContextPath
 import failgood.internal.ResourcesCloser
 import failgood.internal.given.GivenDSLHandler
 import kotlinx.coroutines.CompletableDeferred
+import org.slf4j.MDC
 
 internal class ContextVisitor<RootGiven, GivenType>(
     private val staticConfig: StaticContextExecutionConfig<RootGiven>,
@@ -78,12 +79,12 @@ internal class ContextVisitor<RootGiven, GivenType>(
         }
         val testDescription = TestDescription(context, name, sourceInfo())
         staticConfig.listener.testDiscovered(testDescription)
+        MDC.put("test", name)
         if (!ranATest || !isolation) {
             // if we don't need isolation we run all tests here.
             // if we do:
             // we did not yet run a test, so we are going to run this test ourselves
             ranATest = true
-
             contextStateCollector.executeTest(
                 testDescription,
                 function,

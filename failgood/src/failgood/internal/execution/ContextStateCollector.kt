@@ -5,6 +5,8 @@ import failgood.dsl.TestFunction
 import failgood.internal.*
 import failgood.internal.given.GivenDSLHandler
 import kotlinx.coroutines.*
+import kotlinx.coroutines.slf4j.MDCContext
+import org.slf4j.MDC
 
 internal class ContextStateCollector<RootGiven>(
     private val staticConfig: StaticContextExecutionConfig<RootGiven>,
@@ -55,7 +57,7 @@ internal class ContextStateCollector<RootGiven>(
         rootContextStartTime: Long
     ) {
         deferredTestResults[testDescription] =
-            staticConfig.scope.async(start = staticConfig.coroutineStart) {
+            staticConfig.scope.async(MDCContext(), start = staticConfig.coroutineStart) {
                 val listener = staticConfig.listener
                 listener.testStarted(testDescription)
                 val testResult =
@@ -126,7 +128,7 @@ internal class ContextStateCollector<RootGiven>(
     fun executeTestLater(testDescription: TestDescription, testPath: ContextPath) {
         val resourcesCloser = ResourceCloserImpl(staticConfig.scope)
         val deferred =
-            staticConfig.scope.async(start = staticConfig.coroutineStart) {
+            staticConfig.scope.async(MDCContext(), start = staticConfig.coroutineStart) {
                 staticConfig.listener.testStarted(testDescription)
                 val testPlusResult =
                     try {

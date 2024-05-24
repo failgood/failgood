@@ -6,6 +6,7 @@ object FailGoodJunitTestEngineConstants {
     const val CONFIG_KEY_DEBUG = "failgood.debug"
     const val CONFIG_KEY_NEW_JUNIT = "failgood.new.junit"
     const val CONFIG_KEY_SILENT = "failgood.silent"
+    const val CONFIG_KEY_REPEAT = "failgood.repeat"
 
     // the filename for the debug txt file that we write when CONFIG_KEY_DEBUG is set or an error
     // occurs

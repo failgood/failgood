@@ -1,25 +1,13 @@
 package failgood
 
 import failgood.dsl.ContextFunction
-import failgood.internal.TestResults
-import failgood.internal.TestCollectionExecutionResult
-import failgood.internal.ContextTreeReporter
-import failgood.internal.ExecuteAllTestFilterProvider
-import failgood.internal.FailedTestCollectionExecution
-import failgood.internal.LoadResults
-import failgood.internal.SuiteExecutionContext
-import failgood.internal.TestFilterProvider
+import failgood.internal.*
+import kotlinx.coroutines.*
 import kotlin.reflect.KClass
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
-const val DEFAULT_TIMEOUT: Long = 40000
+internal const val DEFAULT_TIMEOUT: Long = 40000
 
-data class Suite(val contextProviders: Collection<ContextProvider>) {
+data class Suite(val contextProviders: Collection<ContextProvider>, val repeat: Int = 1) {
     init {
         if (contextProviders.isEmpty()) throw EmptySuiteException()
     }
@@ -70,9 +58,9 @@ data class Suite(val contextProviders: Collection<ContextProvider>) {
             .investigate(coroutineScope, executeTests, filter, listener)
     }
 
-    private suspend fun getRootContexts(coroutineScope: CoroutineScope): LoadResults =
-        LoadResults(
-            contextProviders
+    private suspend fun getRootContexts(coroutineScope: CoroutineScope): LoadResults {
+        return LoadResults(
+            (contextProviders
                 .map {
                     coroutineScope.async {
                         try {
@@ -82,9 +70,10 @@ data class Suite(val contextProviders: Collection<ContextProvider>) {
                         }
                     }
                 }
-                .flatMap { it.await() }
+                .flatMap { it.await() } * repeat)
                 .sortedBy { it.order }
         )
+    }
 }
 
 internal object NullExecutionListener : ExecutionListener {
@@ -96,7 +85,8 @@ internal object NullExecutionListener : ExecutionListener {
         testDescription: TestDescription,
         type: String,
         payload: String
-    ) {}
+    ) {
+    }
 }
 
 internal suspend fun awaitTestResults(resolvedContexts: List<TestCollectionExecutionResult>): SuiteResult {
@@ -109,7 +99,9 @@ internal suspend fun awaitTestResults(resolvedContexts: List<TestCollectionExecu
             try {
                 callback.invoke()
                 // here we don't catch throwable because we are already finished anyway.
-            } catch (ignored: Exception) {} catch (ignored: AssertionError) {}
+            } catch (ignored: Exception) {
+            } catch (ignored: AssertionError) {
+            }
         }
     }
     return SuiteResult(
@@ -136,6 +128,7 @@ internal fun printResults(
                             .joinToString("\n")
                     )
                 }
+
                 is FailedTestCollectionExecution -> {
                     println(
                         "context ${context.context} failed: ${context.failure.stackTraceToString()}"
@@ -154,3 +147,6 @@ fun Suite(kClasses: List<KClass<*>>) = Suite(kClasses.map { ObjectContextProvide
 fun <RootGiven> Suite(rootContext: TestCollection<RootGiven>) = Suite(listOf(rootContext))
 
 fun Suite(function: ContextFunction) = Suite(TestCollection("root", order = 0, function = function))
+
+operator fun <T> List<T>.times(n: Int): List<T> = if (n == 1) this else
+    List(n) { this }.flatten()

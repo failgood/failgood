@@ -13,6 +13,7 @@ fun launcherDiscoveryRequest(
         buildMap<String, String> {
             put(FailGoodJunitTestEngineConstants.CONFIG_KEY_RUN_TEST_FIXTURES, "true")
             put(FailGoodJunitTestEngineConstants.CONFIG_KEY_SILENT, "true")
+            put(FailGoodJunitTestEngineConstants.CONFIG_KEY_REPEAT, "1")
         }
     return LauncherDiscoveryRequestBuilder.request()
         .configurationParameters(configurationParameters)

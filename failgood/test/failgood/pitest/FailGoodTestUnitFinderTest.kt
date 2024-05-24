@@ -8,11 +8,7 @@ import org.pitest.testapi.ResultCollector
 import org.pitest.testapi.TestUnit
 import org.pitest.testapi.TestUnitFinder
 import strikt.api.expectThat
-import strikt.assertions.containsExactlyInAnyOrder
-import strikt.assertions.filter
-import strikt.assertions.hasSize
-import strikt.assertions.isEqualTo
-import strikt.assertions.single
+import strikt.assertions.*
 
 // only compare the first 4 lines of the stacktrace because something is messing with stacktraces
 fun throwableToString(t: Throwable) = t.stackTraceToString().lineSequence().take(4).joinToString()
@@ -83,7 +79,7 @@ class FailGoodTestUnitFinderTest {
                         )
                     )
             }
-            it("returns an no tests when the test class cannot be instantiated") {
+            it("returns no tests when the test class cannot be instantiated") {
                 assert(
                     FailGoodTestUnitFinder.findTestUnits(NoTests::class.java, null) ==
                             listOf<TestUnit>()

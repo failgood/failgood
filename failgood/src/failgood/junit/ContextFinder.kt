@@ -1,23 +1,16 @@
 package failgood.junit
 
-import failgood.FailGood
-import failgood.FailGoodException
-import failgood.ObjectContextProvider
-import failgood.Suite
-import failgood.Test
+import failgood.*
 import failgood.internal.ClassTestFilterProvider
 import failgood.internal.TestFilterProvider
 import failgood.internal.TestFixture
+import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_REPEAT
 import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.engine.EngineDiscoveryRequest
-import org.junit.platform.engine.discovery.ClassNameFilter
-import org.junit.platform.engine.discovery.ClassSelector
-import org.junit.platform.engine.discovery.ClasspathRootSelector
-import org.junit.platform.engine.discovery.MethodSelector
-import org.junit.platform.engine.discovery.PackageNameFilter
-import org.junit.platform.engine.discovery.UniqueIdSelector
+import org.junit.platform.engine.discovery.*
 import java.nio.file.Paths
-import java.util.LinkedList
+import java.util.*
+import kotlin.jvm.optionals.getOrDefault
 
 internal data class SuiteAndFilters(
     val suite: Suite,
@@ -28,6 +21,7 @@ internal data class SuiteAndFilters(
 
 class ContextFinder(private val runTestFixtures: Boolean = false) {
     internal fun findContexts(discoveryRequest: EngineDiscoveryRequest): SuiteAndFilters? {
+        val repeat = discoveryRequest.configurationParameters.get(CONFIG_KEY_REPEAT).getOrDefault("1").toInt()
         val filterConfig = mutableMapOf<String, List<String>>()
         val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)
         val classNamePredicates =
@@ -97,7 +91,7 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
         return if (contexts.isEmpty()) null
         else
             SuiteAndFilters(
-                Suite(contexts),
+                Suite(contexts, repeat),
                 if (filterConfig.isEmpty()) null else ClassTestFilterProvider(filterConfig)
             )
     }

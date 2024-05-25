@@ -11,6 +11,9 @@ plugins {
 
 tasks {
     test {
+        if (System.getenv("CI") != null) {
+            systemProperties = mapOf("failgood.repeat" to "10")
+        }
         useJUnitPlatform {
 // use all engine for now because we want to see the playground engines output
         //            includeEngines = setOf("failgood")

@@ -13,16 +13,18 @@ data class Suite(val contextProviders: Collection<ContextProvider>, val repeat: 
     }
 
     fun run(
-        parallelism: Int? = null,
+        parallelism: Int? = 2,
         silent: Boolean = false,
         filter: TestFilterProvider? = null,
         listener: ExecutionListener = NullExecutionListener
     ): SuiteResult {
         return SuiteExecutionContext(parallelism).use { suiteExecutionContext ->
+            if (!silent)
+                println("starting test suite with parallelism = ${suiteExecutionContext.parallelism}")
             suiteExecutionContext.coroutineDispatcher.use { dispatcher ->
                 runBlocking(dispatcher) {
                     val contextInfos =
-                        findTests(
+                        findAndStartTests(
                             this,
                             filter = filter ?: ExecuteAllTestFilterProvider,
                             listener = listener
@@ -48,7 +50,7 @@ data class Suite(val contextProviders: Collection<ContextProvider>, val repeat: 
         }
     }
 
-    internal suspend fun findTests(
+    internal suspend fun findAndStartTests(
         coroutineScope: CoroutineScope,
         executeTests: Boolean = true,
         filter: TestFilterProvider = ExecuteAllTestFilterProvider,

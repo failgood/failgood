@@ -24,7 +24,7 @@ object FailGoodTestUnitFinder : TestUnitFinder {
         val tests =
             runBlocking {
                 Suite(listOf(ContextProvider { contexts }))
-                    .findTests(GlobalScope, false)
+                    .findAndStartTests(GlobalScope, false)
                     .awaitAll()
             }
                 .filterIsInstance<TestResults>()

@@ -1,8 +1,6 @@
 package failgood.junit.legacy
 
 import failgood.*
-import failgood.Skipped
-import failgood.awaitTestResults
 import failgood.internal.ExecuteAllTestFilterProvider
 import failgood.internal.StaticTestFilterProvider
 import failgood.internal.StringListTestFilter
@@ -11,32 +9,21 @@ import failgood.internal.sysinfo.upt
 import failgood.internal.sysinfo.uptime
 import failgood.internal.util.getenv
 import failgood.junit.*
-import failgood.junit.legacy.ChannelExecutionListener.TestExecutionEvent
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_RUN_TEST_FIXTURES
+import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_SILENT
 import failgood.junit.FailGoodJunitTestEngineConstants.DEBUG_TXT_FILENAME
-import failgood.junit.FailureLogger
-import failgood.junit.FailureLoggingEngineExecutionListener
-import java.io.File
-import java.util.Timer
-import kotlin.concurrent.schedule
-import kotlin.system.exitProcess
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.awaitAll
+import failgood.junit.legacy.ChannelExecutionListener.TestExecutionEvent
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import org.junit.platform.engine.EngineDiscoveryRequest
-import org.junit.platform.engine.ExecutionRequest
-import org.junit.platform.engine.TestDescriptor
-import org.junit.platform.engine.TestEngine
-import org.junit.platform.engine.TestExecutionResult
-import org.junit.platform.engine.TestSource
-import org.junit.platform.engine.UniqueId
+import org.junit.platform.engine.*
 import org.junit.platform.engine.reporting.ReportEntry
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
+import java.io.File
+import java.util.*
+import kotlin.concurrent.schedule
+import kotlin.system.exitProcess
 
 const val CONTEXT_SEGMENT_TYPE = "class"
 const val TEST_SEGMENT_TYPE = "method"
@@ -51,6 +38,8 @@ class LegacyJUnitTestEngine : TestEngine {
     companion object {
         const val ID="failgood-legacy"
     }
+
+    private var silent: Boolean = false
     private var debug: Boolean = false
 
     override fun getId(): String = ID
@@ -65,6 +54,8 @@ class LegacyJUnitTestEngine : TestEngine {
         val startedAt = upt()
 
         debug = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_DEBUG).orElse(false)
+        silent = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_SILENT).orElse(false)
+
 
         failureLogger.add("discovery request", discoveryRequest.niceString())
 
@@ -91,7 +82,7 @@ class LegacyJUnitTestEngine : TestEngine {
                 runBlocking(suiteExecutionContext.coroutineDispatcher) {
                     val testResult =
                         suite
-                            .findTests(
+                            .findAndStartTests(
                                 suiteExecutionContext.scope,
                                 true,
                                 filterProvider ?: ExecuteAllTestFilterProvider,
@@ -277,7 +268,8 @@ class LegacyJUnitTestEngine : TestEngine {
             failureLogger.add("events", loggingEngineExecutionListener.events.toString())
             File(DEBUG_TXT_FILENAME).writeText(failureLogger.envString())
         }
-        println("finished after ${uptime()}")
+        if (!silent)
+            println("finished after ${uptime()}")
     }
 }
 

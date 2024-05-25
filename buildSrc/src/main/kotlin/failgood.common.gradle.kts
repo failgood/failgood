@@ -1,5 +1,6 @@
 import com.adarshr.gradle.testlogger.TestLoggerExtension
 import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA_PARALLEL
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -26,10 +27,10 @@ tasks {
         targetCompatibility = "1.8"
     }
     withType<KotlinCompile> {
-        kotlinOptions {
+        compilerOptions {
             if (System.getenv("CI") != null)
                 allWarningsAsErrors = true
-            jvmTarget = "1.8"
+            jvmTarget = JvmTarget.JVM_1_8
             freeCompilerArgs = listOf("-opt-in=kotlin.RequiresOptIn")
         }
     }

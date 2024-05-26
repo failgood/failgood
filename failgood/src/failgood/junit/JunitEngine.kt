@@ -1,18 +1,15 @@
 package failgood.junit
 
 import failgood.Context
+import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_PARALLELISM
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_SILENT
 import failgood.junit.FailGoodJunitTestEngineConstants.DEBUG_TXT_FILENAME
-import org.junit.platform.engine.EngineDiscoveryRequest
-import org.junit.platform.engine.ExecutionRequest
-import org.junit.platform.engine.TestDescriptor
-import org.junit.platform.engine.TestEngine
-import org.junit.platform.engine.TestExecutionResult
-import org.junit.platform.engine.UniqueId
+import org.junit.platform.engine.*
 import org.junit.platform.engine.discovery.ClasspathRootSelector
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.jvm.optionals.getOrNull
 
 class JunitEngine : TestEngine {
     override fun getId(): String = FailGoodJunitTestEngineConstants.ID
@@ -74,6 +71,7 @@ class JunitEngine : TestEngine {
                 ExecutionListener(root, junitListener, startedContexts, testMapper)
             val results =
                 root.suiteAndFilters.suite.run(
+                    parallelism = request.configurationParameters.get(CONFIG_KEY_PARALLELISM).getOrNull()?.toInt(),
                     filter = root.suiteAndFilters.filter,
                     listener = failgoodListener,
                     silent = true

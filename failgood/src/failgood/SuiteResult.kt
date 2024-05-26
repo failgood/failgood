@@ -83,7 +83,7 @@ data class SuiteResult(
         if (slowTests.isEmpty()) return
         println("Slowest tests:")
         slowTests.forEach {
-            println("${contextTreeReporter.time((it.result as Success).timeMicro)}ms ${it.test}")
+            println("${contextTreeReporter.time((it.result as Success).timeMicro)}ms ${it.test.niceString()}")
         }
     }
 }

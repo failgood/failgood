@@ -2,11 +2,11 @@ package failgood
 
 import failgood.internal.FailedTestCollectionExecution
 import failgood.mock.mock
-import kotlin.test.assertNotNull
 import kotlinx.coroutines.*
 import strikt.api.expectThat
 import strikt.api.expectThrows
 import strikt.assertions.isEqualTo
+import kotlin.test.assertNotNull
 
 @Test
 class SuiteTest {
@@ -36,7 +36,7 @@ class SuiteTest {
                             }
                         }
                     val scope = CoroutineScope(Dispatchers.Unconfined)
-                    val deferredResult = withTimeout(100) { Suite(contexts).findTests(scope) }
+                    val deferredResult = withTimeout(100) { Suite(contexts).findAndStartTests(scope) }
                     withTimeout(100) { deferredResult.awaitAll() }
                     scope.cancel()
                 }
@@ -61,7 +61,7 @@ class SuiteTest {
                     val contextResult =
                         assertNotNull(
                             Suite(listOf(objectContextProvider))
-                                .findTests(scope)
+                                .findAndStartTests(scope)
                                 .singleOrNull()
                                 ?.await()
                         )

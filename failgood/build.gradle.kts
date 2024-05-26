@@ -1,4 +1,4 @@
-@file:Suppress("GradlePackageUpdate")
+
 
 import failgood.versions.*
 import info.solidsoft.gradle.pitest.PitestPluginExtension
@@ -84,6 +84,7 @@ plugins.withId("info.solidsoft.pitest") {
     }
 }
 
+@Suppress("OPT_IN_USAGE")
 powerAssert {
     functions = listOf(
         "kotlin.assert",

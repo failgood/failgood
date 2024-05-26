@@ -1,19 +1,8 @@
 package failgood.pitest
 
-import failgood.ContextProvider
-import failgood.Failure
-import failgood.ObjectContextProvider
-import failgood.Skipped
-import failgood.Success
-import failgood.Suite
-import failgood.TestDescription
-import failgood.TestPlusResult
+import failgood.*
 import failgood.internal.TestResults
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import org.pitest.testapi.*
 
 object FailGoodTestUnitFinder : TestUnitFinder {
@@ -25,6 +14,8 @@ object FailGoodTestUnitFinder : TestUnitFinder {
         val contexts =
             try {
                 ObjectContextProvider(clazz).getContexts()
+            } catch (_: NoClassDefFoundError) {
+                return listOf()
             } catch (_: ExceptionInInitializerError) {
                 return listOf()
             } catch (_: Exception) {
@@ -32,10 +23,10 @@ object FailGoodTestUnitFinder : TestUnitFinder {
             }
         val tests =
             runBlocking {
-                    Suite(listOf(ContextProvider { contexts }))
-                        .findTests(GlobalScope, false)
-                        .awaitAll()
-                }
+                Suite(listOf(ContextProvider { contexts }))
+                    .findAndStartTests(GlobalScope, false)
+                    .awaitAll()
+            }
                 .filterIsInstance<TestResults>()
         return tests.flatMap { it.tests.entries }.map { FailGoodTestUnit(it.key, it.value, clazz) }
     }

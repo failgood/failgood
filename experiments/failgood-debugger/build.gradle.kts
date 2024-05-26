@@ -42,6 +42,7 @@ plugins.withId("info.solidsoft.pitest") {
         outputFormats = setOf("XML", "HTML")
     }
 }
+@Suppress("OPT_IN_USAGE")
 powerAssert {
     functions = listOf("kotlin.assert", "kotlin.test.assertTrue", "kotlin.test.assertNotNull")
 }

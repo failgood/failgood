@@ -14,8 +14,12 @@
             <pattern>%d{HH:mm:ss.SSS} [%X{test}] %-5level %logger{36} - %msg %n</pattern>
         </encoder>
     </appender>
-
-    <root level="WARN">
+    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
         <appender-ref ref="FILE"/>
+    </appender>
+    <logger name="failgood.internal.ResourceCloserImpl" level="DEBUG"/>
+    <root level="WARN">
+        <appender-ref ref="ASYNC"/>
     </root>
 </configuration>

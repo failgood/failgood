@@ -18,7 +18,7 @@
         <discardingThreshold>0</discardingThreshold>
         <appender-ref ref="FILE"/>
     </appender>
-    <logger name="failgood.internal.ResourceCloserImpl" level="DEBUG"/>
+    <!--    <logger name="failgood.internal.ResourceCloserImpl" level="DEBUG"/>-->
     <root level="WARN">
         <appender-ref ref="ASYNC"/>
     </root>

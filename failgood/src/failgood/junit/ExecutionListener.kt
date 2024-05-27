@@ -1,8 +1,14 @@
 package failgood.junit
 
-import failgood.*
+import failgood.Context
 import failgood.ExecutionListener
+import failgood.FailGoodException
+import failgood.Failure
 import failgood.Skipped
+import failgood.SourceInfo
+import failgood.Success
+import failgood.TestDescription
+import failgood.TestPlusResult
 import org.junit.platform.engine.EngineExecutionListener
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.TestSource
@@ -85,11 +91,18 @@ internal class ExecutionListener(
             val testDescription = testPlusResult.test
             val descriptor = testMapper.getMapping(testDescription)
             when (testPlusResult.result) {
-                is Failure ->
+                is Failure -> {
+                    listener.reportingEntryPublished(
+                        descriptor,
+                        ReportEntry.from("test path", testDescription.niceString())
+                    )
+
                     listener.executionFinished(
                         descriptor,
                         TestExecutionResult.failed(testPlusResult.result.failure)
                     )
+                }
+
                 is Skipped -> {
                     // for skipped tests testStarted is not called, so we have to start parent
                     // contexts
@@ -97,6 +110,7 @@ internal class ExecutionListener(
                     startParentContexts(testDescription)
                     listener.executionSkipped(descriptor, testPlusResult.result.reason)
                 }
+
                 is Success ->
                     listener.executionFinished(descriptor, TestExecutionResult.successful())
             }

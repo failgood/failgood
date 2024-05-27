@@ -9,8 +9,8 @@ import failgood.mock.call
 import failgood.mock.getCalls
 import failgood.mock.mock
 import failgood.mock.verify
+import failgood.softly.softly
 import failgood.testsAbout
-import java.util.concurrent.CopyOnWriteArrayList
 import strikt.api.expectThat
 import strikt.assertions.all
 import strikt.assertions.containsExactly
@@ -21,6 +21,7 @@ import strikt.assertions.isFalse
 import strikt.assertions.isSameInstanceAs
 import strikt.assertions.isTrue
 import strikt.assertions.map
+import java.util.concurrent.CopyOnWriteArrayList
 
 @Test
 class TestResourcesLifecycleTest {
@@ -197,49 +198,52 @@ class TestResourcesLifecycleTest {
                         }
                             .run(silent = true)
 
-                    describe("when the test fails and autoclose and aftereach work") {
-                        val result =
-                            suiteResult(
-                                testsFail = true,
-                                afterEachFails = false,
-                                autoCloseFails = false
-                            )
-                        it("calls autoclose callbacks") { assert(autoCloseCalled == 2) }
-                        it("calls afterEach callbacks") { assert(afterEachCalled == 2) }
-                        it("reports the test failure") { assertFailedGracefully(result) }
+                    fun assertOk(result: SuiteResult) {
+                        softly {
+                            assert(autoCloseCalled == 2)
+                            assert(afterEachCalled == 2)
+                            assertFailedGracefully(result)
+                        }
                     }
-                    describe("when the test fails and aftereach fails") {
-                        val result =
-                            suiteResult(
-                                testsFail = true,
-                                afterEachFails = true,
-                                autoCloseFails = false
-                            )
-                        it("calls autoclose callbacks") { assert(autoCloseCalled == 2) }
-                        it("calls afterEach callbacks") { assert(afterEachCalled == 2) }
-                        it("reports the test failure") { assertFailedGracefully(result) }
-                    }
-                    describe("when the test succeeds, autoclose fails and aftereach works") {
-                        val result =
-                            suiteResult(
-                                testsFail = false,
-                                afterEachFails = true,
-                                autoCloseFails = false
-                            )
-                        it("calls autoclose callbacks") { assert(autoCloseCalled == 2) }
-                        it("calls afterEach callbacks") { assert(afterEachCalled == 2) }
-                        it("reports the test failure") { assertFailedGracefully(result) }
-                    }
-                    describe("when the test and autoclose succeeds and aftereach fails") {
-                        val result =
-                            suiteResult(
-                                testsFail = false,
-                                afterEachFails = false,
-                                autoCloseFails = true
-                            )
-                        it("calls autoclose callbacks") { assert(autoCloseCalled == 2) }
-                        it("calls afterEach callbacks") { assert(afterEachCalled == 2) }
-                        it("reports the test failure") { assertFailedGracefully(result) }
+
+                    describe("calls autoCLose, afterEach and reports test Failure") {
+                        test("when the test fails and autoclose and aftereach work") {
+                            val result =
+                                suiteResult(
+                                    testsFail = true,
+                                    afterEachFails = false,
+                                    autoCloseFails = false
+                                )
+                            assertOk(result)
+                        }
+                        test("when the test fails and aftereach fails") {
+                            val result =
+                                suiteResult(
+                                    testsFail = true,
+                                    afterEachFails = true,
+                                    autoCloseFails = false
+                                )
+                            assertOk(result)
+                        }
+                        test("when the test succeeds, autoclose fails and aftereach works") {
+                            val result =
+                                suiteResult(
+                                    testsFail = false,
+                                    afterEachFails = true,
+                                    autoCloseFails = false
+                                )
+                            assertOk(result)
+                        }
+                        test("when the test and autoclose succeeds and aftereach fails") {
+                            val result =
+                                suiteResult(
+                                    testsFail = false,
+                                    afterEachFails = false,
+                                    autoCloseFails = true
+                                )
+                            assertOk(result)
+                        }
+
                     }
 
                     it("reports the test failure even when the close callback fails too") {

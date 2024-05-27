@@ -1,9 +1,16 @@
 package failgood.internal.execution
 
-import failgood.*
-import failgood.dsl.*
+import failgood.Context
+import failgood.FailGoodException
+import failgood.Ignored
+import failgood.Skipped
+import failgood.TestDescription
+import failgood.TestPlusResult
 import failgood.dsl.ContextDSL
+import failgood.dsl.ContextOnlyResourceDSL
+import failgood.dsl.GivenFunction
 import failgood.dsl.ResourcesDSL
+import failgood.dsl.TestFunction
 import failgood.internal.ContextPath
 import failgood.internal.ResourcesCloser
 import failgood.internal.given.GivenDSLHandler
@@ -75,7 +82,11 @@ internal class ContextVisitor<RootGiven, GivenType>(
         }
         val testDescription = TestDescription(context, name, sourceInfo())
         staticConfig.listener.testDiscovered(testDescription)
-        MDC.put("test", testDescription.niceString())
+        // we only put the test name into the mdc if there is no test name set already
+        // because when running the failgood test suite we don't want to overwrite the test name
+        val mdcClosable = if (MDC.get("test") == null)
+            MDC.putCloseable("test", testDescription.niceString())
+        else null
         if (!ranATest || !isolation) {
             // if we don't need isolation we run all tests here.
             // if we do:
@@ -92,6 +103,7 @@ internal class ContextVisitor<RootGiven, GivenType>(
         } else {
             contextStateCollector.executeTestLater(testDescription, testPath)
         }
+        mdcClosable?.close()
     }
 
     override suspend fun <ContextDependency> describe(

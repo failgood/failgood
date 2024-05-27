@@ -22,6 +22,7 @@ import strikt.assertions.isSameInstanceAs
 import strikt.assertions.isTrue
 import strikt.assertions.map
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicInteger
 
 @Test
 class TestResourcesLifecycleTest {
@@ -171,8 +172,8 @@ class TestResourcesLifecycleTest {
                         }
                     }
 
-                    var afterEachCalled = 0
-                    var autoCloseCalled = 0
+                    val afterEachCalled = AtomicInteger(0)
+                    var autoCloseCalled = AtomicInteger(0)
                     fun suiteResult(
                         testsFail: Boolean,
                         afterEachFails: Boolean,
@@ -180,12 +181,12 @@ class TestResourcesLifecycleTest {
                     ) =
                         Suite {
                             autoClose(null) {
-                                autoCloseCalled++
+                                autoCloseCalled.incrementAndGet()
                                 if (autoCloseFails)
                                     throw RuntimeException("autoclose error message")
                             }
                             afterEach {
-                                afterEachCalled++
+                                afterEachCalled.incrementAndGet()
                                 if (afterEachFails)
                                     throw RuntimeException("aftereach error message")
                             }
@@ -200,8 +201,8 @@ class TestResourcesLifecycleTest {
 
                     fun assertOk(result: SuiteResult) {
                         softly {
-                            assert(autoCloseCalled == 2)
-                            assert(afterEachCalled == 2)
+                            assert(autoCloseCalled.get() == 2)
+                            assert(afterEachCalled.get() == 2)
                             assertFailedGracefully(result)
                         }
                     }

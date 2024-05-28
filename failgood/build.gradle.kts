@@ -5,7 +5,10 @@ import failgood.versions.pitestVersion
 import failgood.versions.striktVersion
 import com.adarshr.gradle.testlogger.TestLoggerExtension
 import com.adarshr.gradle.testlogger.theme.ThemeType
-import failgood.versions.*
+import failgood.versions.coroutinesVersion
+import failgood.versions.junitPlatformVersion
+import failgood.versions.pitestVersion
+import failgood.versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -220,8 +223,6 @@ tasks {
                 allWarningsAsErrors = true
             jvmTarget = "1.8"
             freeCompilerArgs = listOf("-opt-in=kotlin.RequiresOptIn")
-            languageVersion = "1.9"
-            apiVersion = "1.9"
         }
     }
 }

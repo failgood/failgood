@@ -1,6 +1,10 @@
 
 
-import failgood.versions.*
+import failgood.versions.coroutinesVersion
+import failgood.versions.junitJupiterVersion
+import failgood.versions.junitPlatformVersion
+import failgood.versions.pitestVersion
+import failgood.versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
 plugins {
@@ -39,8 +43,6 @@ dependencies {
     testImplementation("io.projectreactor.tools:blockhound:1.0.9.RELEASE")
 
     testImplementation(kotlin("test"))
-    testImplementation("io.github.oshai:kotlin-logging-jvm:6.0.9")
-    testImplementation("org.slf4j:slf4j-api:2.0.13")
     testImplementation("ch.qos.logback:logback-classic:1.5.6")
 
 

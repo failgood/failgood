@@ -23,12 +23,6 @@ ij_kotlin_name_count_to_use_star_import_for_members = 5
 indent_size = 2
 
 [*.{kt,kts}]
-ktlint_code_style = ktlint_official
-# noinspection EditorConfigKeyCorrectness
-ktlint_standard_no-wildcard-imports = disabled
-ktlint_standard_multiline-if-else = disabled
-ktlint_standard_argument-list-wrapping = disabled
-#ktlint_standard_wrapping = disabled
 
 ij_kotlin_allow_trailing_comma_on_call_site = false
 ij_kotlin_allow_trailing_comma = false

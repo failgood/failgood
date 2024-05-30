@@ -9,7 +9,7 @@ repositories {
 }
 
 dependencies {
-    testImplementation("dev.failgood:failgood:0.8.1")
+    testImplementation("dev.failgood:failgood:0.9.0")
 }
 tasks.test {
     useJUnitPlatform()
@@ -25,7 +25,7 @@ import failgood.describe
 
 @Test
 class MyFirstFailgoodTests {
-    val context = describe("my perfect test suite") {
+    val tests = testsAbout("my perfect test suite") {
         it("runs super fast") {
             assert(true)
         }

@@ -3,10 +3,53 @@
 
 All notable changes to this project will be documented in this file.
 
-## 0.9.0 - Unreleased
+## Unreleased
 
 ### Added
 
+- Logging Support: Put Test name into Logging MDC to make it easy to see what was logged by what test. See included
+  logback.xml file for an example how to use it.
+
+## 0.9.1 "Bollerwagen" - 2024-01-03
+
+### Fixed
+
+- Send executionStarted event for failed contexts. Idea will ignore executionFinished events for not started tests
+  so the error message would not appear in the test runner. (it would appear in the console output of the test runner)
+- Fix some edge cases with the new junit engine.
+- Fix running "all tests in project" by adding a fake test, because idea does not tests when the initial test plan is empty
+
+
+### Changed
+
+- Improve handling of duplicate root context names by making them unique by adding a number(tests, tests-1, tests-2)
+- Default to the new junit engine. you can still use `-Dfailgood.new.junit=false` to use the old one
+
+## 0.9.0 "Pork Roast" - 2023-12-23
+
+Highlights of 0.9 are the new junit engine and the extended support for fixtures via `given`
+There are also new deprecations while the api is fine-tuned in response to using failgood in all kinds
+of test suites.
+Use idea inspect code to automatically replace deprecated versions.
+
+### Fixed
+
+- afterEach and dependency are no longer available in the TestDSL, where it makes no sense to have them.
+
+### Changed
+
+- tests are now created via `val tests = tests { ... } ` or `val tests = testsFor("...") {} `. top level `describe`
+  functions are deprecated. Use idea inspect code to automatically replace deprecated versions.
+- Given is now accessed via a `given` property instead of a parameter to the test function
+- Given block can now lazily access the parent context
+- Private test classes now throw an error instead of being ignored. Now that we find tests by Annotation, it
+  makes no sense to mark a class as a Test and make it private.
+- The Root context name now contains the name of the test file when it makes sense
+
+### Added
+
+- Added SuspendAutoCloseable interface with a suspend close function and support it in the autoClose method
+- The Root context can now also have a given block
 - New junit platform engine that is totally async
   To try it out add -Dfailgood.new.junit=true to your test run or set it in junit-platform.properties.
   It works pretty well and will become the default before 1.0
@@ -104,7 +147,7 @@ This version will be the last before 0.9 where all deprecated methods will be re
 
 ### Added
 
-- Add support for given. Contexts can now define a lambda whose result is passed to tests
+- Add support for given. Contexts can now define a function whose result is passed to tests
 - Experimental run tests by tag. describe,it,test and context now have a `tags` parameter, and you can run a subset of tests
   by setting the env variable FAILGOOD_TAG. Currently, only contexts that are in the root can be tagged, tags in subcontexts
   of subcontexts are currently not found

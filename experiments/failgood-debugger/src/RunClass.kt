@@ -9,8 +9,7 @@ import com.sun.jdi.event.ClassPrepareEvent
 fun runClass(mainClass: String): MutableMap<Int, Map<String, String>> {
     val results = mutableMapOf<Int, Map<String, String>>()
     val classPath = System.getProperty("java.class.path")
-    val launchingConnector = Bootstrap.virtualMachineManager()
-        .defaultConnector()
+    val launchingConnector = Bootstrap.virtualMachineManager().defaultConnector()
     val arguments = launchingConnector.defaultArguments()
     arguments["main"]!!.setValue("$mainClass firstArg secondArg")
     arguments["options"]!!.setValue("-cp \"$classPath\"")
@@ -28,12 +27,12 @@ fun runClass(mainClass: String): MutableMap<Int, Map<String, String>> {
                 when (ev) {
                     is ClassPrepareEvent -> {
                         val classType = ev.referenceType() as ClassType
-                        classType.allLineLocations() // todo filter duplicate line numbers
+                        classType
+                            .allLineLocations() // todo filter duplicate line numbers
                             .forEach { location ->
                                 eventRequestManager.createBreakpointRequest(location).enable()
                             }
                     }
-
                     is BreakpointEvent -> {
                         val frame = ev.thread().frame(0)
 
@@ -42,7 +41,9 @@ fun runClass(mainClass: String): MutableMap<Int, Map<String, String>> {
                         if (locationName.contains(mainClass)) {
                             val vars = frame.getValues(frame.visibleVariables())
                             val lineResults =
-                                vars.entries.associate { (key, value) -> key.name() to value.toString() }
+                                vars.entries.associate { (key, value) ->
+                                    key.name() to value.toString()
+                                }
                             results[location.lineNumber()] = lineResults
                         }
                     }

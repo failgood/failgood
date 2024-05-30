@@ -1,20 +1,22 @@
 @file:Suppress("GradlePackageUpdate")
 
+import info.solidsoft.gradle.pitest.PitestPluginExtension
+
+
 plugins {
     kotlin("jvm")
     id("info.solidsoft.pitest")
     id("failgood.common")
 //    id("failgood.publishing")
-    id("com.bnorm.power.kotlin-power-assert") version "0.13.0"
-    id("org.jetbrains.kotlinx.kover") version "0.7.3"
-    id("org.jetbrains.dokka") version "1.8.20"
-    id("org.jmailen.kotlinter")
+    kotlin("plugin.power-assert") version "2.0.0"
+    id("org.jetbrains.kotlinx.kover") version "0.8.0"
+    id("org.jetbrains.dokka") version "1.9.20"
 }
 
 dependencies {
     testImplementation(kotlin("test"))
     testImplementation(project(":failgood"))
-    // it seems tools.jar is currently not necessary to compile this. I'm pretty sure that  was necessary at some point
+    // it seems tools.jar is currently not necessary to compile this. I'm pretty sure that was necessary at some point
     // I'm keeping it here because this is an experiment anyway.
 //    compileOnly(files("${System.getenv("java.home")}/../lib/tools.jar"))
 }
@@ -24,23 +26,23 @@ sourceSets.main {
 }
 sourceSets.test {
     java.srcDirs("test")
-    resources.srcDirs("test-resources")
+    resources.srcDirs("testResources")
 }
 plugins.withId("info.solidsoft.pitest") {
-    configure<info.solidsoft.gradle.pitest.PitestPluginExtension> {
-//                verbose.set(true)
-        jvmArgs.set(listOf("-Xmx512m")) // necessary on CI
-        avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))
-        excludedTestClasses.set(setOf("failgood.MultiThreadingPerformanceTest*"))
-        targetClasses.set(setOf("failgood.*")) // by default "${project.group}.*"
-        targetTests.set(setOf("failgood.*Test", "failgood.**.*Test"))
-        pitestVersion.set(failgood.versions.pitestVersion)
-        threads.set(
+    configure<PitestPluginExtension> {
+        addJUnitPlatformLauncher = false
+        jvmArgs = listOf("-Xmx512m") // necessary on CI
+        avoidCallsTo = setOf("kotlin.jvm.internal", "kotlin.Result")
+        targetClasses = setOf("failgood.*") // by default "${project.group}.*"
+        targetTests = setOf("failgood.*Test", "failgood.**.*Test")
+        pitestVersion = failgood.versions.pitestVersion
+        threads =
             System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()
-        )
-        outputFormats.set(setOf("XML", "HTML"))
+
+        outputFormats = setOf("XML", "HTML")
     }
 }
-configure<com.bnorm.power.PowerAssertGradleExtension> {
+@Suppress("OPT_IN_USAGE")
+powerAssert {
     functions = listOf("kotlin.assert", "kotlin.test.assertTrue", "kotlin.test.assertNotNull")
 }

@@ -3,7 +3,7 @@
 Failgood needs no special support for parametrized tests. You can just use `forEach` to create multiple versions of a test
 
 ```kotlin
-val context = describe("String#reverse") {
+val tests = testsAbout("String#reverse") {
     listOf(Pair("otto", "otto"), Pair("racecar", "racecar")).forEach { (input, output) ->
         it("reverses $input to $output") {
             assert(input.reversed() == output)

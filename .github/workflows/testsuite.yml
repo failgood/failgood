@@ -4,9 +4,17 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - 'docs/**'
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - 'docs/**'
 
 jobs:
   build:
@@ -26,13 +34,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.experimental }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
+      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4
+      - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
       - name: Cache Gradle packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
@@ -44,16 +52,16 @@ jobs:
           FAILGOOD_WATCHDOG_MILLIS: 100000
         run: ./gradlew check build koverXmlReport
       - name: upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: build-reports-${{ matrix.os }}-${{ matrix.java }}
           path: failgood/build/reports
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           #        token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
           files: failgood/build/reports/kover/xml/report.xml
           #        flags: unittests # optional
           #        name: codecov-umbrella # optional
-          fail_ci_if_error: false # optional (default = false)
+          # fail_ci_if_error: false # optional (default = false)
           verbose: true # optional (default = false)

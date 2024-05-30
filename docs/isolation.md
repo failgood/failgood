@@ -50,7 +50,7 @@ If you use the default isolation but for some reason you want a dependency to no
 ```kotlin
 class MyBeautifulTest {
     val myHeavyWeightTestDependency = KafkaDockerMegaMonolith()
-    val context = describe("The web server") {
+    val tests = testsAbout("The web server") {
         afterSuite {
             myHeavyWeightTestDependency.close()
         }
@@ -78,7 +78,7 @@ object SharedKafka {
 
 // in the unit test
 class MyKafkaSenderTest {
-    val context = describe(KafkaSender::class) {
+    val tests = testsAbout(KafkaSender::class) {
         val kafkaSession = autoClose(SharedKafka.session())
         val subject = KafkaSender(kafkaSession/*....*/)
         it("can send") {

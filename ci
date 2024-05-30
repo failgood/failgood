@@ -1,2 +1,2 @@
-./gradlew clean formatKotlin
+./gradlew ktfmtFormat
 CI=true ./gradlew failgood:runSingleNonFailgoodTest check

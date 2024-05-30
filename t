@@ -1,2 +1,2 @@
-./gradlew formatKotlin
+./gradlew spotlessApply
 ./gradlew check

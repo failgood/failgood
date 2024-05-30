@@ -9,7 +9,7 @@ import info.solidsoft.gradle.pitest.PitestPluginExtension
 plugins {
     kotlin("jvm")
     id("info.solidsoft.pitest")
-    id("org.jmailen.kotlinter")
+    id("com.ncorti.ktfmt.gradle")
 }
 
 dependencies {
@@ -17,10 +17,10 @@ dependencies {
 
     // everything else is optional, and only here because some tests show interactions with these libs
     testImplementation("io.strikt:strikt-core:$striktVersion")
-    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("io.mockk:mockk:1.13.11")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
-    implementation("org.slf4j:slf4j-api:2.0.9")
+    implementation("org.slf4j:slf4j-api:2.0.13")
 }
 
 tasks {
@@ -31,13 +31,14 @@ tasks {
 
 plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
+        addJUnitPlatformLauncher = false
         mutators.set(listOf("ALL"))
         //        verbose.set(true)
         jvmArgs.set(listOf("-Xmx512m")) // necessary on CI
         avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))
         targetClasses.set(setOf("failgood.examples.*")) // by default "${project.group}.*"
         targetTests.set(setOf("failgood.examples.*Test", "failgood.examples.**.*Test"))
-        pitestVersion.set("1.15.0")
+        pitestVersion.set("1.16.1")
         threads.set(
             System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()
         )
@@ -57,3 +58,18 @@ task("autotest", JavaExec::class) {
     classpath = sourceSets["test"].runtimeClasspath
 }
 tasks.check { dependsOn(testMain) }
+
+tasks.getByName("check").dependsOn(tasks.getByName("ktfmtCheck"))
+sourceSets.main {
+    java.srcDirs("src")
+    resources.srcDirs("resources")
+}
+sourceSets.test {
+    java.srcDirs("test")
+    resources.srcDirs("testResources")
+}
+
+ktfmt {
+    kotlinLangStyle()
+}
+

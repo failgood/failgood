@@ -1,16 +1,20 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.adarshr.gradle.testlogger.TestLoggerExtension
 import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA_PARALLEL
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     java
     kotlin("jvm")
     id("com.adarshr.test-logger")
+    id("com.ncorti.ktfmt.gradle")
 }
-
 
 tasks {
     test {
+        if (System.getenv("CI") != null) {
+            systemProperties = mapOf("failgood.repeat" to "10")
+        }
         useJUnitPlatform {
 // use all engine for now because we want to see the playground engines output
         //            includeEngines = setOf("failgood")
@@ -23,13 +27,11 @@ tasks {
         targetCompatibility = "1.8"
     }
     withType<KotlinCompile> {
-        kotlinOptions {
+        compilerOptions {
             if (System.getenv("CI") != null)
                 allWarningsAsErrors = true
-            jvmTarget = "1.8"
+            jvmTarget = JvmTarget.JVM_1_8
             freeCompilerArgs = listOf("-opt-in=kotlin.RequiresOptIn")
-            languageVersion = "1.6"
-            apiVersion = "1.6"
         }
     }
 }
@@ -37,4 +39,8 @@ configure<TestLoggerExtension> {
     theme = MOCHA_PARALLEL
     showSimpleNames = true
     showFullStackTraces = true
+}
+tasks.getByName("check").dependsOn(tasks.getByName("ktfmtCheck"))
+ktfmt {
+    kotlinLangStyle()
 }

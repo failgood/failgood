@@ -1,14 +1,14 @@
 import failgood.Test
 import failgood.dsl.TestDSL
 import failgood.testsAbout
-import java.lang.reflect.InvocationHandler
-import java.lang.reflect.Method
-import java.lang.reflect.Proxy
-import java.util.*
 import kotlinx.coroutines.runBlocking
 import mu.KLogger
 import mu.KotlinLogging
 import org.slf4j.Logger
+import java.lang.reflect.InvocationHandler
+import java.lang.reflect.Method
+import java.lang.reflect.Proxy
+import java.util.Locale
 
 @Test
 class LoggingTest {
@@ -47,13 +47,9 @@ class LoggingHandler(private val resourcesDSL: TestDSL) : InvocationHandler {
                 )
             }
         }
-<<<<<<<< HEAD:experiments/failgood-logging/test/LoggingTest.kt
         runBlocking {
             resourcesDSL.testInfo.context.event(methodName.uppercase(Locale.getDefault()), message)
         }
-========
-        runBlocking { resourcesDSL._test_event(methodName.uppercase(Locale.getDefault()), message) }
->>>>>>>> main:failgood-examples/test/failgood/examples/LoggingTest.kt
         return Unit
     }
 }

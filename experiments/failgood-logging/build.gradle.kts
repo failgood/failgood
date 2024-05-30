@@ -5,10 +5,9 @@ plugins {
     id("info.solidsoft.pitest")
     id("failgood.common")
 //    id("failgood.publishing")
-    id("com.bnorm.power.kotlin-power-assert") version "0.12.0"
-    id("org.jetbrains.kotlinx.kover") version "0.6.1"
-    id("org.jetbrains.dokka") version "1.8.10"
-    id("org.jmailen.kotlinter")
+    kotlin("plugin.power-assert") version "2.0.0"
+    id("org.jetbrains.kotlinx.kover") version "0.8.0"
+    id("org.jetbrains.dokka") version "1.9.20"
 }
 
 dependencies {
@@ -40,6 +39,12 @@ plugins.withId("info.solidsoft.pitest") {
         outputFormats.set(setOf("XML", "HTML"))
     }
 }
-configure<com.bnorm.power.PowerAssertGradleExtension> {
-    functions = listOf("kotlin.assert", "kotlin.test.assertTrue", "kotlin.test.assertNotNull")
+@Suppress("OPT_IN_USAGE")
+powerAssert {
+    functions = listOf(
+        "kotlin.assert",
+        "kotlin.test.assertTrue",
+        "kotlin.test.assertNotNull",
+        "failgood.softly.AssertDSL.assert"
+    )
 }

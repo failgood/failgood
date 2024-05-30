@@ -2,6 +2,7 @@ package failgood.internal
 
 import failgood.ExecutionListener
 import failgood.TestDescription
+import failgood.TestExecutionContext
 import failgood.dsl.ResourcesDSL
 import failgood.dsl.TestDSL
 import failgood.dsl.TestDSLWithGiven
@@ -17,7 +18,8 @@ internal class TestContext<GivenType>(
     private val testDescription: TestDescription,
     override val given: GivenType
 ) : TestDSLWithGiven<GivenType>, ResourcesDSL by resourcesDSL, ClonableTestContext<GivenType> {
-    override val testInfo: TestInfo = TestInfo(testDescription.testName)
+    private val testExecutionContext = TestExecutionContext(listener, testDescription)
+    override val testInfo: TestInfo = TestInfo(testDescription.testName, testExecutionContext)
 
     override suspend fun log(body: String) {
         _test_event("stdout", body)

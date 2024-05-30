@@ -3,12 +3,12 @@ package failgood.experiments
 import failgood.FailGood
 import failgood.Ignored
 import failgood.Test
-import failgood.TestInfo
-import failgood.describe
+import failgood.dsl.TestInfo
+import failgood.testsAbout
 
 @Test
 object TestInfoTest {
-    val tests = describe("accessing testInfo") {
+    val tests = testsAbout("accessing testInfo") {
         it(
             "is possible for methods called from tests",
             ignored = Ignored.Because("I have no idea how to implement this")

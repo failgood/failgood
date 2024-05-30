@@ -6,12 +6,16 @@ import failgood.Ignored
 import failgood.Skipped
 import failgood.TestDescription
 import failgood.TestPlusResult
-import failgood.dsl.*
+import failgood.dsl.ContextDSL
+import failgood.dsl.ContextOnlyResourceDSL
+import failgood.dsl.GivenFunction
+import failgood.dsl.ResourcesDSL
 import failgood.dsl.TestFunction
 import failgood.internal.ContextPath
 import failgood.internal.ResourcesCloser
 import failgood.internal.given.GivenDSLHandler
 import kotlinx.coroutines.CompletableDeferred
+import org.slf4j.MDC
 
 internal class ContextVisitor<RootGiven, GivenType>(
     private val staticConfig: StaticContextExecutionConfig<RootGiven>,
@@ -78,12 +82,16 @@ internal class ContextVisitor<RootGiven, GivenType>(
         }
         val testDescription = TestDescription(context, name, sourceInfo())
         staticConfig.listener.testDiscovered(testDescription)
+        // we only put the test name into the mdc if there is no test name set already
+        // because when running the failgood test suite we don't want to overwrite the test name
+        val mdcClosable = if (MDC.get("test") == null)
+            MDC.putCloseable("test", testDescription.niceString())
+        else null
         if (!ranATest || !isolation) {
             // if we don't need isolation we run all tests here.
             // if we do:
             // we did not yet run a test, so we are going to run this test ourselves
             ranATest = true
-
             contextStateCollector.executeTest(
                 testDescription,
                 function,
@@ -95,6 +103,7 @@ internal class ContextVisitor<RootGiven, GivenType>(
         } else {
             contextStateCollector.executeTestLater(testDescription, testPath)
         }
+        mdcClosable?.close()
     }
 
     override suspend fun <ContextDependency> describe(

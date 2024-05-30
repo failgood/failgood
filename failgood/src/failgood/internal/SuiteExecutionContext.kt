@@ -3,6 +3,7 @@ package failgood.internal
 import failgood.internal.sysinfo.cpus
 import failgood.internal.util.getenv
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
 import java.util.concurrent.ExecutorService
@@ -18,7 +19,7 @@ class SuiteExecutionContext(parallelismOverride: Int? = null) : AutoCloseable {
         if (parallelism > 1) Executors.newWorkStealingPool(parallelism)
         else Executors.newSingleThreadExecutor()
 
-    val coroutineDispatcher = threadPool.asCoroutineDispatcher()
+    val coroutineDispatcher: ExecutorCoroutineDispatcher = threadPool.asCoroutineDispatcher()
     val scope = CoroutineScope(coroutineDispatcher)
 
     override fun close() {

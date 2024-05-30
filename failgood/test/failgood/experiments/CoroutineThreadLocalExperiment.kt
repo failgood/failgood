@@ -2,7 +2,7 @@ package failgood.experiments
 
 import failgood.Ignored
 import failgood.Test
-import failgood.describe
+import failgood.testsAbout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asContextElement
 import kotlinx.coroutines.coroutineScope
@@ -18,7 +18,7 @@ val threadLocal = ThreadLocal<String?>() // declare thread-local variable
  */
 @Test
 object CoroutineThreadLocalExperiment {
-    val tests = describe(
+    val tests = testsAbout(
         "Thread Locals with coroutines",
         ignored = Ignored.Because("this is just an experiment that does not work")
     ) {

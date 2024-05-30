@@ -2,16 +2,18 @@ package failgood.functional
 
 import failgood.Test
 import failgood.tests
-import io.github.oshai.kotlinlogging.KotlinLogging
+import org.slf4j.MDC
+import kotlin.test.assertNotNull
+
 
 @Test
 class LoggingTest {
-    private val logger = KotlinLogging.logger {}
-
     val tests = tests {
         describe("logging MDC") {
-            it("contains the test") {
-                logger.info { "Hello World!" }
+            it("contains the test name") {
+                val mdc = assertNotNull(MDC.get("test"))
+                assert(mdc.endsWith("> logging MDC > contains the test name"))
+                assert(mdc.startsWith("LoggingTest"))
             }
         }
     }

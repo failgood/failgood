@@ -3,6 +3,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Added
+
+- Logging Support: Put Test name into Logging MDC to make it easy to see what was logged by what test. See included
+  logback.xml file for an example how to use it.
+
 ## 0.9.1 "Bollerwagen" - 2024-01-03
 
 ### Fixed

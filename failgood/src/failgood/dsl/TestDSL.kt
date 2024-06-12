@@ -1,5 +1,7 @@
 package failgood.dsl
 
+import failgood.TestExecutionContext
+
 @FailGoodDSL
 interface TestDSL : ResourcesDSL {
     /** returns information about the running test. Currently only the name of the test. */
@@ -18,4 +20,4 @@ interface TestDSLWithGiven<GivenType> : TestDSL {
     val given: GivenType
 }
 
-data class TestInfo(val name: String)
+data class TestInfo(val name: String, val context: TestExecutionContext)

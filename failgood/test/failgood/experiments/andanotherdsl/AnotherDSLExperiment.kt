@@ -21,8 +21,9 @@ import kotlin.test.assertEquals
 object AnotherDSLExperiment {
     val tests = testCollection("collection name") {
         // these dependencies are resolved when the test runs
-        val myDependency by beforeEach { MyDependency() }.tearDown { it.close() }
-        val myOtherDependency by beforeEach { MyOtherDependency(myDependency) }
+        val myDependency by beforeTest { MyDependency() }.afterTest { it.close() }
+        // or setup/teardown (or setUp / tearDown)? before/after-test has the advantage that it species when it is called
+        val myOtherDependency by beforeTest { MyOtherDependency(myDependency) }
 
         test("test name") {
             // now the dependencies are resolved
@@ -30,14 +31,14 @@ object AnotherDSLExperiment {
             // ...
         }
 
-        val thirdDependency by beforeEach { MyOtherDependency(myDependency) }
+        val thirdDependency by beforeTest { MyOtherDependency(myDependency) }
         test("another test") {
             // this test also has access to "thirdDependency"
             thirdDependency.doStuff()
             // ...
         }
         context("test group") {
-            val contextDependency by beforeEach { ContextDependency(myOtherDependency) }
+            val contextDependency by beforeTest { ContextDependency(myOtherDependency) }
             test("test name") {
                 // now the dependencies are resolved
                 contextDependency.doStuff()
@@ -88,20 +89,20 @@ sealed interface Node {
 
 
 class Investigator {
-    @Suppress("RedundantSuspendModifier") // IDEA BUG
+    @Suppress("RedundantSuspendModifier", "RedundantSuppression") // IDEA BUG
     suspend fun discover(tests: TestCollection): List<Node> = discover(tests.function)
 
     private suspend fun discover(testFunction: TestFunction): List<Node> {
         val nodes = mutableListOf<Node>()
 
         class DiscoveringTestDSL : TestDSL {
-            override fun <T> beforeEach(function: () -> T): Dependency<T> {
+            override fun <T> beforeTest(function: () -> T): Dependency<T> {
                 return object : Dependency<T> {
                     override fun getValue(owner: Any?, property: KProperty<*>): T {
                         throw FailGoodException("dependencies should not be read during discovery")
                     }
 
-                    override fun tearDown(function: suspend (T) -> Unit): Dependency<T> = this
+                    override fun afterTest(function: suspend (T) -> Unit): Dependency<T> = this
                 }
             }
 
@@ -143,14 +144,14 @@ class MyDependency {
 }
 
 interface TestDSL {
-    fun <SubjectType> beforeEach(function: () -> SubjectType): Dependency<SubjectType>
+    fun <SubjectType> beforeTest(function: () -> SubjectType): Dependency<SubjectType>
     suspend fun test(testName: String, function: () -> Unit)
     suspend fun context(contextName: String, function: TestFunction)
 }
 
 interface Dependency<T> {
     operator fun getValue(owner: Any?, property: KProperty<*>): T
-    fun tearDown(function: suspend (T) -> Unit): Dependency<T>
+    fun afterTest(function: suspend (T) -> Unit): Dependency<T>
 }
 
 typealias TestFunction = suspend TestDSL.() -> Unit

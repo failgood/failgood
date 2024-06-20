@@ -1,7 +1,11 @@
 package failgood.experiments.andanotherdsl
 
-import failgood.*
-import failgood.internal.ContextPath
+import failgood.Failure
+import failgood.Ignored
+import failgood.Success
+import failgood.Test
+import failgood.TestResult
+import failgood.tests
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.isA
@@ -68,7 +72,7 @@ class SingleTestExecutorV2Test {
                     val runtimeException = RuntimeException()
                     val contextThatThrows =
                         TestCollection("root context") {
-                            beforeEach { throw runtimeException }
+                            beforeTest { throw runtimeException }
                             test("test") {}
                         }
                     val result =

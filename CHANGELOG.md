@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 
 ## 0.9.2 "Unbound" - Soon
 
+### Highlights
+
+Another round of deprecations to make the api perfect:
+top level tests are now declared as
+
+```
+    val tests = testCollection {...}
+```
+
+or
+
+```
+    val tests = testCollection("tests for the test tester") {...}
+```
+
+or
+
+```
+    val tests = testCollection(ManagerOfWtfImpl::class) {...}
+```
+
 ### Added
 
 - Logging Support: Put Test name into Logging MDC to make it easy to see what was logged by what test. See included

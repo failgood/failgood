@@ -11,7 +11,7 @@ import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.ROOT_C
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.TEST2_NAME
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.TEST_NAME
 import failgood.junit.it.launcherDiscoveryRequest
-import failgood.testsAbout
+import failgood.testCollection
 import org.junit.platform.engine.EngineExecutionListener
 import org.junit.platform.engine.ExecutionRequest
 import org.junit.platform.engine.TestDescriptor
@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 @Test
 class LegacyJUnitTestEngineTest {
     val tests =
-        testsAbout(LegacyJUnitTestEngine::class) {
+        testCollection(LegacyJUnitTestEngine::class) {
             val engine = LegacyJUnitTestEngine()
             it("parses a filter string") {
                 val filters =

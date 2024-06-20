@@ -1,16 +1,20 @@
 package failgood.mock
 
 import failgood.Test
-import failgood.testsAbout
-import kotlin.test.assertNotNull
+import failgood.testCollection
 import strikt.api.expectThat
 import strikt.api.expectThrows
-import strikt.assertions.*
+import strikt.assertions.containsExactly
+import strikt.assertions.isA
+import strikt.assertions.isEqualTo
+import strikt.assertions.isNotEqualTo
+import strikt.assertions.message
+import kotlin.test.assertNotNull
 
 @Test
 class MockTest {
     val tests =
-        testsAbout("the mocking framework") {
+        testCollection("the mocking framework") {
             val mock = mock<UserManager>()
             describe("records function calls") {
                 mock.function()

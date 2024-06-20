@@ -6,7 +6,7 @@ import strikt.assertions.isEqualTo
 @Test
 class ContextTest {
     val tests =
-        testsAbout("a test context") {
+        testCollection("a test context") {
             it("can tell its name with path") {
                 val root = Context("root", null)
                 val context = Context("name", root)

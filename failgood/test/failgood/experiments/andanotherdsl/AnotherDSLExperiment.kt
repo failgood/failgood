@@ -5,7 +5,6 @@ package failgood.experiments.andanotherdsl
 import failgood.FailGoodException
 import failgood.Test
 import failgood.experiments.andanotherdsl.Node.*
-import failgood.tests
 import kotlinx.coroutines.delay
 import kotlin.reflect.KProperty
 import kotlin.test.assertEquals
@@ -52,7 +51,7 @@ object AnotherDSLExperiment {
 
 @Test
 object InvestigatorTest {
-    val tests = tests {
+    val tests = failgood.testCollection {
         it("can get a list of tests") {
             val result = Investigator().discover(testCollection("collection name") {
                 test("test name") {

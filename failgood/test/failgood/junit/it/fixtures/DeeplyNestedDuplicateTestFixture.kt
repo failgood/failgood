@@ -1,12 +1,12 @@
 package failgood.junit.it.fixtures
 
 import failgood.internal.TestFixture
-import failgood.testsAbout
+import failgood.testCollection
 
 @TestFixture
 class DeeplyNestedDuplicateTestFixture {
     val tests =
-        testsAbout("1") {
+        testCollection("1") {
             describe("2") {
                 describe("3") {
                     describe("4") { it("5") {} }

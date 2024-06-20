@@ -1,7 +1,7 @@
 package failgood.junit
 
 import failgood.Test
-import failgood.testsAbout
+import failgood.testCollection
 import org.junit.platform.engine.UniqueId
 
 /*
@@ -10,7 +10,7 @@ import org.junit.platform.engine.UniqueId
 @Test
 class JunitPlatformObservations {
     val tests =
-        testsAbout("junit platform observations") {
+        testCollection("junit platform observations") {
             describe("UniqueId") {
                 it("replaces + with space when parsing") {
                     val uniqueId = UniqueId.parse("[engine:failgood]/[class:My+Class]")

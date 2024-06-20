@@ -1,7 +1,7 @@
 package failgood.junit.it.fixtures
 
 import failgood.internal.TestFixture
-import failgood.testsAbout
+import failgood.testCollection
 import reactor.blockhound.BlockHound
 import reactor.blockhound.integration.BlockHoundIntegration
 
@@ -12,7 +12,7 @@ class BlockhoundTestFixture {
     }
 
     val tests =
-        testsAbout("interop with blockhound") {
+        testCollection("interop with blockhound") {
             describe("context that blocks") {
                 Thread.sleep(10)
             }

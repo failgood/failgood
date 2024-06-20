@@ -1,11 +1,15 @@
 package failgood.internal
 
-import failgood.*
+import failgood.Context
 import failgood.ExecutionListener
+import failgood.SourceInfo
+import failgood.Test
+import failgood.TestDescription
 import failgood.dsl.TestDSL
 import failgood.mock.call
 import failgood.mock.getCalls
 import failgood.mock.mock
+import failgood.testCollection
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 import strikt.assertions.single
@@ -13,7 +17,7 @@ import strikt.assertions.single
 @Test
 class TestContextTest {
     val tests =
-        testsAbout(TestDSL::class) {
+        testCollection(TestDSL::class) {
             val testDescription =
                 TestDescription(Context("root"), "testname", SourceInfo("a", "b", 1))
             val listener = mock<ExecutionListener>()

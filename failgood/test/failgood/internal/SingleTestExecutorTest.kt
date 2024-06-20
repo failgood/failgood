@@ -1,19 +1,26 @@
 package failgood.internal
 
-import failgood.*
+import failgood.Context
+import failgood.Failure
+import failgood.SourceInfo
+import failgood.Success
+import failgood.Test
+import failgood.TestCollection
+import failgood.TestDescription
 import failgood.dsl.ContextFunction
 import failgood.mock.mock
-import kotlin.test.assertEquals
+import failgood.testCollection
 import kotlinx.coroutines.coroutineScope
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
+import kotlin.test.assertEquals
 
 @Test
 class SingleTestExecutorTest {
     val tests =
-        testsAbout(SingleTestExecutor::class) {
+        testCollection(SingleTestExecutor::class) {
             val testDSL =
                 TestContext(
                     mock(),

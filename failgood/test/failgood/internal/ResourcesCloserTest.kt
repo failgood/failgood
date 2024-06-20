@@ -1,19 +1,22 @@
 package failgood.internal
 
-import failgood.*
+import failgood.Success
+import failgood.Test
+import failgood.TestResult
 import failgood.dsl.TestDSL
 import failgood.mock.call
 import failgood.mock.getCalls
 import failgood.mock.mock
-import kotlin.test.assertNotNull
+import failgood.testCollection
 import kotlinx.coroutines.coroutineScope
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
+import kotlin.test.assertNotNull
 
 @Test
 class ResourcesCloserTest {
     val tests =
-        testsAbout(ResourcesCloser::class) {
+        testCollection(ResourcesCloser::class) {
             val subject = coroutineScope { ResourceCloserImpl(this) }
             describe(ResourcesCloser::closeAutoCloseables.name) {
                 it("closes autoclosables") {

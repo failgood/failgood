@@ -4,7 +4,7 @@ package failgood.internal
 
 import failgood.SourceInfo
 import failgood.Test
-import failgood.testsAbout
+import failgood.testCollection
 import strikt.api.expectThat
 import strikt.assertions.allIndexed
 import strikt.assertions.contains
@@ -14,7 +14,7 @@ import strikt.assertions.trim
 @Test
 class ExceptionPrettyPrinterTest {
     val tests =
-        testsAbout(ExceptionPrettyPrinter::class) {
+        testCollection(ExceptionPrettyPrinter::class) {
             val assertionError = AssertionError("message")
             val epp = ExceptionPrettyPrinter(assertionError)
             it("pretty prints the exception with stack trace") {

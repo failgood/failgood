@@ -1,10 +1,13 @@
 package failgood.functional
 
-import failgood.*
+import failgood.Failure
+import failgood.Success
+import failgood.Suite
+import failgood.Test
+import failgood.TestResult
 import failgood.dsl.ContextDSL
 import failgood.dsl.TestFunction
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.CopyOnWriteArrayList
+import failgood.testCollection
 import strikt.api.Assertion
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
@@ -13,6 +16,8 @@ import strikt.assertions.first
 import strikt.assertions.isEqualTo
 import strikt.assertions.last
 import strikt.assertions.single
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 
 @Test
 class RootContextTestIsolationTest {
@@ -24,7 +29,7 @@ class RootContextTestIsolationTest {
     }
 
     val tests =
-        testsAbout("test isolation for root contexts") {
+        testCollection("test isolation for root contexts") {
             val afterEachParameters = ConcurrentHashMap<String, TestResult>()
             val totalEvents = CopyOnWriteArrayList<List<String>>()
             suspend fun ContextDSL<Unit>.contextFixture() {
@@ -105,7 +110,7 @@ class RootContextTestIsolationTest {
             }
             describe("a root context with isolation set to false") {
                 Suite(
-                    testsAbout("root context without isolation", isolation = false) {
+                    testCollection("root context without isolation", isolation = false) {
                         contextFixture()
                     }
                 )

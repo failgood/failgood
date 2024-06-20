@@ -3,12 +3,18 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 0.9.2 "Unbound" - Soon
 
 ### Added
 
 - Logging Support: Put Test name into Logging MDC to make it easy to see what was logged by what test. See included
   logback.xml file for an example how to use it.
+- Add an option to repeat tests to find flaky tests (-Dfailgood.repeat=100)
+
+### Fixed
+
+- Explicitly state return type of all public methods
+- Print slowest tests correctly
 
 ## 0.9.1 "Bollerwagen" - 2024-01-03
 

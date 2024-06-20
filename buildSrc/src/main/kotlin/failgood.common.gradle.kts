@@ -8,6 +8,8 @@ plugins {
     kotlin("jvm")
     id("com.adarshr.test-logger")
     id("com.ncorti.ktfmt.gradle")
+    kotlin("plugin.power-assert")
+
 }
 
 tasks {
@@ -40,4 +42,13 @@ configure<TestLoggerExtension> {
 tasks.getByName("check").dependsOn(tasks.getByName("ktfmtCheck"))
 ktfmt {
     kotlinLangStyle()
+}
+@Suppress("OPT_IN_USAGE")
+powerAssert {
+    functions = listOf(
+        "kotlin.assert",
+        "kotlin.test.assertTrue",
+        "kotlin.test.assertNotNull",
+        "failgood.softly.AssertDSL.assert"
+    )
 }

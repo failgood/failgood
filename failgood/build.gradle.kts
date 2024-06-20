@@ -1,5 +1,3 @@
-
-
 import failgood.versions.coroutinesVersion
 import failgood.versions.junitJupiterVersion
 import failgood.versions.junitPlatformVersion
@@ -14,7 +12,6 @@ plugins {
     signing
     id("failgood.common")
     id("failgood.publishing")
-    kotlin("plugin.power-assert") version "2.0.0"
     id("org.jetbrains.kotlinx.kover") version "0.8.1"
     id("org.jetbrains.dokka") version "1.9.20"
 }
@@ -44,7 +41,6 @@ dependencies {
 
     testImplementation(kotlin("test"))
     testImplementation("ch.qos.logback:logback-classic:1.5.6")
-
 
 
     // for the tools that analyze what events jupiter tests generate.
@@ -95,15 +91,6 @@ plugins.withId("info.solidsoft.pitest") {
     }
 }
 
-@Suppress("OPT_IN_USAGE")
-powerAssert {
-    functions = listOf(
-        "kotlin.assert",
-        "kotlin.test.assertTrue",
-        "kotlin.test.assertNotNull",
-        "failgood.softly.AssertDSL.assert"
-    )
-}
 
 // reproduce https://github.com/failgood/failgood/issues/93
 tasks.register<Test>("runSingleNonFailgoodTest") {

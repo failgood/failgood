@@ -13,7 +13,7 @@ import kotlin.reflect.KClass
  *
  * per default all method calls will return null. To define other results use [the]
  */
-inline fun <reified Mock : Any> mock() = mock(Mock::class)
+inline fun <reified Mock : Any> mock(): Mock = mock(Mock::class)
 
 /**
  * create a mock for class Mock and define its behavior

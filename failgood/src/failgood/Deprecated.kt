@@ -40,6 +40,6 @@ fun <RootGiven> RootContextWithGiven(
     addClassName: Boolean = false,
     given: (suspend () -> RootGiven),
     function: ContextFunctionWithGiven<RootGiven>
-) =
+): TestCollection<RootGiven> =
     TestCollection(name, ignored, order, isolation, sourceInfo, addClassName, given, function)
 

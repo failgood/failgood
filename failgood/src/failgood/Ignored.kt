@@ -10,7 +10,7 @@ package failgood
 fun interface Ignored {
     // todo before the pr can be merged.
     object TODO : Ignored {
-        override fun isIgnored() = "TODO"
+        override fun isIgnored(): String = "TODO"
     }
 
     fun isIgnored(): String?
@@ -29,7 +29,7 @@ fun interface Ignored {
      * ```
      */
     class Because(private val reason: String) : Ignored {
-        override fun isIgnored() = reason
+        override fun isIgnored(): String = reason
     }
     /**
      * Ignore a test unless an environment var is set.

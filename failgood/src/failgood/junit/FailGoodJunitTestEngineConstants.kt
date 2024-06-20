@@ -1,6 +1,6 @@
 package failgood.junit
 
-object FailGoodJunitTestEngineConstants {
+internal object FailGoodJunitTestEngineConstants {
     const val ID = "failgood"
     const val DISPLAY_NAME = "FailGood"
     const val CONFIG_KEY_DEBUG = "failgood.debug"

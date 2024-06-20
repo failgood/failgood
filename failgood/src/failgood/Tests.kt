@@ -12,7 +12,7 @@ fun tests(
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextFunction
-) = tests(ignored, order, isolation, {}, function)
+): TestCollection<Unit> = tests(ignored, order, isolation, {}, function)
 
 /** An unnamed collection of tests. It will get the name of the test class file in the reports. */
 fun <RootGiven> tests(
@@ -21,7 +21,7 @@ fun <RootGiven> tests(
     isolation: Boolean = true,
     given: suspend () -> RootGiven,
     function: ContextFunctionWithGiven<RootGiven>
-) = TestCollection(
+): TestCollection<RootGiven> = TestCollection(
     "root",
     ignored,
     order,
@@ -42,7 +42,7 @@ fun testsAbout(
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextFunction
-) = testsAbout(description, ignored, order, isolation, {}, function)
+): TestCollection<Unit> = testsAbout(description, ignored, order, isolation, {}, function)
 
 /**
  * A collection of tests about a subject.
@@ -55,7 +55,7 @@ fun <RootGiven> testsAbout(
     isolation: Boolean = true,
     given: suspend () -> RootGiven,
     function: ContextFunctionWithGiven<RootGiven>
-) = TestCollection(
+): TestCollection<RootGiven> = TestCollection(
     subjectDescription,
     ignored,
     order,
@@ -75,7 +75,7 @@ fun testsAbout(
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextFunction
-) = testsAbout(subjectType, ignored, order, isolation, {}, function)
+): TestCollection<Unit> = testsAbout(subjectType, ignored, order, isolation, {}, function)
 
 /**
  * A collection of tests about a class.
@@ -87,7 +87,7 @@ fun <RootGiven> testsAbout(
     isolation: Boolean = true,
     given: suspend () -> RootGiven,
     function: ContextFunctionWithGiven<RootGiven>
-) = TestCollection(
+): TestCollection<RootGiven> = TestCollection(
     "${subjectType.simpleName}",
     ignored,
     order,

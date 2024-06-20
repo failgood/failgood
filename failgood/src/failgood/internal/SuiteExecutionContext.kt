@@ -14,13 +14,13 @@ private val envParallelism = getenv("FAILGOOD_PARALLELISM")?.toInt()
 
 class SuiteExecutionContext(parallelismOverride: Int? = null) : AutoCloseable {
     // constructor parameter overrides system env variable overrides number of cpus autodetect
-    val parallelism = parallelismOverride ?: envParallelism ?: cpus()
+    val parallelism: Int = parallelismOverride ?: envParallelism ?: cpus()
     private val threadPool: ExecutorService =
         if (parallelism > 1) Executors.newWorkStealingPool(parallelism)
         else Executors.newSingleThreadExecutor()
 
     val coroutineDispatcher: ExecutorCoroutineDispatcher = threadPool.asCoroutineDispatcher()
-    val scope = CoroutineScope(coroutineDispatcher)
+    val scope: CoroutineScope = CoroutineScope(coroutineDispatcher)
 
     override fun close() {
         scope.cancel()

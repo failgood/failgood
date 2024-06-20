@@ -17,7 +17,7 @@ data class SuiteResult(
     val contexts: List<Context>,
     val failedRootContexts: List<FailedTestCollectionExecution>
 ) {
-    val allOk = failedTests.isEmpty() && failedRootContexts.isEmpty()
+    val allOk: Boolean = failedTests.isEmpty() && failedRootContexts.isEmpty()
 
     fun check(throwException: Boolean = false, writeReport: Boolean = false) {
         // **/build/test-results/test/TEST-*.xml'

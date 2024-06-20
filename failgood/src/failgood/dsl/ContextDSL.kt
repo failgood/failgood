@@ -37,7 +37,7 @@ interface ContextDSL<GivenType> : ResourcesDSL, ContextOnlyResourceDSL {
         isolation: Boolean? = null,
         ignored: Ignored? = null,
         contextFunction: ContextFunction
-    ) = describe(name, tags, isolation, ignored, {}, contextFunction)
+    ): Unit = describe(name, tags, isolation, ignored, {}, contextFunction)
 
     /**
      * Define a test that describes one aspect of a subject.
@@ -69,7 +69,7 @@ interface ContextDSL<GivenType> : ResourcesDSL, ContextOnlyResourceDSL {
         given: GivenFunction<GivenType, ContextGiven>,
         ignored: Ignored? = null,
         contextFunction: suspend ContextDSL<ContextGiven>.() -> Unit
-    ) = describe(name, tags, isolation, ignored, given, contextFunction)
+    ): Unit = describe(name, tags, isolation, ignored, given, contextFunction)
 
     /** Define a test context. see [describe] */
     suspend fun context(
@@ -78,7 +78,7 @@ interface ContextDSL<GivenType> : ResourcesDSL, ContextOnlyResourceDSL {
         isolation: Boolean? = null,
         ignored: Ignored? = null,
         contextFunction: ContextFunction
-    ) = describe(name, tags, isolation, ignored, contextFunction)
+    ): Unit = describe(name, tags, isolation, ignored, contextFunction)
 
     /** Define a test. see [it] */
     suspend fun test(
@@ -86,7 +86,7 @@ interface ContextDSL<GivenType> : ResourcesDSL, ContextOnlyResourceDSL {
         tags: Set<String> = setOf(),
         ignored: Ignored? = null,
         function: TestFunction<GivenType>
-    ) = it(name, tags, ignored, function)
+    ): Unit = it(name, tags, ignored, function)
 }
 
 internal typealias ContextFunction = suspend ContextDSL<Unit>.() -> Unit

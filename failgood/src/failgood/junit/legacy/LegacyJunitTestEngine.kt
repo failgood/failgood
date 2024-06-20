@@ -1,6 +1,12 @@
 package failgood.junit.legacy
 
-import failgood.*
+import failgood.Context
+import failgood.FailGoodException
+import failgood.Failure
+import failgood.Skipped
+import failgood.Success
+import failgood.TestDescription
+import failgood.awaitTestResults
 import failgood.internal.ExecuteAllTestFilterProvider
 import failgood.internal.StaticTestFilterProvider
 import failgood.internal.StringListTestFilter
@@ -8,25 +14,40 @@ import failgood.internal.SuiteExecutionContext
 import failgood.internal.sysinfo.upt
 import failgood.internal.sysinfo.uptime
 import failgood.internal.util.getenv
-import failgood.junit.*
+import failgood.junit.ContextFinder
+import failgood.junit.FailGoodJunitTestEngineConstants
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_DEBUG
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_RUN_TEST_FIXTURES
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_SILENT
 import failgood.junit.FailGoodJunitTestEngineConstants.DEBUG_TXT_FILENAME
+import failgood.junit.FailureLogger
+import failgood.junit.FailureLoggingEngineExecutionListener
+import failgood.junit.LoggingEngineExecutionListener
 import failgood.junit.legacy.ChannelExecutionListener.TestExecutionEvent
-import kotlinx.coroutines.*
+import failgood.junit.niceString
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.consumeEach
-import org.junit.platform.engine.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import org.junit.platform.engine.EngineDiscoveryRequest
+import org.junit.platform.engine.ExecutionRequest
+import org.junit.platform.engine.TestDescriptor
+import org.junit.platform.engine.TestEngine
+import org.junit.platform.engine.TestExecutionResult
+import org.junit.platform.engine.TestSource
+import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.reporting.ReportEntry
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
 import java.io.File
-import java.util.*
+import java.util.Timer
 import kotlin.concurrent.schedule
 import kotlin.system.exitProcess
 
-const val CONTEXT_SEGMENT_TYPE = "class"
-const val TEST_SEGMENT_TYPE = "method"
+internal const val CONTEXT_SEGMENT_TYPE = "class"
+internal const val TEST_SEGMENT_TYPE = "method"
 
 // an optional watchdog that throws an exception when failgood hangs or takes too long
 private val watchdogMillis = getenv("FAILGOOD_WATCHDOG_MILLIS")?.toLong()
@@ -36,7 +57,7 @@ private val watchdogMillis = getenv("FAILGOOD_WATCHDOG_MILLIS")?.toLong()
  */
 class LegacyJUnitTestEngine : TestEngine {
     companion object {
-        const val ID="failgood-legacy"
+        internal const val ID = "failgood-legacy"
     }
 
     private var silent: Boolean = false

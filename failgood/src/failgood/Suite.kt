@@ -1,8 +1,20 @@
 package failgood
 
 import failgood.dsl.ContextFunction
-import failgood.internal.*
-import kotlinx.coroutines.*
+import failgood.internal.ContextTreeReporter
+import failgood.internal.ExecuteAllTestFilterProvider
+import failgood.internal.FailedTestCollectionExecution
+import failgood.internal.LoadResults
+import failgood.internal.SuiteExecutionContext
+import failgood.internal.TestCollectionExecutionResult
+import failgood.internal.TestFilterProvider
+import failgood.internal.TestResults
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.slf4j.MDCContext
 import kotlin.reflect.KClass
 
@@ -142,14 +154,14 @@ internal fun printResults(
     }
 }
 
-fun Suite(rootContexts: Collection<TestCollection<*>>) =
+fun Suite(rootContexts: Collection<TestCollection<*>>): Suite =
     Suite(rootContexts.map { ContextProvider { listOf(it) } })
 
-fun Suite(kClasses: List<KClass<*>>) = Suite(kClasses.map { ObjectContextProvider(it) })
+fun Suite(kClasses: List<KClass<*>>): Suite = Suite(kClasses.map { ObjectContextProvider(it) })
 
-fun <RootGiven> Suite(rootContext: TestCollection<RootGiven>) = Suite(listOf(rootContext))
+fun <RootGiven> Suite(rootContext: TestCollection<RootGiven>): Suite = Suite(listOf(rootContext))
 
-fun Suite(function: ContextFunction) = Suite(TestCollection("root", order = 0, function = function))
+fun Suite(function: ContextFunction): Suite = Suite(TestCollection("root", order = 0, function = function))
 
 operator fun <T> List<T>.times(n: Int): List<T> = if (n == 1) this else
     List(n) { this }.flatten()

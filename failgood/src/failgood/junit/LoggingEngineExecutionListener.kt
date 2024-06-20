@@ -5,7 +5,7 @@ import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.reporting.ReportEntry
 
-class LoggingEngineExecutionListener(private val delegate: EngineExecutionListener) :
+internal class LoggingEngineExecutionListener(private val delegate: EngineExecutionListener) :
     EngineExecutionListener {
     val events = mutableListOf<String>()
 

@@ -3,10 +3,10 @@ package failgood.junit
 import failgood.Context
 import failgood.FailGoodException
 import failgood.TestDescription
-import java.util.concurrent.ConcurrentHashMap
 import org.junit.platform.engine.TestDescriptor
+import java.util.concurrent.ConcurrentHashMap
 
-class TestMapper {
+internal class TestMapper {
     private val testDescription2JunitTestDescriptor =
         ConcurrentHashMap<TestDescription, TestDescriptor>()
     private val context2JunitTestDescriptor = ConcurrentHashMap<Context, TestDescriptor>()

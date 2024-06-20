@@ -33,6 +33,10 @@ tasks {
             freeCompilerArgs = listOf("-opt-in=kotlin.RequiresOptIn")
         }
     }
+    named<KotlinCompile>("compileKotlin") {
+        compilerOptions.freeCompilerArgs.add("-XXexplicit-return-types=strict")
+
+    }
 }
 configure<TestLoggerExtension> {
     theme = MOCHA_PARALLEL

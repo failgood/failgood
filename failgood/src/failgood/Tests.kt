@@ -7,15 +7,15 @@ import kotlin.reflect.KClass
 /**
  * An unnamed collection of tests. It will get the name of the test class file in the reports. No root given is defined
  */
-fun tests(
+fun testCollection(
     ignored: Ignored? = null,
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextFunction
-): TestCollection<Unit> = tests(ignored, order, isolation, {}, function)
+): TestCollection<Unit> = testCollection(ignored, order, isolation, {}, function)
 
 /** An unnamed collection of tests. It will get the name of the test class file in the reports. */
-fun <RootGiven> tests(
+fun <RootGiven> testCollection(
     ignored: Ignored? = null,
     order: Int = 0,
     isolation: Boolean = true,
@@ -36,19 +36,19 @@ fun <RootGiven> tests(
  * The Test name will be prefixed to the description to make it easy to see where the tests are defined
  * no give is defined
  */
-fun testsAbout(
+fun testCollection(
     description: String,
     ignored: Ignored? = null,
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextFunction
-): TestCollection<Unit> = testsAbout(description, ignored, order, isolation, {}, function)
+): TestCollection<Unit> = testCollection(description, ignored, order, isolation, {}, function)
 
 /**
  * A collection of tests about a subject.
  * The Test name will be prefixed to the description to make it easy to see where the tests are defined
  */
-fun <RootGiven> testsAbout(
+fun <RootGiven> testCollection(
     subjectDescription: String,
     ignored: Ignored? = null,
     order: Int = 0,
@@ -69,18 +69,18 @@ fun <RootGiven> testsAbout(
  * A collection of tests about a class.
  * No give is defined
  */
-fun testsAbout(
+fun testCollection(
     subjectType: KClass<*>,
     ignored: Ignored? = null,
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextFunction
-): TestCollection<Unit> = testsAbout(subjectType, ignored, order, isolation, {}, function)
+): TestCollection<Unit> = testCollection(subjectType, ignored, order, isolation, {}, function)
 
 /**
  * A collection of tests about a class.
  */
-fun <RootGiven> testsAbout(
+fun <RootGiven> testCollection(
     subjectType: KClass<*>,
     ignored: Ignored? = null,
     order: Int = 0,

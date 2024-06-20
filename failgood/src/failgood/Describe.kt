@@ -10,7 +10,7 @@ import kotlin.reflect.typeOf
 
 @Deprecated(
     "going away before 1.0",
-    replaceWith = ReplaceWith("tests(subjectDescription, ignored, order, isolation, function)")
+    replaceWith = ReplaceWith("testCollection(subjectDescription, ignored, order, isolation, function)")
 )
 fun describe(
     subjectDescription: String,
@@ -19,11 +19,11 @@ fun describe(
     isolation: Boolean = true,
     function: ContextFunction
 ): TestCollection<Unit> =
-    testsAbout(subjectDescription, ignored, order, isolation, function)
+    testCollection(subjectDescription, ignored, order, isolation, function)
 
 @Deprecated(
     "going away before 1.0",
-    replaceWith = ReplaceWith("tests(subjectDescription, ignored, order, isolation, given, function)")
+    replaceWith = ReplaceWith("testCollection(subjectDescription, ignored, order, isolation, given, function)")
 )
 fun <RootGiven> describe(
     subjectDescription: String,
@@ -33,18 +33,21 @@ fun <RootGiven> describe(
     given: (suspend () -> RootGiven),
     function: ContextFunctionWithGiven<RootGiven>
 ): TestCollection<RootGiven> =
-    testsAbout(subjectDescription, ignored, order, isolation, given, function)
+    testCollection(subjectDescription, ignored, order, isolation, given, function)
 
-@Deprecated("going away before 1.0", replaceWith = ReplaceWith("tests(ignored, order, isolation, function)"))
+@Deprecated("going away before 1.0", replaceWith = ReplaceWith("testCollection(ignored, order, isolation, function)"))
 fun describe(
     ignored: Ignored? = null,
     order: Int = 0,
     isolation: Boolean = true,
     function: ContextFunction
-): TestCollection<Unit> = tests(ignored, order, isolation, function)
+): TestCollection<Unit> = testCollection(ignored, order, isolation, function)
 
 
-@Deprecated("going away before 1.0", replaceWith = ReplaceWith("tests(ignored, order, isolation, given, function)"))
+@Deprecated(
+    "going away before 1.0",
+    replaceWith = ReplaceWith("testCollection(ignored, order, isolation, given, function)")
+)
 fun <RootGiven> describe(
     ignored: Ignored? = null,
     order: Int = 0,
@@ -52,13 +55,13 @@ fun <RootGiven> describe(
     given: (suspend () -> RootGiven),
     function: ContextFunctionWithGiven<RootGiven>
 ): TestCollection<RootGiven> =
-    tests(ignored, order, isolation, given, function)
+    testCollection(ignored, order, isolation, given, function)
 
 
 @JvmName("describe2")
 @Deprecated(
     "going away before 1.0",
-    replaceWith = ReplaceWith("testsAbout(T::class, ignored, order, isolation, function)")
+    replaceWith = ReplaceWith("testCollection(T::class, ignored, order, isolation, function)")
 )
 inline fun <reified T> describe(
     ignored: Ignored? = null,
@@ -79,7 +82,7 @@ internal fun describe(
 
 @Deprecated(
     "going away before 1.0",
-    replaceWith = ReplaceWith("testsAbout(subjectType, ignored, order, isolation, function)")
+    replaceWith = ReplaceWith("testCollection(subjectType, ignored, order, isolation, function)")
 )
 fun describe(
     subjectType: KClass<*>,
@@ -88,7 +91,7 @@ fun describe(
     isolation: Boolean = true,
     function: ContextFunction
 ): TestCollection<Unit> =
-    testsAbout(subjectType, ignored, order, isolation, function)
+    testCollection(subjectType, ignored, order, isolation, function)
 
 
 @Deprecated(

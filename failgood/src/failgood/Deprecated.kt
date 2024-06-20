@@ -85,7 +85,7 @@ fun <RootGiven> tests(
  */
 @Deprecated(
     "going away before 1.0",
-    replaceWith = ReplaceWith("testCollection(subjectDescription, ignored, order, isolation, function)")
+    replaceWith = ReplaceWith("testCollection(description, ignored, order, isolation, function)")
 )
 fun testsAbout(
     description: String,

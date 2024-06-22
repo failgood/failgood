@@ -2,13 +2,17 @@ package failgood.pitest
 
 import failgood.Ignored
 import failgood.Test
-import failgood.testsAbout
+import failgood.testCollection
 import org.pitest.testapi.Description
 import org.pitest.testapi.ResultCollector
 import org.pitest.testapi.TestUnit
 import org.pitest.testapi.TestUnitFinder
 import strikt.api.expectThat
-import strikt.assertions.*
+import strikt.assertions.containsExactlyInAnyOrder
+import strikt.assertions.filter
+import strikt.assertions.hasSize
+import strikt.assertions.isEqualTo
+import strikt.assertions.single
 
 // only compare the first 4 lines of the stacktrace because something is messing with stacktraces
 fun throwableToString(t: Throwable) = t.stackTraceToString().lineSequence().take(4).joinToString()
@@ -17,7 +21,7 @@ val failure = AssertionError("failed")
 
 object Tests {
     val tests =
-        testsAbout("tests with different results") {
+        testCollection("tests with different results") {
             test("failing test") { throw failure }
             test("pending test", ignored = Ignored.Because("testing ignored tests")) {}
             test("successful test") {}
@@ -33,7 +37,7 @@ object NoTests {
 @Test
 class FailGoodTestUnitFinderTest {
     val tests =
-        testsAbout(FailGoodTestUnitFinder::class) {
+        testCollection(FailGoodTestUnitFinder::class) {
             it("creates a test unit for each test") {
                 val finder: TestUnitFinder = FailGoodTestUnitFinder
                 val testUnits = finder.findTestUnits(Tests::class.java, null)

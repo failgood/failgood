@@ -4,14 +4,25 @@ import failgood.docs.ClassTestContextExample
 import failgood.docs.ContextListExample
 import failgood.docs.testContextsOnTopLevelExampleClassName
 import failgood.fixtures.PrivateContextFixture
-import kotlin.test.assertNotNull
 import strikt.api.expectThat
-import strikt.assertions.*
+import strikt.assertions.all
+import strikt.assertions.containsExactlyInAnyOrder
+import strikt.assertions.hasSize
+import strikt.assertions.isA
+import strikt.assertions.isEqualTo
+import strikt.assertions.isFailure
+import strikt.assertions.isNotEqualTo
+import strikt.assertions.isNotNull
+import strikt.assertions.isNull
+import strikt.assertions.map
+import strikt.assertions.message
+import strikt.assertions.single
+import kotlin.test.assertNotNull
 
 @Test
 class ObjectContextProviderTest {
     val tests =
-        testsAbout(ObjectContextProvider::class) {
+        testCollection(ObjectContextProvider::class) {
             it("provides a context from an class in a kotlin class (MyTest::class.java)") {
                 expectThat(ObjectContextProvider(ClassTestContextExample::class).getContexts())
                     .map { it.rootContext.name }
@@ -171,7 +182,8 @@ class ObjectContextProviderTest {
             }
         }
 
-    @Suppress("UNUSED_PARAMETER") class ClassWithConstructorParameter(s: String)
+    @Suppress("UNUSED_PARAMETER")
+    class ClassWithConstructorParameter(s: String)
 
     class ClassThatThrowsAtCreationTime {
         init {
@@ -180,7 +192,7 @@ class ObjectContextProviderTest {
     }
 
     class ClassWithContextMethodWithParameter {
-        fun context(@Suppress("UNUSED_PARAMETER") parameter: String): TestCollection<Unit> = tests {}
+        fun context(@Suppress("UNUSED_PARAMETER") parameter: String): TestCollection<Unit> = testCollection {}
     }
 
     class ClassThatThrowsAtContextGetter {
@@ -193,13 +205,13 @@ private class TestClassThatUsesUtilityMethodToCreateTestContexts {
 }
 
 private object ContextTools {
-    fun createContexts() = listOf(testsAbout("Anything") {}, testsAbout("Another thing") {})
+    fun createContexts() = listOf(testCollection("Anything") {}, testCollection("Another thing") {})
 }
 
 private class OrdinaryTestClass {
     @Suppress("unused") val context = listOf(
-        testsAbout("Anything") {},
-        testsAbout("Another thing") {})
+        testCollection("Anything") {},
+        testCollection("Another thing") {})
 }
 
 class ContainsNoTests

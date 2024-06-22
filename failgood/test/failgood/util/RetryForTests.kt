@@ -1,7 +1,7 @@
 package failgood.util
 
 import failgood.Test
-import failgood.tests
+import failgood.testCollection
 import kotlinx.coroutines.delay
 import kotlin.test.assertNotNull
 import kotlin.time.Duration.Companion.milliseconds
@@ -9,7 +9,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Test
 class RetryForTests {
-    val tests = tests {
+    val tests = testCollection {
         it("rethrows exception when time is up") {
             val exception =
                 assertNotNull(

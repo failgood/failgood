@@ -1,9 +1,9 @@
 package failgood.problematic
 
 import failgood.Test
-import failgood.testsAbout
+import failgood.testCollection
 
 @Test
 class EmptyRootContextTest {
-    val tests = testsAbout("empty root context") {}
+    val tests = testCollection("empty root context") {}
 }

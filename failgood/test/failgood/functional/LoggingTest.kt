@@ -1,7 +1,7 @@
 package failgood.functional
 
 import failgood.Test
-import failgood.tests
+import failgood.testCollection
 import org.junit.jupiter.api.Assertions.assertNull
 import org.slf4j.MDC
 import java.util.concurrent.CompletableFuture
@@ -11,7 +11,7 @@ import kotlin.test.assertNotNull
 
 @Test
 class LoggingTest {
-    val tests = tests {
+    val tests = testCollection {
         describe("logging MDC") {
             it("contains the test name") {
                 val mdc = assertNotNull(MDC.get("test"))

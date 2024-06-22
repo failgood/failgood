@@ -1,8 +1,8 @@
 package failgood.internal
 
-import failgood.TestCollection
 import failgood.Test
-import failgood.testsAbout
+import failgood.TestCollection
+import failgood.testCollection
 import strikt.api.expectThat
 import strikt.assertions.isFalse
 import strikt.assertions.isTrue
@@ -10,7 +10,7 @@ import strikt.assertions.isTrue
 @Test
 class StringListTestFilterTest {
     val tests =
-        testsAbout(StringListTestFilter::class) {
+        testCollection(StringListTestFilter::class) {
             val f = StringListTestFilter(listOf("path", "to", "context"))
             it("executes a path that leads to a context") {
                 expectThat(f.shouldRun(ContextPath.fromList("path", "to"))).isTrue()

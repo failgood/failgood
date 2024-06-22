@@ -2,7 +2,7 @@ package failgood.examples
 
 import failgood.FailGood
 import failgood.Test
-import failgood.testsAbout
+import failgood.testCollection
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -29,7 +29,7 @@ class Example(private val stringProvider: StringProvider) {
 @Test
 class MultiThreadingCoroutinesInteropTest {
     val tests =
-        testsAbout("multi threading issue from spek") {
+        testCollection("multi threading issue from spek") {
             val stringProvider = mockk<StringProvider> { coEvery { world() } returns "world 2" }
             val example = Example(stringProvider)
 

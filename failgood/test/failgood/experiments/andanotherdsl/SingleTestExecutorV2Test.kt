@@ -5,7 +5,7 @@ import failgood.Ignored
 import failgood.Success
 import failgood.Test
 import failgood.TestResult
-import failgood.tests
+import failgood.testCollection
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.isA
@@ -14,7 +14,7 @@ import strikt.assertions.isEqualTo
 @Test
 class SingleTestExecutorV2Test {
     val tests =
-        tests(ignored = Ignored.TODO)  {
+        testCollection(ignored = Ignored.TODO) {
 
             val events = mutableListOf<String>()
             describe("test execution") {

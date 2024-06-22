@@ -136,7 +136,7 @@ internal fun findCallerSTE(): StackTraceElement =
                 it =="SourceInfo.kt" ||
                 it == "Types.kt" ||
                 it == "Tests.kt" ||
-                it == "Describe.kt")
+                    it == "Deprecated.kt")
         } ?: true
     }
 //    constructor(ste: StackTraceElement) : this(ste.className, ste.fileName!!, ste.lineNumber)

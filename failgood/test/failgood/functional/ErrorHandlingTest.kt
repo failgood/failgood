@@ -3,7 +3,7 @@ package failgood.functional
 import failgood.Failure
 import failgood.Suite
 import failgood.Test
-import failgood.testsAbout
+import failgood.testCollection
 import strikt.api.expectThat
 import strikt.assertions.contains
 import strikt.assertions.isA
@@ -16,7 +16,7 @@ import kotlin.test.assertNotNull
 @Test
 class ErrorHandlingTest {
     val tests =
-        testsAbout("Error Handling") {
+        testCollection("Error Handling") {
             describe("Non deterministic test names") {
                 it("make their test count as failed") {
                     expectThat(

@@ -1,9 +1,15 @@
 package failgood.junit.legacy
 
-import failgood.*
-import failgood.internal.TestResults
+import failgood.Context
+import failgood.SourceInfo
+import failgood.Success
+import failgood.Test
+import failgood.TestDescription
+import failgood.TestPlusResult
 import failgood.internal.FailedTestCollectionExecution
 import failgood.internal.SuiteExecutionContext
+import failgood.internal.TestResults
+import failgood.testCollection
 import kotlinx.coroutines.CompletableDeferred
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.UniqueId
@@ -17,7 +23,7 @@ import strikt.assertions.single
 @Test
 class CreateResponseTest {
     val tests =
-        testsAbout(::createResponse.name) {
+        testCollection(::createResponse.name) {
             val sourceInfo = SourceInfo("package.ClassName", "file", 100)
             val rootContext = Context("root context name", null, sourceInfo)
             val suiteExecutionContext = SuiteExecutionContext(1)

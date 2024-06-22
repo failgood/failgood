@@ -1,14 +1,18 @@
 package failgood
 
-import java.util.concurrent.Executors
-import kotlinx.coroutines.*
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
+import java.util.concurrent.Executors
 
 @Test
 class CoroutinesTest {
     val tests =
-        testsAbout("a coroutine scope inside failgood tests") {
+        testCollection("a coroutine scope inside failgood tests") {
             it("works as expected") {
                 val events = mutableListOf<String>()
                 val newWorkStealingPool =

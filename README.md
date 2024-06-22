@@ -10,7 +10,7 @@ Failgood is a test runner for Kotlin focusing on simplicity, usability and speed
 ```kotlin
 @Test
 class MyFirstFailgoodTest {
-    val tests = testsAbout("my perfect test suite") {
+    val tests = testCollection {
         it("runs super fast") {
             assert(true)
         }

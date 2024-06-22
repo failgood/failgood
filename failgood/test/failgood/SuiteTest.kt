@@ -2,7 +2,12 @@ package failgood
 
 import failgood.internal.FailedTestCollectionExecution
 import failgood.mock.mock
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeout
 import strikt.api.expectThat
 import strikt.api.expectThrows
 import strikt.assertions.isEqualTo
@@ -11,7 +16,7 @@ import kotlin.test.assertNotNull
 @Test
 class SuiteTest {
     val tests =
-        testsAbout(Suite::class) {
+        testCollection(Suite::class) {
             test("Empty Suite fails") {
                 expectThrows<RuntimeException> { Suite(listOf<ContextProvider>()) }
             }

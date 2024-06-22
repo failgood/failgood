@@ -10,10 +10,28 @@ import failgood.junit.it.JunitPlatformFunctionalTest.TestTestExecutionListener.E
 import failgood.junit.it.JunitPlatformFunctionalTest.TestTestExecutionListener.Event.Type.REGISTERED
 import failgood.junit.it.JunitPlatformFunctionalTest.TestTestExecutionListener.Event.Type.SKIPPED
 import failgood.junit.it.JunitPlatformFunctionalTest.TestTestExecutionListener.Event.Type.STARTED
-import failgood.junit.it.fixtures.*
+import failgood.junit.it.fixtures.BlockhoundTestFixture
+import failgood.junit.it.fixtures.DeeplyNestedDuplicateTestFixture
+import failgood.junit.it.fixtures.DoubleTestNamesInRootContextTestFixture
+import failgood.junit.it.fixtures.DoubleTestNamesInSubContextTestFixture
+import failgood.junit.it.fixtures.DuplicateRootWithOneTest
+import failgood.junit.it.fixtures.DuplicateTestNameTest
+import failgood.junit.it.fixtures.FailingContext
+import failgood.junit.it.fixtures.FailingRootContext
+import failgood.junit.it.fixtures.IgnoredContextFixture
+import failgood.junit.it.fixtures.IgnoredTestFixture
+import failgood.junit.it.fixtures.SimpleClassTestFixture
+import failgood.junit.it.fixtures.SimpleTestFixture
+import failgood.junit.it.fixtures.SimpleTestFixtureWithMultipleTests
+import failgood.junit.it.fixtures.SimpleUnnamedTestFixtureWithMultipleTests
+import failgood.junit.it.fixtures.TestFixtureThatFailsAfterFirstPass
+import failgood.junit.it.fixtures.TestFixtureWithFailingTestAndAfterEach
+import failgood.junit.it.fixtures.TestFixtureWithNonStandardDescribe
+import failgood.junit.it.fixtures.TestOrderFixture
+import failgood.junit.it.fixtures.TestWithNestedContextsFixture
 import failgood.junit.legacy.LegacyJUnitTestEngine
 import failgood.softly.softly
-import failgood.testsAbout
+import failgood.testCollection
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
@@ -41,8 +59,8 @@ object JunitPlatformFunctionalTest {
 
     val tests =
         listOf(
-            testsAbout("The Legacy Junit Platform Engine") { tests(false) },
-            testsAbout("The New Junit Platform Engine") { tests(true) }
+            testCollection("The Legacy Junit Platform Engine") { tests(false) },
+            testCollection("The New Junit Platform Engine") { tests(true) }
         )
 
     private suspend fun ContextDSL<Unit>.tests(newEngine: Boolean) {

@@ -1,7 +1,7 @@
 package failgood.internal
 
 import failgood.Test
-import failgood.testsAbout
+import failgood.testCollection
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 
@@ -9,7 +9,7 @@ import strikt.assertions.containsExactly
 class Junit4ReporterTest {
     val tests =
         @Suppress("ktlint")
-        (testsAbout(Junit4Reporter::class) {
+        (testCollection(Junit4Reporter::class) {
             it("reports test results") {
                 val control = Junit4Reporter(TestResultFixtures.testResults).stringReport()
 

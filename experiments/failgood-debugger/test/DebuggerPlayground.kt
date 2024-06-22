@@ -1,14 +1,14 @@
 package failgood.experiments
 
 import failgood.Test
-import failgood.testsAbout
-import kotlin.test.assertNotNull
+import failgood.testCollection
 import org.junit.jupiter.api.Assertions.assertEquals
+import kotlin.test.assertNotNull
 
 @Test
 object DebuggerPlayground {
     val tests =
-        testsAbout("experimenting with debugging") {
+        testCollection("experimenting with debugging") {
             test("can start a class in a new vm and get variable values for every line") {
                 val mainClass = Debuggee::class.java.name
                 val variableInfo = runClass(mainClass)

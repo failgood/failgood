@@ -2,20 +2,20 @@ package failgood.examples
 
 import failgood.Test
 import failgood.dsl.TestDSL
-import failgood.testsAbout
-import java.lang.reflect.InvocationHandler
-import java.lang.reflect.Method
-import java.lang.reflect.Proxy
-import java.util.*
+import failgood.testCollection
 import kotlinx.coroutines.runBlocking
 import mu.KLogger
 import mu.KotlinLogging
 import org.slf4j.Logger
+import java.lang.reflect.InvocationHandler
+import java.lang.reflect.Method
+import java.lang.reflect.Proxy
+import java.util.Locale
 
 @Test
 class LoggingTest {
     val tests =
-        testsAbout("Logging support") {
+        testCollection("Logging support") {
             it("injects a logger") { LoggingComponent(kLogger()).functionThatLogs() }
         }
 }

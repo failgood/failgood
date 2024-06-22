@@ -19,7 +19,7 @@ import failgood.internal.TestResults
 import failgood.internal.execution.DiscoveryListener.Event
 import failgood.internal.execution.DiscoveryListener.Type.CONTEXT_DISCOVERED
 import failgood.internal.execution.DiscoveryListener.Type.TEST_DISCOVERED
-import failgood.tests
+import failgood.testCollection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitAll
@@ -88,7 +88,7 @@ object TestCollectionExecutorTest {
         assertNotNull(TypicalTestContext().execute() as? TestResults)
 
     @Suppress("SimplifiableCallChain") // for better kotlin-power-assert output
-    val tests = tests {
+    val tests = testCollection {
         describe("with a typical valid root context") {
             describe("executing all the tests", given = { executedTestContext() }) {
                 it("returns tests in the same order as they are declared in the file") {

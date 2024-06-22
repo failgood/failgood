@@ -10,7 +10,7 @@ import failgood.mock.getCalls
 import failgood.mock.mock
 import failgood.mock.verify
 import failgood.softly.softly
-import failgood.testsAbout
+import failgood.testCollection
 import strikt.api.expectThat
 import strikt.assertions.all
 import strikt.assertions.containsExactly
@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger
 @Test
 class TestResourcesLifecycleTest {
     val tests =
-        testsAbout("closing test resources") {
+        testCollection("closing test resources") {
             describe("autoclosable") {
                 it("is closed in reverse order of creation") {
                     val closeable1 = mock<AutoCloseable>()

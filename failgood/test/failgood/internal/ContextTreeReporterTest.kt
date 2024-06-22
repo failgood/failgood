@@ -1,6 +1,10 @@
 package failgood.internal
 
-import failgood.*
+import failgood.SourceInfo
+import failgood.Success
+import failgood.Test
+import failgood.TestDescription
+import failgood.TestPlusResult
 import failgood.internal.Colors.FAILED
 import failgood.internal.Colors.RED
 import failgood.internal.Colors.RESET
@@ -9,6 +13,7 @@ import failgood.internal.TestResultFixtures.rootContext
 import failgood.internal.TestResultFixtures.subContext
 import failgood.internal.TestResultFixtures.subSubContext
 import failgood.internal.TestResultFixtures.testResults
+import failgood.testCollection
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.isEqualTo
@@ -18,7 +23,7 @@ val sourceInfo = SourceInfo("class", "file", 123)
 @Test
 class ContextTreeReporterTest {
     val tests =
-        testsAbout(ContextTreeReporter::class) {
+        testCollection(ContextTreeReporter::class) {
             val reporter = ContextTreeReporter()
             it("outputs test results in tree form") {
                 expectThat(

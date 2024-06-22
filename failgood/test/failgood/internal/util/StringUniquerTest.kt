@@ -1,11 +1,11 @@
 package failgood.internal.util
 
 import failgood.Test
-import failgood.tests
+import failgood.testCollection
 
 @Test
 class StringUniquerTest {
-    val tests = tests {
+    val tests = testCollection {
         it("makes strings unique") {
             val s = StringUniquer()
             assert(s.makeUnique("failgood") == "failgood")

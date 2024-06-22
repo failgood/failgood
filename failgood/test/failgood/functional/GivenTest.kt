@@ -1,15 +1,14 @@
 package failgood.functional
 
 import failgood.Failure
-import failgood.TestCollection
 import failgood.Suite
 import failgood.Test
-import failgood.tests
-import failgood.testsAbout
-import java.util.UUID
-import kotlin.test.assertEquals
+import failgood.TestCollection
+import failgood.testCollection
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
+import java.util.UUID
+import kotlin.test.assertEquals
 
 /*
  * given support is a given
@@ -17,10 +16,10 @@ import strikt.assertions.isEqualTo
 
 @Test
 class GivenTest {
-    val tests = tests {
+    val tests = testCollection {
         it("passes the value of the contests given block to the test") {
             val context =
-                testsAbout(
+                testCollection(
                     "TestContext for dependency Injection",
                     given = { "root dependency" }
                 ) {

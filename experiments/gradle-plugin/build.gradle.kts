@@ -1,0 +1,50 @@
+@file:Suppress("GradlePackageUpdate")
+
+import failgood.versions.junitPlatformVersion
+import info.solidsoft.gradle.pitest.PitestPluginExtension
+
+
+plugins {
+    kotlin("jvm")
+    id("info.solidsoft.pitest")
+    id("failgood.common")
+//    id("failgood.publishing")
+    id("org.jetbrains.kotlinx.kover") version "0.8.1"
+    id("org.jetbrains.dokka") version "1.9.20"
+}
+
+dependencies {
+    testImplementation(kotlin("test"))
+    implementation(project(":failgood"))
+    implementation(gradleApi())
+    implementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
+    implementation("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
+
+
+}
+sourceSets.main {
+    java.srcDirs("src")
+    resources.srcDirs("resources")
+}
+sourceSets.test {
+    java.srcDirs("test")
+    resources.srcDirs("testResources")
+}
+plugins.withId("info.solidsoft.pitest") {
+    configure<PitestPluginExtension> {
+        addJUnitPlatformLauncher = false
+        jvmArgs = listOf("-Xmx512m") // necessary on CI
+        avoidCallsTo = setOf("kotlin.jvm.internal", "kotlin.Result")
+        targetClasses = setOf("failgood.*") // by default "${project.group}.*"
+        targetTests = setOf("failgood.*Test", "failgood.**.*Test")
+        pitestVersion = failgood.versions.pitestVersion
+        threads =
+            System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()
+
+        outputFormats = setOf("XML", "HTML")
+    }
+}
+@Suppress("OPT_IN_USAGE")
+powerAssert {
+    functions = listOf("kotlin.assert", "kotlin.test.assertTrue", "kotlin.test.assertNotNull")
+}

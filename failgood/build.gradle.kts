@@ -12,7 +12,7 @@ plugins {
     signing
     id("failgood.common")
     id("failgood.publishing")
-    id("org.jetbrains.kotlinx.kover") version "0.8.1"
+    id("org.jetbrains.kotlinx.kover") version "0.8.2"
     id("org.jetbrains.dokka") version "1.9.20"
 }
 // to release:

@@ -2,13 +2,13 @@ package failgood.internal
 
 import failgood.internal.sysinfo.cpus
 import failgood.internal.util.getenv
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 private val envParallelism = getenv("FAILGOOD_PARALLELISM")?.toInt()
 

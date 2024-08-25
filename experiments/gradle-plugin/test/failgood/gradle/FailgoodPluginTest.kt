@@ -1,17 +1,16 @@
 package failgood.gradle
 
+import java.io.File
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.io.TempDir
-import java.io.File
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class FailgoodPluginTest {
 
-    @TempDir
-    lateinit var testProjectDir: File
+    @TempDir lateinit var testProjectDir: File
     private lateinit var settingsFile: File
     private lateinit var buildFile: File
 
@@ -38,8 +37,8 @@ class FailgoodPluginTest {
                 testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
                 testImplementation("your.failogood.dependency:failogood:version")
             }
-        """.trimIndent()
-        )
+        """
+                .trimIndent())
 
         // Create a test file
         val testFile = File(testProjectDir, "src/test/kotlin/SampleTest.kt")
@@ -54,14 +53,15 @@ class FailgoodPluginTest {
                     assert(true)
                 }
             }
-        """.trimIndent()
-        )
+        """
+                .trimIndent())
 
-        val result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
-            .withArguments("customTest")
-            .withPluginClasspath()
-            .build()
+        val result =
+            GradleRunner.create()
+                .withProjectDir(testProjectDir)
+                .withArguments("customTest")
+                .withPluginClasspath()
+                .build()
 
         assertEquals(TaskOutcome.SUCCESS, result.task(":customTest")?.outcome)
         assertTrue(result.output.contains("Running custom tests"))

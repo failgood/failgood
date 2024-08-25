@@ -4,12 +4,12 @@ import failgood.Context
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_PARALLELISM
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_SILENT
 import failgood.junit.FailGoodJunitTestEngineConstants.DEBUG_TXT_FILENAME
-import org.junit.platform.engine.*
-import org.junit.platform.engine.discovery.ClasspathRootSelector
-import org.junit.platform.engine.support.descriptor.EngineDescriptor
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.jvm.optionals.getOrNull
+import org.junit.platform.engine.*
+import org.junit.platform.engine.discovery.ClasspathRootSelector
+import org.junit.platform.engine.support.descriptor.EngineDescriptor
 
 class JunitEngine : TestEngine {
     override fun getId(): String = FailGoodJunitTestEngineConstants.ID
@@ -39,13 +39,18 @@ class JunitEngine : TestEngine {
                 ?: return EngineDescriptor(uniqueId, FailGoodJunitTestEngineConstants.DISPLAY_NAME)
 
         return FailGoodEngineDescriptor(uniqueId, id, suiteAndFilters).also {
-            // Add one fake child because IDEA does not call `execute` when the test plan is totally empty.
-            // This does not happen always but only when running "all tests in Project" (instead of just one module)
+            // Add one fake child because IDEA does not call `execute` when the test plan is totally
+            // empty.
+            // This does not happen always but only when running "all tests in Project" (instead of
+            // just one module)
             // We try to detect this case and add a fake test
-            val classPathRootSelectors = discoveryRequest.getSelectorsByType(ClasspathRootSelector::class.java)
+            val classPathRootSelectors =
+                discoveryRequest.getSelectorsByType(ClasspathRootSelector::class.java)
             // idea adds classpath roots for kotlin, java and resources, so for one root it adds 3
             if (classPathRootSelectors.size > 3)
-                it.addChild(DynamicTestDescriptor(TestPlanNode.Test("test", "empty-test-please-ignore"), it))
+                it.addChild(
+                    DynamicTestDescriptor(
+                        TestPlanNode.Test("test", "empty-test-please-ignore"), it))
             failureLogger.add("Engine Descriptor", it.toString())
 
             if (debug) {
@@ -71,11 +76,14 @@ class JunitEngine : TestEngine {
                 ExecutionListener(root, junitListener, startedContexts, testMapper)
             val results =
                 root.suiteAndFilters.suite.run(
-                    parallelism = request.configurationParameters.get(CONFIG_KEY_PARALLELISM).getOrNull()?.toInt(),
+                    parallelism =
+                        request.configurationParameters
+                            .get(CONFIG_KEY_PARALLELISM)
+                            .getOrNull()
+                            ?.toInt(),
                     filter = root.suiteAndFilters.filter,
                     listener = failgoodListener,
-                    silent = true
-                )
+                    silent = true)
             // report the failing root contexts
             results.failedRootContexts.forEach {
                 val node = TestPlanNode.Container(it.context.name, it.context.displayName)
@@ -84,17 +92,13 @@ class JunitEngine : TestEngine {
                 junitListener.dynamicTestRegistered(testDescriptor)
                 junitListener.executionStarted(testDescriptor)
                 junitListener.executionFinished(
-                    testDescriptor,
-                    TestExecutionResult.failed(it.failure)
-                )
+                    testDescriptor, TestExecutionResult.failed(it.failure))
             }
             // close all open contexts.
             val leafToRootContexts = startedContexts.sortedBy { -it.parents.size }
             leafToRootContexts.forEach { context ->
                 junitListener.executionFinished(
-                    testMapper.getMapping(context),
-                    TestExecutionResult.successful()
-                )
+                    testMapper.getMapping(context), TestExecutionResult.successful())
             }
             junitListener.executionFinished(root, TestExecutionResult.successful())
             if (!silent) results.printSummary(printSlowest = true, printPending = false)

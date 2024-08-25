@@ -26,9 +26,7 @@ class Junit4ReporterTest {
                                 .joinToString("\n"),
                             """</failure>""",
                             """</testcase>""",
-                            """</testsuite>"""
-                        )
-                    )
+                            """</testsuite>"""))
             }
         })
 }

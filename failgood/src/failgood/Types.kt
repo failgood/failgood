@@ -55,8 +55,7 @@ fun <RootGiven> TestCollection(
         ignored,
         addClassName,
         given,
-        function = function
-    )
+        function = function)
 
 data class TestCollection<RootGiven>(
     val rootContext: Context,
@@ -71,7 +70,8 @@ data class TestCollection<RootGiven>(
 ) : LoadResult, failgood.internal.Path {
     val sourceInfo: SourceInfo
         get() =
-            rootContext.sourceInfo!! // in the root context we are sure that we always have a sourceInfo
+            rootContext
+                .sourceInfo!! // in the root context we are sure that we always have a sourceInfo
 
     override val path: List<String>
         get() = listOf(rootContext.name)

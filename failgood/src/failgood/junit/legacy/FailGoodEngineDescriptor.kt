@@ -1,8 +1,8 @@
 package failgood.junit.legacy
 
-import failgood.internal.TestCollectionExecutionResult
 import failgood.internal.FailedTestCollectionExecution
 import failgood.internal.SuiteExecutionContext
+import failgood.internal.TestCollectionExecutionResult
 import failgood.junit.FailGoodJunitTestEngineConstants
 import failgood.junit.TestMapper
 import java.util.*

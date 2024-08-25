@@ -21,8 +21,7 @@ class TestFinderTest {
                         ObjectTestContextExample::class,
                         topLevelClass,
                         ContextListExample::class,
-                        TestContextExample::class
-                    )
+                        TestContextExample::class)
             }
         }
 }

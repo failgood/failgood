@@ -33,9 +33,9 @@ class DynamicTestDescriptor(
     override fun getParent(): Optional<TestDescriptor> = Optional.ofNullable(parent)
 
     override fun setParent(parent: TestDescriptor?) {
-        // we don't allow changing our parent, but if junit calls us with the parent we already have that's ok
-        if (parent != this.parent)
-            throw IllegalStateException()
+        // we don't allow changing our parent, but if junit calls us with the parent we already have
+        // that's ok
+        if (parent != this.parent) throw IllegalStateException()
     }
 
     override fun getChildren(): MutableSet<out TestDescriptor> = children

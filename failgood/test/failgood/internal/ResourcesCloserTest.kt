@@ -8,10 +8,10 @@ import failgood.mock.call
 import failgood.mock.getCalls
 import failgood.mock.mock
 import failgood.testCollection
+import kotlin.test.assertNotNull
 import kotlinx.coroutines.coroutineScope
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
-import kotlin.test.assertNotNull
 
 @Test
 class ResourcesCloserTest {
@@ -47,8 +47,7 @@ class ResourcesCloserTest {
                     it("calls all after each methods even if one fails") {
                         try {
                             subject.callAfterEach(testDSL, Success(10))
-                        } catch (_: AssertionError) {
-                        }
+                        } catch (_: AssertionError) {}
                         assert(events.containsAll(listOf("afterEach1", "afterEach2")))
                     }
                     it("throws the first exception  when multiple afterEach callbacks fail") {
@@ -63,11 +62,11 @@ class ResourcesCloserTest {
                 coroutineScope {
                     @Suppress("ConstantConditionIf")
                     val failedDep by
-                    ResourceCloserImpl(this)
-                        .dependency({
-                            if (true) throw RuntimeException()
-                            "blah"
-                        })
+                        ResourceCloserImpl(this)
+                            .dependency({
+                                if (true) throw RuntimeException()
+                                "blah"
+                            })
                     assert(kotlin.runCatching { failedDep }.isFailure)
                 }
             }

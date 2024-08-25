@@ -44,6 +44,7 @@ internal class ContextVisitor<RootGiven, GivenType>(
     var contextsLeft = false // are there sub contexts left to run?
     private var mutable =
         true // we allow changes only to the current context to catch errors in the context
+
     // structure
 
     override suspend fun it(
@@ -84,9 +85,9 @@ internal class ContextVisitor<RootGiven, GivenType>(
         staticConfig.listener.testDiscovered(testDescription)
         // we only put the test name into the mdc if there is no test name set already
         // because when running the failgood test suite we don't want to overwrite the test name
-        val mdcClosable = if (MDC.get("test") == null)
-            MDC.putCloseable("test", testDescription.niceString())
-        else null
+        val mdcClosable =
+            if (MDC.get("test") == null) MDC.putCloseable("test", testDescription.niceString())
+            else null
         if (!ranATest || !isolation) {
             // if we don't need isolation we run all tests here.
             // if we do:
@@ -98,8 +99,7 @@ internal class ContextVisitor<RootGiven, GivenType>(
                 resourcesCloser,
                 isolation,
                 givenDSL,
-                rootContextStartTime
-            )
+                rootContextStartTime)
         } else {
             contextStateCollector.executeTestLater(testDescription, testPath)
         }
@@ -157,8 +157,7 @@ internal class ContextVisitor<RootGiven, GivenType>(
                 context,
                 sourceInfo,
                 contextPath,
-                FailGoodException("in a context without isolation it can not be turned on again")
-            )
+                FailGoodException("in a context without isolation it can not be turned on again"))
             return
         }
         val visitor =
@@ -170,8 +169,7 @@ internal class ContextVisitor<RootGiven, GivenType>(
                 staticConfig.runOnlyTag != null,
                 contextStateCollector.investigatedContexts.contains(context),
                 rootContextStartTime,
-                givenDSL.add(given)
-            )
+                givenDSL.add(given))
         this.mutable = false
         try {
             visitor.mutable = true
@@ -182,11 +180,7 @@ internal class ContextVisitor<RootGiven, GivenType>(
             throw exceptionInContext
         } catch (exceptionInContext: Throwable) {
             contextStateCollector.recordContextAsFailed(
-                context,
-                sourceInfo,
-                contextPath,
-                exceptionInContext
-            )
+                context, sourceInfo, contextPath, exceptionInContext)
             ranATest = true
             return
         } finally {
@@ -209,13 +203,11 @@ internal class ContextVisitor<RootGiven, GivenType>(
     private fun checkForDuplicateName(name: String) {
         if (!namesInThisContext.add(name))
             throw DuplicateNameInContextException(
-                "duplicate name \"$name\" in context \"${context.name}\""
-            )
+                "duplicate name \"$name\" in context \"${context.name}\"")
         if (!mutable) {
             throw ImmutableContextException(
                 "Trying to create a test in the wrong context. " +
-                    "Make sure functions that create tests have ContextDSL as receiver"
-            )
+                    "Make sure functions that create tests have ContextDSL as receiver")
         }
     }
 

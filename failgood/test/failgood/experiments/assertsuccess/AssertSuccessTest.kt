@@ -20,42 +20,33 @@ private fun <E> List<E>.containsExactly(vararg matcher: (E) -> Boolean): CheckRe
 
 @Test
 object AssertSuccessTest {
-    val tests =
-        testCollection {
-            describe("is useful for asserting on mocks") {
-                val listener = mock<ExecutionListener>()
-                listener.contextDiscovered(
-                    Context("name", sourceInfo = SourceInfo("blah", null, 1))
-                )
-                it("can return parameters for further asserting") {
-                    with(
-                        assert(
-                            getCalls(listener)
-                                .first()
-                                .isCallTo(ExecutionListener::contextDiscovered)
-                        )
-                    ) {
+    val tests = testCollection {
+        describe("is useful for asserting on mocks") {
+            val listener = mock<ExecutionListener>()
+            listener.contextDiscovered(Context("name", sourceInfo = SourceInfo("blah", null, 1)))
+            it("can return parameters for further asserting") {
+                with(
+                    assert(
+                        getCalls(listener)
+                            .first()
+                            .isCallTo(ExecutionListener::contextDiscovered))) {
                         assert(name == "name")
                     }
-                }
-            }
-            describe("asserting on lists") {
-                it("can use a function matcher") {
-                    data class Song(val artist: String, val title: String)
-
-                    val songs =
-                        listOf(
-                            Song("the cure", "close to me"),
-                            Song("bruce springsteen", "born in the USA")
-                        )
-
-                    assert(
-                        songs.containsExactly(
-                            { it.artist == "the cure" },
-                            { it.title == "born in the USA" }
-                        )
-                    )
-                }
             }
         }
+        describe("asserting on lists") {
+            it("can use a function matcher") {
+                data class Song(val artist: String, val title: String)
+
+                val songs =
+                    listOf(
+                        Song("the cure", "close to me"),
+                        Song("bruce springsteen", "born in the USA"))
+
+                assert(
+                    songs.containsExactly(
+                        { it.artist == "the cure" }, { it.title == "born in the USA" }))
+            }
+        }
+    }
 }

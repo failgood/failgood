@@ -21,10 +21,7 @@ class PureTest {
                         test("uppercases $name to $uppercaseName") {
                             assert(this.toUpperCase(name) == uppercaseName)
                         }
-                    }
-                )
-            )
-        )
+                    })))
     private val withVarargNodes =
         root(
             "root",
@@ -39,9 +36,7 @@ class PureTest {
                     test("uppercases $name to $uppercaseName") {
                         assert(this.toUpperCase(name) == uppercaseName)
                     }
-                }
-            )
-        )
+                }))
 
     class UpperCaser {
         @Suppress("SameReturnValue") fun toUpperCase(name: String): String = "not yet"

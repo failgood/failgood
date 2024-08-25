@@ -5,12 +5,12 @@ import failgood.internal.ClassTestFilterProvider
 import failgood.internal.TestFilterProvider
 import failgood.internal.TestFixture
 import failgood.junit.FailGoodJunitTestEngineConstants.CONFIG_KEY_REPEAT
-import org.junit.platform.engine.DiscoverySelector
-import org.junit.platform.engine.EngineDiscoveryRequest
-import org.junit.platform.engine.discovery.*
 import java.nio.file.Paths
 import java.util.*
 import kotlin.jvm.optionals.getOrDefault
+import org.junit.platform.engine.DiscoverySelector
+import org.junit.platform.engine.EngineDiscoveryRequest
+import org.junit.platform.engine.discovery.*
 
 internal data class SuiteAndFilters(
     val suite: Suite,
@@ -21,7 +21,11 @@ internal data class SuiteAndFilters(
 
 class ContextFinder(private val runTestFixtures: Boolean = false) {
     internal fun findContexts(discoveryRequest: EngineDiscoveryRequest): SuiteAndFilters? {
-        val repeat = discoveryRequest.configurationParameters.get(CONFIG_KEY_REPEAT).getOrDefault("1").toInt()
+        val repeat =
+            discoveryRequest.configurationParameters
+                .get(CONFIG_KEY_REPEAT)
+                .getOrDefault("1")
+                .toInt()
         val filterConfig = mutableMapOf<String, List<String>>()
         val allSelectors = discoveryRequest.getSelectorsByType(DiscoverySelector::class.java)
         val classNamePredicates =
@@ -39,18 +43,15 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
                         FailGood.findClassesInPath(
                                 Paths.get(uri),
                                 Thread.currentThread().contextClassLoader,
-                                runTestFixtures = runTestFixtures
-                            ) { className ->
-                                allPredicates.all { it.test(className) }
-                            }
+                                runTestFixtures = runTestFixtures) { className ->
+                                    allPredicates.all { it.test(className) }
+                                }
                             .map { ObjectContextProvider(it) }
                     }
                     is ClassSelector -> {
-                        if (
-                            selector.javaClass.isAnnotationPresent(Test::class.java) ||
-                                (runTestFixtures &&
-                                    selector.javaClass.isAnnotationPresent(TestFixture::class.java))
-                        )
+                        if (selector.javaClass.isAnnotationPresent(Test::class.java) ||
+                            (runTestFixtures &&
+                                selector.javaClass.isAnnotationPresent(TestFixture::class.java)))
                             listOf(ObjectContextProvider(selector.javaClass.kotlin))
                         else listOf()
                     }
@@ -62,17 +63,14 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
                                 Thread.currentThread().contextClassLoader.loadClass(className)
                             } catch (e: ClassNotFoundException) {
                                 throw FailGoodException(
-                                    "could not load class for uniqueId $selector",
-                                    e
-                                )
+                                    "could not load class for uniqueId $selector", e)
                             }
                         listOf(ObjectContextProvider(classFromUniqueId.kotlin))
                     }
                     is MethodSelector -> {
                         val result =
                             selector.javaMethod.invoke(
-                                ObjectContextProvider.instantiateClassOrObject(selector.javaClass)
-                            )
+                                ObjectContextProvider.instantiateClassOrObject(selector.javaClass))
                         if (result is Suite) {
                             return SuiteAndFilters(result, null)
                         }
@@ -92,8 +90,7 @@ class ContextFinder(private val runTestFixtures: Boolean = false) {
         else
             SuiteAndFilters(
                 Suite(contexts, repeat),
-                if (filterConfig.isEmpty()) null else ClassTestFilterProvider(filterConfig)
-            )
+                if (filterConfig.isEmpty()) null else ClassTestFilterProvider(filterConfig))
     }
 }
 
@@ -107,4 +104,3 @@ internal fun UniqueIdSelector.toClassFilter(): ClassFilter {
     val className = segment1.substringAfterLast("(").substringBefore(")")
     return ClassFilter(className, filterString)
 }
-

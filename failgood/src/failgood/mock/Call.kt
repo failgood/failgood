@@ -87,7 +87,9 @@ fun <A, B, C, D, E, F, G> call(
 
 @Suppress("UNCHECKED_CAST")
 @JvmName("getCalls3")
-fun <A, B, C, D> List<FunctionCall<A>>.getCalls(function: KFunction3<A, B, C, D>): List<Pair<B, C>> {
+fun <A, B, C, D> List<FunctionCall<A>>.getCalls(
+    function: KFunction3<A, B, C, D>
+): List<Pair<B, C>> {
     return this.filter { it.function == function.name }
         .map { Pair(it.arguments[0], it.arguments[1]) } as List<Pair<B, C>>
 }

@@ -25,6 +25,10 @@ import failgood.junit.FailureLoggingEngineExecutionListener
 import failgood.junit.LoggingEngineExecutionListener
 import failgood.junit.legacy.ChannelExecutionListener.TestExecutionEvent
 import failgood.junit.niceString
+import java.io.File
+import java.util.Timer
+import kotlin.concurrent.schedule
+import kotlin.system.exitProcess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.consumeEach
@@ -41,10 +45,6 @@ import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.reporting.ReportEntry
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
-import java.io.File
-import java.util.Timer
-import kotlin.concurrent.schedule
-import kotlin.system.exitProcess
 
 internal const val CONTEXT_SEGMENT_TYPE = "class"
 internal const val TEST_SEGMENT_TYPE = "method"
@@ -53,7 +53,8 @@ internal const val TEST_SEGMENT_TYPE = "method"
 private val watchdogMillis = getenv("FAILGOOD_WATCHDOG_MILLIS")?.toLong()
 
 /**
- * this engine was going to be removed, but now it could stay if the new dsl gets implemented and we know all tests upfront
+ * this engine was going to be removed, but now it could stay if the new dsl gets implemented and we
+ * know all tests upfront
  */
 class LegacyJUnitTestEngine : TestEngine {
     companion object {
@@ -75,8 +76,8 @@ class LegacyJUnitTestEngine : TestEngine {
         val startedAt = upt()
 
         debug = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_DEBUG).orElse(false)
-        silent = discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_SILENT).orElse(false)
-
+        silent =
+            discoveryRequest.configurationParameters.getBoolean(CONFIG_KEY_SILENT).orElse(false)
 
         failureLogger.add("discovery request", discoveryRequest.niceString())
 
@@ -107,26 +108,19 @@ class LegacyJUnitTestEngine : TestEngine {
                                 suiteExecutionContext.scope,
                                 true,
                                 filterProvider ?: ExecuteAllTestFilterProvider,
-                                executionListener
-                            )
+                                executionListener)
                             .awaitAll()
                     val testsCollectedAt = upt()
                     if (debug)
                         println(
-                            "start: $startedAt tests collected at $testsCollectedAt, discover finished at ${upt()}"
-                        )
+                            "start: $startedAt tests collected at $testsCollectedAt, discover finished at ${upt()}")
                     testResult
                 }
             return createResponse(
-                uniqueId,
-                testResult,
-                FailGoodEngineDescriptor(
                     uniqueId,
                     testResult,
-                    executionListener,
-                    suiteExecutionContext
-                )
-            )
+                    FailGoodEngineDescriptor(
+                        uniqueId, testResult, executionListener, suiteExecutionContext))
                 .also {
                     val allDescendants = it.allDescendants()
                     failureLogger.add("nodes returned", allDescendants)
@@ -160,9 +154,7 @@ class LegacyJUnitTestEngine : TestEngine {
                 val testDescriptor = mapper.getMapping(it.context)
                 junitListener.executionStarted(testDescriptor)
                 junitListener.executionFinished(
-                    testDescriptor,
-                    TestExecutionResult.failed(it.failure)
-                )
+                    testDescriptor, TestExecutionResult.failed(it.failure))
             }
 
             val executionListener = root.executionListener
@@ -195,8 +187,7 @@ class LegacyJUnitTestEngine : TestEngine {
                                     root.failedRootContexts.any { it.context == rootContextOfEvent }
                                 if (!isInFailedRootContext)
                                     throw FailGoodException(
-                                        "did not find mapping for event $event."
-                                    )
+                                        "did not find mapping for event $event.")
                                 // it's a failing root context, so ignore it
                                 return@consumeEach
                             }
@@ -216,34 +207,26 @@ class LegacyJUnitTestEngine : TestEngine {
                                                 junitListener.executionFinished(
                                                     mapping,
                                                     TestExecutionResult.failed(
-                                                        testPlusResult.result.failure
-                                                    )
-                                                )
+                                                        testPlusResult.result.failure))
                                                 junitListener.reportingEntryPublished(
                                                     mapping,
                                                     ReportEntry.from(
                                                         "uniqueId to rerun just this test",
-                                                        mapping.uniqueId.safeToString()
-                                                    )
-                                                )
+                                                        mapping.uniqueId.safeToString()))
                                             }
                                         }
 
                                         is Success ->
                                             withContext(Dispatchers.IO) {
                                                 junitListener.executionFinished(
-                                                    mapping,
-                                                    TestExecutionResult.successful()
-                                                )
+                                                    mapping, TestExecutionResult.successful())
                                             }
 
                                         is Skipped -> {
                                             withContext(Dispatchers.IO) {
                                                 startParentContexts(event.testResult.test)
                                                 junitListener.executionSkipped(
-                                                    mapping,
-                                                    testPlusResult.result.reason
-                                                )
+                                                    mapping, testPlusResult.result.reason)
                                             }
                                         }
                                     }
@@ -252,9 +235,7 @@ class LegacyJUnitTestEngine : TestEngine {
                                 is TestExecutionEvent.TestEvent ->
                                     withContext(Dispatchers.IO) {
                                         junitListener.reportingEntryPublished(
-                                            mapping,
-                                            ReportEntry.from(event.type, event.payload)
-                                        )
+                                            mapping, ReportEntry.from(event.type, event.payload))
                                     }
                             }
                         }
@@ -271,9 +252,7 @@ class LegacyJUnitTestEngine : TestEngine {
             val leafToRootContexts = startedContexts.sortedBy { -it.parents.size }
             leafToRootContexts.forEach { context ->
                 junitListener.executionFinished(
-                    mapper.getMapping(context),
-                    TestExecutionResult.successful()
-                )
+                    mapper.getMapping(context), TestExecutionResult.successful())
             }
 
             junitListener.executionFinished(root, TestExecutionResult.successful())
@@ -289,8 +268,7 @@ class LegacyJUnitTestEngine : TestEngine {
             failureLogger.add("events", loggingEngineExecutionListener.events.toString())
             File(DEBUG_TXT_FILENAME).writeText(failureLogger.envString())
         }
-        if (!silent)
-            println("finished after ${uptime()}")
+        if (!silent) println("finished after ${uptime()}")
     }
 }
 
@@ -311,8 +289,7 @@ private class Watchdog(timeoutMillis: Long) : AutoCloseable {
         timer.schedule(timeoutMillis) {
             Thread.getAllStackTraces().forEach { (thread, stackTraceElements) ->
                 println(
-                    "\n* Thread:${thread.name}: ${stackTraceElements.joinToString<StackTraceElement?>("\n")}"
-                )
+                    "\n* Thread:${thread.name}: ${stackTraceElements.joinToString<StackTraceElement?>("\n")}")
             }
             exitProcess(-1)
         }

@@ -21,8 +21,7 @@ internal class FailureLogger {
                 "or tell someone in the #failgood channel in the kotlin-lang slack.\n" +
                 "Please attach all this info including stacktraces. \n" +
                 "message: ${e.message}\n Previously on failgood: $map",
-            e
-        )
+            e)
     }
 
     fun add(key: String, value: String) {

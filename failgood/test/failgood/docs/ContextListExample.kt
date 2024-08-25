@@ -22,6 +22,5 @@ class ContextListExample {
             },
             testCollection("second of multiple contexts defined in one object", order = 1) {
                 it("describes behavior") { expectThat("test").isEqualTo("test") }
-            }
-        )
+            })
 }

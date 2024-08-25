@@ -23,10 +23,10 @@ object FailGoodTestUnitFinder : TestUnitFinder {
             }
         val tests =
             runBlocking {
-                Suite(listOf(ContextProvider { contexts }))
-                    .findAndStartTests(GlobalScope, false)
-                    .awaitAll()
-            }
+                    Suite(listOf(ContextProvider { contexts }))
+                        .findAndStartTests(GlobalScope, false)
+                        .awaitAll()
+                }
                 .filterIsInstance<TestResults>()
         return tests.flatMap { it.tests.entries }.map { FailGoodTestUnit(it.key, it.value, clazz) }
     }

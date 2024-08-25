@@ -20,6 +20,10 @@ import failgood.internal.execution.DiscoveryListener.Event
 import failgood.internal.execution.DiscoveryListener.Type.CONTEXT_DISCOVERED
 import failgood.internal.execution.DiscoveryListener.Type.TEST_DISCOVERED
 import failgood.testCollection
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitAll
@@ -41,10 +45,6 @@ import strikt.assertions.isNotEmpty
 import strikt.assertions.isNotNull
 import strikt.assertions.map
 import strikt.assertions.message
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 @Test
 object TestCollectionExecutorTest {
@@ -73,12 +73,11 @@ object TestCollectionExecutorTest {
         ): TestCollectionExecutionResult {
             return coroutineScope {
                 TestCollectionExecutor(
-                    context,
-                    this,
-                    runOnlyTag = tag,
-                    listener = listener,
-                    testFilter = testFilter
-                )
+                        context,
+                        this,
+                        runOnlyTag = tag,
+                        listener = listener,
+                        testFilter = testFilter)
                     .execute()
             }
         }
@@ -94,16 +93,14 @@ object TestCollectionExecutorTest {
                 it("returns tests in the same order as they are declared in the file") {
                     assert(
                         given.tests.keys.map { it.testName } ==
-                                listOf(
-                                    "test 1",
-                                    "test 2",
-                                    "ignored test",
-                                    "failed test",
-                                    "context 1 test",
-                                    "test 3",
-                                    "test 4"
-                                )
-                    )
+                            listOf(
+                                "test 1",
+                                "test 2",
+                                "ignored test",
+                                "failed test",
+                                "context 1 test",
+                                "test 3",
+                                "test 4"))
                 }
                 it("returns deferred test results") {
                     val testResults = given.tests.values.awaitAll()
@@ -112,8 +109,7 @@ object TestCollectionExecutorTest {
                     val skipped = assertNotNull(testResults.filter { it.isSkipped }.singleOrNull())
                     assert(
                         successful.map { it.test.testName } ==
-                                listOf("test 1", "test 2", "context 1 test", "test 3", "test 4")
-                    )
+                            listOf("test 1", "test 2", "context 1 test", "test 3", "test 4"))
                     assert(failed.test.testName == "failed test")
                     assert(skipped.test.testName == "ignored test")
                 }
@@ -125,11 +121,10 @@ object TestCollectionExecutorTest {
                 }
                 it("reports time of successful tests") {
                     expectThat(
-                        given.tests.values
-                            .awaitAll()
-                            .map { it.result }
-                            .filterIsInstance<Success>()
-                    )
+                            given.tests.values
+                                .awaitAll()
+                                .map { it.result }
+                                .filterIsInstance<Success>())
                         .isNotEmpty()
                         .all { get { timeMicro }.isGreaterThanOrEqualTo(1) }
                 }
@@ -144,15 +139,13 @@ object TestCollectionExecutorTest {
                             .map { it.result }
                             .filterIsInstance<Failure>()
                             .single()
+                    }) {
+                        it("reports exception for failed tests") {
+                            assertEquals(
+                                given.failure.stackTraceToString(),
+                                assertionError.stackTraceToString())
+                        }
                     }
-                ) {
-                    it("reports exception for failed tests") {
-                        assertEquals(
-                            given.failure.stackTraceToString(),
-                            assertionError.stackTraceToString()
-                        )
-                    }
-                }
             }
             describe(
                 "with a listener",
@@ -160,37 +153,32 @@ object TestCollectionExecutorTest {
                     val listener = DiscoveryListener()
                     assertNotNull(
                         assertNotNull(
-                            TypicalTestContext().execute(listener = listener) as? TestResults
-                        )
-                    )
+                            TypicalTestContext().execute(listener = listener) as? TestResults))
                     listener
+                }) {
+                    it("reports tests and contexts in their order inside the file") {
+                        assertEquals(
+                            listOf(
+                                Event(CONTEXT_DISCOVERED, "root context"),
+                                Event(TEST_DISCOVERED, "test 1"),
+                                Event(TEST_DISCOVERED, "test 2"),
+                                Event(TEST_DISCOVERED, "ignored test"),
+                                Event(TEST_DISCOVERED, "failed test"),
+                                Event(CONTEXT_DISCOVERED, "context 1"),
+                                Event(TEST_DISCOVERED, "context 1 test"),
+                                Event(CONTEXT_DISCOVERED, "context 2"),
+                                Event(TEST_DISCOVERED, "test 3"),
+                                Event(CONTEXT_DISCOVERED, "context 3"),
+                                Event(TEST_DISCOVERED, "test 4"),
+                            ),
+                            given.events)
+                    }
                 }
-            ) {
-                it("reports tests and contexts in their order inside the file") {
-                    assertEquals(
-                        listOf(
-                            Event(CONTEXT_DISCOVERED, "root context"),
-                            Event(TEST_DISCOVERED, "test 1"),
-                            Event(TEST_DISCOVERED, "test 2"),
-                            Event(TEST_DISCOVERED, "ignored test"),
-                            Event(TEST_DISCOVERED, "failed test"),
-                            Event(CONTEXT_DISCOVERED, "context 1"),
-                            Event(TEST_DISCOVERED, "context 1 test"),
-                            Event(CONTEXT_DISCOVERED, "context 2"),
-                            Event(TEST_DISCOVERED, "test 3"),
-                            Event(CONTEXT_DISCOVERED, "context 3"),
-                            Event(TEST_DISCOVERED, "test 4"),
-                        ),
-                        given.events
-                    )
-                }
-            }
             describe("executing a subset of tests", given = { TypicalTestContext() }) {
                 it("can execute a subset of tests") {
                     val contextResult =
                         given.execute(
-                            testFilter = StringListTestFilter(listOf("root context", "test 1"))
-                        )
+                            testFilter = StringListTestFilter(listOf("root context", "test 1")))
                     val testResults = expectThat(contextResult).isA<TestResults>().subject
                     expectThat(testResults) {
                         get { tests.keys }.map { it.testName }.containsExactly("test 1")
@@ -201,8 +189,7 @@ object TestCollectionExecutorTest {
                     val contextResult =
                         given.execute(
                             testFilter =
-                            StringListTestFilter(listOf("other root context", "test 1"))
-                        )
+                                StringListTestFilter(listOf("other root context", "test 1")))
                     val testResults = expectThat(contextResult).isA<TestResults>().subject
                     expectThat(testResults) {
                         get { tests }.isEmpty()
@@ -280,10 +267,8 @@ object TestCollectionExecutorTest {
                         TestCollection("root context") {
                             it(
                                 "contains a single ignored test",
-                                ignored = Because("testing ignoring")
-                            ) {}
-                        }
-                    )
+                                ignored = Because("testing ignoring")) {}
+                        })
                 val testResults = assertNotNull(result as? TestResults)
                 val test = assertNotNull(testResults.tests.keys.singleOrNull())
                 assert(test.testName == "contains a single ignored test")
@@ -309,11 +294,15 @@ object TestCollectionExecutorTest {
         describe("timing") {
             it("reports context structure before tests finish") {
                 val ctx =
-                    TestCollection("root context") { repeat(10) { test("test $it") { delay(2000) } } }
+                    TestCollection("root context") {
+                        repeat(10) { test("test $it") { delay(2000) } }
+                    }
                 val scope = CoroutineScope(Dispatchers.Unconfined)
                 // this timeout is huge because of slow ci, that does not mean it takes 1 second
                 // in normal use
-                withTimeout(1000) { assert(TestCollectionExecutor(ctx, scope).execute() is TestResults) }
+                withTimeout(1000) {
+                    assert(TestCollectionExecutor(ctx, scope).execute() is TestResults)
+                }
                 scope.cancel()
             }
         }
@@ -362,8 +351,7 @@ object TestCollectionExecutorTest {
                     val contextResult = execute(context)
                     assert(
                         contextResult is TestResults &&
-                                contextResult.tests.values.awaitAll().all { !it.isFailure }
-                    )
+                            contextResult.tests.values.awaitAll().all { !it.isFailure })
                 }
                 test("tests can not contain nested contexts") {
                     // context("this does not even compile") {}
@@ -377,8 +365,7 @@ object TestCollectionExecutorTest {
                         test("test 2") {}
                         context(
                             "context 1",
-                            ignored = Because("We are testing that it is correctly reported")
-                        ) {}
+                            ignored = Because("We are testing that it is correctly reported")) {}
                         context("context 4") { test("test 4") {} }
                     }
                 val results = assertNotNull(execute(ctx) as? TestResults)
@@ -393,20 +380,19 @@ object TestCollectionExecutorTest {
                     with(singleSkippedTest.test) {
                         assert(
                             testName ==
-                                    "context ignored because We are testing that it is correctly reported"
-                        )
+                                "context ignored because We are testing that it is correctly reported")
                         assert(context.name == "context 1")
                         assert(sourceInfo.className.contains("TestCollectionExecutorTest"))
                     }
                     assert(
                         (singleSkippedTest.result as Skipped).reason ==
-                                "We are testing that it is correctly reported"
-                    )
+                            "We are testing that it is correctly reported")
                 }
             }
         }
         it("handles failing root contexts") {
-            val ctx = TestCollection("root context") { throw RuntimeException("root context failed") }
+            val ctx =
+                TestCollection("root context") { throw RuntimeException("root context failed") }
             assert(execute(ctx) is FailedTestCollectionExecution)
         }
         describe("detects duplicated tests") {
@@ -418,10 +404,8 @@ object TestCollectionExecutorTest {
                 val result = execute(ctx)
                 assert(
                     result is FailedTestCollectionExecution &&
-                            result.failure.message!!.contains(
-                                "duplicate name \"dup test name\" in context \"root\""
-                            )
-                )
+                        result.failure.message!!.contains(
+                            "duplicate name \"dup test name\" in context \"root\""))
             }
             it("does not fail when the tests with the same name are in different contexts") {
                 val ctx = TestCollection {
@@ -498,8 +482,7 @@ object TestCollectionExecutorTest {
                         "context with tag",
                         "test in context with tag",
                         "context in context with tag",
-                        "test in context in context with tag"
-                    )
+                        "test in context in context with tag")
             }
             it("can filter tests in the root context by tag") {
                 val context = TestCollection {
@@ -518,51 +501,48 @@ object TestCollectionExecutorTest {
                 expectSuccess(contextResult)
                 expectThat(events)
                     .containsExactlyInAnyOrder(
-                        "test in root context with tag",
-                        "other test with the tag"
-                    )
+                        "test in root context with tag", "other test with the tag")
             }
             it(
                 "can filter tests in a subcontext",
                 ignored =
-                Because(
-                    "This can currently not work " +
-                            "because we don't find the tests in the subcontext without executing the context"
-                )
-            ) {
-                val context = TestCollection {
-                    describe("context without the tag") {
-                        events.add("context without tag")
-                        it("test in context without the tag") {
-                            events.add("test in context without the tag")
+                    Because(
+                        "This can currently not work " +
+                            "because we don't find the tests in the subcontext without executing the context")) {
+                    val context = TestCollection {
+                        describe("context without the tag") {
+                            events.add("context without tag")
+                            it("test in context without the tag") {
+                                events.add("test in context without the tag")
+                            }
+                        }
+                        describe("context without the tag that contains the test with the tag") {
+                            events.add(
+                                "context without the tag that contains the test with the tag")
+                            test("test with the tag", tags = setOf("single")) {
+                                events.add("test with the tag")
+                            }
+                        }
+                        test("test in root context without tag") {
+                            events.add("test in root context without tag")
                         }
                     }
-                    describe("context without the tag that contains the test with the tag") {
-                        events.add("context without the tag that contains the test with the tag")
-                        test("test with the tag", tags = setOf("single")) {
-                            events.add("test with the tag")
-                        }
-                    }
-                    test("test in root context without tag") {
-                        events.add("test in root context without tag")
-                    }
+                    val contextResult = execute(context, "single")
+                    expectSuccess(contextResult)
+                    expectThat(events)
+                        .containsExactlyInAnyOrder(
+                            "context without the tag that contains the test with the tag",
+                            "test with the tag")
                 }
-                val contextResult = execute(context, "single")
-                expectSuccess(contextResult)
-                expectThat(events)
-                    .containsExactlyInAnyOrder(
-                        "context without the tag that contains the test with the tag",
-                        "test with the tag"
-                    )
-            }
         }
     }
 
-    private suspend fun expectSuccess(testCollectionExecutionResult: TestCollectionExecutionResult) {
+    private suspend fun expectSuccess(
+        testCollectionExecutionResult: TestCollectionExecutionResult
+    ) {
         assert(
             testCollectionExecutionResult is TestResults &&
-                    testCollectionExecutionResult.tests.values.awaitAll().all { it.isSuccess }
-        )
+                testCollectionExecutionResult.tests.values.awaitAll().all { it.isSuccess })
     }
 
     private suspend fun execute(
@@ -582,10 +562,10 @@ object TestCollectionExecutorTest {
 class DiscoveryListener : ExecutionListener {
     enum class Type {
         TEST_DISCOVERED,
-        CONTEXT_DISCOVERED/*,
-        TEST_STARTED,
-        FINISHED,
-        TEST_EVENT */
+        CONTEXT_DISCOVERED /*,
+                           TEST_STARTED,
+                           FINISHED,
+                           TEST_EVENT */
     }
 
     private fun event(type: Type, name: String) {

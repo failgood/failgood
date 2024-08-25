@@ -25,8 +25,7 @@ internal class TestCollectionExecutor<RootGiven>(
             timeoutMillis,
             if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT,
             runOnlyTag,
-            testCollection.given
-        )
+            testCollection.given)
 
     private val stateCollector =
         ContextStateCollector(staticExecutionConfig, !testCollection.rootContext.isolation)
@@ -58,12 +57,10 @@ internal class TestCollectionExecutor<RootGiven>(
                         false,
                         stateCollector.investigatedContexts.contains(rootContext),
                         startTime,
-                        RootGivenDSLHandler(staticExecutionConfig.givenFunction)
-                    )
+                        RootGivenDSLHandler(staticExecutionConfig.givenFunction))
                 try {
                     withTimeout(staticExecutionConfig.timeoutMillis) { visitor.function() }
-                } catch (_: ContextFinished) {
-                }
+                } catch (_: ContextFinished) {}
                 stateCollector.investigatedContexts.add(rootContext)
                 if (stateCollector.containsContextsWithoutIsolation) {
                     stateCollector.afterSuiteCallbacks.add { resourcesCloser.closeAutoCloseables() }
@@ -75,17 +72,14 @@ internal class TestCollectionExecutor<RootGiven>(
         // context order: first root context, then sub-contexts ordered by line number
         val contexts =
             listOf(rootContext) +
-                    stateCollector.foundContexts.sortedBy { it.sourceInfo!!.lineNumber }
+                stateCollector.foundContexts.sortedBy { it.sourceInfo!!.lineNumber }
         return TestResults(
-            contexts,
-            stateCollector.deferredTestResults,
-            stateCollector.afterSuiteCallbacks
-        )
+            contexts, stateCollector.deferredTestResults, stateCollector.afterSuiteCallbacks)
     }
-
 }
 
-// this is thrown to save time when the context is finished, and we cannot do anything meaningful in this pass
+// this is thrown to save time when the context is finished, and we cannot do anything meaningful in
+// this pass
 class ContextFinished : DSLGotoException()
 
 fun sourceInfo(): SourceInfo {

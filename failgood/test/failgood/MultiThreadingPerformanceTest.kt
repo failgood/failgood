@@ -7,10 +7,6 @@ fun main() {
 class MultiThreadingPerformanceTest {
     val tests =
         testCollection("multi threaded test running") {
-            repeat(1000) {
-                test("sleeping test ${it + 1}") {
-                    Thread.sleep(1000)
-                }
-            }
+            repeat(1000) { test("sleeping test ${it + 1}") { Thread.sleep(1000) } }
         }
 }

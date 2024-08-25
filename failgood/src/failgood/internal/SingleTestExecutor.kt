@@ -8,8 +8,9 @@ import failgood.internal.given.GivenDSLHandler
 import failgood.internal.given.RootGivenDSLHandler
 
 /**
- * Executes a single test with all its parent contexts. Called by [failgood.internal.execution.TestCollectionExecutor] to execute all
- * tests that it does not have to execute itself
+ * Executes a single test with all its parent contexts. Called by
+ * [failgood.internal.execution.TestCollectionExecutor] to execute all tests that it does not have
+ * to execute itself
  */
 internal class SingleTestExecutor<RootGiven, TestGivenType>(
     private val test: ContextPath,
@@ -27,8 +28,7 @@ internal class SingleTestExecutor<RootGiven, TestGivenType>(
             dsl.(rootContextFunction)()
             throw FailGoodException(
                 "test not found: $test.\n" +
-                    "please make sure your test names contain no random parts"
-            )
+                    "please make sure your test names contain no random parts")
         } catch (e: TestResultAvailable) {
             e.testResult
         } catch (e: Throwable) {
@@ -72,9 +72,7 @@ internal class SingleTestExecutor<RootGiven, TestGivenType>(
                 throw TestResultAvailable(
                     executeTest(
                         function as TestFunction<TestGivenType>,
-                        givenDSLHandler as GivenDSLHandler<TestGivenType>
-                    )
-                )
+                        givenDSLHandler as GivenDSLHandler<TestGivenType>))
             }
         }
 

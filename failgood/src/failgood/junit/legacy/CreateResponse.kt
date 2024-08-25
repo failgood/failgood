@@ -2,9 +2,9 @@ package failgood.junit.legacy
 
 import failgood.Context
 import failgood.TestDescription
-import failgood.internal.TestResults
-import failgood.internal.TestCollectionExecutionResult
 import failgood.internal.FailedTestCollectionExecution
+import failgood.internal.TestCollectionExecutionResult
+import failgood.internal.TestResults
 import failgood.internal.util.StringUniquer
 import failgood.junit.createClassSource
 import failgood.junit.createFileSource
@@ -14,11 +14,7 @@ import org.junit.platform.engine.UniqueId
 internal fun TestDescription.toTestDescriptor(uniqueId: UniqueId): TestDescriptor {
     val testSource = createFileSource(this.sourceInfo, this.testName)
     return FailGoodTestDescriptor(
-        TestDescriptor.Type.TEST,
-        uniqueId.appendTest(testName),
-        this.testName,
-        testSource
-    )
+        TestDescriptor.Type.TEST, uniqueId.appendTest(testName), this.testName, testSource)
 }
 
 internal fun createResponse(
@@ -41,8 +37,7 @@ internal fun createResponse(
                     val path =
                         if (isRootContext)
                             uniqueMaker.makeUnique(
-                                "${context.name}(${(context.sourceInfo?.className) ?: ""})"
-                            )
+                                "${context.name}(${(context.sourceInfo?.className) ?: ""})")
                         else context.name
                     val contextUniqueId = uniqueId.appendContext(path)
                     val contextNode =
@@ -53,8 +48,7 @@ internal fun createResponse(
                             context.sourceInfo?.let {
                                 if (isRootContext) createClassSource(it)
                                 else createFileSource(it, context.name)
-                            }
-                        )
+                            })
                     mapper.addMapping(context, contextNode)
                     val testsInThisContext = tests.filter { it.key.context == context }
                     testsInThisContext.forEach {
@@ -82,8 +76,7 @@ internal fun createResponse(
                         TestDescriptor.Type.TEST,
                         uniqueId.appendContext(uniqueMaker.makeUnique(path)),
                         context.displayName,
-                        context.sourceInfo?.let { createClassSource(it) }
-                    )
+                        context.sourceInfo?.let { createClassSource(it) })
                 failGoodEngineDescriptor.addChild(testDescriptor)
                 mapper.addMapping(context, testDescriptor)
                 failGoodEngineDescriptor.failedRootContexts.add(contextInfo)

@@ -15,7 +15,6 @@ import strikt.assertions.isEqualTo
 class SingleTestExecutorV2Test {
     val tests =
         testCollection(ignored = Ignored.TODO) {
-
             val events = mutableListOf<String>()
             describe("test execution") {
                 describe("a context without given") {
@@ -34,11 +33,7 @@ class SingleTestExecutorV2Test {
                     }
 
                     it("executes a single test") {
-                        val result =
-                            executeTest(
-                                listOf("root context", "test 1"),
-                                ctx
-                            )
+                        val result = executeTest(listOf("root context", "test 1"), ctx)
 
                         expectThat(events).containsExactly("root context", "test 1")
                         expectThat(result).isA<Success>()
@@ -46,9 +41,7 @@ class SingleTestExecutorV2Test {
                     it("executes a nested single test") {
                         val result =
                             executeTest(
-                                listOf("root context", "context 1", "context 2", "test 3"),
-                                ctx
-                            )
+                                listOf("root context", "context 1", "context 2", "test 3"), ctx)
 
                         expectThat(events)
                             .containsExactly("root context", "context 1", "context 2", "test 3")
@@ -59,12 +52,10 @@ class SingleTestExecutorV2Test {
             describe("error handling") {
                 it("reports exceptions in the context as test failures") {
                     val runtimeException = RuntimeException()
-                    val contextThatThrows = TestCollection("root context") { throw runtimeException }
+                    val contextThatThrows =
+                        TestCollection("root context") { throw runtimeException }
                     val result =
-                        executeTest(
-                            listOf("root context", "test 1"),
-                            contextThatThrows.function
-                        )
+                        executeTest(listOf("root context", "test 1"), contextThatThrows.function)
 
                     expectThat(result).isA<Failure>().get { failure }.isEqualTo(runtimeException)
                 }
@@ -76,10 +67,7 @@ class SingleTestExecutorV2Test {
                             test("test") {}
                         }
                     val result =
-                        executeTest(
-                            listOf("root context", "test 1"),
-                            contextThatThrows.function
-                        )
+                        executeTest(listOf("root context", "test 1"), contextThatThrows.function)
 
                     expectThat(result).isA<Failure>().get { failure }.isEqualTo(runtimeException)
                 }
@@ -88,7 +76,6 @@ class SingleTestExecutorV2Test {
 }
 
 @Suppress("UNUSED_PARAMETER")
-internal fun executeTest(contextPath: List<String>, ctx: suspend TestDSL.() -> Unit
-) : TestResult {
+internal fun executeTest(contextPath: List<String>, ctx: suspend TestDSL.() -> Unit): TestResult {
     return Failure(RuntimeException())
 }

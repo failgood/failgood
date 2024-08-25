@@ -33,8 +33,9 @@ class ExceptionPrettyPrinterTest {
                         .first { it.className.startsWith(prefix) }
                         .let { SourceInfo(it.className, it.fileName, it.lineNumber) }
                 expectThat(
-                    ExceptionPrettyPrinter(assertionError, sourceInfo).prettyPrint().split("\n")
-                )
+                        ExceptionPrettyPrinter(assertionError, sourceInfo)
+                            .prettyPrint()
+                            .split("\n"))
                     .allIndexed { idx ->
                         if (idx == 0) contains("message") else contains(sourceInfo.className)
                     }

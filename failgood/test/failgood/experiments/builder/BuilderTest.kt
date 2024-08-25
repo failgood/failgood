@@ -32,13 +32,7 @@ data class ContextBuilder(
 ) {
     fun tagged(vararg s: String, function: suspend XContextDSL.() -> Unit): RootContext {
         return RootContext(
-            contextName,
-            disabled,
-            order,
-            isolation,
-            tags = s.asList(),
-            function = function
-        )
+            contextName, disabled, order, isolation, tags = s.asList(), function = function)
     }
 
     fun withoutIsolation(function: suspend XContextDSL.() -> Unit) =

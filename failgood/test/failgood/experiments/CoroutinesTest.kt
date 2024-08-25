@@ -15,11 +15,7 @@ private fun asyncTest() {
     val threadPool = Executors.newWorkStealingPool(1000)
     threadPool.asCoroutineDispatcher().use { dispatcher ->
         runBlocking(dispatcher) {
-            (0 until 1000)
-                .map {
-                    async { Thread.sleep(1000) }
-                }
-                .awaitAll()
+            (0 until 1000).map { async { Thread.sleep(1000) } }.awaitAll()
             println(uptime() + " " + threadPool)
         }
     }

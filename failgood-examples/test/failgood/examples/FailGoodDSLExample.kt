@@ -15,18 +15,15 @@ class FailGoodDSLExample {
                 describe("disabled/pending tests") {
                     it(
                         "ignore can be used to disable tests that are unfinished",
-                        ignored = Ignored.Because("This is just an Example")
-                    ) {}
+                        ignored = Ignored.Because("This is just an Example")) {}
                     test(
                         "ignore works for tests too",
-                        ignored = Ignored.Because("This is just an Example")
-                    ) {}
+                        ignored = Ignored.Because("This is just an Example")) {}
                 }
                 context("context/test syntax is also supported") {
                     test(
                         "I prefer describe/it but if there is no subject to describe I use " +
-                                "context/test"
-                    ) {}
+                            "context/test") {}
                 }
 
                 context("dynamic tests") {

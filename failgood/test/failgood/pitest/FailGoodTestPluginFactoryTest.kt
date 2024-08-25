@@ -22,11 +22,7 @@ class FailGoodTestPluginFactoryTest {
                 val config =
                     FailGoodTestPluginFactory()
                         .createTestFrameworkConfiguration(
-                            null,
-                            null,
-                            mutableListOf(),
-                            mutableListOf()
-                        )
+                            null, null, mutableListOf(), mutableListOf())
 
                 it("returns a suite object that returns no suites") {
                     expectThat(config.testSuiteFinder().apply(this::class.java)).isEmpty()

@@ -31,6 +31,7 @@ fun interface Ignored {
     class Because(private val reason: String) : Ignored {
         override fun isIgnored(): String = reason
     }
+
     /**
      * Ignore a test unless an environment var is set.
      *

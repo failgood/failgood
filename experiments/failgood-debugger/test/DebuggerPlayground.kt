@@ -2,8 +2,8 @@ package failgood.experiments
 
 import failgood.Test
 import failgood.testCollection
-import org.junit.jupiter.api.Assertions.assertEquals
 import kotlin.test.assertNotNull
+import org.junit.jupiter.api.Assertions.assertEquals
 
 @Test
 object DebuggerPlayground {

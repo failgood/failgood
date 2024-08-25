@@ -41,8 +41,7 @@ internal class ContextTreeReporter {
                         is Success -> {
                             val timeMicro = testResult.result.timeMicro
                             listOf(
-                                "$indentString  $SUCCESS ${testResult.test.testName} (${time(timeMicro)}ms)"
-                            )
+                                "$indentString  $SUCCESS ${testResult.test.testName} (${time(timeMicro)}ms)")
                         }
                         is Failure ->
                             listOf(
@@ -53,12 +52,10 @@ internal class ContextTreeReporter {
                                     "\\n"
                                 )
                             }",
-                                "$indentString    ${testResult.test.sourceInfo.likeStackTrace(testResult.test.testName)}"
-                            )
+                                "$indentString    ${testResult.test.sourceInfo.likeStackTrace(testResult.test.testName)}")
                         is Skipped -> {
                             listOf(
-                                "$indentString  $PENDING ${testResult.test.testName} ${YELLOW}PENDING$RESET"
-                            )
+                                "$indentString  $PENDING ${testResult.test.testName} ${YELLOW}PENDING$RESET")
                         }
                     }
 

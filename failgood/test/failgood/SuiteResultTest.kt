@@ -12,8 +12,9 @@ class SuiteResultTest {
                         listOf(),
                         listOf(),
                         listOf(),
-                        listOf(FailedTestCollectionExecution(Context("context"), failure = RuntimeException()))
-                    )
+                        listOf(
+                            FailedTestCollectionExecution(
+                                Context("context"), failure = RuntimeException())))
                 test("allOk is false") { assert(!result.allOk) }
             }
         }

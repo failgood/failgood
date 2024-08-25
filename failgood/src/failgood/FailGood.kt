@@ -49,26 +49,21 @@ object FailGood {
             object : SimpleFileVisitor<Path>() {
                 override fun visitFile(file: Path?, attrs: BasicFileAttributes?): FileVisitResult {
                     val path = root.relativize(file!!).toString()
-                    if (
-                        path.matches(classIncludeRegex) &&
-                            (newerThan == null || attrs!!.lastModifiedTime() > newerThan)
-                    ) {
+                    if (path.matches(classIncludeRegex) &&
+                        (newerThan == null || attrs!!.lastModifiedTime() > newerThan)) {
                         val className =
                             path.substringBefore(".class").replace(File.separatorChar, '.')
                         if (matcher(className)) {
                             val clazz = classloader.loadClass(className)
-                            if (
-                                clazz.isAnnotationPresent(Test::class.java) ||
-                                    (runTestFixtures &&
-                                        clazz.isAnnotationPresent(TestFixture::class.java))
-                            )
+                            if (clazz.isAnnotationPresent(Test::class.java) ||
+                                (runTestFixtures &&
+                                    clazz.isAnnotationPresent(TestFixture::class.java)))
                                 results.add(clazz.kotlin)
                         }
                     }
                     return FileVisitResult.CONTINUE
                 }
-            }
-        )
+            })
         return results
     }
 
@@ -131,14 +126,15 @@ private fun findCallerName(): String = findCallerSTE().className
 internal fun findCallerSTE(): StackTraceElement =
     Throwable().stackTrace.first { ste ->
         ste.className.startsWith("failgood.") &&
-        ste.fileName?.let {
-            !(it =="FailGood.kt" ||
-                it =="SourceInfo.kt" ||
-                it == "Types.kt" ||
-                it == "Tests.kt" ||
+            ste.fileName?.let {
+                !(it == "FailGood.kt" ||
+                    it == "SourceInfo.kt" ||
+                    it == "Types.kt" ||
+                    it == "Tests.kt" ||
                     it == "Deprecated.kt")
-        } ?: true
+            } ?: true
     }
+
 //    constructor(ste: StackTraceElement) : this(ste.className, ste.fileName!!, ste.lineNumber)
 
 internal fun callerSourceInfo(): SourceInfo =

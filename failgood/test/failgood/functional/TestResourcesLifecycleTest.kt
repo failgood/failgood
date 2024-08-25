@@ -11,6 +11,8 @@ import failgood.mock.mock
 import failgood.mock.verify
 import failgood.softly.softly
 import failgood.testCollection
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicInteger
 import strikt.api.expectThat
 import strikt.assertions.all
 import strikt.assertions.containsExactly
@@ -21,8 +23,6 @@ import strikt.assertions.isFalse
 import strikt.assertions.isSameInstanceAs
 import strikt.assertions.isTrue
 import strikt.assertions.map
-import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.atomic.AtomicInteger
 
 @Test
 class TestResourcesLifecycleTest {
@@ -36,32 +36,31 @@ class TestResourcesLifecycleTest {
                     var resource2: AutoCloseable? = null
                     val totalEvents = CopyOnWriteArrayList<List<String>>()
                     expectThat(
-                        Suite {
-                            val events = mutableListOf<String>()
-                            totalEvents.add(events)
-                            resource1 =
-                                autoClose(closeable1) {
-                                    it.close()
-                                    events.add("first close callback")
+                            Suite {
+                                    val events = mutableListOf<String>()
+                                    totalEvents.add(events)
+                                    resource1 =
+                                        autoClose(closeable1) {
+                                            it.close()
+                                            events.add("first close callback")
+                                        }
+                                    resource2 =
+                                        autoClose(closeable2) {
+                                            it.close()
+                                            events.add("second close callback")
+                                        }
+                                    test("first failing test") {
+                                        events.add(testInfo.name)
+                                        throw AssertionError("test failed")
+                                    }
+                                    test("second failing test") {
+                                        events.add(testInfo.name)
+                                        throw AssertionError("test failed")
+                                    }
+                                    test("first test") { events.add(testInfo.name) }
+                                    test("second test") { events.add(testInfo.name) }
                                 }
-                            resource2 =
-                                autoClose(closeable2) {
-                                    it.close()
-                                    events.add("second close callback")
-                                }
-                            test("first failing test") {
-                                events.add(testInfo.name)
-                                throw AssertionError("test failed")
-                            }
-                            test("second failing test") {
-                                events.add(testInfo.name)
-                                throw AssertionError("test failed")
-                            }
-                            test("first test") { events.add(testInfo.name) }
-                            test("second test") { events.add(testInfo.name) }
-                        }
-                            .run(silent = true)
-                    )
+                                .run(silent = true))
                         .get { allOk }
                         .isFalse()
                     expectThat(totalEvents)
@@ -71,14 +70,11 @@ class TestResourcesLifecycleTest {
                             listOf(
                                 "first failing test",
                                 "second close callback",
-                                "first close callback"
-                            ),
+                                "first close callback"),
                             listOf(
                                 "second failing test",
                                 "second close callback",
-                                "first close callback"
-                            )
-                        )
+                                "first close callback"))
                     expectThat(resource1).isSameInstanceAs(closeable1)
                     expectThat(resource2).isSameInstanceAs(closeable2)
                     expectThat(getCalls(closeable1))
@@ -93,27 +89,25 @@ class TestResourcesLifecycleTest {
                     var resource2: SuspendAutoCloseable? = null
                     val totalEvents = CopyOnWriteArrayList<List<String>>()
                     expectThat(
-                        Suite {
-                            val events = mutableListOf<String>()
-                            totalEvents.add(events)
-                            ac1 = AutoCloseable { events.add("first close callback") }
-                            resource1 = autoClose(ac1!!)
-                            ac2 = SuspendAutoCloseable {
-                                events.add("second close callback")
-                            }
-                            resource2 = autoClose(ac2!!)
-                            test("first test") { events.add("first test") }
-                            test("second test") { events.add("second test") }
-                        }
-                            .run(silent = true)
-                    )
+                            Suite {
+                                    val events = mutableListOf<String>()
+                                    totalEvents.add(events)
+                                    ac1 = AutoCloseable { events.add("first close callback") }
+                                    resource1 = autoClose(ac1!!)
+                                    ac2 = SuspendAutoCloseable {
+                                        events.add("second close callback")
+                                    }
+                                    resource2 = autoClose(ac2!!)
+                                    test("first test") { events.add("first test") }
+                                    test("second test") { events.add("second test") }
+                                }
+                                .run(silent = true))
                         .get { allOk }
                         .isTrue()
                     expectThat(totalEvents)
                         .containsExactly(
                             listOf("first test", "second close callback", "first close callback"),
-                            listOf("second test", "second close callback", "first close callback")
-                        )
+                            listOf("second test", "second close callback", "first close callback"))
                     expectThat(resource1).isSameInstanceAs(ac1)
                     expectThat(resource2).isSameInstanceAs(ac2)
                 }
@@ -124,35 +118,33 @@ class TestResourcesLifecycleTest {
                     var resource2: AutoCloseable? = null
                     val totalEvents = CopyOnWriteArrayList<List<String>>()
                     expectThat(
-                        Suite {
-                            val events = mutableListOf<String>()
-                            totalEvents.add(events)
-                            test("first  test") {
-                                events.add("first test")
-                                resource1 =
-                                    autoClose(closeable1) {
-                                        it.close()
-                                        events.add("first close callback")
+                            Suite {
+                                    val events = mutableListOf<String>()
+                                    totalEvents.add(events)
+                                    test("first  test") {
+                                        events.add("first test")
+                                        resource1 =
+                                            autoClose(closeable1) {
+                                                it.close()
+                                                events.add("first close callback")
+                                            }
                                     }
-                            }
-                            test("second test") {
-                                events.add("second test")
-                                resource2 =
-                                    autoClose(closeable2) {
-                                        it.close()
-                                        events.add("second close callback")
+                                    test("second test") {
+                                        events.add("second test")
+                                        resource2 =
+                                            autoClose(closeable2) {
+                                                it.close()
+                                                events.add("second close callback")
+                                            }
                                     }
-                            }
-                        }
-                            .run(silent = true)
-                    )
+                                }
+                                .run(silent = true))
                         .get { allOk }
                         .isTrue()
                     expectThat(totalEvents)
                         .containsExactly(
                             listOf("first test", "first close callback"),
-                            listOf("second test", "second close callback")
-                        )
+                            listOf("second test", "second close callback"))
                     expectThat(resource1).isSameInstanceAs(closeable1)
                     expectThat(resource2).isSameInstanceAs(closeable2)
                     expectThat(getCalls(closeable1)).containsExactly(call(AutoCloseable::close))
@@ -180,23 +172,23 @@ class TestResourcesLifecycleTest {
                         autoCloseFails: Boolean
                     ) =
                         Suite {
-                            autoClose(null) {
-                                autoCloseCalled.incrementAndGet()
-                                if (autoCloseFails)
-                                    throw RuntimeException("autoclose error message")
+                                autoClose(null) {
+                                    autoCloseCalled.incrementAndGet()
+                                    if (autoCloseFails)
+                                        throw RuntimeException("autoclose error message")
+                                }
+                                afterEach {
+                                    afterEachCalled.incrementAndGet()
+                                    if (afterEachFails)
+                                        throw RuntimeException("aftereach error message")
+                                }
+                                test("first test") {
+                                    if (testsFail) throw RuntimeException("test 1 error message")
+                                }
+                                test("second test") {
+                                    if (testsFail) throw RuntimeException("test 2 error message")
+                                }
                             }
-                            afterEach {
-                                afterEachCalled.incrementAndGet()
-                                if (afterEachFails)
-                                    throw RuntimeException("aftereach error message")
-                            }
-                            test("first test") {
-                                if (testsFail) throw RuntimeException("test 1 error message")
-                            }
-                            test("second test") {
-                                if (testsFail) throw RuntimeException("test 2 error message")
-                            }
-                        }
                             .run(silent = true)
 
                     fun assertOk(result: SuiteResult) {
@@ -213,17 +205,13 @@ class TestResourcesLifecycleTest {
                                 suiteResult(
                                     testsFail = true,
                                     afterEachFails = false,
-                                    autoCloseFails = false
-                                )
+                                    autoCloseFails = false)
                             assertOk(result)
                         }
                         test("when the test fails and aftereach fails") {
                             val result =
                                 suiteResult(
-                                    testsFail = true,
-                                    afterEachFails = true,
-                                    autoCloseFails = false
-                                )
+                                    testsFail = true, afterEachFails = true, autoCloseFails = false)
                             assertOk(result)
                         }
                         test("when the test succeeds, autoclose fails and aftereach works") {
@@ -231,8 +219,7 @@ class TestResourcesLifecycleTest {
                                 suiteResult(
                                     testsFail = false,
                                     afterEachFails = true,
-                                    autoCloseFails = false
-                                )
+                                    autoCloseFails = false)
                             assertOk(result)
                         }
                         test("when the test and autoclose succeeds and aftereach fails") {
@@ -240,24 +227,22 @@ class TestResourcesLifecycleTest {
                                 suiteResult(
                                     testsFail = false,
                                     afterEachFails = false,
-                                    autoCloseFails = true
-                                )
+                                    autoCloseFails = true)
                             assertOk(result)
                         }
-
                     }
 
                     it("reports the test failure even when the close callback fails too") {
                         var autocloseCalled = false
                         val result =
                             Suite {
-                                autoClose(null) {
-                                    autocloseCalled = true
-                                    throw RuntimeException("error message")
+                                    autoClose(null) {
+                                        autocloseCalled = true
+                                        throw RuntimeException("error message")
+                                    }
+                                    test("first test") { throw RuntimeException() }
+                                    test("second test") { throw RuntimeException() }
                                 }
-                                test("first test") { throw RuntimeException() }
-                                test("second test") { throw RuntimeException() }
-                            }
                                 .run(silent = true)
                         assert(autocloseCalled)
                         assertFailedGracefully(result)
@@ -268,51 +253,46 @@ class TestResourcesLifecycleTest {
                 it("is called exactly once at the end of the suite, after all tests are finished") {
                     val events = CopyOnWriteArrayList<String>()
                     expectThat(
-                        Suite {
-                            afterSuite { events.add("afterSuite callback") }
-                            test("first  test") { events.add("first test") }
-                            // this subcontext is here to make sure the context executor has
-                            // to execute the dsl twice
-                            // to test that this does not create duplicate after suite
-                            // callbacks.
-                            context("sub context") {
-                                afterSuite {
-                                    events.add("afterSuite callback in subcontext")
-                                }
+                            Suite {
+                                    afterSuite { events.add("afterSuite callback") }
+                                    test("first  test") { events.add("first test") }
+                                    // this subcontext is here to make sure the context executor has
+                                    // to execute the dsl twice
+                                    // to test that this does not create duplicate after suite
+                                    // callbacks.
+                                    context("sub context") {
+                                        afterSuite {
+                                            events.add("afterSuite callback in subcontext")
+                                        }
 
-                                test("sub context test") { events.add("sub context test") }
-                                context("another subcontext") { test("with a test") {} }
-                            }
-                            test("second test") { events.add("second test") }
-                        }
-                            .run(silent = true)
-                    )
+                                        test("sub context test") { events.add("sub context test") }
+                                        context("another subcontext") { test("with a test") {} }
+                                    }
+                                    test("second test") { events.add("second test") }
+                                }
+                                .run(silent = true))
                         .get { allOk }
                         .isTrue()
                     expectThat(events.takeLast(2))
                         .containsExactlyInAnyOrder(
-                            "afterSuite callback",
-                            "afterSuite callback in subcontext"
-                        )
+                            "afterSuite callback", "afterSuite callback in subcontext")
                     expectThat(events)
                         .containsExactlyInAnyOrder(
                             "first test",
                             "second test",
                             "sub context test",
                             "afterSuite callback",
-                            "afterSuite callback in subcontext"
-                        )
+                            "afterSuite callback in subcontext")
                 }
                 it("can throw exceptions that are ignored") {
                     val events = CopyOnWriteArrayList<String>()
                     expectThat(
-                        Suite {
-                            afterSuite { events.add("afterSuite callback") }
-                            afterSuite { throw AssertionError() }
-                            afterSuite { throw RuntimeException() }
-                        }
-                            .run(silent = true)
-                    )
+                            Suite {
+                                    afterSuite { events.add("afterSuite callback") }
+                                    afterSuite { throw AssertionError() }
+                                    afterSuite { throw RuntimeException() }
+                                }
+                                .run(silent = true))
                         .get { allOk }
                         .isTrue()
                     expectThat(events).containsExactly("afterSuite callback")

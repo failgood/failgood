@@ -10,12 +10,12 @@ import failgood.TestDescription
 import failgood.dsl.ContextFunction
 import failgood.mock.mock
 import failgood.testCollection
+import kotlin.test.assertEquals
 import kotlinx.coroutines.coroutineScope
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
-import kotlin.test.assertEquals
 
 @Test
 class SingleTestExecutorTest {
@@ -26,8 +26,7 @@ class SingleTestExecutorTest {
                     mock(),
                     mock(),
                     TestDescription(Context("root"), "blah", SourceInfo("", "", 0)),
-                    Unit
-                )
+                    Unit)
             val resourceCloser = coroutineScope { ResourceCloserImpl(this) }
 
             val events = mutableListOf<String>()
@@ -53,11 +52,10 @@ class SingleTestExecutorTest {
                     it("executes a single test") {
                         val result =
                             SingleTestExecutor(
-                                ContextPath(rootContext, "test 1"),
-                                testDSL,
-                                resourceCloser,
-                                ctx
-                            ) {}
+                                    ContextPath(rootContext, "test 1"),
+                                    testDSL,
+                                    resourceCloser,
+                                    ctx) {}
                                 .execute()
                         expectThat(events).containsExactly("root context", "test 1")
                         expectThat(result).isA<Success>()
@@ -65,11 +63,10 @@ class SingleTestExecutorTest {
                     it("executes a nested single test") {
                         val result =
                             SingleTestExecutor(
-                                ContextPath(context2, "test 3"),
-                                testDSL,
-                                resourceCloser,
-                                ctx
-                            ) {}
+                                    ContextPath(context2, "test 3"),
+                                    testDSL,
+                                    resourceCloser,
+                                    ctx) {}
                                 .execute()
                         expectThat(events)
                             .containsExactly("root context", "context 1", "context 2", "test 3")
@@ -97,11 +94,10 @@ class SingleTestExecutorTest {
                     it("collects given information") {
                         val result =
                             SingleTestExecutor(
-                                ContextPath(context2, "test 3"),
-                                testDSL,
-                                resourceCloser,
-                                ctx
-                            ) {}
+                                    ContextPath(context2, "test 3"),
+                                    testDSL,
+                                    resourceCloser,
+                                    ctx) {}
                                 .execute()
                         assert(result is Success)
                         assertEquals(
@@ -109,10 +105,8 @@ class SingleTestExecutorTest {
                                 "root context",
                                 "context 1",
                                 "context 2",
-                                "test 3:context 1 given context 2 given"
-                            ),
-                            events
-                        )
+                                "test 3:context 1 given context 2 given"),
+                            events)
                     }
                 }
             }
@@ -125,23 +119,23 @@ class SingleTestExecutorTest {
                 }
                 val test =
                     ContextPath(
-                        Context("with a valid root context", Context("TestCollectionExecutor", null)),
-                        "returns contexts"
-                    )
+                        Context(
+                            "with a valid root context", Context("TestCollectionExecutor", null)),
+                        "returns contexts")
                 val executor = SingleTestExecutor(test, testDSL, resourceCloser, context) {}
                 executor.execute()
             }
             describe("error handling") {
                 it("reports exceptions in the context as test failures") {
                     val runtimeException = RuntimeException()
-                    val contextThatThrows = TestCollection("root context") { throw runtimeException }
+                    val contextThatThrows =
+                        TestCollection("root context") { throw runtimeException }
                     val result =
                         SingleTestExecutor(
-                            ContextPath(Context("root context", null), "test"),
-                            testDSL,
-                            resourceCloser,
-                            contextThatThrows.function
-                        ) {}
+                                ContextPath(Context("root context", null), "test"),
+                                testDSL,
+                                resourceCloser,
+                                contextThatThrows.function) {}
                             .execute()
                     expectThat(result).isA<Failure>().get { failure }.isEqualTo(runtimeException)
                 }
@@ -154,11 +148,10 @@ class SingleTestExecutorTest {
                         }
                     val result =
                         SingleTestExecutor(
-                            ContextPath(Context("root context", null), "test"),
-                            testDSL,
-                            resourceCloser,
-                            contextThatThrows.function
-                        ) {}
+                                ContextPath(Context("root context", null), "test"),
+                                testDSL,
+                                resourceCloser,
+                                contextThatThrows.function) {}
                             .execute()
                     expectThat(result).isA<Failure>().get { failure }.isEqualTo(runtimeException)
                 }

@@ -21,8 +21,7 @@ object ContextVisitorTest {
                     executeAll = false,
                     onlyRunSubcontexts = false,
                     rootContextStartTime = 0,
-                    givenDSL = RootGivenDSLHandler {}
-                )
+                    givenDSL = RootGivenDSLHandler {})
             }
         }
     }

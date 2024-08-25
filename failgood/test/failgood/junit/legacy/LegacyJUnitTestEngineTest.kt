@@ -12,6 +12,7 @@ import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.TEST2_
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.TEST_NAME
 import failgood.junit.it.launcherDiscoveryRequest
 import failgood.testCollection
+import java.util.concurrent.ConcurrentLinkedQueue
 import org.junit.platform.engine.EngineExecutionListener
 import org.junit.platform.engine.ExecutionRequest
 import org.junit.platform.engine.TestDescriptor
@@ -22,7 +23,6 @@ import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 import strikt.assertions.isTrue
 import strikt.assertions.single
-import java.util.concurrent.ConcurrentLinkedQueue
 
 /** This tests the old junit engine, so it will probably go away at some point */
 @Test
@@ -34,17 +34,14 @@ class LegacyJUnitTestEngineTest {
                 val filters =
                     parseFilterString(
                         "The ContextExecutor > with a valid root context" +
-                                " > executing all the tests ✔ returns deferred test results"
-                    )
+                            " > executing all the tests ✔ returns deferred test results")
                 assert(
                     filters ==
-                            listOf(
-                                "The ContextExecutor",
-                                "with a valid root context",
-                                "executing all the tests",
-                                "returns deferred test results"
-                            )
-                )
+                        listOf(
+                            "The ContextExecutor",
+                            "with a valid root context",
+                            "executing all the tests",
+                            "returns deferred test results"))
             }
 
             describe(
@@ -57,31 +54,24 @@ class LegacyJUnitTestEngineTest {
                             launcherDiscoveryRequest(
                                 listOf(
                                     DiscoverySelectors.selectClass(
-                                        SimpleTestFixture::class.qualifiedName
-                                    )
-                                )
-                            ),
-                            UniqueId.forEngine(engine.id)
-                        )
-                    ) {
-                        (it as FailGoodEngineDescriptor).suiteExecutionContext.close()
+                                        SimpleTestFixture::class.qualifiedName))),
+                            UniqueId.forEngine(engine.id))) {
+                            (it as FailGoodEngineDescriptor).suiteExecutionContext.close()
+                        }
+                }) {
+                    it("returns a root descriptor") {
+                        expectThat(given.isRoot)
+                        expectThat(given.displayName).isEqualTo("FailGood")
+                    }
+                    it("returns all root contexts") {
+                        expectThat(given.children).single().and {
+                            get { isContainer }.isTrue()
+                            get { displayName }
+                                .isEqualTo(
+                                    "${SimpleTestFixture::class.simpleName}: ${SimpleTestFixture.ROOT_CONTEXT_NAME}")
+                        }
                     }
                 }
-            ) {
-                it("returns a root descriptor") {
-                    expectThat(given.isRoot)
-                    expectThat(given.displayName).isEqualTo("FailGood")
-                }
-                it("returns all root contexts") {
-                    expectThat(given.children).single().and {
-                        get { isContainer }.isTrue()
-                        get { displayName }
-                            .isEqualTo(
-                                "${SimpleTestFixture::class.simpleName}: ${SimpleTestFixture.ROOT_CONTEXT_NAME}"
-                            )
-                    }
-                }
-            }
             describe("test execution") {
                 it("starts and stops contexts in the correct order") {
                     val testDescriptor =
@@ -89,28 +79,21 @@ class LegacyJUnitTestEngineTest {
                             launcherDiscoveryRequest(
                                 listOf(
                                     DiscoverySelectors.selectClass(
-                                        TestWithNestedContextsFixture::class.qualifiedName
-                                    )
-                                )
-                            ),
-                            UniqueId.forEngine(engine.id)
-                        )
+                                        TestWithNestedContextsFixture::class.qualifiedName))),
+                            UniqueId.forEngine(engine.id))
                     val listener = RememberingExecutionListener()
                     engine.execute(ExecutionRequest(testDescriptor, listener, null))
                     expectThat(
-                        listener.list
-                            .toList()
-                            .replace(
-                                // we don't know in what order the tests will run
-                                setOf(
-                                    "start-$TEST_NAME",
-                                    "stop-$TEST_NAME",
-                                    "start-$TEST2_NAME",
-                                    "stop-$TEST2_NAME"
-                                ),
-                                "some-test-event"
-                            )
-                    )
+                            listener.list
+                                .toList()
+                                .replace(
+                                    // we don't know in what order the tests will run
+                                    setOf(
+                                        "start-$TEST_NAME",
+                                        "stop-$TEST_NAME",
+                                        "start-$TEST2_NAME",
+                                        "stop-$TEST2_NAME"),
+                                    "some-test-event"))
                         .isEqualTo(
                             listOf(
                                 "start-${FailGoodJunitTestEngineConstants.DISPLAY_NAME}",
@@ -124,9 +107,7 @@ class LegacyJUnitTestEngineTest {
                                 "stop-$CHILD_CONTEXT_2_NAME",
                                 "stop-$CHILD_CONTEXT_1_NAME",
                                 "stop-${TestWithNestedContextsFixture::class.simpleName}: $ROOT_CONTEXT_NAME",
-                                "stop-${FailGoodJunitTestEngineConstants.DISPLAY_NAME}"
-                            )
-                        )
+                                "stop-${FailGoodJunitTestEngineConstants.DISPLAY_NAME}"))
                 }
                 it("sends one skip event and no start event for skipped tests") {
                     val testDescriptor =
@@ -134,12 +115,8 @@ class LegacyJUnitTestEngineTest {
                             launcherDiscoveryRequest(
                                 listOf(
                                     DiscoverySelectors.selectClass(
-                                        IgnoredTestFixture::class.qualifiedName
-                                    )
-                                )
-                            ),
-                            UniqueId.forEngine(engine.id)
-                        )
+                                        IgnoredTestFixture::class.qualifiedName))),
+                            UniqueId.forEngine(engine.id))
                     val listener = RememberingExecutionListener()
                     engine.execute(ExecutionRequest(testDescriptor, listener, null))
                     expectThat(listener.list.toList())
@@ -149,9 +126,7 @@ class LegacyJUnitTestEngineTest {
                                 "start-${IgnoredTestFixture::class.simpleName}: root context",
                                 "skip-pending test-ignore-reason",
                                 "stop-${IgnoredTestFixture::class.simpleName}: root context",
-                                "stop-FailGood"
-                            )
-                        )
+                                "stop-FailGood"))
                 }
             }
         }

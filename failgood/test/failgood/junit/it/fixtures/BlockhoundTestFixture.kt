@@ -13,9 +13,7 @@ class BlockhoundTestFixture {
 
     val tests =
         testCollection("interop with blockhound") {
-            describe("context that blocks") {
-                Thread.sleep(10)
-            }
+            describe("context that blocks") { Thread.sleep(10) }
             describe("other context") { test("with test") {} }
         }
 }

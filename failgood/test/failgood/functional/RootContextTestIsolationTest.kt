@@ -8,6 +8,8 @@ import failgood.TestResult
 import failgood.dsl.ContextDSL
 import failgood.dsl.TestFunction
 import failgood.testCollection
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 import strikt.api.Assertion
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
@@ -16,8 +18,6 @@ import strikt.assertions.first
 import strikt.assertions.isEqualTo
 import strikt.assertions.last
 import strikt.assertions.single
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.CopyOnWriteArrayList
 
 @Test
 class RootContextTestIsolationTest {
@@ -82,38 +82,32 @@ class RootContextTestIsolationTest {
                                 ROOT_CONTEXT_EXECUTED,
                                 "test 1 executed",
                                 "after each executed for test 1",
-                                DEPENDENCY_CLOSED
-                            ),
+                                DEPENDENCY_CLOSED),
                             listOf(
                                 ROOT_CONTEXT_EXECUTED,
                                 "test 2 executed",
                                 "after each executed for test 2",
-                                DEPENDENCY_CLOSED
-                            ),
+                                DEPENDENCY_CLOSED),
                             listOf(
                                 ROOT_CONTEXT_EXECUTED,
                                 CONTEXT_1_EXECUTED,
                                 CONTEXT_2_EXECUTED,
                                 "test 3 executed",
                                 "after each executed for test 3",
-                                DEPENDENCY_CLOSED
-                            ),
+                                DEPENDENCY_CLOSED),
                             listOf(
                                 ROOT_CONTEXT_EXECUTED,
                                 "test 4 executed",
                                 "after each executed for test 4",
-                                DEPENDENCY_CLOSED
-                            )
-                        )
+                                DEPENDENCY_CLOSED))
                 }
                 testAfterEach()
             }
             describe("a root context with isolation set to false") {
                 Suite(
-                    testCollection("root context without isolation", isolation = false) {
-                        contextFixture()
-                    }
-                )
+                        testCollection("root context without isolation", isolation = false) {
+                            contextFixture()
+                        })
                     .run(silent = true)
                 it("runs tests without recreating the dependencies") {
                     // here we just know that the root context start is the first event and the
@@ -137,25 +131,19 @@ class RootContextTestIsolationTest {
                                 "after each executed for test 1",
                                 "after each executed for test 2",
                                 "after each executed for test 3",
-                                "after each executed for test 4"
-                            )
-                        )
+                                "after each executed for test 4"))
                         first().isEqualTo(ROOT_CONTEXT_EXECUTED)
                         last().isEqualTo(DEPENDENCY_CLOSED)
                         containsInOrder(
                             listOf(
                                 "test 1 executed",
                                 "after each executed for test 1",
-                                DEPENDENCY_CLOSED
-                            )
-                        )
+                                DEPENDENCY_CLOSED))
                         containsInOrder(
                             listOf(
                                 "test 2 executed",
                                 "after each executed for test 2",
-                                DEPENDENCY_CLOSED
-                            )
-                        )
+                                DEPENDENCY_CLOSED))
                         // assert that tests run after the contexts that they are in, and that close
                         // callbacks have the correct order
                         containsInOrder(
@@ -164,18 +152,14 @@ class RootContextTestIsolationTest {
                                 CONTEXT_2_EXECUTED,
                                 "test 3 executed",
                                 "after each executed for test 3",
-                                DEPENDENCY_CLOSED
-                            )
-                        )
+                                DEPENDENCY_CLOSED))
                         containsInOrder(
                             listOf(
                                 CONTEXT_1_EXECUTED,
                                 CONTEXT_2_EXECUTED,
                                 "test 4 executed",
                                 "after each executed for test 4",
-                                DEPENDENCY_CLOSED
-                            )
-                        )
+                                DEPENDENCY_CLOSED))
                     }
                 }
                 testAfterEach()

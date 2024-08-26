@@ -4,8 +4,8 @@ import failgood.ExecutionListener
 import failgood.Ignored
 import failgood.NullExecutionListener
 import failgood.TestCollection
-import failgood.internal.TestResults
 import failgood.internal.TestCollectionExecutionResult
+import failgood.internal.TestResults
 import failgood.internal.execution.TestCollectionExecutor
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.coroutineScope
@@ -37,7 +37,8 @@ object TestCollectionExecutorTestPure {
             listener: ExecutionListener = NullExecutionListener
         ): TestCollectionExecutionResult {
             return coroutineScope {
-                TestCollectionExecutor(context, this, runOnlyTag = tag, listener = listener).execute()
+                TestCollectionExecutor(context, this, runOnlyTag = tag, listener = listener)
+                    .execute()
             }
         }
     }
@@ -48,7 +49,5 @@ object TestCollectionExecutorTestPure {
             given = { Given() },
             context(
                 "executing all the tests",
-                given = { assertNotNull(given.execute() as? TestResults) }
-            )
-        )
+                given = { assertNotNull(given.execute() as? TestResults) }))
 }

@@ -2,6 +2,7 @@ package failgood
 
 import failgood.internal.FailedTestCollectionExecution
 import failgood.mock.mock
+import kotlin.test.assertNotNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitAll
@@ -11,7 +12,6 @@ import kotlinx.coroutines.withTimeout
 import strikt.api.expectThat
 import strikt.api.expectThrows
 import strikt.assertions.isEqualTo
-import kotlin.test.assertNotNull
 
 @Test
 class SuiteTest {
@@ -22,14 +22,13 @@ class SuiteTest {
             }
             test("Suite {} creates a root context") {
                 expectThat(
-                    Suite { test("test") {} }
-                        .contextProviders
-                        .single()
-                        .getContexts()
-                        .single()
-                        .rootContext
-                        .name
-                )
+                        Suite { test("test") {} }
+                            .contextProviders
+                            .single()
+                            .getContexts()
+                            .single()
+                            .rootContext
+                            .name)
                     .isEqualTo("root")
             }
             describe("coroutine scope") {
@@ -41,7 +40,8 @@ class SuiteTest {
                             }
                         }
                     val scope = CoroutineScope(Dispatchers.Unconfined)
-                    val deferredResult = withTimeout(100) { Suite(contexts).findAndStartTests(scope) }
+                    val deferredResult =
+                        withTimeout(100) { Suite(contexts).findAndStartTests(scope) }
                     withTimeout(100) { deferredResult.awaitAll() }
                     scope.cancel()
                 }
@@ -58,8 +58,7 @@ class SuiteTest {
                                     throw ErrorLoadingContextsFromClass(
                                         "the error",
                                         MyErrorTest::class,
-                                        RuntimeException("exception error")
-                                    )
+                                        RuntimeException("exception error"))
                                 }
                         }
 
@@ -68,13 +67,11 @@ class SuiteTest {
                             Suite(listOf(objectContextProvider))
                                 .findAndStartTests(scope)
                                 .singleOrNull()
-                                ?.await()
-                        )
+                                ?.await())
                     assert(
                         contextResult is FailedTestCollectionExecution &&
-                                (contextResult.failure.message == "the error" &&
-                                        contextResult.context.name == MyErrorTest::class.simpleName)
-                    )
+                            (contextResult.failure.message == "the error" &&
+                                contextResult.context.name == MyErrorTest::class.simpleName))
                 }
             }
             describe("timeout parsing") {

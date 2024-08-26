@@ -5,14 +5,14 @@ import failgood.internal.StringListTestFilter
 import failgood.junit.it.fixtures.packagewith1test.SimpleTestFixture
 import failgood.problematic.NonFailgoodTest
 import failgood.testCollection
+import java.nio.file.Paths
+import kotlin.test.assertNotNull
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.discovery.DiscoverySelectors
 import org.junit.platform.engine.discovery.PackageNameFilter
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
-import java.nio.file.Paths
-import kotlin.test.assertNotNull
 
 @Test
 class ContextFinderTest {
@@ -35,13 +35,11 @@ class ContextFinderTest {
                         ?.getContexts()
                         ?.singleOrNull()
                         ?.rootContext
-                        ?.name == rootName
-                )
+                        ?.name == rootName)
                 assert(
                     result.filter?.forClass(className)?.let {
                         it is StringListTestFilter && it.filterList == listOf(rootName, testName)
-                    } == true
-                )
+                    } == true)
             }
             it("does not run a class that has no failgood test annotation") {
                 val r =
@@ -57,19 +55,14 @@ class ContextFinderTest {
                     val request =
                         LauncherDiscoveryRequestBuilder.request()
                             .selectors(
-                                DiscoverySelectors.selectClasspathRoots(setOf(Paths.get(path)))
-                            )
+                                DiscoverySelectors.selectClasspathRoots(setOf(Paths.get(path))))
                             .configurationParameters(
                                 mapOf(
                                     FailGoodJunitTestEngineConstants.CONFIG_KEY_RUN_TEST_FIXTURES to
-                                            "true"
-                                )
-                            )
+                                        "true"))
                             .filters(
                                 PackageNameFilter.includePackageNames(
-                                    "failgood.junit.it.fixtures.packagewith1test"
-                                )
-                            )
+                                    "failgood.junit.it.fixtures.packagewith1test"))
                             .build()
                     val suiteAndFilters = assertNotNull(contextFinder.findContexts(request))
                     val contextNames =
@@ -84,10 +77,8 @@ class ContextFinderTest {
                 it("works when the root contexts contains brackets") {
                     val (className, filterStringList) =
                         DiscoverySelectors.selectUniqueId(
-                            UniqueId.parse(
-                                "[engine:failgood]/[class:Root Context (with brackets)(className)]/[method:test name]"
-                            )
-                        )
+                                UniqueId.parse(
+                                    "[engine:failgood]/[class:Root Context (with brackets)(className)]/[method:test name]"))
                             .toClassFilter()
                     assert(filterStringList == listOf("Root Context (with brackets)", "test name"))
                     assert(className == "className")

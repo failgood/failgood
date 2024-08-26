@@ -3,8 +3,8 @@ package failgood.junit
 import failgood.Context
 import failgood.FailGoodException
 import failgood.TestDescription
-import org.junit.platform.engine.TestDescriptor
 import java.util.concurrent.ConcurrentHashMap
+import org.junit.platform.engine.TestDescriptor
 
 internal class TestMapper {
     private val testDescription2JunitTestDescriptor =
@@ -26,8 +26,7 @@ internal class TestMapper {
         getMappingOrNull(context)
             ?: throw FailGoodException(
                 "no mapping found for context $context." +
-                    " I have mappings for ${context2JunitTestDescriptor.keys.joinToString()}"
-            )
+                    " I have mappings for ${context2JunitTestDescriptor.keys.joinToString()}")
 
     private fun getMappingOrNull(context: Context) = context2JunitTestDescriptor[context]
 

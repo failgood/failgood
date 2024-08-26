@@ -1,4 +1,5 @@
 package failgood.gradle
+
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -37,7 +38,8 @@ class CustomTestEnginePlugin : Plugin<Project> {
 
             project.plugins.withType(JavaPlugin::class.java) {
                 val javaExtension = project.extensions.getByType(JavaPluginExtension::class.java)
-                val testSourceSet = javaExtension.sourceSets.getByName(SourceSet.TEST_SOURCE_SET_NAME)
+                val testSourceSet =
+                    javaExtension.sourceSets.getByName(SourceSet.TEST_SOURCE_SET_NAME)
                 task.classpath = testSourceSet.runtimeClasspath
                 task.testClassesDirs = testSourceSet.output.classesDirs
             }
@@ -48,14 +50,15 @@ class CustomTestEnginePlugin : Plugin<Project> {
 open class CustomTestTask : DefaultTask() {
     @Input
     @Optional
-    @Option(option = "tests", description = "Sets the test class or method to be included, '*' is supported.")
+    @Option(
+        option = "tests",
+        description = "Sets the test class or method to be included, '*' is supported.")
     var testFilter: String = "*"
 
     private val idGenerator = LongIdGenerator()
     private lateinit var resultProcessor: TestResultProcessor
 
-    @org.gradle.api.tasks.Classpath
-    lateinit var classpath: org.gradle.api.file.FileCollection
+    @org.gradle.api.tasks.Classpath lateinit var classpath: org.gradle.api.file.FileCollection
 
     @org.gradle.api.tasks.InputFiles
     lateinit var testClassesDirs: org.gradle.api.file.FileCollection
@@ -73,13 +76,16 @@ open class CustomTestTask : DefaultTask() {
     }
 
     private fun discoverTests(): List<DiscoverySelector> {
-        val tree: FileTree = testClassesDirs.asFileTree.matching { filter: PatternFilterable ->
-            filter.include("**/*Test.class")
-        }
+        val tree: FileTree =
+            testClassesDirs.asFileTree.matching { filter: PatternFilterable ->
+                filter.include("**/*Test.class")
+            }
         return tree.files.map { file ->
             DiscoverySelectors.selectClass(
-                file.toRelativeString(testClassesDirs.first()).removeSuffix(".class").replace('/', '.')
-            )
+                file
+                    .toRelativeString(testClassesDirs.first())
+                    .removeSuffix(".class")
+                    .replace('/', '.'))
         }
     }
 
@@ -88,9 +94,8 @@ open class CustomTestTask : DefaultTask() {
     }
 
     private fun executeTests(selectors: List<DiscoverySelector>) {
-        val request: LauncherDiscoveryRequest = LauncherDiscoveryRequestBuilder.request()
-            .selectors(selectors)
-            .build()
+        val request: LauncherDiscoveryRequest =
+            LauncherDiscoveryRequestBuilder.request().selectors(selectors).build()
 
         val launcher = LauncherFactory.create()
         val listener = GradleTestExecutionListener(resultProcessor, idGenerator)
@@ -112,8 +117,7 @@ class GradleTestExecutionListener(
             val rootId = idGenerator.generateId()
             resultProcessor.started(
                 createTestDescriptor(rootId, "Failogood Tests", null),
-                TestStartEvent(System.currentTimeMillis())
-            )
+                TestStartEvent(System.currentTimeMillis()))
             rootTestRegistered = true
         }
     }
@@ -121,37 +125,50 @@ class GradleTestExecutionListener(
     override fun executionStarted(testIdentifier: TestIdentifier) {
         val parentId = null
         /*        val parentId = testIdentifier.parentId
-                    .map { parentTestId -> testIdMap[TestIdentifier.from(parentTestId)] }
-                    .orElse(null)*/
+        .map { parentTestId -> testIdMap[TestIdentifier.from(parentTestId)] }
+        .orElse(null)*/
         val testId = idGenerator.generateId()
         testIdMap[testIdentifier] = testId
         resultProcessor.started(
             createTestDescriptor(testId, testIdentifier.displayName, parentId),
-            TestStartEvent(System.currentTimeMillis())
-        )
+            TestStartEvent(System.currentTimeMillis()))
     }
 
-    override fun executionFinished(testIdentifier: TestIdentifier, testExecutionResult: TestExecutionResult) {
+    override fun executionFinished(
+        testIdentifier: TestIdentifier,
+        testExecutionResult: TestExecutionResult
+    ) {
         val testId = testIdMap[testIdentifier] ?: return
-        val result = when (testExecutionResult.status) {
-            TestExecutionResult.Status.SUCCESSFUL -> TestResult.ResultType.SUCCESS
-            TestExecutionResult.Status.FAILED -> TestResult.ResultType.FAILURE
-            TestExecutionResult.Status.ABORTED -> TestResult.ResultType.SKIPPED
-        }
+        val result =
+            when (testExecutionResult.status) {
+                TestExecutionResult.Status.SUCCESSFUL -> TestResult.ResultType.SUCCESS
+                TestExecutionResult.Status.FAILED -> TestResult.ResultType.FAILURE
+                TestExecutionResult.Status.ABORTED -> TestResult.ResultType.SKIPPED
+            }
         resultProcessor.completed(testId, TestCompleteEvent(System.currentTimeMillis(), result))
     }
 
-    private fun createTestDescriptor(id: Long, name: String, parentId: Long?): TestDescriptorInternal {
+    private fun createTestDescriptor(
+        id: Long,
+        name: String,
+        parentId: Long?
+    ): TestDescriptorInternal {
         return object : TestDescriptorInternal {
             override fun getId(): Any = id
+
             override fun getName(): String = name
+
             override fun getClassName(): String? = name.split(".").dropLast(1).joinToString(".")
+
             override fun getClassDisplayName(): String? = className
+
             override fun getParent(): TestDescriptorInternal? =
                 null // We might need to implement proper parent handling
 
             override fun getDisplayName(): String = name
+
             override fun isComposite(): Boolean = !testIdMap.any { it.value == parentId }
+
             override fun toString(): String = name
         }
     }

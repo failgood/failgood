@@ -12,12 +12,10 @@ object TestResultFixtures {
         listOf(
             TestPlusResult(
                 TestDescription(rootContext, "supports describe/it syntax", sourceInfo),
-                Success(10)
-            ),
+                Success(10)),
             TestPlusResult(
                 TestDescription(subContext, "sub-contexts also contain tests", sourceInfo),
-                Success(20)
-            ),
-            TestPlusResult(TestDescription(subContext, "failed test", sourceInfo), Failure(failure))
-        )
+                Success(20)),
+            TestPlusResult(
+                TestDescription(subContext, "failed test", sourceInfo), Failure(failure)))
 }

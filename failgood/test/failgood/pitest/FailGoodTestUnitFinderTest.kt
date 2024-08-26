@@ -48,11 +48,9 @@ class FailGoodTestUnitFinderTest {
                     Event(
                         Description(
                             "Tests: tests with different results > failing test",
-                            Tests::class.java
-                        ),
+                            Tests::class.java),
                         Type.END,
-                        throwableToString(failure)
-                    )
+                        throwableToString(failure))
                 expectThat(collector.events)
                     .filter { it.throwable != null }
                     .single()
@@ -67,27 +65,20 @@ class FailGoodTestUnitFinderTest {
                             Event(
                                 Description(
                                     "Tests: tests with different results > pending test",
-                                    Tests::class.java
-                                ),
+                                    Tests::class.java),
                                 Type.SKIPPED,
-                                null
-                            ),
+                                null),
                             Event(
                                 Description(
                                     "Tests: tests with different results > successful test",
-                                    Tests::class.java
-                                ),
+                                    Tests::class.java),
                                 Type.END,
-                                null
-                            )
-                        )
-                    )
+                                null)))
             }
             it("returns no tests when the test class cannot be instantiated") {
                 assert(
                     FailGoodTestUnitFinder.findTestUnits(NoTests::class.java, null) ==
-                            listOf<TestUnit>()
-                )
+                        listOf<TestUnit>())
             }
         }
 

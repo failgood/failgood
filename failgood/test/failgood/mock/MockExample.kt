@@ -27,8 +27,7 @@ class MockExample {
                     assertNotNull(
                         kotlin
                             .runCatching { userManager.functionThatReturnsNullableString() }
-                            .exceptionOrNull()
-                    )
+                            .exceptionOrNull())
                 assert(exception is RuntimeException && exception.message == "oops I failed")
 
                 // now here is how to assert with what parameters the mock was called
@@ -41,22 +40,20 @@ class MockExample {
 
                 // the next line will throw because the parameters are different
                 assertNotNull(
-                    kotlin
-                        .runCatching {
-                            verify(userManager) { functionWithParameters(2, "blah") }
-                        }
-                        .exceptionOrNull()
-                )
+                        kotlin
+                            .runCatching {
+                                verify(userManager) { functionWithParameters(2, "blah") }
+                            }
+                            .exceptionOrNull())
                     .let {
                         assert(
                             it is MockException &&
-                                    it.message ==
+                                it.message ==
                                     "expected call functionWithParameters(2, blah) never happened. calls: " +
-                                    "stringReturningFunction(), " +
-                                    "functionWithParameters(1, blah), " +
-                                    "functionWithDataClassParameters(User(name=blah)), " +
-                                    "functionThatReturnsNullableString()"
-                        )
+                                        "stringReturningFunction(), " +
+                                        "functionWithParameters(1, blah), " +
+                                        "functionWithDataClassParameters(User(name=blah)), " +
+                                        "functionThatReturnsNullableString()")
                     }
                 // or the other way that gives you more flexibility:
                 // get the calls and use your assertion lib on them.
@@ -71,10 +68,7 @@ class MockExample {
                             call(UserManager::stringReturningFunction),
                             call(UserManager::functionWithParameters, 1, "blah"),
                             call(UserManager::functionWithDataClassParameters, User("blah")),
-                            call(UserManager::functionThatReturnsNullableString)
-                        )
-                    )
-                )
+                            call(UserManager::functionThatReturnsNullableString))))
             }
         }
 }

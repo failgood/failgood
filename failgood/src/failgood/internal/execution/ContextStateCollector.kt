@@ -6,7 +6,6 @@ import failgood.internal.*
 import failgood.internal.given.GivenDSLHandler
 import kotlinx.coroutines.*
 import kotlinx.coroutines.slf4j.MDCContext
-import org.slf4j.MDC
 
 internal class ContextStateCollector<RootGiven>(
     private val staticConfig: StaticContextExecutionConfig<RootGiven>,
@@ -70,11 +69,7 @@ internal class ContextStateCollector<RootGiven>(
                                     val failure = Failure(e)
                                     val testContext =
                                         TestContext(
-                                            resourcesCloser,
-                                            listener,
-                                            testDescription,
-                                            null
-                                        )
+                                            resourcesCloser, listener, testDescription, null)
                                     resourcesCloser.callAfterEach(testContext, failure)
                                     return@withTimeout failure
                                 }
@@ -140,12 +135,10 @@ internal class ContextStateCollector<RootGiven>(
                                             resourcesCloser,
                                             staticConfig.listener,
                                             testDescription,
-                                            null
-                                        ),
+                                            null),
                                         resourcesCloser,
                                         staticConfig.rootContextFunction,
-                                        staticConfig.givenFunction
-                                    )
+                                        staticConfig.givenFunction)
                                     .execute()
                             TestPlusResult(testDescription, result)
                         }

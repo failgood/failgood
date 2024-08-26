@@ -25,7 +25,9 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
 
         return getContextsInternal().map {
             if (it.rootContext.sourceInfo?.className != jClass.name)
-                it.copy(rootContext = it.rootContext.copy(sourceInfo = SourceInfo(jClass.name, null, 1)))
+                it.copy(
+                    rootContext =
+                        it.rootContext.copy(sourceInfo = SourceInfo(jClass.name, null, 1)))
             else it
         }
     }
@@ -36,38 +38,31 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
                 instantiateClassOrObject(jClass)
             } catch (e: InvocationTargetException) {
                 throw ErrorLoadingContextsFromClass(
-                    "Could not load contexts from class",
-                    jClass.kotlin,
-                    e.targetException
-                )
+                    "Could not load contexts from class", jClass.kotlin, e.targetException)
             } catch (e: IllegalArgumentException) {
                 throw ErrorLoadingContextsFromClass(
-                    "No suitable constructor found for class ${jClass.name}",
-                    jClass.kotlin,
-                    e
-                )
+                    "No suitable constructor found for class ${jClass.name}", jClass.kotlin, e)
             } catch (e: IllegalAccessException) { // just ignore private classes
                 throw ErrorLoadingContextsFromClass(
                     "Test class ${jClass.name} is private. Just remove the @Test annotation if you don't want to run it, or make it public if you do.",
-                    jClass.kotlin
-                )
+                    jClass.kotlin)
             }
 
         // get contexts from all methods returning RootContext or List<RootContext>
         val methodsReturningRootContext =
             jClass.methods
                 .filter {
-                    !it.isSynthetic && (
-                            it.returnType == TestCollection::class.java ||
-                                    it.returnType == List::class.java &&
-                                    it.genericReturnType.let { genericReturnType ->
-                                        genericReturnType is ParameterizedType &&
-                                                genericReturnType.actualTypeArguments.singleOrNull()
-                                                    .let { actualTypArg ->
-                                                        actualTypArg is ParameterizedType &&
-                                                                actualTypArg.rawType == TestCollection::class.java
-                                                    }
-                                    })
+                    !it.isSynthetic &&
+                        (it.returnType == TestCollection::class.java ||
+                            it.returnType == List::class.java &&
+                                it.genericReturnType.let { genericReturnType ->
+                                    genericReturnType is ParameterizedType &&
+                                        genericReturnType.actualTypeArguments.singleOrNull().let {
+                                            actualTypArg ->
+                                            actualTypArg is ParameterizedType &&
+                                                actualTypArg.rawType == TestCollection::class.java
+                                        }
+                                })
                 }
                 .ifEmpty {
                     throw ErrorLoadingContextsFromClass("no contexts found in class", jClass.kotlin)
@@ -79,17 +74,13 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
                     else {
                         throw ErrorLoadingContextsFromClass(
                             "context method ${it.niceString()} takes unexpected parameters",
-                            jClass.kotlin
-                        )
+                            jClass.kotlin)
                     }
                 } catch (e: ErrorLoadingContextsFromClass) {
                     throw e
                 } catch (e: Exception) {
                     throw ErrorLoadingContextsFromClass(
-                        "error invoking ${it.niceString()}",
-                        jClass.kotlin,
-                        e
-                    )
+                        "error invoking ${it.niceString()}", jClass.kotlin, e)
                 }
             @Suppress("UNCHECKED_CAST")
             contexts as? List<TestCollection<Unit>> ?: listOf(contexts as TestCollection<Unit>)
@@ -110,7 +101,7 @@ class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvide
             val obj =
                 if (instanceField != null)
                 // its a kotlin object
-                    instanceField.get(null)
+                instanceField.get(null)
                 else {
                     // it's a kotlin class or a top level context
                     clazz.constructors.singleOrNull()?.newInstance()

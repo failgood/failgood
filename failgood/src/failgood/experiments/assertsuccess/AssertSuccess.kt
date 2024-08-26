@@ -16,7 +16,9 @@ fun <T> assert(result: CheckResult<T>): T {
     }
 }
 
-fun <THIS, P1, R> FunctionCall<THIS>.isCallTo(function: KSuspendFunction2<THIS, P1, R>): CheckResult<P1> {
+fun <THIS, P1, R> FunctionCall<THIS>.isCallTo(
+    function: KSuspendFunction2<THIS, P1, R>
+): CheckResult<P1> {
     @Suppress("UNCHECKED_CAST")
     return if (this.function == function.name) CheckResult.Success(this.arguments[0] as P1)
     else CheckResult.Failure("expected a call to ${function.name} but was ${this.function}")

@@ -26,8 +26,7 @@ data class SuiteResult(
             Files.createDirectories(reportDir)
             Files.write(
                 reportDir.resolve("TEST-failgood.xml"),
-                Junit4Reporter(allTests).stringReport().joinToString("\n").encodeToByteArray()
-            )
+                Junit4Reporter(allTests).stringReport().joinToString("\n").encodeToByteArray())
         }
         if (printSummary(getenv("PRINT_SLOWEST") != null, getenv("PRINT_PENDING") != null)) return
 
@@ -49,8 +48,7 @@ data class SuiteResult(
                                 uptime(
                                     totalTests
                                 )
-                            }"
-                )
+                            }")
                 return true
             }
             println(pluralize(totalTests, "test") + ". time: ${uptime(totalTests)}")
@@ -59,8 +57,7 @@ data class SuiteResult(
             val message = failedTests.joinToString(separator = "\n") { it.prettyPrint() }
             println("${Colors.RED}FAILED:${Colors.RESET}\n$message")
             println(
-                "$totalTests tests. ${failedTests.size} failed. total time: ${uptime(totalTests)}"
-            )
+                "$totalTests tests. ${failedTests.size} failed. total time: ${uptime(totalTests)}")
         }
         return false
     }
@@ -83,7 +80,8 @@ data class SuiteResult(
         if (slowTests.isEmpty()) return
         println("Slowest tests:")
         slowTests.forEach {
-            println("${contextTreeReporter.time((it.result as Success).timeMicro)}ms ${it.test.niceString()}")
+            println(
+                "${contextTreeReporter.time((it.result as Success).timeMicro)}ms ${it.test.niceString()}")
         }
     }
 }

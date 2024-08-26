@@ -1,8 +1,8 @@
 package failgood.experiments.toplevel
 
 import failgood.Ignored
-import failgood.TestCollection
 import failgood.Test
+import failgood.TestCollection
 import failgood.dsl.ContextFunction
 
 /*
@@ -12,8 +12,7 @@ class TestContextsAsMethodsExperiment {
     @Test
     fun `top level contexts can be declared as function`() = describe {
         it(
-            "makes it possible to have multiple top level contexts in a class and run them separately from idea"
-        ) {}
+            "makes it possible to have multiple top level contexts in a class and run them separately from idea") {}
     }
 
     fun describe(

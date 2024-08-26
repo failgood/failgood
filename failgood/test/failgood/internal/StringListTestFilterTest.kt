@@ -21,8 +21,7 @@ class StringListTestFilterTest {
             }
             it("does not execute a different path") {
                 expectThat(
-                    f.shouldRun(ContextPath.fromList("path", "to", "some", "other", "context"))
-                )
+                        f.shouldRun(ContextPath.fromList("path", "to", "some", "other", "context")))
                     .isFalse()
             }
             it("executes a root context when the path fits") {

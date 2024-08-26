@@ -13,8 +13,7 @@ class PlaygroundEngineTest {
                 val orchestrator = EngineDiscoveryOrchestrator(listOf(PlaygroundEngine()), listOf())
                 orchestrator.discover(
                     LauncherDiscoveryRequestBuilder.request().selectors(listOf()).build(),
-                    EngineDiscoveryOrchestrator.Phase.DISCOVERY
-                )
+                    EngineDiscoveryOrchestrator.Phase.DISCOVERY)
             }
         }
 }

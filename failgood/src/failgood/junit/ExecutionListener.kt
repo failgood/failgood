@@ -9,6 +9,7 @@ import failgood.SourceInfo
 import failgood.Success
 import failgood.TestDescription
 import failgood.TestPlusResult
+import java.io.File
 import org.junit.platform.engine.EngineExecutionListener
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.TestSource
@@ -17,7 +18,6 @@ import org.junit.platform.engine.support.descriptor.ClassSource
 import org.junit.platform.engine.support.descriptor.FilePosition
 import org.junit.platform.engine.support.descriptor.FileSource
 import org.junit.platform.engine.support.descriptor.MethodSource
-import java.io.File
 
 internal class ExecutionListener(
     private val root: JunitEngine.FailGoodEngineDescriptor,
@@ -37,8 +37,7 @@ internal class ExecutionListener(
                 DynamicTestDescriptor(
                     node,
                     parent,
-                    source = createFileSource(testDescription.sourceInfo, testDescription.testName)
-                )
+                    source = createFileSource(testDescription.sourceInfo, testDescription.testName))
             testMapper.addMapping(testDescription, descriptor)
             listener.dynamicTestRegistered(descriptor)
         }
@@ -53,14 +52,12 @@ internal class ExecutionListener(
                         node,
                         root,
                         "${context.name}(${(context.sourceInfo?.className) ?: ""})",
-                        context.sourceInfo?.let { createClassSource(it) }
-                    )
+                        context.sourceInfo?.let { createClassSource(it) })
                 } else {
                     DynamicTestDescriptor(
                         node,
                         testMapper.getMapping(context.parent),
-                        source = context.sourceInfo?.let { createFileSource(it, context.name) }
-                    )
+                        source = context.sourceInfo?.let { createFileSource(it, context.name) })
                 }
             testMapper.addMapping(context, descriptor)
             listener.dynamicTestRegistered(descriptor)
@@ -93,14 +90,10 @@ internal class ExecutionListener(
             when (testPlusResult.result) {
                 is Failure -> {
                     listener.reportingEntryPublished(
-                        descriptor,
-                        ReportEntry.from("test path", testDescription.niceString())
-                    )
+                        descriptor, ReportEntry.from("test path", testDescription.niceString()))
 
                     listener.executionFinished(
-                        descriptor,
-                        TestExecutionResult.failed(testPlusResult.result.failure)
-                    )
+                        descriptor, TestExecutionResult.failed(testPlusResult.result.failure))
                 }
 
                 is Skipped -> {
@@ -123,9 +116,7 @@ internal class ExecutionListener(
         payload: String
     ) {
         listener.reportingEntryPublished(
-            testMapper.getMapping(testDescription),
-            ReportEntry.from(type, payload)
-        )
+            testMapper.getMapping(testDescription), ReportEntry.from(type, payload))
     }
 }
 

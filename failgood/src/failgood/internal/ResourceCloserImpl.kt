@@ -7,14 +7,15 @@ import failgood.dsl.ContextOnlyResourceDSL
 import failgood.dsl.TestDSL
 import failgood.jvm.JVMTestDependency
 import io.github.oshai.kotlinlogging.KotlinLogging
+import java.util.concurrent.ConcurrentLinkedQueue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import java.util.concurrent.ConcurrentLinkedQueue
 
 internal class ResourceCloserImpl(private val scope: CoroutineScope) :
     ResourcesCloser, ContextOnlyResourceDSL {
     private val logger = KotlinLogging.logger {}
+
     override fun <T> autoClose(wrapped: T, closeFunction: suspend (T) -> Unit): T {
         addCloseable(Closer(wrapped, closeFunction))
         return wrapped

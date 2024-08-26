@@ -13,4 +13,5 @@ internal data class TestResults(
     val afterSuiteCallbacks: Set<suspend () -> Unit>
 ) : TestCollectionExecutionResult
 
-data class FailedTestCollectionExecution(val context: Context, val failure: Throwable) : TestCollectionExecutionResult
+data class FailedTestCollectionExecution(val context: Context, val failure: Throwable) :
+    TestCollectionExecutionResult

@@ -2,6 +2,7 @@ package failgood.mock
 
 import failgood.Test
 import failgood.testCollection
+import kotlin.test.assertNotNull
 import strikt.api.expectThat
 import strikt.api.expectThrows
 import strikt.assertions.containsExactly
@@ -9,7 +10,6 @@ import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import strikt.assertions.isNotEqualTo
 import strikt.assertions.message
-import kotlin.test.assertNotNull
 
 @Test
 class MockTest {
@@ -52,10 +52,9 @@ class MockTest {
                                 .will { throw RuntimeException("message") }
                         }
                         expectThat(
-                            kotlin
-                                .runCatching { mock.stringReturningFunction() }
-                                .exceptionOrNull()
-                        )
+                                kotlin
+                                    .runCatching { mock.stringReturningFunction() }
+                                    .exceptionOrNull())
                             .isA<RuntimeException>()
                             .message
                             .isEqualTo("message")
@@ -101,8 +100,7 @@ class MockTest {
                         call(UserManager::function),
                         call(UserManager::overloadedFunction),
                         call(UserManager::overloadedFunction, "string"),
-                        call(UserManager::overloadedFunction, 10)
-                    )
+                        call(UserManager::overloadedFunction, 10))
             }
             describe("function calls") {
                 it("can get parameter value of function with one parameter") {
@@ -168,8 +166,7 @@ class MockTest {
                                 anyBoolean(),
                                 anyChar(),
                                 any(),
-                                any()
-                            )
+                                any())
                         }
                     }
                 }

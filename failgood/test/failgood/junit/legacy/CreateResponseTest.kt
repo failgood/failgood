@@ -36,22 +36,16 @@ class CreateResponseTest {
                             TestResults(
                                 listOf(rootContext, Context("sub context name", rootContext)),
                                 mapOf(),
-                                setOf()
-                            )
-                        ),
+                                setOf())),
                         FailGoodEngineDescriptor(
                             UniqueId.forEngine("failgood"),
                             listOf(
                                 TestResults(
                                     listOf(rootContext, Context("sub context name", rootContext)),
                                     mapOf(),
-                                    setOf()
-                                )
-                            ),
+                                    setOf())),
                             failGoodEngineDescriptor,
-                            suiteExecutionContext
-                        )
-                    )
+                            suiteExecutionContext))
                 it("creates friendly uniqueid for a root context") {
                     expectThat(rootContextDescriptor.children)
                         .single()
@@ -65,8 +59,7 @@ class CreateResponseTest {
                         .single()
                         .get { uniqueId.toString() }
                         .isEqualTo(
-                            "[engine:failgood]/[class:root context name(package.ClassName)]/[class:sub context name]"
-                        )
+                            "[engine:failgood]/[class:root context name(package.ClassName)]/[class:sub context name]")
                 }
             }
             describe("failed contexts") {
@@ -79,9 +72,7 @@ class CreateResponseTest {
                             UniqueId.forEngine("failgood"),
                             listOf(FailedTestCollectionExecution(rootContext, RuntimeException())),
                             failGoodEngineDescriptor,
-                            suiteExecutionContext
-                        )
-                    )
+                            suiteExecutionContext))
                 it("creates a test node with friendly uniqueid for a failed root context") {
                     val children = rootContextDescriptor.children
 
@@ -92,8 +83,7 @@ class CreateResponseTest {
                         get { source.get() }.isA<ClassSource>()
                         get { uniqueId.toString() }
                             .isEqualTo(
-                                "[engine:failgood]/[class:root context name(package.ClassName)]"
-                            )
+                                "[engine:failgood]/[class:root context name(package.ClassName)]")
                     }
                 }
             }
@@ -107,11 +97,8 @@ class CreateResponseTest {
                             TestResults(
                                 listOf(rootContext, Context("sub context name", rootContext)),
                                 mapOf(
-                                    test to CompletableDeferred(TestPlusResult(test, Success(10)))
-                                ),
-                                setOf()
-                            )
-                        ),
+                                    test to CompletableDeferred(TestPlusResult(test, Success(10)))),
+                                setOf())),
                         FailGoodEngineDescriptor(
                             UniqueId.forEngine("failgood"),
                             listOf(
@@ -119,15 +106,10 @@ class CreateResponseTest {
                                     listOf(rootContext, Context("sub context name", rootContext)),
                                     mapOf(
                                         test to
-                                                CompletableDeferred(TestPlusResult(test, Success(10)))
-                                    ),
-                                    setOf()
-                                )
-                            ),
+                                            CompletableDeferred(TestPlusResult(test, Success(10)))),
+                                    setOf())),
                             failGoodEngineDescriptor,
-                            suiteExecutionContext
-                        )
-                    )
+                            suiteExecutionContext))
                 expectThat(rootContextDescriptor.children)
                     .single()
                     .get { children }
@@ -135,8 +117,7 @@ class CreateResponseTest {
                     .single()
                     .get { uniqueId.toString() }
                     .isEqualTo(
-                        "[engine:failgood]/[class:root context name(package.ClassName)]/[method:test]"
-                    )
+                        "[engine:failgood]/[class:root context name(package.ClassName)]/[method:test]")
             }
         }
 }

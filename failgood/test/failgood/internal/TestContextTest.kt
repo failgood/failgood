@@ -31,9 +31,7 @@ class TestContextTest {
                             ExecutionListener::testEvent,
                             testDescription,
                             "stdout",
-                            "printing to stdout"
-                        )
-                    )
+                            "printing to stdout"))
             }
             it("replaces an empty test event to make junit happy") {
                 // junit throws when an empty event is published
@@ -41,8 +39,7 @@ class TestContextTest {
                 expectThat(getCalls(listener))
                     .single()
                     .isEqualTo(
-                        call(ExecutionListener::testEvent, testDescription, "type", "<empty>")
-                    )
+                        call(ExecutionListener::testEvent, testDescription, "type", "<empty>"))
             }
             val testName = "tells the name of the test"
             it(testName) {

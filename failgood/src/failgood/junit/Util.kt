@@ -12,6 +12,6 @@ internal fun EngineDiscoveryRequest.niceString(): String {
         if (this is LauncherDiscoveryRequest) postDiscoveryFilters.joinToString()
         else "UNKNOWN (${this::class.java.name})"
     return "selectors:${allSelectors.joinToString()}\n" +
-            "filters:${allFilters.joinToString()}\n" +
-            "postDiscoveryFilters:$allPostDiscoveryFilters"
+        "filters:${allFilters.joinToString()}\n" +
+        "postDiscoveryFilters:$allPostDiscoveryFilters"
 }

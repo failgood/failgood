@@ -5,9 +5,7 @@ import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.launcher.LauncherDiscoveryRequest
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 
-fun launcherDiscoveryRequest(
-    selectors: List<DiscoverySelector>
-): LauncherDiscoveryRequest {
+fun launcherDiscoveryRequest(selectors: List<DiscoverySelector>): LauncherDiscoveryRequest {
     @Suppress("RemoveExplicitTypeArguments") // necessary because of a compiler bug
     val configurationParameters =
         buildMap<String, String> {

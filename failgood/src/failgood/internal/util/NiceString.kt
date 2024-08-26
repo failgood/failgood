@@ -14,8 +14,7 @@ internal fun KType.niceString(): String {
                         (with(it.type) {
                             if (this == null) "*" else (this.classifier as KClass<*>).simpleName!!
                         })
-                    }
-                )
+                    })
             }
         }
     } catch (e: Exception) {

@@ -72,10 +72,10 @@ suspend fun <Mock : Any> verify(mock: Mock, expectedCalls: suspend Mock.() -> Un
  * `expectThat(getCalls(mock)).single() .isEqualTo(call(Class::method, parameter1, parameter2,
  * ...))`
  */
-fun <T:Any> getCalls(mock: T): List<FunctionCall<T>> = getHandler(mock).calls.map { FunctionCall(it.method.name, it.arguments) }
+fun <T : Any> getCalls(mock: T): List<FunctionCall<T>> =
+    getHandler(mock).calls.map { FunctionCall(it.method.name, it.arguments) }
 
-@Suppress("unused")
-data class FunctionCall<T>(val function: String, val arguments: List<Any?>)
+@Suppress("unused") data class FunctionCall<T>(val function: String, val arguments: List<Any?>)
 
 class MockException internal constructor(msg: String) : AssertionError(msg)
 
@@ -122,15 +122,11 @@ fun <Mock : Any> mock(kClass: KClass<Mock>): Mock {
     @Suppress("UNCHECKED_CAST")
     return try {
         Proxy.newProxyInstance(
-            Thread.currentThread().contextClassLoader,
-            arrayOf(kClass.java),
-            MockHandler(kClass)
-        )
+            Thread.currentThread().contextClassLoader, arrayOf(kClass.java), MockHandler(kClass))
     } catch (e: IllegalArgumentException) {
         throw FailGoodException(
             "error creating mock for ${kClass.qualifiedName}." +
-                " This simple mocking lib can only mock interfaces."
-        )
+                " This simple mocking lib can only mock interfaces.")
     }
         as Mock
 }
@@ -193,10 +189,7 @@ internal class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
     private fun <T : Any> makeProxy(handler: InvocationHandler): T {
         @Suppress("UNCHECKED_CAST")
         return Proxy.newProxyInstance(
-            Thread.currentThread().contextClassLoader,
-            arrayOf(kClass.java),
-            handler
-        ) as T
+            Thread.currentThread().contextClassLoader, arrayOf(kClass.java), handler) as T
     }
 
     class VerifyingHandler(mockHandler: MockHandler) : InvocationHandler {
@@ -206,8 +199,7 @@ internal class MockHandler(private val kClass: KClass<*>) : InvocationHandler {
             val call = MethodWithArguments(method, cleanArguments(args))
             if (!calls.contains(call))
                 throw MockException(
-                    "expected call $call never happened. calls: ${calls.joinToString()}"
-                )
+                    "expected call $call never happened. calls: ${calls.joinToString()}")
             return null
         }
     }

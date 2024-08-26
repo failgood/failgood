@@ -2,12 +2,11 @@ package failgood.functional
 
 import failgood.Test
 import failgood.testCollection
-import org.junit.jupiter.api.Assertions.assertNull
-import org.slf4j.MDC
 import java.util.concurrent.CompletableFuture
 import kotlin.concurrent.thread
 import kotlin.test.assertNotNull
-
+import org.junit.jupiter.api.Assertions.assertNull
+import org.slf4j.MDC
 
 @Test
 class LoggingTest {
@@ -20,9 +19,7 @@ class LoggingTest {
             }
             it("loses the mdc when a new thread is started") {
                 val cf = CompletableFuture<String>()
-                thread {
-                    cf.complete(MDC.get("test"))
-                }.join()
+                thread { cf.complete(MDC.get("test")) }.join()
 
                 assertNull(cf.get())
             }

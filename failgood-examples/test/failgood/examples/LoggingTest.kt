@@ -3,14 +3,14 @@ package failgood.examples
 import failgood.Test
 import failgood.dsl.TestDSL
 import failgood.testCollection
-import kotlinx.coroutines.runBlocking
-import mu.KLogger
-import mu.KotlinLogging
-import org.slf4j.Logger
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 import java.util.Locale
+import kotlinx.coroutines.runBlocking
+import mu.KLogger
+import mu.KotlinLogging
+import org.slf4j.Logger
 
 @Test
 class LoggingTest {
@@ -26,8 +26,7 @@ fun TestDSL.logger(): Logger {
     return Proxy.newProxyInstance(
         Thread.currentThread().contextClassLoader,
         arrayOf(KLogger::class.java),
-        LoggingHandler(this)
-    ) as KLogger
+        LoggingHandler(this)) as KLogger
 }
 
 class LoggingHandler(private val resourcesDSL: TestDSL) : InvocationHandler {
@@ -43,10 +42,8 @@ class LoggingHandler(private val resourcesDSL: TestDSL) : InvocationHandler {
                         else ->
                             throw RuntimeException(
                                 "$methodName parameters have unexpected type: " +
-                                    "${it.javaClass} ${it.javaClass.superclass}"
-                            )
-                    }
-                )
+                                    "${it.javaClass} ${it.javaClass.superclass}")
+                    })
             }
         }
         runBlocking { resourcesDSL._test_event(methodName.uppercase(Locale.getDefault()), message) }

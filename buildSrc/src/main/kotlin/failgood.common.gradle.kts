@@ -42,6 +42,7 @@ configure<TestLoggerExtension> {
 tasks.getByName("check").dependsOn(tasks.getByName("ktfmtCheck"))
 ktfmt {
     kotlinLangStyle()
+    manageTrailingCommas = false
 }
 @Suppress("OPT_IN_USAGE")
 powerAssert {

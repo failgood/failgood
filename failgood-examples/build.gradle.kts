@@ -71,5 +71,6 @@ sourceSets.test {
 
 ktfmt {
     kotlinLangStyle()
+    manageTrailingCommas = false
 }
 

@@ -1,6 +1,7 @@
 import failgood.versions.coroutinesVersion
 import failgood.versions.junitJupiterVersion
 import failgood.versions.junitPlatformVersion
+import failgood.versions.kotlinVersion
 import failgood.versions.pitestVersion
 import failgood.versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
@@ -19,6 +20,8 @@ plugins {
 // ./gradlew publishToSonatype closeSonatypeStagingRepository (or ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository)
 
 dependencies {
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion"))
+    implementation(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$coroutinesVersion"))
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     api("org.junit.platform:junit-platform-commons:$junitPlatformVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:$coroutinesVersion")

@@ -1,10 +1,3 @@
-### The philosophy of failgood
-
-The philosophy of failgood is that its always good to fail. And if you fail often that's even better.
-But to fail a lot of times in a minimal amount of time you need a way to run your tests really fast.
-
-
-Ok but now seriously:
 ### The Philosophy of failgood, or how to write really stable software
 
 ##### Avoid configuration

@@ -13,7 +13,7 @@ import kotlin.reflect.typeOf
 @Deprecated(
     message = "moved to failgood.dsl",
     replaceWith = ReplaceWith("ContextDSL", "failgood.dsl.ContextDSL"))
-typealias ContextDSL<T> = failgood.dsl.ContextDSL<T>
+typealias ContextDSL<T> = ContextDSL<T>
 
 @Deprecated(
     message = "moved to failgood.dsl",

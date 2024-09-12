@@ -32,7 +32,7 @@ tasks.test {
 
     // Add the metadata to the test classpath
     doFirst {
-        classpath = classpath + files(tasks.pluginUnderTestMetadata.get().outputDirectory)
+        classpath += files(tasks.pluginUnderTestMetadata.get().outputDirectory)
     }
     useJUnitPlatform()
 

@@ -158,9 +158,9 @@ class GradleTestExecutionListener(
 
             override fun getName(): String = name
 
-            override fun getClassName(): String? = name.split(".").dropLast(1).joinToString(".")
+            override fun getClassName(): String = name.split(".").dropLast(1).joinToString(".")
 
-            override fun getClassDisplayName(): String? = className
+            override fun getClassDisplayName(): String = className
 
             override fun getParent(): TestDescriptorInternal? =
                 null // We might need to implement proper parent handling

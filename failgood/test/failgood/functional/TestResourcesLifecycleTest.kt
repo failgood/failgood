@@ -165,7 +165,7 @@ class TestResourcesLifecycleTest {
                     }
 
                     val afterEachCalled = AtomicInteger(0)
-                    var autoCloseCalled = AtomicInteger(0)
+                    val autoCloseCalled = AtomicInteger(0)
                     fun suiteResult(
                         testsFail: Boolean,
                         afterEachFails: Boolean,

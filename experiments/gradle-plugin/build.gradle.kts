@@ -10,7 +10,7 @@ plugins {
     id("info.solidsoft.pitest")
     id("failgood.common")
 //    id("failgood.publishing")
-    id("org.jetbrains.kotlinx.kover") version "0.8.1"
+    id("org.jetbrains.kotlinx.kover") version "0.8.3"
     id("org.jetbrains.dokka") version "1.9.20"
     `java-gradle-plugin`
 

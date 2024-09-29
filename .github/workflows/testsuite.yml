@@ -50,7 +50,20 @@ jobs:
           CI: true
           SLOW_CI: true
           FAILGOOD_WATCHDOG_MILLIS: 100000
-        run: ./gradlew check build koverXmlReport
+        run: ./gradlew check build koverXmlReport buildHealth
+      - name: Comment PR
+        uses: actions/github-script@v6
+        with:
+         github-token: ${{secrets.GITHUB_TOKEN}}
+         script: |
+           const fs = require('fs')
+           const fileContent = fs.readFileSync('build/reports/dependency-analysis/build-health-report.txt', 'utf8')
+           github.rest.issues.createComment({
+             issue_number: context.issue.number,
+             owner: context.repo.owner,
+             repo: context.repo.repo,
+             body: '```\n' + fileContent + '\n```'
+           })
       - name: upload artifacts
         uses: actions/upload-artifact@v4
         if: always()

@@ -6,6 +6,11 @@ dependencyResolutionManagement {
     }
 //    repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS // kover does not work with this
 }
+plugins {
+    id("com.autonomousapps.build-health") version "2.1.1"
+    id("org.jetbrains.kotlin.jvm") version "2.0.20" apply false
+
+}
 rootProject.name = "failgood-root"
 include("failgood", "failgood-examples", "failgood-gradle-test",
     "experiments:failgood-debugger",

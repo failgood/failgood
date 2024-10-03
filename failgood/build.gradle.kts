@@ -1,8 +1,4 @@
-import failgood.versions.coroutinesVersion
-import failgood.versions.junitJupiterVersion
-import failgood.versions.junitPlatformVersion
-import failgood.versions.pitestVersion
-import failgood.versions.striktVersion
+@file:OptIn(ExperimentalWasmDsl::class)
 import com.adarshr.gradle.testlogger.TestLoggerExtension
 import com.adarshr.gradle.testlogger.theme.ThemeType
 import failgood.versions.coroutinesVersion
@@ -10,6 +6,7 @@ import failgood.versions.junitPlatformVersion
 import failgood.versions.pitestVersion
 import failgood.versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -103,6 +100,10 @@ kotlin {
             nodejs {}
         }
     }
+    wasmWasi {
+        nodejs()
+        binaries.executable()
+    }
     jvm {
         compilations.all {
             kotlinOptions.jvmTarget = "1.8"
@@ -149,6 +150,8 @@ kotlin {
             val jsMain by getting { kotlin.srcDir("src@js") }
             val jsTest by getting { kotlin.srcDir("test@js") }
         }
+        val wasmWasiMain by getting { kotlin.srcDir("src@wasm") }
+        val wasmWasiTest by getting { kotlin.srcDir("test@wasm") }
 
         val jvmMain by getting {
             kotlin.srcDir("src")

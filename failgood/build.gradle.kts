@@ -1,24 +1,24 @@
 @file:OptIn(ExperimentalWasmDsl::class)
 
-import org.gradle.internal.os.OperatingSystem
-import de.undercouch.gradle.tasks.download.Download
-import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsExec
-import org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest
-import org.jetbrains.kotlin.gradle.testing.internal.KotlinTestReport
-import java.nio.file.Files
-
 import com.adarshr.gradle.testlogger.TestLoggerExtension
 import com.adarshr.gradle.testlogger.theme.ThemeType
+import de.undercouch.gradle.tasks.download.Download
 import failgood.versions.coroutinesVersion
 import failgood.versions.junitPlatformVersion
+import failgood.versions.kotlinVersion
 import failgood.versions.pitestVersion
 import failgood.versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
+import org.gradle.internal.os.OperatingSystem
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsExec
+import org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.testing.internal.KotlinTestReport
+import java.nio.file.Files
 
 plugins {
-    id("de.undercouch.download") version("5.6.0") apply false
+    id("de.undercouch.download") version ("5.6.0") apply false
     java
     kotlin("multiplatform")
     `maven-publish`
@@ -152,8 +152,14 @@ kotlin {
             val jsMain by getting { kotlin.srcDir("src@js") }
             val jsTest by getting { kotlin.srcDir("test@js") }
         }
-        val wasmWasiMain by getting { kotlin.srcDir("src@wasm") }
-        val wasmWasiTest by getting { kotlin.srcDir("test@wasm") }
+        val wasmWasiMain by getting {
+            kotlin.srcDir("src@wasm")
+//            resources.srcDir("resources@wasm")
+        }
+        val wasmWasiTest by getting { kotlin.srcDir("test@wasm")
+            dependencies {
+                api("org.jetbrains.kotlin:kotlin-test-wasm-wasi:$kotlinVersion")
+            }}
 
         val jvmMain by getting {
             kotlin.srcDir("src")
@@ -276,6 +282,7 @@ val currentOsType = run {
             "aarch64" -> OsArch.ARM64
             else -> OsArch.X86_64
         }
+
         else -> OsArch.UNKNOWN
     }
 
@@ -401,7 +408,7 @@ tasks.withType<KotlinJsTest>().all {
     )
 
     denoExecTask.configure {
-        dependsOn (
+        dependsOn(
             project.provider { this@all.taskDependencies }
         )
     }
@@ -419,7 +426,7 @@ tasks.withType<NodeJsExec>().all {
     )
 
     denoExecTask.configure {
-        dependsOn (
+        dependsOn(
             project.provider { this@all.taskDependencies }
         )
     }
@@ -443,6 +450,7 @@ val unzipWasmEdge = run {
         OsType(OsName.MAC, OsArch.ARM64) -> "darwin_arm64.tar.gz"
         OsType(OsName.WINDOWS, OsArch.X86_32),
         OsType(OsName.WINDOWS, OsArch.X86_64) -> "windows.zip"
+
         else -> error("unsupported os type $currentOsType")
     }
 
@@ -509,7 +517,8 @@ fun Project.createWasmEdgeExec(
 
         description = "Executes tests with WasmEdge"
 
-        val wasmEdgeDirectory = unzipWasmEdge.get().destinationDir.resolve("WasmEdge-$wasmEdgeVersion-$wasmEdgeInnerSuffix")
+        val wasmEdgeDirectory =
+            unzipWasmEdge.get().destinationDir.resolve("WasmEdge-$wasmEdgeVersion-$wasmEdgeInnerSuffix")
 
         executable = wasmEdgeDirectory.resolve("bin/wasmedge").absolutePath
 
@@ -537,7 +546,7 @@ tasks.withType<KotlinJsTest>().all {
     )
 
     wasmEdgeRunTask.configure {
-        dependsOn (
+        dependsOn(
             project.provider { this@all.taskDependencies }
         )
     }
@@ -556,7 +565,7 @@ tasks.withType<NodeJsExec>().all {
     )
 
     wasmEdgeRunTask.configure {
-        dependsOn (
+        dependsOn(
             project.provider { this@all.taskDependencies }
         )
     }

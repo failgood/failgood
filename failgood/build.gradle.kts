@@ -175,6 +175,7 @@ kotlin {
             resources.srcDir("testResources")
             dependencies {
                 implementation("io.strikt:strikt-core:$striktVersion")
+                implementation("com.christophsturm:filepeek:0.1.3") // this transitive dep is does not work in idea
                 implementation("org.pitest:pitest:$pitestVersion")
                 implementation("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
                 implementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")

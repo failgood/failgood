@@ -565,3 +565,5 @@ tasks.withType<NodeJsExec>().all {
         )
     }
 }
+
+tasks.getByName("denoUnzip").dependsOn(tasks.getByName("wasmEdgeUnzip"))

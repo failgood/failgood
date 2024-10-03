@@ -1,9 +1,3 @@
-import failgood.versions.coroutinesVersion
-import failgood.versions.junitJupiterVersion
-import failgood.versions.junitPlatformVersion
-import failgood.versions.kotlinVersion
-import failgood.versions.pitestVersion
-import failgood.versions.striktVersion
 import com.adarshr.gradle.testlogger.TestLoggerExtension
 import com.adarshr.gradle.testlogger.theme.ThemeType
 import failgood.versions.coroutinesVersion
@@ -157,7 +151,6 @@ kotlin {
 
                 implementation(kotlin("stdlib-jdk8"))
                 compileOnly("org.pitest:pitest:$pitestVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
                 implementation("org.slf4j:slf4j-api:2.0.16")
                 implementation("io.github.oshai:kotlin-logging-jvm:7.0.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:$coroutinesVersion")
@@ -175,6 +168,8 @@ kotlin {
                 implementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
                 implementation("io.projectreactor.tools:blockhound:1.0.6.RELEASE")
                 implementation(kotlin("test"))
+                implementation("ch.qos.logback:logback-classic:1.5.8")
+
 
             }
         }

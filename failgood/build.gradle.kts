@@ -178,7 +178,7 @@ kotlin {
                 implementation("org.pitest:pitest:$pitestVersion")
                 implementation("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
                 implementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
-                implementation("io.projectreactor.tools:blockhound:1.0.6.RELEASE")
+                implementation("io.projectreactor.tools:blockhound:1.0.9.RELEASE")
                 implementation(kotlin("test"))
                 implementation("ch.qos.logback:logback-classic:1.5.8")
 

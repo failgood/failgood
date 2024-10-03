@@ -1,5 +1,7 @@
 package failgood
 
+import failgood.internal.util.getenv
+
 /**
  * Indicate that a test or context should be ignored. You can add your own matchers like
  *
@@ -46,7 +48,7 @@ fun interface Ignored {
      */
     class UnlessEnv(private val envVar: String) : Ignored {
         override fun isIgnored(): String? {
-            return if (System.getenv(envVar) == null) "Ignored because env var $envVar is not set"
+            return if (getenv(envVar) == null) "Ignored because env var $envVar is not set"
             else null
         }
     }

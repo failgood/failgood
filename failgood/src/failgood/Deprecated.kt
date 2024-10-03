@@ -5,6 +5,7 @@ package failgood
 import failgood.dsl.ContextDSL
 import failgood.dsl.ContextFunction
 import failgood.dsl.ContextFunctionWithGiven
+import failgood.dsl.ResourcesDSL
 import failgood.internal.util.niceString
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -18,7 +19,7 @@ typealias ContextDSL<T> = ContextDSL<T>
 @Deprecated(
     message = "moved to failgood.dsl",
     replaceWith = ReplaceWith("ResourcesDSL", "failgood.dsl.ResourcesDSL"))
-typealias ResourcesDSL = failgood.dsl.ResourcesDSL
+typealias ResourcesDSL = ResourcesDSL
 
 @Deprecated(message = "renamed", replaceWith = ReplaceWith("TestCollection<Unit>"))
 typealias RootContext = TestCollection<Unit>

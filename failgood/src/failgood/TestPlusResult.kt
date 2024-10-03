@@ -3,13 +3,7 @@ package failgood
 import failgood.internal.Colors
 import failgood.internal.ExceptionPrettyPrinter
 
-data class TestPlusResult(val test: TestDescription, val result: TestResult) {
-    val isSkipped: Boolean = result is Skipped
-    val isFailure: Boolean = result is Failure
-    val isSuccess: Boolean = result is Success
-}
-
-internal fun TestPlusResult.prettyPrint(): String {
+actual internal fun TestPlusResult.prettyPrint(): String {
     val testDescription = test.niceString()
     return when (result) {
         is Failure -> {

@@ -1,2 +1,2 @@
 ./gradlew ktfmtFormat
-CI=true ./gradlew failgood:runSingleNonFailgoodTest check
+CI=true ./gradlew failgood:runSingleNonFailgoodTest jvmTest

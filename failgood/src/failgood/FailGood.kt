@@ -137,5 +137,5 @@ internal fun findCallerSTE(): StackTraceElement =
 
 //    constructor(ste: StackTraceElement) : this(ste.className, ste.fileName!!, ste.lineNumber)
 
-internal fun callerSourceInfo(): SourceInfo =
+internal actual fun callerSourceInfo(): SourceInfo =
     findCallerSTE().let { SourceInfo(it.className, it.fileName!!, it.lineNumber) }

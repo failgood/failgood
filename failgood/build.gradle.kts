@@ -244,7 +244,7 @@ tasks {
             if (System.getenv("CI") != null)
                 allWarningsAsErrors = true
             jvmTarget = "1.8"
-            freeCompilerArgs = listOf("-opt-in=kotlin.RequiresOptIn")
+            freeCompilerArgs = listOf("-opt-in=kotlin.RequiresOptIn", "-Xexpect-actual-classes")
         }
     }
 }

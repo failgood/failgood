@@ -1,7 +1,7 @@
 import failgood.Ignored.Because
 import failgood.TestCollection
-import kotlinx.coroutines.delay
 import kotlin.test.assertEquals
+import kotlinx.coroutines.delay
 
 fun main() {
     val tests =
@@ -9,10 +9,8 @@ fun main() {
             test("test 1") { delay(1) }
             test("test 2") { delay(1) }
             test("ignored test", ignored = Because("testing")) {}
-            test("failed test") {
-                assertEquals(1,2)
+            test("failed test") { assertEquals(1, 2) }
 
-            }
             context("context 1") {
                 test("context 1 test") {}
                 // comment to make sure that context1 and context2 are not on the same

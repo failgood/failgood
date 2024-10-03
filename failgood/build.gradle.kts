@@ -22,6 +22,11 @@ plugins {
 //    id("failgood.publishing")
     id("org.jetbrains.kotlinx.kover") version "0.9.1"
     id("org.jetbrains.dokka") version "2.0.0"
+    kotlin("plugin.power-assert")
+    id("org.jetbrains.kotlinx.kover") version "0.8.3"
+    id("org.jetbrains.dokka") version "1.9.20"
+    id("com.adarshr.test-logger")
+    id("com.ncorti.ktfmt.gradle")
 }
 
 // to release:
@@ -149,7 +154,7 @@ kotlin {
             kotlin.srcDir("src")
             resources.srcDir("resources")
             dependencies {
-                api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+                compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
                 api("org.junit.platform:junit-platform-commons:$junitPlatformVersion")
 //                runtimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-debug:$coroutinesVersion")
                 // to enable running test in idea without having to add the dependency manually
@@ -159,6 +164,11 @@ kotlin {
                 implementation(kotlin("stdlib-jdk8"))
                 compileOnly("org.pitest:pitest:$pitestVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+                implementation("org.slf4j:slf4j-api:2.0.16")
+                implementation("io.github.oshai:kotlin-logging-jvm:7.0.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:$coroutinesVersion")
+
+
             }
         }
         val jvmTest by getting {
@@ -235,4 +245,5 @@ tasks.getByName("check").dependsOn(tasks.getByName("ktfmtCheck"))
 
 ktfmt {
     kotlinLangStyle()
+    manageTrailingCommas = false
 }

@@ -20,9 +20,9 @@ class LoggingTest {
         }
 }
 
-fun TestDSL.kLogger() = KotlinLogging.logger(logger())
+private fun TestDSL.kLogger() = KotlinLogging.logger(logger())
 
-fun TestDSL.logger(): Logger {
+private fun TestDSL.logger(): Logger {
     return Proxy.newProxyInstance(
         Thread.currentThread().contextClassLoader,
         arrayOf(KLogger::class.java),

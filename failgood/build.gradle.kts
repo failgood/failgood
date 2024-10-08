@@ -39,7 +39,7 @@ dependencies {
     testImplementation("io.projectreactor.tools:blockhound:1.0.9.RELEASE")
 
     testImplementation(kotlin("test"))
-    testImplementation("ch.qos.logback:logback-classic:1.5.8")
+    testImplementation("ch.qos.logback:logback-classic:1.5.9")
 
 
     // for the tools that analyze what events jupiter tests generate.

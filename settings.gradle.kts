@@ -9,7 +9,6 @@ dependencyResolutionManagement {
 plugins {
     id("com.autonomousapps.build-health") version "2.1.2"
     id("org.jetbrains.kotlin.jvm") version "2.0.20" apply false
-
 }
 rootProject.name = "failgood-root"
 include("failgood", "failgood-examples", "failgood-gradle-test",

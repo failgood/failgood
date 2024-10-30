@@ -7,7 +7,7 @@ dependencyResolutionManagement {
 //    repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS // kover does not work with this
 }
 plugins {
-    id("com.autonomousapps.build-health") version "2.3.0"
+    id("com.autonomousapps.build-health") version "2.4.0"
     id("org.jetbrains.kotlin.jvm") version "2.0.21" apply false
 
 }

@@ -1,7 +1,6 @@
 import failgood.versions.coroutinesVersion
 import failgood.versions.junitJupiterVersion
 import failgood.versions.junitPlatformVersion
-import failgood.versions.kotlinVersion
 import failgood.versions.pitestVersion
 import failgood.versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
@@ -13,7 +12,7 @@ plugins {
     signing
     id("failgood.common")
     id("failgood.publishing")
-    id("org.jetbrains.kotlinx.kover") version "0.8.3"
+    id("org.jetbrains.kotlinx.kover") version "0.9.0"
     id("org.jetbrains.dokka") version "1.9.20"
 }
 // to release:

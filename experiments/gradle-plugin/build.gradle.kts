@@ -11,7 +11,7 @@ plugins {
     id("failgood.common")
 //    id("failgood.publishing")
     id("org.jetbrains.kotlinx.kover") version "0.9.0"
-    id("org.jetbrains.dokka") version "1.9.20"
+    id("org.jetbrains.dokka") version "2.0.0"
     `java-gradle-plugin`
 
 }

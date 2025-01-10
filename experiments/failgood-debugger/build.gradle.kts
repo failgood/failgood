@@ -8,7 +8,7 @@ plugins {
     id("info.solidsoft.pitest")
     id("failgood.common")
 //    id("failgood.publishing")
-    id("org.jetbrains.kotlinx.kover") version "0.9.0"
+    id("org.jetbrains.kotlinx.kover") version "0.9.1"
     id("org.jetbrains.dokka") version "2.0.0"
 }
 

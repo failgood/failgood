@@ -10,14 +10,19 @@ import kotlin.test.assertEquals
 import kotlinx.coroutines.delay
 
 /**
- * with this test DSL we can discover tests upfront very fast without creating dependencies or
- * executing tests. To get all test names we just execute the test collection lambda, without
- * executing the beforeEach lambdas The for each text we execute just the path to this test (like
- * the [failgood.internal.SingleTestExecutor] does)
+ * One limitation of the current Failgood DSL is that in order to discover tests we have to start
+ * executing them, because executing the test DSL creates dependencies and since we already have the
+ * dependencies we execute the tests that need them. The other possibility to do the discovery would
+ * be to create dependencies and then tear them down again which would be a waste of resources
  *
- * Or another possibility would be to just compile a list of all the beforeEach and test lambdas and
- * then execute those for each test but then the references to the dependencies would become more
- * complex and need to resolve to different values depending on the test
+ * With this test DSL we can discover tests upfront very fast without creating dependencies or
+ * executing tests. To get all test names we just execute the test collection lambda, without
+ * executing the beforeEach lambdas. For each test we execute just the path to this test (like the
+ * [failgood.internal.SingleTestExecutor] does).
+ *
+ * Additional implementation ideas: A possible alternative implementation would be to compile a list
+ * of all the beforeEach and test lambdas, but this would make dependency references more complex
+ * since they would need to resolve to different values depending on the test context.
  */
 object AnotherDSLExperiment {
     val tests =

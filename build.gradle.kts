@@ -1,7 +1,7 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
-    id("com.github.ben-manes.versions") version "0.51.0"
+    id("com.github.ben-manes.versions") version "0.52.0"
     id("info.solidsoft.pitest") version "1.15.0" apply false
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
 }

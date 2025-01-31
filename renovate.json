@@ -11,8 +11,11 @@
             "separateMultipleMajor": true
         },
         {
+            "matchPackagePatterns": ["io.strikt"],
+            "groupName": "strikt",
+            "separateMultipleMajor": true
+        },        {
             "matchPackagePatterns": ["*"],
-            "excludePackagePatterns": ["org.jetbrains.kotlin"],
             "groupName": "non-kotlin dependencies",
             "groupSlug": "all-non-kotlin",
             "commitMessageTopic": "update",

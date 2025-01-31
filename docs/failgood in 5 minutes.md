@@ -25,7 +25,7 @@ import failgood.describe
 
 @Test
 class MyFirstFailgoodTests {
-    val tests = testsAbout("my perfect test suite") {
+    val tests = testCollection("my perfect test suite") {
         it("runs super fast") {
             assert(true)
         }

@@ -2,5 +2,30 @@
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
     "extends": [
         "config:base"
-    ]
+    ],
+    "packageRules": [
+        {
+            "matchPackagePatterns": [
+                "org.jetbrains.kotlin"
+            ],
+            "groupName": "kotlin",
+            "separateMultipleMajor": true
+        },
+        {
+            "matchPackagePatterns": [
+                "*"
+            ],
+            "excludePackagePatterns": [
+                "org.jetbrains.kotlin"
+            ],
+            "groupName": "non-kotlin dependencies",
+            "groupSlug": "all-non-kotlin",
+            "commitMessageTopic": "non-kotlin dependencies",
+            "commitMessageExtra": "group update",
+            "group": {
+                "commitMessageTopic": "non-kotlin dependencies"
+            }
+        }
+    ],
+    "separateMultipleMajor": true
 }

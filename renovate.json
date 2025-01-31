@@ -16,9 +16,9 @@
             "groupName": "non-kotlin dependencies",
             "groupSlug": "all-non-kotlin",
             "commitMessageTopic": "update",
-            "commitMessageExtra": "{{#each updatedPackageNames}} {{.}}{{#unless @last}},{{/unless}}{{/each}}",
+            "commitMessageExtra": "{{#each updatedPackageNames}}{{#if @first}}{{else}}, {{/if}}{{.}}{{/each}}",
             "group": {
-                "commitMessageTopic": "update"
+                "commitMessageTopic": ""
             }
         }
     ],

@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest ]
-        java: [ 11, 17 ]
+        java: [ 17, 21 ]
         experimental: [ false ]
 # Failgood works and builds great on windows, but CI is very flaky
 # feel free to submit a PR that fixes CI on windows if you need this

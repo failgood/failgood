@@ -6,16 +6,9 @@
     "commitMessagePrefix": "[RENOVATE]",
     "packageRules": [
         {
-            "matchPackagePatterns": ["org.jetbrains.kotlin"],
-            "groupName": "kotlin",
-            "separateMultipleMajor": true
-        },
-        {
-            "matchPackagePatterns": ["io.strikt"],
-            "groupName": null,
-            "separateMultipleMajor": true
-        },        {
-            "matchPackagePatterns": ["*"],
+            "matchPackagePatterns": [
+                "*"
+            ],
             "groupName": "grouped dependencies",
             "groupSlug": "grouped",
             "commitMessageTopic": "update",
@@ -23,6 +16,20 @@
             "group": {
                 "commitMessageTopic": ""
             }
+        },
+        {
+            "matchPackagePatterns": [
+                "org.jetbrains.kotlin"
+            ],
+            "groupName": "kotlin",
+            "separateMultipleMajor": true
+        },
+        {
+            "matchPackagePatterns": [
+                "io.strikt"
+            ],
+            "groupName": null,
+            "separateMultipleMajor": true
         }
     ],
     "separateMultipleMajor": true

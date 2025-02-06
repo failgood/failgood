@@ -12,12 +12,12 @@
         },
         {
             "matchPackagePatterns": ["io.strikt"],
-            "groupName": "strikt",
+            "groupName": null,
             "separateMultipleMajor": true
         },        {
             "matchPackagePatterns": ["*"],
-            "groupName": "non-kotlin dependencies",
-            "groupSlug": "all-non-kotlin",
+            "groupName": "grouped dependencies",
+            "groupSlug": "grouped",
             "commitMessageTopic": "update",
             "commitMessageExtra": "{{#each updatedPackageNames}}{{#if @first}}{{else}}, {{/if}}{{.}}{{/each}}",
             "group": {

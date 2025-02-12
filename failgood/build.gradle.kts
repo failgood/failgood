@@ -25,7 +25,7 @@ dependencies {
     api("org.junit.platform:junit-platform-commons:$junitPlatformVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:$coroutinesVersion")
     implementation("org.slf4j:slf4j-api:2.0.16")
-    implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.4")
 
     // to enable running test in idea without having to add the dependency manually
     api("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
@@ -37,7 +37,7 @@ dependencies {
     testImplementation("io.strikt:strikt-core:$striktVersion")
     testImplementation("org.pitest:pitest:$pitestVersion")
     testImplementation("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
-    testImplementation("io.projectreactor.tools:blockhound:1.0.10.RELEASE")
+    testImplementation("io.projectreactor.tools:blockhound:1.0.11.RELEASE")
 
     testImplementation(kotlin("test"))
     testImplementation("ch.qos.logback:logback-classic:1.5.16")

@@ -4,16 +4,14 @@ import failgood.versions.junitJupiterVersion
 import failgood.versions.junitPlatformVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
-
 plugins {
     kotlin("jvm")
     id("info.solidsoft.pitest")
     id("failgood.common")
-//    id("failgood.publishing")
+    //    id("failgood.publishing")
     id("org.jetbrains.kotlinx.kover") version "0.9.1"
     id("org.jetbrains.dokka") version "2.0.0"
     `java-gradle-plugin`
-
 }
 
 gradlePlugin {
@@ -31,13 +29,12 @@ tasks.test {
     dependsOn(tasks.pluginUnderTestMetadata)
 
     // Add the metadata to the test classpath
-    doFirst {
-        classpath += files(tasks.pluginUnderTestMetadata.get().outputDirectory)
-    }
+    doFirst { classpath += files(tasks.pluginUnderTestMetadata.get().outputDirectory) }
     useJUnitPlatform()
 
     // Add the metadata to the test classpath
 }
+
 dependencies {
     testImplementation(kotlin("test"))
     implementation(project(":failgood"))
@@ -50,17 +47,18 @@ dependencies {
     implementation("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
     implementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
     implementation("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
-
-
 }
+
 sourceSets.main {
     java.srcDirs("src")
     resources.srcDirs("resources")
 }
+
 sourceSets.test {
     java.srcDirs("test")
     resources.srcDirs("testResources")
 }
+
 plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
         addJUnitPlatformLauncher = false
@@ -75,6 +73,7 @@ plugins.withId("info.solidsoft.pitest") {
         outputFormats = setOf("XML", "HTML")
     }
 }
+
 @Suppress("OPT_IN_USAGE")
 powerAssert {
     functions = listOf("kotlin.assert", "kotlin.test.assertTrue", "kotlin.test.assertNotNull")

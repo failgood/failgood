@@ -1,11 +1,10 @@
 @file:Suppress("GradlePackageUpdate")
+
 import failgood.versions.coroutinesVersion
 import failgood.versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
-/**
- * A kotlin project that uses failgood as test runner and pitest for mutation coverage.
- */
+/** A kotlin project that uses failgood as test runner and pitest for mutation coverage. */
 plugins {
     kotlin("jvm")
     id("info.solidsoft.pitest")
@@ -15,7 +14,8 @@ plugins {
 dependencies {
     testImplementation(project(":failgood"))
 
-    // everything else is optional, and only here because some tests show interactions with these libs
+    // everything else is optional, and only here because some tests show interactions with these
+    // libs
     testImplementation("io.strikt:strikt-core:$striktVersion")
     testImplementation("io.mockk:mockk:1.13.16")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
@@ -23,11 +23,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.16")
 }
 
-tasks {
-    withType<Test> { useJUnitPlatform() }
-}
-
-
+tasks { withType<Test> { useJUnitPlatform() } }
 
 plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
@@ -40,8 +36,7 @@ plugins.withId("info.solidsoft.pitest") {
         targetTests.set(setOf("failgood.examples.*Test", "failgood.examples.**.*Test"))
         pitestVersion.set("1.17.1")
         threads.set(
-            System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()
-        )
+            System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors())
         outputFormats.set(setOf("XML", "HTML"))
     }
 }
@@ -53,17 +48,21 @@ val testMain =
         mainClass.set("failgood.examples.AllTestsKt")
         classpath = sourceSets["test"].runtimeClasspath
     }
+
 task("autotest", JavaExec::class) {
     mainClass.set("failgood.examples.AutoTestMainKt")
     classpath = sourceSets["test"].runtimeClasspath
 }
+
 tasks.check { dependsOn(testMain) }
 
 tasks.getByName("check").dependsOn(tasks.getByName("ktfmtCheck"))
+
 sourceSets.main {
     java.srcDirs("src")
     resources.srcDirs("resources")
 }
+
 sourceSets.test {
     java.srcDirs("test")
     resources.srcDirs("testResources")
@@ -73,4 +72,3 @@ ktfmt {
     kotlinLangStyle()
     manageTrailingCommas = false
 }
-

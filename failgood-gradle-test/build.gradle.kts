@@ -4,6 +4,7 @@ repositories {
     maven("https://repo.gradle.org/gradle/libs-releases")
     mavenCentral()
 }
+
 plugins {
     id("failgood.common")
     kotlin("jvm")
@@ -15,14 +16,13 @@ dependencies {
     testImplementation(kotlin("stdlib-jdk8", "2.1.10"))
 }
 
-tasks {
-    withType<Test> { useJUnitPlatform() }
-}
+tasks { withType<Test> { useJUnitPlatform() } }
 
 sourceSets.main {
     java.srcDirs("src")
     resources.srcDirs("resources")
 }
+
 sourceSets.test {
     java.srcDirs("test")
     resources.srcDirs("testResources")

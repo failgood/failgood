@@ -15,8 +15,10 @@ plugins {
     id("org.jetbrains.kotlinx.kover") version "0.9.1"
     id("org.jetbrains.dokka") version "2.0.0"
 }
+
 // to release:
-// ./gradlew publishToSonatype closeSonatypeStagingRepository (or ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository)
+// ./gradlew publishToSonatype closeSonatypeStagingRepository (or ./gradlew publishToSonatype
+// closeAndReleaseSonatypeStagingRepository)
 
 dependencies {
     compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
@@ -40,20 +42,22 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation("ch.qos.logback:logback-classic:1.5.16")
 
-
     // for the tools that analyze what events jupiter tests generate.
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
     testRuntimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-debug:$coroutinesVersion")
 }
+
 sourceSets.main {
     java.srcDirs("src")
     resources.srcDirs("resources")
 }
+
 sourceSets.test {
     java.srcDirs("test")
     resources.srcDirs("testResources")
 }
+
 val testMain =
     task("testMain", JavaExec::class) {
         mainClass = "failgood.FailGoodBootstrapKt"
@@ -65,6 +69,7 @@ val multiThreadedTest =
         classpath = sourceSets["test"].runtimeClasspath
         systemProperties = mapOf("kotlinx.coroutines.scheduler.core.pool.size" to "1000")
     }
+
 task("autotest", JavaExec::class) {
     mainClass = "failgood.AutoTestMainKt"
     classpath = sourceSets["test"].runtimeClasspath
@@ -74,7 +79,7 @@ tasks.check { dependsOn(testMain, multiThreadedTest) }
 
 plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
-// in case of problems:
+        // in case of problems:
         //                verbose = true
         addJUnitPlatformLauncher = false
         jvmArgs = listOf("-Xmx512m") // necessary on CI
@@ -89,7 +94,6 @@ plugins.withId("info.solidsoft.pitest") {
         outputFormats = setOf("XML", "HTML")
     }
 }
-
 
 // reproduce https://github.com/failgood/failgood/issues/93
 tasks.register<Test>("runSingleNonFailgoodTest") {

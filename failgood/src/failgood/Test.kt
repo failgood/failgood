@@ -6,4 +6,4 @@ import org.junit.platform.commons.annotation.Testable
 @Testable
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FILE, AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
-annotation class Test
+actual annotation class Test

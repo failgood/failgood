@@ -17,10 +17,10 @@ dependencies {
     // everything else is optional, and only here because some tests show interactions with these
     // libs
     testImplementation("io.strikt:strikt-core:$striktVersion")
-    testImplementation("io.mockk:mockk:1.13.16")
+    testImplementation("io.mockk:mockk:1.13.17")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
-    implementation("org.slf4j:slf4j-api:2.0.16")
+    implementation("org.slf4j:slf4j-api:2.0.17")
 }
 
 tasks { withType<Test> { useJUnitPlatform() } }

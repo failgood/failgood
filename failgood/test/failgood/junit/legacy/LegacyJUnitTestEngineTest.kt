@@ -12,6 +12,7 @@ import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.TEST2_
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.TEST_NAME
 import failgood.junit.it.launcherDiscoveryRequest
 import failgood.testCollection
+import java.nio.file.Path
 import java.util.Optional
 import java.util.concurrent.ConcurrentLinkedQueue
 import org.junit.platform.engine.ConfigurationParameters
@@ -21,6 +22,7 @@ import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.discovery.DiscoverySelectors
+import org.junit.platform.engine.reporting.OutputDirectoryProvider
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 import strikt.assertions.isTrue
@@ -84,9 +86,12 @@ class LegacyJUnitTestEngineTest {
                                         TestWithNestedContextsFixture::class.qualifiedName))),
                             UniqueId.forEngine(engine.id))
                     val listener = RememberingExecutionListener()
-                    @Suppress("DEPRECATION")
                     engine.execute(
-                        ExecutionRequest(testDescriptor, listener, NoConfigurationParameters()))
+                        ExecutionRequest.create(
+                            testDescriptor,
+                            listener,
+                            NoConfigurationParameters(),
+                            NoOutputDirectories()))
                     expectThat(
                             listener.list
                                 .toList()
@@ -122,9 +127,12 @@ class LegacyJUnitTestEngineTest {
                                         IgnoredTestFixture::class.qualifiedName))),
                             UniqueId.forEngine(engine.id))
                     val listener = RememberingExecutionListener()
-                    @Suppress("DEPRECATION")
                     engine.execute(
-                        ExecutionRequest(testDescriptor, listener, NoConfigurationParameters()))
+                        ExecutionRequest.create(
+                            testDescriptor,
+                            listener,
+                            NoConfigurationParameters(),
+                            NoOutputDirectories()))
                     expectThat(listener.list.toList())
                         .isEqualTo(
                             listOf(
@@ -136,6 +144,16 @@ class LegacyJUnitTestEngineTest {
                 }
             }
         }
+}
+
+class NoOutputDirectories : OutputDirectoryProvider {
+    override fun getRootDirectory(): Path {
+        TODO("Not yet implemented")
+    }
+
+    override fun createOutputDirectory(testDescriptor: TestDescriptor?): Path {
+        TODO("Not yet implemented")
+    }
 }
 
 class NoConfigurationParameters : ConfigurationParameters {

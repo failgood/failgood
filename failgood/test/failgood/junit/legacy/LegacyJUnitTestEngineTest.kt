@@ -12,7 +12,9 @@ import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.TEST2_
 import failgood.junit.it.fixtures.TestWithNestedContextsFixture.Companion.TEST_NAME
 import failgood.junit.it.launcherDiscoveryRequest
 import failgood.testCollection
+import java.util.Optional
 import java.util.concurrent.ConcurrentLinkedQueue
+import org.junit.platform.engine.ConfigurationParameters
 import org.junit.platform.engine.EngineExecutionListener
 import org.junit.platform.engine.ExecutionRequest
 import org.junit.platform.engine.TestDescriptor
@@ -83,7 +85,8 @@ class LegacyJUnitTestEngineTest {
                             UniqueId.forEngine(engine.id))
                     val listener = RememberingExecutionListener()
                     @Suppress("DEPRECATION")
-                    engine.execute(ExecutionRequest(testDescriptor, listener, null))
+                    engine.execute(
+                        ExecutionRequest(testDescriptor, listener, NoConfigurationParameters()))
                     expectThat(
                             listener.list
                                 .toList()
@@ -120,7 +123,8 @@ class LegacyJUnitTestEngineTest {
                             UniqueId.forEngine(engine.id))
                     val listener = RememberingExecutionListener()
                     @Suppress("DEPRECATION")
-                    engine.execute(ExecutionRequest(testDescriptor, listener, null))
+                    engine.execute(
+                        ExecutionRequest(testDescriptor, listener, NoConfigurationParameters()))
                     expectThat(listener.list.toList())
                         .isEqualTo(
                             listOf(
@@ -132,6 +136,16 @@ class LegacyJUnitTestEngineTest {
                 }
             }
         }
+}
+
+class NoConfigurationParameters : ConfigurationParameters {
+    override fun get(key: String?): Optional<String> = Optional.empty()
+
+    override fun getBoolean(key: String?): Optional<Boolean> = Optional.empty()
+
+    @Deprecated("Deprecated in Java") override fun size(): Int = 0
+
+    override fun keySet(): MutableSet<String> = mutableSetOf()
 }
 
 private fun <T> List<T>.replace(toReplace: Set<T>, with: T) =

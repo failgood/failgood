@@ -25,7 +25,7 @@ dependencies {
     api("org.junit.platform:junit-platform-commons:$junitPlatformVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:$coroutinesVersion")
     implementation("org.slf4j:slf4j-api:2.0.16")
-    implementation("io.github.oshai:kotlin-logging-jvm:7.0.4")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.5")
 
     // to enable running test in idea without having to add the dependency manually
     api("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
@@ -40,7 +40,7 @@ dependencies {
     testImplementation("io.projectreactor.tools:blockhound:1.0.11.RELEASE")
 
     testImplementation(kotlin("test"))
-    testImplementation("ch.qos.logback:logback-classic:1.5.16")
+    testImplementation("ch.qos.logback:logback-classic:1.5.17")
 
     // for the tools that analyze what events jupiter tests generate.
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
@@ -58,24 +58,32 @@ sourceSets.test {
     resources.srcDirs("testResources")
 }
 
-val testMain =
-    task("testMain", JavaExec::class) {
-        mainClass = "failgood.FailGoodBootstrapKt"
-        classpath = sourceSets["test"].runtimeClasspath
-    }
-val multiThreadedTest =
-    task("multiThreadedTest", JavaExec::class) {
-        mainClass = "failgood.MultiThreadingPerformanceTestKt"
-        classpath = sourceSets["test"].runtimeClasspath
-        systemProperties = mapOf("kotlinx.coroutines.scheduler.core.pool.size" to "1000")
-    }
+tasks {
+    val testMain =
+        register("testMain", JavaExec::class) {
+            mainClass = "failgood.FailGoodBootstrapKt"
+            classpath = sourceSets["test"].runtimeClasspath
+        }
+    val multiThreadedTest =
+        register("multiThreadedTest", JavaExec::class) {
+            mainClass = "failgood.MultiThreadingPerformanceTestKt"
+            classpath = sourceSets["test"].runtimeClasspath
+            systemProperties = mapOf("kotlinx.coroutines.scheduler.core.pool.size" to "1000")
+        }
 
-task("autotest", JavaExec::class) {
-    mainClass = "failgood.AutoTestMainKt"
-    classpath = sourceSets["test"].runtimeClasspath
+    register("autotest", JavaExec::class) {
+        mainClass = "failgood.AutoTestMainKt"
+        classpath = sourceSets["test"].runtimeClasspath
+    }
+    check { dependsOn(testMain, multiThreadedTest) }
+
+    // reproduce https://github.com/failgood/failgood/issues/93
+    register<Test>("runSingleNonFailgoodTest") {
+        outputs.upToDateWhen { false }
+        include("**/NonFailgoodTest.class")
+        useJUnitPlatform()
+    }
 }
-
-tasks.check { dependsOn(testMain, multiThreadedTest) }
 
 plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
@@ -93,13 +101,6 @@ plugins.withId("info.solidsoft.pitest") {
 
         outputFormats = setOf("XML", "HTML")
     }
-}
-
-// reproduce https://github.com/failgood/failgood/issues/93
-tasks.register<Test>("runSingleNonFailgoodTest") {
-    outputs.upToDateWhen { false }
-    include("**/NonFailgoodTest.class")
-    useJUnitPlatform()
 }
 
 // this seems to be no longer necessary, but keeping it here for now

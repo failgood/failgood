@@ -17,13 +17,11 @@ dependencies {
     // everything else is optional, and only here because some tests show interactions with these
     // libs
     testImplementation("io.strikt:strikt-core:$striktVersion")
-    testImplementation("io.mockk:mockk:1.13.16")
+    testImplementation("io.mockk:mockk:1.13.17")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
     implementation("org.slf4j:slf4j-api:2.0.16")
 }
-
-tasks { withType<Test> { useJUnitPlatform() } }
 
 plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
@@ -34,29 +32,31 @@ plugins.withId("info.solidsoft.pitest") {
         avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))
         targetClasses.set(setOf("failgood.examples.*")) // by default "${project.group}.*"
         targetTests.set(setOf("failgood.examples.*Test", "failgood.examples.**.*Test"))
-        pitestVersion.set("1.17.1")
+        pitestVersion.set("1.18.2")
         threads.set(
             System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors())
         outputFormats.set(setOf("XML", "HTML"))
     }
 }
 
-// this is an example how to run the test via a main method.
-// most projects will probably just use the junit platform engine via gradle
-val testMain =
-    task("testMain", JavaExec::class) {
-        mainClass.set("failgood.examples.AllTestsKt")
+tasks {
+    withType<Test> { useJUnitPlatform() }
+
+    // this is an example how to run the test via a main method.
+    // most projects will probably just use the junit platform engine via gradle
+    val testMain =
+        register("testMain", JavaExec::class) {
+            mainClass.set("failgood.examples.AllTestsKt")
+            classpath = sourceSets["test"].runtimeClasspath
+        }
+
+    register("autotest", JavaExec::class) {
+        mainClass.set("failgood.examples.AutoTestMainKt")
         classpath = sourceSets["test"].runtimeClasspath
     }
-
-task("autotest", JavaExec::class) {
-    mainClass.set("failgood.examples.AutoTestMainKt")
-    classpath = sourceSets["test"].runtimeClasspath
+    getByName("check").dependsOn(getByName("ktfmtCheck"))
+    check { dependsOn(testMain) }
 }
-
-tasks.check { dependsOn(testMain) }
-
-tasks.getByName("check").dependsOn(tasks.getByName("ktfmtCheck"))
 
 sourceSets.main {
     java.srcDirs("src")

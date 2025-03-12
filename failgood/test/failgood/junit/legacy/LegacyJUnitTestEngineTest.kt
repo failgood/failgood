@@ -82,6 +82,7 @@ class LegacyJUnitTestEngineTest {
                                         TestWithNestedContextsFixture::class.qualifiedName))),
                             UniqueId.forEngine(engine.id))
                     val listener = RememberingExecutionListener()
+                    @Suppress("DEPRECATION")
                     engine.execute(ExecutionRequest(testDescriptor, listener, null))
                     expectThat(
                             listener.list
@@ -118,6 +119,7 @@ class LegacyJUnitTestEngineTest {
                                         IgnoredTestFixture::class.qualifiedName))),
                             UniqueId.forEngine(engine.id))
                     val listener = RememberingExecutionListener()
+                    @Suppress("DEPRECATION")
                     engine.execute(ExecutionRequest(testDescriptor, listener, null))
                     expectThat(listener.list.toList())
                         .isEqualTo(

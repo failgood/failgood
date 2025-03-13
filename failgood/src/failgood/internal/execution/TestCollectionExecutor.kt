@@ -16,6 +16,14 @@ internal class TestCollectionExecutor<RootGiven>(
     timeoutMillis: Long = 40000L,
     runOnlyTag: String? = null
 ) {
+    companion object {
+        init {
+            // this class is used in a catch (Throwable) block so make sure we always have this
+            // class available even when we are out of files when we first need it
+            Class.forName(FailedTestCollectionExecution::class.qualifiedName)
+        }
+    }
+
     private val staticExecutionConfig =
         StaticContextExecutionConfig(
             testCollection.function,

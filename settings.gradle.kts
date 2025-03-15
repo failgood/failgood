@@ -7,7 +7,7 @@ dependencyResolutionManagement {
 //    repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS // kover does not work with this
 }
 plugins {
-    id("com.autonomousapps.build-health") version "2.8.2"
+    id("com.autonomousapps.build-health") version "2.12.0"
     id("org.jetbrains.kotlin.jvm") version "2.1.10" apply false
 }
 rootProject.name = "failgood-root"

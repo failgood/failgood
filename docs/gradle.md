@@ -20,20 +20,20 @@ You can also configure [coverage plugins](coverage.md) in your gradle build
 a full-fledged gradle with pitest, kover, kotlin-power-assert and test logging looks like this:
 
 ```kotlin
+import failgood.versions.coroutinesVersion
+import failgood.versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
-import com.adarshr.gradle.testlogger.TestLoggerExtension
-import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA_PARALLEL
 
+/** A kotlin project that uses failgood as test runner and pitest for mutation coverage. */
 plugins {
-    kotlin("jvm") version "1.7.21"
-    id("com.bnorm.power.kotlin-power-assert") version "0.12.0"
-    id("org.jetbrains.kotlinx.kover") version "0.5.0"
-    id("com.adarshr.test-logger") version "3.2.0"
+    kotlin("jvm")
     id("info.solidsoft.pitest")
+    id("com.ncorti.ktfmt.gradle")
+    kotlin("plugin.power-assert")
 }
 
 dependencies {
-    testImplementation("dev.failgood:failgood:0.9.0")
+    testImplementation("dev.failgood:failgood:0.9.2")
 }
 tasks.test {
     useJUnitPlatform()

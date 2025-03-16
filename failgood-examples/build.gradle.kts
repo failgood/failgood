@@ -9,6 +9,7 @@ plugins {
     kotlin("jvm")
     id("info.solidsoft.pitest")
     id("com.ncorti.ktfmt.gradle")
+    kotlin("plugin.power-assert")
 }
 
 dependencies {

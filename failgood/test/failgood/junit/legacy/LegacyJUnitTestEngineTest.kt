@@ -161,7 +161,7 @@ class NoConfigurationParameters : ConfigurationParameters {
 
     override fun getBoolean(key: String?): Optional<Boolean> = Optional.empty()
 
-    @Deprecated("Deprecated in Java") override fun size(): Int = 0
+    @Deprecated("") override fun size(): Int = 0
 
     override fun keySet(): MutableSet<String> = mutableSetOf()
 }

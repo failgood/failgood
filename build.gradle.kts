@@ -34,5 +34,11 @@ nexusPublishing {
     }
 }
 
+// Task that combines runSingleNonFailgoodTest and check for CI purposes
+tasks.register("ci") {
+    dependsOn(":failgood:runSingleNonFailgoodTest", ":failgood:check")
+    description = "Runs exactly what runs on CI"
+    group = "verification"
+}
 
 tasks.register("compileTestKotlin") {}

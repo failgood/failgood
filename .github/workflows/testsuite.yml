@@ -50,7 +50,7 @@ jobs:
           CI: true
           SLOW_CI: true
           FAILGOOD_WATCHDOG_MILLIS: 100000
-        run: ./gradlew check build koverXmlReport
+        run: ./gradlew ci build koverXmlReport
       - name: upload artifacts
         uses: actions/upload-artifact@v4
         if: always()

@@ -1,12 +1,14 @@
 <configuration>
+    <!-- The CONSOLE appender is commented out because unreferenced appenders in logback 
+         trigger unwanted status logging messages during initialization -->
+<!--
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%X{test}] %-5level %logger{36} - %msg %n</pattern>
-<!--
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg %X%n</pattern>
--->
         </encoder>
     </appender>
+-->
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>tests.log</file>
         <append>false</append>

@@ -1,2 +1,2 @@
 ./gradlew ktfmtFormat
-CI=true ./gradlew ci
+CI=true ./gradlew ci "$@"

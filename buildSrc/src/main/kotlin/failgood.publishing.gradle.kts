@@ -63,7 +63,7 @@ signing {
     sign(publishing.publications[pub])
 }
 tasks {
-    create<Jar>("sourceJar") {
+    register<Jar>("sourceJar") {
         from(sourceSets.main.get().allSource)
         archiveClassifier.set("sources")
     }

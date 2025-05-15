@@ -24,7 +24,7 @@ dependencies {
     api("org.junit.platform:junit-platform-commons:$junitPlatformVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:$coroutinesVersion")
     implementation("org.slf4j:slf4j-api:2.0.17")
-    implementation("io.github.oshai:kotlin-logging-jvm:7.0.5")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.7")
 
     // to enable running test in idea without having to add the dependency manually
     api("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
@@ -39,7 +39,7 @@ dependencies {
     testImplementation("io.projectreactor.tools:blockhound:1.0.11.RELEASE")
 
     testImplementation(kotlin("test"))
-    testImplementation("ch.qos.logback:logback-classic:1.5.17")
+    testImplementation("ch.qos.logback:logback-classic:1.5.18")
 
     // for the tools that analyze what events jupiter tests generate.
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")

@@ -14,10 +14,7 @@ plugins {
 
 tasks {
     test {
-        useJUnitPlatform {
-// use all engine for now because we want to see the playground engines output
-        //            includeEngines = setOf("failgood")
-        }
+        useJUnitPlatform()
         outputs.upToDateWhen { false }
     }
 
@@ -31,6 +28,27 @@ tasks {
                 allWarningsAsErrors = true
             jvmTarget = JvmTarget.JVM_1_8
             freeCompilerArgs = listOf("-opt-in=kotlin.RequiresOptIn")
+        }
+    }
+    compileJava {
+        sourceCompatibility = "1.8"
+        targetCompatibility = "1.8"
+    }
+    compileTestJava {
+        sourceCompatibility = "17"
+        targetCompatibility = "17"
+    }
+
+    compileKotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_1_8
+            freeCompilerArgs.add("-XXexplicit-return-types=strict")
+        }
+    }
+
+    compileTestKotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_17
         }
     }
 }
@@ -53,24 +71,4 @@ powerAssert {
         "failgood.softly.AssertDSL.assert"
     )
 }
-tasks.compileJava {
-    sourceCompatibility = "1.8"
-    targetCompatibility = "1.8"
-}
 
-tasks.compileTestJava {
-    sourceCompatibility = "17"
-    targetCompatibility = "17"
-}
-
-tasks.compileKotlin {
-    compilerOptions {
-        jvmTarget = JvmTarget.JVM_1_8
-    }
-}
-
-tasks.compileTestKotlin {
-    compilerOptions {
-        jvmTarget = JvmTarget.JVM_17
-    }
-}

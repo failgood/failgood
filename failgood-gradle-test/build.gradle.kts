@@ -13,7 +13,7 @@ plugins {
 dependencies {
     testImplementation(project(":failgood"))
     testImplementation("org.gradle:gradle-tooling-api:8.14")
-    testImplementation(kotlin("stdlib-jdk8", "2.1.21"))
+    testImplementation(kotlin("stdlib-jdk8", "2.2.0-RC"))
 }
 
 tasks { withType<Test> { useJUnitPlatform() } }

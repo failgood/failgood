@@ -232,4 +232,4 @@ suspend inline fun <reified Class> ContextDSL<*>.describe(
     isolation: Boolean? = null,
     ignored: Ignored? = null,
     noinline contextFunction: ContextFunction
-) = this.describe(Class::class.simpleName!!, tags, isolation, ignored, contextFunction)
+): Unit = this.describe(Class::class.simpleName!!, tags, isolation, ignored, contextFunction)

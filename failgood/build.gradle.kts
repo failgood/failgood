@@ -36,7 +36,7 @@ dependencies {
     testImplementation("io.strikt:strikt-core:$striktVersion")
     testImplementation("org.pitest:pitest:$pitestVersion")
     testImplementation("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
-    testImplementation("io.projectreactor.tools:blockhound:1.0.11.RELEASE")
+    testImplementation("io.projectreactor.tools:blockhound:1.0.13.RELEASE")
 
     testImplementation(kotlin("test"))
     testImplementation("ch.qos.logback:logback-classic:1.5.18")

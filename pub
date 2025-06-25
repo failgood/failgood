@@ -1,0 +1,1 @@
+MAVEN_CENTRAL_TOKEN_USERNAME=b+Yhv+/M MAVEN_CENTRAL_TOKEN_PASSWORD=AGja+mA/8zEpslepLWmHnicm+iGwTX7ShZWpmFzTYtq0 ./gradlew publishAggregationToCentralPortal

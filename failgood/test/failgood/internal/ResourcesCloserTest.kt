@@ -10,8 +10,6 @@ import failgood.mock.mock
 import failgood.testCollection
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.coroutineScope
-import strikt.api.expectThat
-import strikt.assertions.containsExactly
 
 @Test
 class ResourcesCloserTest {
@@ -23,7 +21,7 @@ class ResourcesCloserTest {
                     val autoCloseable = mock<AutoCloseable>()
                     subject.autoClose(autoCloseable)
                     subject.closeAutoCloseables()
-                    expectThat(getCalls(autoCloseable)).containsExactly(call(AutoCloseable::close))
+                    assert(getCalls(autoCloseable) == listOf(call(AutoCloseable::close)))
                 }
             }
             describe(ResourcesCloser::callAfterEach.name) {

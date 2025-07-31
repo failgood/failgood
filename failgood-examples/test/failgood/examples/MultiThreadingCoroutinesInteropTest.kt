@@ -7,8 +7,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.delay
-import strikt.api.expectThat
-import strikt.assertions.isEqualTo
 
 fun main() {
     FailGood.runTest()
@@ -35,7 +33,7 @@ class MultiThreadingCoroutinesInteropTest {
 
             describe("ExampleTest") {
                 it("should work ;)") {
-                    expectThat(example.hello()).isEqualTo("world 2")
+                    assert(example.hello() == "world 2")
 
                     coVerify { stringProvider.world() }
                 }

@@ -3,9 +3,6 @@ package failgood.pitest
 import failgood.Test
 import failgood.testCollection
 import org.pitest.testapi.TestPluginFactory
-import strikt.api.expectThat
-import strikt.assertions.isEmpty
-import strikt.assertions.isEqualTo
 
 @Test
 class FailGoodTestPluginFactoryTest {
@@ -13,10 +10,8 @@ class FailGoodTestPluginFactoryTest {
         testCollection(FailGoodTestPluginFactory::class) {
             it("provides description and name") {
                 val factory: TestPluginFactory = FailGoodTestPluginFactory()
-                expectThat(factory) {
-                    get { description() }.isEqualTo("FailGood pitest plugin")
-                    get { name() }.isEqualTo("failgood")
-                }
+                assert(factory.description() == "FailGood pitest plugin")
+                assert(factory.name() == "failgood")
             }
             describe("test framework configuration") {
                 val config =
@@ -25,10 +20,10 @@ class FailGoodTestPluginFactoryTest {
                             null, null, mutableListOf(), mutableListOf())
 
                 it("returns a suite object that returns no suites") {
-                    expectThat(config.testSuiteFinder().apply(this::class.java)).isEmpty()
+                    assert(config.testSuiteFinder().apply(this::class.java).isEmpty())
                 }
                 it("returns the TestUnitFinder") {
-                    expectThat(config.testUnitFinder()).isEqualTo(FailGoodTestUnitFinder)
+                    assert(config.testUnitFinder() == FailGoodTestUnitFinder)
                 }
             }
         }

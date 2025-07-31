@@ -7,8 +7,6 @@ import failgood.TestCollection
 import failgood.testCollection
 import java.util.UUID
 import kotlin.test.assertEquals
-import strikt.api.expectThat
-import strikt.assertions.isEqualTo
 
 /*
  * given support is a given
@@ -23,30 +21,30 @@ class GivenTest {
                     "TestContext for dependency Injection", given = { "root dependency" }) {
                         context("context with given function", given = { "StringDependency" }) {
                             test("test that takes a string dependency") {
-                                expectThat(given).isEqualTo("StringDependency")
+                                assertEquals("StringDependency", given)
                             }
                             test("second test that takes a string dependency") {
-                                expectThat(given).isEqualTo("StringDependency")
+                                assertEquals("StringDependency", given)
                             }
                         }
                         describe(
                             "describe context with given function",
                             given = { "StringDependency" }) {
                                 test("test that takes a string dependency") {
-                                    expectThat(given).isEqualTo("StringDependency")
+                                    assertEquals("StringDependency", given)
                                 }
                                 test("second test that takes a string dependency") {
-                                    expectThat(given).isEqualTo("StringDependency")
+                                    assertEquals("StringDependency", given)
                                 }
                             }
                         describe(
                             "describe context with dependency function",
                             given = { "StringDependency" }) {
                                 it("test that takes a string dependency") {
-                                    expectThat(given).isEqualTo("StringDependency")
+                                    assertEquals("StringDependency", given)
                                 }
                                 it("second test that takes a string dependency") {
-                                    expectThat(given).isEqualTo("StringDependency")
+                                    assertEquals("StringDependency", given)
                                 }
                             }
                     }

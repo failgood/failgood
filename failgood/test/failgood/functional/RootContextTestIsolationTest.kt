@@ -10,14 +10,6 @@ import failgood.dsl.TestFunction
 import failgood.testCollection
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
-import strikt.api.Assertion
-import strikt.api.expectThat
-import strikt.assertions.containsExactly
-import strikt.assertions.containsExactlyInAnyOrder
-import strikt.assertions.first
-import strikt.assertions.isEqualTo
-import strikt.assertions.last
-import strikt.assertions.single
 
 @Test
 class RootContextTestIsolationTest {
@@ -61,8 +53,9 @@ class RootContextTestIsolationTest {
 
             suspend fun ContextDSL<Unit>.testAfterEach() {
                 it("passes testInfo and success to afterEach") {
-                    expectThat(afterEachParameters.keys().toList())
-                        .containsExactlyInAnyOrder("test 1", "test 2", "test 3", "test 4")
+                    assert(
+                        afterEachParameters.keys().toList().toSet() ==
+                            setOf("test 1", "test 2", "test 3", "test 4"))
                     assert(afterEachParameters["test 1"] is Success)
                     assert(afterEachParameters["test 2"] is Success)
                     assert(afterEachParameters["test 3"] is Failure)
@@ -76,30 +69,31 @@ class RootContextTestIsolationTest {
                     // tests run in parallel, so the total order of events is not defined.
                     // we track events in a list of lists and record the events that lead to each
                     // test
-                    expectThat(totalEvents)
-                        .containsExactlyInAnyOrder(
-                            listOf(
-                                ROOT_CONTEXT_EXECUTED,
-                                "test 1 executed",
-                                "after each executed for test 1",
-                                DEPENDENCY_CLOSED),
-                            listOf(
-                                ROOT_CONTEXT_EXECUTED,
-                                "test 2 executed",
-                                "after each executed for test 2",
-                                DEPENDENCY_CLOSED),
-                            listOf(
-                                ROOT_CONTEXT_EXECUTED,
-                                CONTEXT_1_EXECUTED,
-                                CONTEXT_2_EXECUTED,
-                                "test 3 executed",
-                                "after each executed for test 3",
-                                DEPENDENCY_CLOSED),
-                            listOf(
-                                ROOT_CONTEXT_EXECUTED,
-                                "test 4 executed",
-                                "after each executed for test 4",
-                                DEPENDENCY_CLOSED))
+                    assert(
+                        totalEvents.toSet() ==
+                            setOf(
+                                listOf(
+                                    ROOT_CONTEXT_EXECUTED,
+                                    "test 1 executed",
+                                    "after each executed for test 1",
+                                    DEPENDENCY_CLOSED),
+                                listOf(
+                                    ROOT_CONTEXT_EXECUTED,
+                                    "test 2 executed",
+                                    "after each executed for test 2",
+                                    DEPENDENCY_CLOSED),
+                                listOf(
+                                    ROOT_CONTEXT_EXECUTED,
+                                    CONTEXT_1_EXECUTED,
+                                    CONTEXT_2_EXECUTED,
+                                    "test 3 executed",
+                                    "after each executed for test 3",
+                                    DEPENDENCY_CLOSED),
+                                listOf(
+                                    ROOT_CONTEXT_EXECUTED,
+                                    "test 4 executed",
+                                    "after each executed for test 4",
+                                    DEPENDENCY_CLOSED)))
                 }
                 testAfterEach()
             }
@@ -117,9 +111,10 @@ class RootContextTestIsolationTest {
                     // we don't know the order of the tests because they run in parallel
                     // we do know that the root context runs first and the dependency must be closed
                     // after all tests are finished
-                    expectThat(totalEvents).single().and {
-                        containsExactlyInAnyOrder(
-                            listOf(
+                    val singleEvent = totalEvents.single()
+                    assert(
+                        singleEvent.toSet() ==
+                            setOf(
                                 ROOT_CONTEXT_EXECUTED,
                                 "test 1 executed",
                                 "test 2 executed",
@@ -132,42 +127,41 @@ class RootContextTestIsolationTest {
                                 "after each executed for test 2",
                                 "after each executed for test 3",
                                 "after each executed for test 4"))
-                        first().isEqualTo(ROOT_CONTEXT_EXECUTED)
-                        last().isEqualTo(DEPENDENCY_CLOSED)
-                        containsInOrder(
-                            listOf(
-                                "test 1 executed",
-                                "after each executed for test 1",
-                                DEPENDENCY_CLOSED))
-                        containsInOrder(
-                            listOf(
-                                "test 2 executed",
-                                "after each executed for test 2",
-                                DEPENDENCY_CLOSED))
-                        // assert that tests run after the contexts that they are in, and that close
-                        // callbacks have the correct order
-                        containsInOrder(
-                            listOf(
-                                CONTEXT_1_EXECUTED,
-                                CONTEXT_2_EXECUTED,
-                                "test 3 executed",
-                                "after each executed for test 3",
-                                DEPENDENCY_CLOSED))
-                        containsInOrder(
-                            listOf(
-                                CONTEXT_1_EXECUTED,
-                                CONTEXT_2_EXECUTED,
-                                "test 4 executed",
-                                "after each executed for test 4",
-                                DEPENDENCY_CLOSED))
-                    }
+                    assert(singleEvent.first() == ROOT_CONTEXT_EXECUTED)
+                    assert(singleEvent.last() == DEPENDENCY_CLOSED)
+                    assertContainsInOrder(
+                        singleEvent,
+                        listOf(
+                            "test 1 executed", "after each executed for test 1", DEPENDENCY_CLOSED))
+                    assertContainsInOrder(
+                        singleEvent,
+                        listOf(
+                            "test 2 executed", "after each executed for test 2", DEPENDENCY_CLOSED))
+                    // assert that tests run after the contexts that they are in, and that close
+                    // callbacks have the correct order
+                    assertContainsInOrder(
+                        singleEvent,
+                        listOf(
+                            CONTEXT_1_EXECUTED,
+                            CONTEXT_2_EXECUTED,
+                            "test 3 executed",
+                            "after each executed for test 3",
+                            DEPENDENCY_CLOSED))
+                    assertContainsInOrder(
+                        singleEvent,
+                        listOf(
+                            CONTEXT_1_EXECUTED,
+                            CONTEXT_2_EXECUTED,
+                            "test 4 executed",
+                            "after each executed for test 4",
+                            DEPENDENCY_CLOSED))
                 }
                 testAfterEach()
             }
         }
 
     /** assert that a list contains these elements in their order */
-    private fun Assertion.Builder<List<String>>.containsInOrder(elements: List<String>) {
-        get { intersect(elements.toSet()) }.containsExactly(elements)
+    private fun assertContainsInOrder(list: List<String>, elements: List<String>) {
+        assert(list.intersect(elements.toSet()).toList() == elements)
     }
 }

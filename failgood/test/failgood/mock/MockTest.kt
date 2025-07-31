@@ -3,13 +3,6 @@ package failgood.mock
 import failgood.Test
 import failgood.testCollection
 import kotlin.test.assertNotNull
-import strikt.api.expectThat
-import strikt.api.expectThrows
-import strikt.assertions.containsExactly
-import strikt.assertions.isA
-import strikt.assertions.isEqualTo
-import strikt.assertions.isNotEqualTo
-import strikt.assertions.message
 
 @Test
 class MockTest {
@@ -20,7 +13,9 @@ class MockTest {
                 mock.function()
                 it("verifies function calls") { verify(mock) { function() } }
                 it("throws when a verified function was not called") {
-                    expectThrows<MockException> { verify(mock) { function2() } }
+                    val exception =
+                        kotlin.runCatching { verify(mock) { function2() } }.exceptionOrNull()
+                    assert(exception is MockException)
                 }
             }
             describe("records function parameters") {
@@ -36,7 +31,11 @@ class MockTest {
                 }
                 it("throws when parameters don't match") {
                     mock.suspendFunction(10, "string")
-                    expectThrows<MockException> { verify(mock) { suspendFunction(11, "string") } }
+                    val exception =
+                        kotlin
+                            .runCatching { verify(mock) { suspendFunction(11, "string") } }
+                            .exceptionOrNull()
+                    assert(exception is MockException)
                 }
             }
             describe("defining results") {
@@ -44,27 +43,23 @@ class MockTest {
                     it("defines results via calling the mock") {
                         the(mock) { method { stringReturningFunction() }.will { "resultString" } }
 
-                        expectThat(mock.stringReturningFunction()).isEqualTo("resultString")
+                        assert(mock.stringReturningFunction() == "resultString")
                     }
                     it("mocks can throw") {
                         the(mock) {
                             method { stringReturningFunction() }
                                 .will { throw RuntimeException("message") }
                         }
-                        expectThat(
-                                kotlin
-                                    .runCatching { mock.stringReturningFunction() }
-                                    .exceptionOrNull())
-                            .isA<RuntimeException>()
-                            .message
-                            .isEqualTo("message")
+                        val exception =
+                            kotlin.runCatching { mock.stringReturningFunction() }.exceptionOrNull()
+                        assert(exception is RuntimeException)
+                        assert(exception?.message == "message")
                     }
                     it("defines results via calling the mock even works for nullable functions") {
                         the(mock) {
                             method { functionThatReturnsNullableString() }.will { "resultString" }
                         }
-                        expectThat(mock.functionThatReturnsNullableString())
-                            .isEqualTo("resultString")
+                        assert(mock.functionThatReturnsNullableString() == "resultString")
                     }
                 }
                 it("can be done when the mock is created") {
@@ -74,9 +69,8 @@ class MockTest {
                             method { functionThatReturnsNullableString() }
                                 .will { "otherResultString" }
                         }
-                    expectThat(otherMock.stringReturningFunction()).isEqualTo("resultString")
-                    expectThat(otherMock.functionThatReturnsNullableString())
-                        .isEqualTo("otherResultString")
+                    assert(otherMock.stringReturningFunction() == "resultString")
+                    assert(otherMock.functionThatReturnsNullableString() == "otherResultString")
                 }
                 it("can call functions") {
                     @Suppress("UNCHECKED_CAST")
@@ -95,12 +89,13 @@ class MockTest {
                 mock.overloadedFunction()
                 mock.overloadedFunction("string")
                 mock.overloadedFunction(10)
-                expectThat(getCalls(mock))
-                    .containsExactly(
-                        call(UserManager::function),
-                        call(UserManager::overloadedFunction),
-                        call(UserManager::overloadedFunction, "string"),
-                        call(UserManager::overloadedFunction, 10))
+                assert(
+                    getCalls(mock) ==
+                        listOf(
+                            call(UserManager::function),
+                            call(UserManager::overloadedFunction),
+                            call(UserManager::overloadedFunction, "string"),
+                            call(UserManager::overloadedFunction, 10)))
             }
             describe("function calls") {
                 it("can get parameter value of function with one parameter") {
@@ -135,15 +130,13 @@ class MockTest {
                 call(InterfaceWithOverloadedSuspendMethods::function, "a", "b", "c", "d", "e")
             }
             describe("handles equals correctly") {
-                it("returns true for equals with the same mock") {
-                    expectThat(mock).isEqualTo(mock)
-                }
+                it("returns true for equals with the same mock") { assert(mock == mock) }
                 it("returns false for equals with a different object") {
-                    expectThat(mock).isNotEqualTo(mock())
+                    assert(mock != mock<UserManager>())
                 }
             }
             it("returns something useful as response to toString") {
-                expectThat(mock.toString()).isEqualTo("mock<UserManager>")
+                assert(mock.toString() == "mock<UserManager>")
             }
             describe("error handling") {
                 it("detects when the parameter to the is not a mock") {

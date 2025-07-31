@@ -13,5 +13,6 @@ plugins {
 rootProject.name = "failgood-root"
 include("failgood", "failgood-examples", "failgood-gradle-test",
     "experiments:failgood-debugger",
-    "experiments:gradle-plugin"
+    "experiments:gradle-plugin",
+    "experiments:pitest-parser"
     )

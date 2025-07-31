@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+<body>
+
+
+<h1>Getenv.kt</h1>
+
+<table class="src">
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@57e51932_1'/>
+1
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@57e51932_1'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>package failgood.internal.util</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@57e51932_2'/>
+2
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@57e51932_2'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@57e51932_3'/>
+3
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@57e51932_3'>1</a>
+<span>
+1. getenv : replaced return value with &#34;&#34; for failgood/internal/util/GetenvKt::getenv &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>internal fun getenv(name: String): String? = System.getenv(name)</span></pre></td></tr>
+
+
+
+<tr><td></td><td></td><td><h2>Mutations</h2></td></tr>
+
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@57e51932_3'>3</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@57e51932_3'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>getenv<br/><b>Killed by : </b>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns all root contexts</span></span> replaced return value with &#34;&#34; for failgood/internal/util/GetenvKt::getenv &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+
+</table>
+
+
+<h2>Active mutators</h2>
+<ul>
+<li class='mutator'>CONDITIONALS_BOUNDARY</li>
+<li class='mutator'>EMPTY_RETURNS</li>
+<li class='mutator'>FALSE_RETURNS</li>
+<li class='mutator'>INCREMENTS</li>
+<li class='mutator'>INVERT_NEGS</li>
+<li class='mutator'>MATH</li>
+<li class='mutator'>NEGATE_CONDITIONALS</li>
+<li class='mutator'>NULL_RETURNS</li>
+<li class='mutator'>PRIMITIVE_RETURNS</li>
+<li class='mutator'>TRUE_RETURNS</li>
+<li class='mutator'>VOID_METHOD_CALLS</li>
+
+</ul>
+
+<h2>Tests examined</h2>
+<ul>
+<li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns a root descriptor (0 ms)</li><li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns all root contexts (0 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in root contexts (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > failing contexts > reports failing root contexts (1 ms)</li><li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > sends one skip event and no start event for skipped tests (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly reports exceptions in afterEach as test failures (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in an object (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in a class (3 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > returns tests in the order that they are declared in the file (5 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly handles test that fail in their second pass (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > failing contexts > reports failing contexts (1 ms)</li><li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > starts and stops contexts in the correct order (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute duplicate root (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns correct uniqueid for non standard describes (3 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > executes contexts that contain tests with the same names (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in sub contexts (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for named test collections (4 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > works even in deeply nested contexts (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for unnamed test collections (4 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > works for a failing context or root context (8 ms)</li><li>failgood.ContextTest.ContextTest: a test context > can be created from a path (4 ms)</li>
+</ul>
+
+<br/>
+
+Report generated by <a href='https://pitest.org'>PIT</a> 1.19.5
+
+</body>
+</html>

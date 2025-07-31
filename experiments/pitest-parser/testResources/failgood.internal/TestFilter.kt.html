@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+<body>
+
+
+<h1>TestFilter.kt</h1>
+
+<table class="src">
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_1'/>
+1
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_1'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>package failgood.internal</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_2'/>
+2
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_2'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_3'/>
+3
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_3'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>interface TestFilter {</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_4'/>
+4
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_4'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    /** return true when this context path needs to be executed to satisfy the filter. */</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_5'/>
+5
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_5'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    fun shouldRun(testPath: Path): Boolean</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_6'/>
+6
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_6'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>}</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_7'/>
+7
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_7'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_8'/>
+8
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_8'>1</a>
+<span>
+1. getFilterList$failgood : replaced return value with Collections.emptyList for failgood/internal/StringListTestFilter::getFilterList$failgood &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>internal class StringListTestFilter(internal val filterList: List&#60;String&#62;) : TestFilter {</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_9'/>
+9
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_9'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    override fun shouldRun(testPath: Path): Boolean {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_10'/>
+10
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_10'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        val path = testPath.path</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_11'/>
+11
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_11'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        val smallerSize = minOf(filterList.size, path.size)</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_12'/>
+12
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_12'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        val expected = filterList.subList(0, smallerSize)</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_13'/>
+13
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_13'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        val actual = path.subList(0, smallerSize)</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_14'/>
+14
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_14'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        return expected == actual</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_15'/>
+15
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_15'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_16'/>
+16
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_16'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>}</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_17'/>
+17
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_17'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_18'/>
+18
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_18'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>internal object ExecuteAllTests : TestFilter {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_19'/>
+19
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_19'>1</a>
+<span>
+1. shouldRun : replaced boolean return with false for failgood/internal/ExecuteAllTests::shouldRun &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    override fun shouldRun(testPath: Path) = true</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_20'/>
+20
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_20'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>}</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_21'/>
+21
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_21'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_22'/>
+22
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_22'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>interface TestFilterProvider {</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_23'/>
+23
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_23'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    fun forClass(className: String): TestFilter</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_24'/>
+24
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_24'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>}</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_25'/>
+25
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_25'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_26'/>
+26
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_26'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>internal object ExecuteAllTestFilterProvider : TestFilterProvider {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_27'/>
+27
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_27'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    override fun forClass(className: String) = ExecuteAllTests</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_28'/>
+28
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_28'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>}</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_29'/>
+29
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_29'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_30'/>
+30
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_30'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>/** Return always the same filter */</span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_31'/>
+31
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_31'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>internal class StaticTestFilterProvider(val filter: TestFilter) : TestFilterProvider {</span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_32'/>
+32
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_32'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>    override fun forClass(className: String) = filter</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_33'/>
+33
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_33'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>}</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_34'/>
+34
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_34'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_35'/>
+35
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_35'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>internal class ClassTestFilterProvider(private val filterConfig: Map&#60;String, List&#60;String&#62;&#62;) :</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_36'/>
+36
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_36'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    TestFilterProvider {</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_37'/>
+37
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_37'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    override fun forClass(className: String): TestFilter {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_38'/>
+38
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_38'>1</a>
+<span>
+1. forClass : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        return filterConfig[className]?.let { StringListTestFilter(it) } ?: ExecuteAllTests</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_39'/>
+39
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_39'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@693d797e_40'/>
+40
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_40'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>}</span></pre></td></tr>
+
+
+
+<tr><td></td><td></td><td><h2>Mutations</h2></td></tr>
+
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@693d797e_8'>8</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_8'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>getFilterList$failgood<br/><b>Killed by : </b>failgood.junit.ContextFinderTest.ContextFinderTest: the ContextFinder > finds a single test with a uniqueId selector</span></span> replaced return value with Collections.emptyList for failgood/internal/StringListTestFilter::getFilterList$failgood &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@693d797e_19'>19</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_19'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>shouldRun<br/><b>Killed by : </b>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > handles failing root contexts</span></span> replaced boolean return with false for failgood/internal/ExecuteAllTests::shouldRun &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@693d797e_38'>38</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@693d797e_38'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>forClass<br/><b>Killed by : </b>failgood.junit.ContextFinderTest.ContextFinderTest: the ContextFinder > finds a single test with a uniqueId selector</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+
+</table>
+
+
+<h2>Active mutators</h2>
+<ul>
+<li class='mutator'>CONDITIONALS_BOUNDARY</li>
+<li class='mutator'>EMPTY_RETURNS</li>
+<li class='mutator'>FALSE_RETURNS</li>
+<li class='mutator'>INCREMENTS</li>
+<li class='mutator'>INVERT_NEGS</li>
+<li class='mutator'>MATH</li>
+<li class='mutator'>NEGATE_CONDITIONALS</li>
+<li class='mutator'>NULL_RETURNS</li>
+<li class='mutator'>PRIMITIVE_RETURNS</li>
+<li class='mutator'>TRUE_RETURNS</li>
+<li class='mutator'>VOID_METHOD_CALLS</li>
+
+</ul>
+
+<h2>Tests examined</h2>
+<ul>
+<li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > handles failing root contexts (0 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > detects duplicated tests > fails with duplicate tests in one context (0 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > ignored tests > are reported (0 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > detects duplicate contexts > fails with duplicate contexts in one context (1 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > supports lazy execution > postpones test execution until the deferred is awaited when lazy is set to true (0 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > handling of special cases > strange contexts > a context with only one ignored test (0 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > timing > reports context structure before tests finish (2 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > filtering by tag > can filter contexts in the root context by tag (1 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > detects duplicate contexts > fails when a context has the same name as a test in the same contexts (2 ms)</li><li>failgood.functional.NameHandlingTest.name handling > adding test class name to test collection name > adds the test class name to the test collection name when the test collection has no name (1 ms)</li><li>failgood.functional.NameHandlingTest.name handling > duplicate test collection names > makes duplicate test collection names unique (1 ms)</li><li>failgood.functional.ContextOrderTest.ContextOrderTest: Root Context Order > is determined by the order field low to high (1 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > filtering by tag > can filter tests in the root context by tag (0 ms)</li><li>failgood.functional.TestResourcesLifecycleTest.closing test resources > after suite callback > can throw exceptions that are ignored (0 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > detects duplicated tests > does not fail when the tests with the same name are in different contexts (1 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > detects duplicate contexts > does not fail when the contexts with the same name are in different contexts (1 ms)</li><li>failgood.functional.NameHandlingTest.name handling > duplicate test collection names > makes unnamed collection names unique (0 ms)</li><li>failgood.functional.ErrorHandlingTest.ErrorHandlingTest: Error Handling > tests with wrong receiver (1 ms)</li><li>failgood.functional.SubContextIsolationTest.sub context isolation > on a root context with default isolation (true) > error handling > does not allow to turn isolation on when it was already off (2 ms)</li><li>failgood.functional.SubContextIsolationTest.sub context isolation > on a root context with default isolation (true) > turning off isolation for a subcontext > executes all the tests in that context in one go (1 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > with a typical valid root context > reports line numbers > reports file name for all tests (1 ms)</li><li>failgood.functional.ErrorHandlingTest.Error Handling > Non deterministic test names > make their test count as failed (2 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > with a typical valid root context > reports line numbers > returns line number for contexts (1 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > with a typical valid root context > reports line numbers > reports line number for all tests (1 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > when an exception happens inside a subcontext > reports the context as a context (0 ms)</li><li>failgood.functional.ErrorHandlingTest.ErrorHandlingTest: Error Handling > handles errors in resource correctly (1 ms)</li><li>failgood.SuiteTest.Suite > coroutine scope > does not wait for tests before returning context info (16 ms)</li><li>failgood.functional.GivenTest.GivenTest > error handling > treats errors in the given block as test failures (1 ms)</li><li>failgood.functional.TestResourcesLifecycleTest.closing test resources > autoclosable > closes autocloseables without callback (1 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > handling of special cases > an ignored sub-context > it reports it as a skipped test inside that context (6 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > with a typical valid root context > executing all the tests > returns tests in the same order as they are declared in the file (1 ms)</li><li>failgood.functional.TestResourcesLifecycleTest.closing test resources > autoclosable > error handling > calls autoCLose, afterEach and reports test Failure > when the test fails and autoclose and aftereach work (0 ms)</li><li>failgood.functional.TestResourcesLifecycleTest.closing test resources > autoclosable > error handling > reports the test failure even when the close callback fails too (0 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > with a typical valid root context > with a listener > reports tests and contexts in their order inside the file (3 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > with a typical valid root context > executing all the tests > reports failed tests > reports exception for failed tests (2 ms)</li><li>failgood.pitest.FailGoodTestUnitFinderTest.FailGoodTestUnitFinderTest: FailGoodTestUnitFinder > creates a test unit for each test (3 ms)</li><li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns a root descriptor (0 ms)</li><li>failgood.functional.ContextDSLTest.ContextDSLTest: ContextDSL::describe > works for class (2 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > with a typical valid root context > executing all the tests > returns contexts in the same order as they appear in the file (1 ms)</li><li>failgood.functional.SubContextIsolationTest.sub context isolation > on a root context with default isolation (true) > turning off isolation for a subcontext > calls the given for each test (1 ms)</li><li>failgood.functional.TestResourcesLifecycleTest.closing test resources > autoclosable > error handling > calls autoCLose, afterEach and reports test Failure > when the test succeeds, autoclose fails and aftereach works (0 ms)</li><li>failgood.functional.TestResourcesLifecycleTest.closing test resources > autoclosable > error handling > calls autoCLose, afterEach and reports test Failure > when the test fails and aftereach fails (0 ms)</li><li>failgood.functional.TestResourcesLifecycleTest.closing test resources > after suite callback > is called exactly once at the end of the suite, after all tests are finished (1 ms)</li><li>failgood.functional.TestResourcesLifecycleTest.closing test resources > autoclosable > error handling > calls autoCLose, afterEach and reports test Failure > when the test and autoclose succeeds and aftereach fails (1 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > with a typical valid root context > executing all the tests > reports time of successful tests (2 ms)</li><li>failgood.functional.TestResourcesLifecycleTest.closing test resources > autoclosable > is closed in reverse order of creation (2 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > with a typical valid root context > executing all the tests > returns deferred test results (2 ms)</li><li>failgood.functional.SubContextIsolationTest.sub context isolation > on a root context with default isolation (true) > turning off isolation for a subcontext > does not affect other contexts (1 ms)</li><li>failgood.functional.GivenTest.GivenTest > passes the value of the contests given block to the test (2 ms)</li><li>failgood.functional.RootContextTestIsolationTest.test isolation for root contexts > in the default isolation mode (full isolation) > passes testInfo and success to afterEach (0 ms)</li><li>failgood.functional.TestResourcesLifecycleTest.closing test resources > autoclosable > works inside a test (2 ms)</li><li>failgood.functional.RootContextTestIsolationTest.test isolation for root contexts > a root context with isolation set to false > passes testInfo and success to afterEach (0 ms)</li><li>failgood.functional.SubContextIsolationTest.sub context isolation > on a root context with default isolation (true) > turning off isolation for a subcontext > calls callbacks at the correct time (1 ms)</li><li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns all root contexts (0 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > failing contexts > reports failing root contexts (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in root contexts (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > failing contexts > reports failing root contexts (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > duplicate test names > are correctly handled in root contexts (1 ms)</li><li>failgood.ThousandTestsTest.ThousandTestsTest: a test suite with 1000 tests in one context > runs pretty fast (52 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > error handling > correctly reports exceptions in afterEach as test failures (1 ms)</li><li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > sends one skip event and no start event for skipped tests (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The New Junit Platform Engine > can execute a simple test defined in an object (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The New Junit Platform Engine > can execute a simple test defined in a class (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly reports exceptions in afterEach as test failures (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > failing contexts > reports failing contexts (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The New Junit Platform Engine > can execute duplicate root (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > running by unique id > returns correct uniqueid for non standard describes (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in an object (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in a class (3 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > returns tests in the order that they are declared in the file (5 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly handles test that fail in their second pass (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > failing contexts > reports failing contexts (1 ms)</li><li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > starts and stops contexts in the correct order (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > error handling > correctly handles test that fail in their second pass (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute duplicate root (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for named test collections (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > duplicate test names > are correctly handled in sub contexts (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The New Junit Platform Engine > executes contexts that contain tests with the same names (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns correct uniqueid for non standard describes (3 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > duplicate test names > works even in deeply nested contexts (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for unnamed test collections (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > executes contexts that contain tests with the same names (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in sub contexts (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for named test collections (4 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > works even in deeply nested contexts (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for unnamed test collections (4 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The New Junit Platform Engine > works for a failing context or root context (5 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > works for a failing context or root context (8 ms)</li><li>failgood.ContextTest.ContextTest: a test context > can be created from a path (4 ms)</li><li>failgood.junit.ContextFinderTest.ContextFinderTest: the ContextFinder > finds a single test with a uniqueId selector (1 ms)</li>
+</ul>
+
+<br/>
+
+Report generated by <a href='https://pitest.org'>PIT</a> 1.19.5
+
+</body>
+</html>

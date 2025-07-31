@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+<body>
+
+
+<h1>Sysinfo.kt</h1>
+
+<table class="src">
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_1'/>
+1
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_1'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>package failgood.internal.sysinfo</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_2'/>
+2
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_2'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_3'/>
+3
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_3'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import failgood.internal.util.pluralize</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_4'/>
+4
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_4'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import java.lang.management.ManagementFactory</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_5'/>
+5
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_5'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_6'/>
+6
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_6'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>private val operatingSystemMXBean =</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_7'/>
+7
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_7'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    ManagementFactory.getOperatingSystemMXBean() as com.sun.management.OperatingSystemMXBean</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_8'/>
+8
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_8'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>private val runtimeMXBean = ManagementFactory.getRuntimeMXBean()</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_9'/>
+9
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_9'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_10'/>
+10
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_10'>1</a>
+<span>
+1. upt : replaced long return with 0 for failgood/internal/sysinfo/SysinfoKt::upt &rarr; SURVIVED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>internal fun upt(): Long = runtimeMXBean.uptime</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_11'/>
+11
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_11'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_12'/>
+12
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_12'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>internal fun uptime(totalTests: Int? = null): String {</span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_13'/>
+13
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_13'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>    val uptime = upt()</span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_14'/>
+14
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_14'>1</a>
+<span>
+1. uptime : Replaced long division with multiplication &rarr; NO_COVERAGE<br/>
+
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class='survived'>    val cpuTime = operatingSystemMXBean.processCpuTime / 1000000</span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_15'/>
+15
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_15'>2</a>
+<span>
+1. uptime : Replaced long division with multiplication &rarr; NO_COVERAGE<br/>
+2. uptime : Replaced long multiplication with division &rarr; NO_COVERAGE<br/>
+
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class='survived'>    val percentage = cpuTime * 100 / uptime</span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_16'/>
+16
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_16'>1</a>
+<span>
+1. uptime : replaced return value with &#34;&#34; for failgood/internal/sysinfo/SysinfoKt::uptime &rarr; NO_COVERAGE<br/>
+
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class='survived'>    return &#34;${uptime}ms. load:$percentage%.&#34; +</span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_17'/>
+17
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_17'>1</a>
+<span>
+1. uptime : negated conditional &rarr; NO_COVERAGE<br/>
+
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class='survived'>        if (totalTests != null) {</span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_18'/>
+18
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_18'>2</a>
+<span>
+1. uptime : Replaced integer division with multiplication &rarr; NO_COVERAGE<br/>
+2. uptime : Replaced integer multiplication with division &rarr; NO_COVERAGE<br/>
+
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class='survived'>            &#34; &#34; + pluralize(totalTests * 1000 / uptime.toInt(), &#34;test&#34;) + &#34;/sec&#34;</span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_19'/>
+19
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_19'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>        } else &#34;&#34;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_20'/>
+20
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_20'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>}</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_21'/>
+21
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_21'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_22'/>
+22
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_22'>1</a>
+<span>
+1. cpus : replaced int return with 0 for failgood/internal/sysinfo/SysinfoKt::cpus &rarr; SURVIVED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>internal fun cpus() = Runtime.getRuntime().availableProcessors()</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_23'/>
+23
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_23'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@705a793a_24'/>
+24
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_24'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>internal fun isRunningOnWindows() = System.getProperty(&#34;os.name&#34;).startsWith(&#34;Windows&#34;)</span></pre></td></tr>
+
+
+
+<tr><td></td><td></td><td><h2>Mutations</h2></td></tr>
+
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@705a793a_10'>10</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_10'/> 
+
+<p class='SURVIVED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>upt<br/><b>Killed by : </b>none</span></span> replaced long return with 0 for failgood/internal/sysinfo/SysinfoKt::upt &rarr; SURVIVED</span>
+<a title="Click to view covering tests" class="view-covered-by-tests" onClick="document.getElementById('MutationIdentifier-[location=Location-[clazz=failgood.internal.sysinfo.SysinfoKt,-method=upt,-methodDesc=()J],-indexes=[5],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.PrimitiveReturnsMutator]').style.display=(document.getElementById('MutationIdentifier-[location=Location-[clazz=failgood.internal.sysinfo.SysinfoKt,-method=upt,-methodDesc=()J],-indexes=[5],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.PrimitiveReturnsMutator]').style.display == 'block')?'none':'block';">Covering tests</a>
+<div class="covered-tests" id="MutationIdentifier-[location=Location-[clazz=failgood.internal.sysinfo.SysinfoKt,-method=upt,-methodDesc=()J],-indexes=[5],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.PrimitiveReturnsMutator]" style="display:none;">Covered by tests:
+<ul>
+<li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns a root descriptor</li> <li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns all root contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in root contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > failing contexts > reports failing root contexts</li> <li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > sends one skip event and no start event for skipped tests</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly reports exceptions in afterEach as test failures</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in an object</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in a class</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > returns tests in the order that they are declared in the file</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly handles test that fail in their second pass</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > failing contexts > reports failing contexts</li> <li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > starts and stops contexts in the correct order</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute duplicate root</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns correct uniqueid for non standard describes</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > executes contexts that contain tests with the same names</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in sub contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for named test collections</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > works even in deeply nested contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for unnamed test collections</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > works for a failing context or root context</li> <li>failgood.ContextTest.ContextTest: a test context > can be created from a path</li> 
+</ul>
+</div></div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@705a793a_14'>14</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_14'/> 
+
+<p class='NO_COVERAGE'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>uptime<br/><b>Killed by : </b>none</span></span> Replaced long division with multiplication &rarr; NO_COVERAGE</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@705a793a_15'>15</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_15'/> 
+
+<p class='NO_COVERAGE'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>uptime<br/><b>Killed by : </b>none</span></span> Replaced long division with multiplication &rarr; NO_COVERAGE</span>
+</div> <p class='NO_COVERAGE'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>uptime<br/><b>Killed by : </b>none</span></span> Replaced long multiplication with division &rarr; NO_COVERAGE</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@705a793a_16'>16</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_16'/> 
+
+<p class='NO_COVERAGE'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>uptime<br/><b>Killed by : </b>none</span></span> replaced return value with &#34;&#34; for failgood/internal/sysinfo/SysinfoKt::uptime &rarr; NO_COVERAGE</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@705a793a_17'>17</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_17'/> 
+
+<p class='NO_COVERAGE'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>uptime<br/><b>Killed by : </b>none</span></span> negated conditional &rarr; NO_COVERAGE</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@705a793a_18'>18</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_18'/> 
+
+<p class='NO_COVERAGE'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>uptime<br/><b>Killed by : </b>none</span></span> Replaced integer division with multiplication &rarr; NO_COVERAGE</span>
+</div> <p class='NO_COVERAGE'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>uptime<br/><b>Killed by : </b>none</span></span> Replaced integer multiplication with division &rarr; NO_COVERAGE</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@705a793a_22'>22</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@705a793a_22'/> 
+
+<p class='SURVIVED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>cpus<br/><b>Killed by : </b>none</span></span> replaced int return with 0 for failgood/internal/sysinfo/SysinfoKt::cpus &rarr; SURVIVED</span>
+<a title="Click to view covering tests" class="view-covered-by-tests" onClick="document.getElementById('MutationIdentifier-[location=Location-[clazz=failgood.internal.sysinfo.SysinfoKt,-method=cpus,-methodDesc=()I],-indexes=[5],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.PrimitiveReturnsMutator]').style.display=(document.getElementById('MutationIdentifier-[location=Location-[clazz=failgood.internal.sysinfo.SysinfoKt,-method=cpus,-methodDesc=()I],-indexes=[5],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.PrimitiveReturnsMutator]').style.display == 'block')?'none':'block';">Covering tests</a>
+<div class="covered-tests" id="MutationIdentifier-[location=Location-[clazz=failgood.internal.sysinfo.SysinfoKt,-method=cpus,-methodDesc=()I],-indexes=[5],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.PrimitiveReturnsMutator]" style="display:none;">Covered by tests:
+<ul>
+<li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns a root descriptor</li> <li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns all root contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in root contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > failing contexts > reports failing root contexts</li> <li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > sends one skip event and no start event for skipped tests</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly reports exceptions in afterEach as test failures</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in an object</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in a class</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > returns tests in the order that they are declared in the file</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly handles test that fail in their second pass</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > failing contexts > reports failing contexts</li> <li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > starts and stops contexts in the correct order</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute duplicate root</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns correct uniqueid for non standard describes</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > executes contexts that contain tests with the same names</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in sub contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for named test collections</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > works even in deeply nested contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for unnamed test collections</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > works for a failing context or root context</li> <li>failgood.ContextTest.ContextTest: a test context > can be created from a path</li> 
+</ul>
+</div></div> 
+</td>
+</tr>
+
+</table>
+
+
+<h2>Active mutators</h2>
+<ul>
+<li class='mutator'>CONDITIONALS_BOUNDARY</li>
+<li class='mutator'>EMPTY_RETURNS</li>
+<li class='mutator'>FALSE_RETURNS</li>
+<li class='mutator'>INCREMENTS</li>
+<li class='mutator'>INVERT_NEGS</li>
+<li class='mutator'>MATH</li>
+<li class='mutator'>NEGATE_CONDITIONALS</li>
+<li class='mutator'>NULL_RETURNS</li>
+<li class='mutator'>PRIMITIVE_RETURNS</li>
+<li class='mutator'>TRUE_RETURNS</li>
+<li class='mutator'>VOID_METHOD_CALLS</li>
+
+</ul>
+
+<h2>Tests examined</h2>
+<ul>
+<li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns a root descriptor (0 ms)</li><li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns all root contexts (0 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in root contexts (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > failing contexts > reports failing root contexts (1 ms)</li><li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > sends one skip event and no start event for skipped tests (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly reports exceptions in afterEach as test failures (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in an object (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in a class (3 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > returns tests in the order that they are declared in the file (5 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly handles test that fail in their second pass (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > failing contexts > reports failing contexts (1 ms)</li><li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > starts and stops contexts in the correct order (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute duplicate root (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns correct uniqueid for non standard describes (3 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > executes contexts that contain tests with the same names (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in sub contexts (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for named test collections (4 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > works even in deeply nested contexts (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for unnamed test collections (4 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > works for a failing context or root context (8 ms)</li><li>failgood.ContextTest.ContextTest: a test context > can be created from a path (4 ms)</li>
+</ul>
+
+<br/>
+
+Report generated by <a href='https://pitest.org'>PIT</a> 1.19.5
+
+</body>
+</html>

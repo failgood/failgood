@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+<body>
+
+
+<h1>ChannelExecutionListener.kt</h1>
+
+<table class="src">
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_1'/>
+1
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_1'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>package failgood.junit.legacy</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_2'/>
+2
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_2'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_3'/>
+3
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_3'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import failgood.ExecutionListener</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_4'/>
+4
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_4'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import failgood.TestDescription</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_5'/>
+5
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_5'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import failgood.TestPlusResult</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_6'/>
+6
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_6'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import kotlinx.coroutines.channels.Channel</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_7'/>
+7
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_7'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_8'/>
+8
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_8'>2</a>
+<span>
+1. contextDiscovered : replaced return value with null for failgood/junit/legacy/ChannelExecutionListener::contextDiscovered &rarr; SURVIVED<br/>
+2. testDiscovered : replaced return value with null for failgood/junit/legacy/ChannelExecutionListener::testDiscovered &rarr; SURVIVED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>internal class ChannelExecutionListener : ExecutionListener {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_9'/>
+9
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_9'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    sealed class TestExecutionEvent {</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_10'/>
+10
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_10'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        abstract val testDescription: TestDescription</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_11'/>
+11
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_11'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_12'/>
+12
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_12'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        data class Started(override val testDescription: TestDescription) : TestExecutionEvent()</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_13'/>
+13
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_13'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_14'/>
+14
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_14'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        data class Stopped(</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_15'/>
+15
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_15'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>            override val testDescription: TestDescription,</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_16'/>
+16
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_16'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>            val testResult: TestPlusResult</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_17'/>
+17
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_17'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        ) : TestExecutionEvent()</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_18'/>
+18
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_18'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_19'/>
+19
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_19'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>        data class TestEvent(</span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_20'/>
+20
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_20'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>            override val testDescription: TestDescription,</span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_21'/>
+21
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_21'>1</a>
+<span>
+1. getType : replaced return value with &#34;&#34; for failgood/junit/legacy/ChannelExecutionListener$TestExecutionEvent$TestEvent::getType &rarr; NO_COVERAGE<br/>
+
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class='survived'>            val type: String,</span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_22'/>
+22
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_22'>1</a>
+<span>
+1. getPayload : replaced return value with &#34;&#34; for failgood/junit/legacy/ChannelExecutionListener$TestExecutionEvent$TestEvent::getPayload &rarr; NO_COVERAGE<br/>
+
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class='survived'>            val payload: String</span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_23'/>
+23
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_23'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>        ) : TestExecutionEvent()</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_24'/>
+24
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_24'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_25'/>
+25
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_25'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_26'/>
+26
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_26'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    val events = Channel&#60;TestExecutionEvent&#62;(Channel.UNLIMITED)</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_27'/>
+27
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_27'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_28'/>
+28
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_28'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    override suspend fun testStarted(testDescription: TestDescription) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_29'/>
+29
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_29'>2</a>
+<span>
+1. testStarted : negated conditional &rarr; SURVIVED<br/>
+2. testStarted : replaced return value with null for failgood/junit/legacy/ChannelExecutionListener::testStarted &rarr; NO_COVERAGE<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>        events.send(TestExecutionEvent.Started(testDescription))</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_30'/>
+30
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_30'>1</a>
+<span>
+1. testStarted : replaced return value with null for failgood/junit/legacy/ChannelExecutionListener::testStarted &rarr; SURVIVED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_31'/>
+31
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_31'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_32'/>
+32
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_32'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    override suspend fun testFinished(testPlusResult: TestPlusResult) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_33'/>
+33
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_33'>2</a>
+<span>
+1. testFinished : negated conditional &rarr; SURVIVED<br/>
+2. testFinished : replaced return value with null for failgood/junit/legacy/ChannelExecutionListener::testFinished &rarr; NO_COVERAGE<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>        events.send(TestExecutionEvent.Stopped(testPlusResult.test, testPlusResult))</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_34'/>
+34
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_34'>1</a>
+<span>
+1. testFinished : replaced return value with null for failgood/junit/legacy/ChannelExecutionListener::testFinished &rarr; SURVIVED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_35'/>
+35
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_35'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_36'/>
+36
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_36'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    override suspend fun testEvent(</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_37'/>
+37
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_37'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        testDescription: TestDescription,</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_38'/>
+38
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_38'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        type: String,</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_39'/>
+39
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_39'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        payload: String</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_40'/>
+40
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_40'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    ) {</span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_41'/>
+41
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_41'>2</a>
+<span>
+1. testEvent : replaced return value with null for failgood/junit/legacy/ChannelExecutionListener::testEvent &rarr; NO_COVERAGE<br/>
+2. testEvent : negated conditional &rarr; NO_COVERAGE<br/>
+
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class='survived'>        events.send(TestExecutionEvent.TestEvent(testDescription, type, payload))</span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_42'/>
+42
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_42'>1</a>
+<span>
+1. testEvent : replaced return value with null for failgood/junit/legacy/ChannelExecutionListener::testEvent &rarr; NO_COVERAGE<br/>
+
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class='survived'>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68bffb06_43'/>
+43
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_43'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>}</span></pre></td></tr>
+
+
+
+<tr><td></td><td></td><td><h2>Mutations</h2></td></tr>
+
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@68bffb06_8'>8</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_8'/> 
+
+<p class='SURVIVED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>contextDiscovered<br/><b>Killed by : </b>none</span></span> replaced return value with null for failgood/junit/legacy/ChannelExecutionListener::contextDiscovered &rarr; SURVIVED</span>
+<a title="Click to view covering tests" class="view-covered-by-tests" onClick="document.getElementById('MutationIdentifier-[location=Location-[clazz=failgood.junit.legacy.ChannelExecutionListener,-method=contextDiscovered,-methodDesc=(Lfailgood/Context;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;],-indexes=[7],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.NullReturnValsMutator]').style.display=(document.getElementById('MutationIdentifier-[location=Location-[clazz=failgood.junit.legacy.ChannelExecutionListener,-method=contextDiscovered,-methodDesc=(Lfailgood/Context;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;],-indexes=[7],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.NullReturnValsMutator]').style.display == 'block')?'none':'block';">Covering tests</a>
+<div class="covered-tests" id="MutationIdentifier-[location=Location-[clazz=failgood.junit.legacy.ChannelExecutionListener,-method=contextDiscovered,-methodDesc=(Lfailgood/Context;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;],-indexes=[7],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.NullReturnValsMutator]" style="display:none;">Covered by tests:
+<ul>
+<li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns a root descriptor</li> <li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns all root contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in root contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > failing contexts > reports failing root contexts</li> <li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > sends one skip event and no start event for skipped tests</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly reports exceptions in afterEach as test failures</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in an object</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in a class</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > returns tests in the order that they are declared in the file</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly handles test that fail in their second pass</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > failing contexts > reports failing contexts</li> <li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > starts and stops contexts in the correct order</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute duplicate root</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns correct uniqueid for non standard describes</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > executes contexts that contain tests with the same names</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in sub contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for named test collections</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > works even in deeply nested contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for unnamed test collections</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > works for a failing context or root context</li> <li>failgood.ContextTest.ContextTest: a test context > can be created from a path</li> 
+</ul>
+</div></div> <p class='SURVIVED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>testDiscovered<br/><b>Killed by : </b>none</span></span> replaced return value with null for failgood/junit/legacy/ChannelExecutionListener::testDiscovered &rarr; SURVIVED</span>
+<a title="Click to view covering tests" class="view-covered-by-tests" onClick="document.getElementById('MutationIdentifier-[location=Location-[clazz=failgood.junit.legacy.ChannelExecutionListener,-method=testDiscovered,-methodDesc=(Lfailgood/TestDescription;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;],-indexes=[7],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.NullReturnValsMutator]').style.display=(document.getElementById('MutationIdentifier-[location=Location-[clazz=failgood.junit.legacy.ChannelExecutionListener,-method=testDiscovered,-methodDesc=(Lfailgood/TestDescription;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;],-indexes=[7],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.NullReturnValsMutator]').style.display == 'block')?'none':'block';">Covering tests</a>
+<div class="covered-tests" id="MutationIdentifier-[location=Location-[clazz=failgood.junit.legacy.ChannelExecutionListener,-method=testDiscovered,-methodDesc=(Lfailgood/TestDescription;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;],-indexes=[7],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.NullReturnValsMutator]" style="display:none;">Covered by tests:
+<ul>
+<li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns a root descriptor</li> <li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns all root contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in root contexts</li> <li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > sends one skip event and no start event for skipped tests</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly reports exceptions in afterEach as test failures</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in an object</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in a class</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > returns tests in the order that they are declared in the file</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly handles test that fail in their second pass</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > failing contexts > reports failing contexts</li> <li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > starts and stops contexts in the correct order</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute duplicate root</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns correct uniqueid for non standard describes</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > executes contexts that contain tests with the same names</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in sub contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for named test collections</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > works even in deeply nested contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for unnamed test collections</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > works for a failing context or root context</li> <li>failgood.ContextTest.ContextTest: a test context > can be created from a path</li> 
+</ul>
+</div></div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@68bffb06_21'>21</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_21'/> 
+
+<p class='NO_COVERAGE'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>getType<br/><b>Killed by : </b>none</span></span> replaced return value with &#34;&#34; for failgood/junit/legacy/ChannelExecutionListener$TestExecutionEvent$TestEvent::getType &rarr; NO_COVERAGE</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@68bffb06_22'>22</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_22'/> 
+
+<p class='NO_COVERAGE'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>getPayload<br/><b>Killed by : </b>none</span></span> replaced return value with &#34;&#34; for failgood/junit/legacy/ChannelExecutionListener$TestExecutionEvent$TestEvent::getPayload &rarr; NO_COVERAGE</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@68bffb06_29'>29</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_29'/> 
+
+<p class='SURVIVED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>testStarted<br/><b>Killed by : </b>none</span></span> negated conditional &rarr; SURVIVED</span>
+<a title="Click to view covering tests" class="view-covered-by-tests" onClick="document.getElementById('MutationIdentifier-[location=Location-[clazz=failgood.junit.legacy.ChannelExecutionListener,-method=testStarted,-methodDesc=(Lfailgood/TestDescription;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;],-indexes=[13],-mutator=org.pitest.mutationtest.engine.gregor.mutators.NegateConditionalsMutator]').style.display=(document.getElementById('MutationIdentifier-[location=Location-[clazz=failgood.junit.legacy.ChannelExecutionListener,-method=testStarted,-methodDesc=(Lfailgood/TestDescription;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;],-indexes=[13],-mutator=org.pitest.mutationtest.engine.gregor.mutators.NegateConditionalsMutator]').style.display == 'block')?'none':'block';">Covering tests</a>
+<div class="covered-tests" id="MutationIdentifier-[location=Location-[clazz=failgood.junit.legacy.ChannelExecutionListener,-method=testStarted,-methodDesc=(Lfailgood/TestDescription;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;],-indexes=[13],-mutator=org.pitest.mutationtest.engine.gregor.mutators.NegateConditionalsMutator]" style="display:none;">Covered by tests:
+<ul>
+<li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns a root descriptor</li> <li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns all root contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in root contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly reports exceptions in afterEach as test failures</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in an object</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in a class</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > returns tests in the order that they are declared in the file</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly handles test that fail in their second pass</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > failing contexts > reports failing contexts</li> <li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > starts and stops contexts in the correct order</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute duplicate root</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns correct uniqueid for non standard describes</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > executes contexts that contain tests with the same names</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in sub contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for named test collections</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > works even in deeply nested contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for unnamed test collections</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > works for a failing context or root context</li> 
+</ul>
+</div></div> <p class='NO_COVERAGE'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>testStarted<br/><b>Killed by : </b>none</span></span> replaced return value with null for failgood/junit/legacy/ChannelExecutionListener::testStarted &rarr; NO_COVERAGE</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@68bffb06_30'>30</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_30'/> 
+
+<p class='SURVIVED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>testStarted<br/><b>Killed by : </b>none</span></span> replaced return value with null for failgood/junit/legacy/ChannelExecutionListener::testStarted &rarr; SURVIVED</span>
+<a title="Click to view covering tests" class="view-covered-by-tests" onClick="document.getElementById('MutationIdentifier-[location=Location-[clazz=failgood.junit.legacy.ChannelExecutionListener,-method=testStarted,-methodDesc=(Lfailgood/TestDescription;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;],-indexes=[21],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.NullReturnValsMutator]').style.display=(document.getElementById('MutationIdentifier-[location=Location-[clazz=failgood.junit.legacy.ChannelExecutionListener,-method=testStarted,-methodDesc=(Lfailgood/TestDescription;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;],-indexes=[21],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.NullReturnValsMutator]').style.display == 'block')?'none':'block';">Covering tests</a>
+<div class="covered-tests" id="MutationIdentifier-[location=Location-[clazz=failgood.junit.legacy.ChannelExecutionListener,-method=testStarted,-methodDesc=(Lfailgood/TestDescription;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;],-indexes=[21],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.NullReturnValsMutator]" style="display:none;">Covered by tests:
+<ul>
+<li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns a root descriptor</li> <li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns all root contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in root contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly reports exceptions in afterEach as test failures</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in an object</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in a class</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > returns tests in the order that they are declared in the file</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly handles test that fail in their second pass</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > failing contexts > reports failing contexts</li> <li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > starts and stops contexts in the correct order</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute duplicate root</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns correct uniqueid for non standard describes</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > executes contexts that contain tests with the same names</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in sub contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for named test collections</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > works even in deeply nested contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for unnamed test collections</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > works for a failing context or root context</li> 
+</ul>
+</div></div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@68bffb06_33'>33</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_33'/> 
+
+<p class='SURVIVED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>testFinished<br/><b>Killed by : </b>none</span></span> negated conditional &rarr; SURVIVED</span>
+<a title="Click to view covering tests" class="view-covered-by-tests" onClick="document.getElementById('MutationIdentifier-[location=Location-[clazz=failgood.junit.legacy.ChannelExecutionListener,-method=testFinished,-methodDesc=(Lfailgood/TestPlusResult;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;],-indexes=[15],-mutator=org.pitest.mutationtest.engine.gregor.mutators.NegateConditionalsMutator]').style.display=(document.getElementById('MutationIdentifier-[location=Location-[clazz=failgood.junit.legacy.ChannelExecutionListener,-method=testFinished,-methodDesc=(Lfailgood/TestPlusResult;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;],-indexes=[15],-mutator=org.pitest.mutationtest.engine.gregor.mutators.NegateConditionalsMutator]').style.display == 'block')?'none':'block';">Covering tests</a>
+<div class="covered-tests" id="MutationIdentifier-[location=Location-[clazz=failgood.junit.legacy.ChannelExecutionListener,-method=testFinished,-methodDesc=(Lfailgood/TestPlusResult;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;],-indexes=[15],-mutator=org.pitest.mutationtest.engine.gregor.mutators.NegateConditionalsMutator]" style="display:none;">Covered by tests:
+<ul>
+<li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns a root descriptor</li> <li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns all root contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in root contexts</li> <li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > sends one skip event and no start event for skipped tests</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly reports exceptions in afterEach as test failures</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in an object</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in a class</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > returns tests in the order that they are declared in the file</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly handles test that fail in their second pass</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > failing contexts > reports failing contexts</li> <li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > starts and stops contexts in the correct order</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute duplicate root</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns correct uniqueid for non standard describes</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > executes contexts that contain tests with the same names</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in sub contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for named test collections</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > works even in deeply nested contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for unnamed test collections</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > works for a failing context or root context</li> <li>failgood.ContextTest.ContextTest: a test context > can be created from a path</li> 
+</ul>
+</div></div> <p class='NO_COVERAGE'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>testFinished<br/><b>Killed by : </b>none</span></span> replaced return value with null for failgood/junit/legacy/ChannelExecutionListener::testFinished &rarr; NO_COVERAGE</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@68bffb06_34'>34</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_34'/> 
+
+<p class='SURVIVED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>testFinished<br/><b>Killed by : </b>none</span></span> replaced return value with null for failgood/junit/legacy/ChannelExecutionListener::testFinished &rarr; SURVIVED</span>
+<a title="Click to view covering tests" class="view-covered-by-tests" onClick="document.getElementById('MutationIdentifier-[location=Location-[clazz=failgood.junit.legacy.ChannelExecutionListener,-method=testFinished,-methodDesc=(Lfailgood/TestPlusResult;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;],-indexes=[23],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.NullReturnValsMutator]').style.display=(document.getElementById('MutationIdentifier-[location=Location-[clazz=failgood.junit.legacy.ChannelExecutionListener,-method=testFinished,-methodDesc=(Lfailgood/TestPlusResult;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;],-indexes=[23],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.NullReturnValsMutator]').style.display == 'block')?'none':'block';">Covering tests</a>
+<div class="covered-tests" id="MutationIdentifier-[location=Location-[clazz=failgood.junit.legacy.ChannelExecutionListener,-method=testFinished,-methodDesc=(Lfailgood/TestPlusResult;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;],-indexes=[23],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.NullReturnValsMutator]" style="display:none;">Covered by tests:
+<ul>
+<li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns a root descriptor</li> <li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns all root contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in root contexts</li> <li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > sends one skip event and no start event for skipped tests</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly reports exceptions in afterEach as test failures</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in an object</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in a class</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > returns tests in the order that they are declared in the file</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly handles test that fail in their second pass</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > failing contexts > reports failing contexts</li> <li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > starts and stops contexts in the correct order</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute duplicate root</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns correct uniqueid for non standard describes</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > executes contexts that contain tests with the same names</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in sub contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for named test collections</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > works even in deeply nested contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for unnamed test collections</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > works for a failing context or root context</li> <li>failgood.ContextTest.ContextTest: a test context > can be created from a path</li> 
+</ul>
+</div></div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@68bffb06_41'>41</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_41'/> 
+
+<p class='NO_COVERAGE'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>testEvent<br/><b>Killed by : </b>none</span></span> replaced return value with null for failgood/junit/legacy/ChannelExecutionListener::testEvent &rarr; NO_COVERAGE</span>
+</div> <p class='NO_COVERAGE'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>testEvent<br/><b>Killed by : </b>none</span></span> negated conditional &rarr; NO_COVERAGE</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@68bffb06_42'>42</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@68bffb06_42'/> 
+
+<p class='NO_COVERAGE'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>testEvent<br/><b>Killed by : </b>none</span></span> replaced return value with null for failgood/junit/legacy/ChannelExecutionListener::testEvent &rarr; NO_COVERAGE</span>
+</div> 
+</td>
+</tr>
+
+</table>
+
+
+<h2>Active mutators</h2>
+<ul>
+<li class='mutator'>CONDITIONALS_BOUNDARY</li>
+<li class='mutator'>EMPTY_RETURNS</li>
+<li class='mutator'>FALSE_RETURNS</li>
+<li class='mutator'>INCREMENTS</li>
+<li class='mutator'>INVERT_NEGS</li>
+<li class='mutator'>MATH</li>
+<li class='mutator'>NEGATE_CONDITIONALS</li>
+<li class='mutator'>NULL_RETURNS</li>
+<li class='mutator'>PRIMITIVE_RETURNS</li>
+<li class='mutator'>TRUE_RETURNS</li>
+<li class='mutator'>VOID_METHOD_CALLS</li>
+
+</ul>
+
+<h2>Tests examined</h2>
+<ul>
+<li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns a root descriptor (0 ms)</li><li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns all root contexts (0 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in root contexts (2 ms)</li><li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > sends one skip event and no start event for skipped tests (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly reports exceptions in afterEach as test failures (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in an object (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in a class (3 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > returns tests in the order that they are declared in the file (5 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly handles test that fail in their second pass (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > failing contexts > reports failing contexts (1 ms)</li><li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > starts and stops contexts in the correct order (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute duplicate root (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns correct uniqueid for non standard describes (3 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > executes contexts that contain tests with the same names (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in sub contexts (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for named test collections (4 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > works even in deeply nested contexts (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for unnamed test collections (4 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > works for a failing context or root context (8 ms)</li><li>failgood.ContextTest.ContextTest: a test context > can be created from a path (4 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > failing contexts > reports failing root contexts (1 ms)</li>
+</ul>
+
+<br/>
+
+Report generated by <a href='https://pitest.org'>PIT</a> 1.19.5
+
+</body>
+</html>

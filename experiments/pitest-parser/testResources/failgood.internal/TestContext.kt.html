@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+<body>
+
+
+<h1>TestContext.kt</h1>
+
+<table class="src">
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_1'/>
+1
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_1'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>package failgood.internal</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_2'/>
+2
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_2'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_3'/>
+3
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_3'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import failgood.ExecutionListener</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_4'/>
+4
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_4'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import failgood.TestDescription</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_5'/>
+5
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_5'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import failgood.dsl.ResourcesDSL</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_6'/>
+6
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_6'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import failgood.dsl.TestDSL</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_7'/>
+7
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_7'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import failgood.dsl.TestDSLWithGiven</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_8'/>
+8
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_8'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import failgood.dsl.TestInfo</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_9'/>
+9
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_9'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_10'/>
+10
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_10'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>internal interface ClonableTestContext&#60;GivenType&#62; : TestDSL {</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_11'/>
+11
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_11'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    fun withGiven(given: GivenType): TestContext&#60;GivenType&#62;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_12'/>
+12
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_12'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>}</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_13'/>
+13
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_13'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_14'/>
+14
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_14'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>internal class TestContext&#60;GivenType&#62;(</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_15'/>
+15
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_15'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    private val resourcesDSL: ResourcesDSL,</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_16'/>
+16
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_16'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    private val listener: ExecutionListener,</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_17'/>
+17
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_17'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    private val testDescription: TestDescription,</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_18'/>
+18
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_18'>1</a>
+<span>
+1. getGiven : replaced return value with null for failgood/internal/TestContext::getGiven &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    override val given: GivenType</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_19'/>
+19
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_19'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>) : TestDSLWithGiven&#60;GivenType&#62;, ResourcesDSL by resourcesDSL, ClonableTestContext&#60;GivenType&#62; {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_20'/>
+20
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_20'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    override val testInfo: TestInfo = TestInfo(testDescription.testName)</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_21'/>
+21
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_21'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_22'/>
+22
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_22'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    override suspend fun log(body: String) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_23'/>
+23
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_23'>2</a>
+<span>
+1. log : replaced return value with null for failgood/internal/TestContext::log &rarr; NO_COVERAGE<br/>
+2. log : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>        _test_event(&#34;stdout&#34;, body)</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_24'/>
+24
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_24'>1</a>
+<span>
+1. log : replaced return value with null for failgood/internal/TestContext::log &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_25'/>
+25
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_25'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_26'/>
+26
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_26'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    override suspend fun _test_event(type: String, body: String) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_27'/>
+27
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_27'>3</a>
+<span>
+1. _test_event : replaced return value with null for failgood/internal/TestContext::_test_event &rarr; NO_COVERAGE<br/>
+2. _test_event : negated conditional &rarr; KILLED<br/>
+3. _test_event : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>        listener.testEvent(testDescription, type, body.ifBlank { &#34;&#60;empty&#62;&#34; })</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_28'/>
+28
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_28'>1</a>
+<span>
+1. _test_event : replaced return value with null for failgood/internal/TestContext::_test_event &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_29'/>
+29
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_29'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_30'/>
+30
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_30'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    override fun withGiven(given: GivenType) =</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_31'/>
+31
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_31'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        TestContext(resourcesDSL, listener, testDescription, given)</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@52294ab7_32'/>
+32
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_32'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>}</span></pre></td></tr>
+
+
+
+<tr><td></td><td></td><td><h2>Mutations</h2></td></tr>
+
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@52294ab7_18'>18</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_18'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>getGiven<br/><b>Killed by : </b>failgood.functional.GivenTest.GivenTest > given that accesses non given values > a context with given that uses a value from the parent context > a context that uses the parent context value > first test</span></span> replaced return value with null for failgood/internal/TestContext::getGiven &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@52294ab7_23'>23</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_23'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>log<br/><b>Killed by : </b>failgood.internal.TestContextTest.TestContextTest: TestDSL > publishes a test event for stdout printing</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='NO_COVERAGE'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>log<br/><b>Killed by : </b>none</span></span> replaced return value with null for failgood/internal/TestContext::log &rarr; NO_COVERAGE</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@52294ab7_24'>24</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_24'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>log<br/><b>Killed by : </b>failgood.internal.TestContextTest.TestContextTest: TestDSL > publishes a test event for stdout printing</span></span> replaced return value with null for failgood/internal/TestContext::log &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@52294ab7_27'>27</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_27'/> 
+
+<p class='NO_COVERAGE'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>_test_event<br/><b>Killed by : </b>none</span></span> replaced return value with null for failgood/internal/TestContext::_test_event &rarr; NO_COVERAGE</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>_test_event<br/><b>Killed by : </b>failgood.internal.TestContextTest.TestContextTest: TestDSL > publishes a test event for stdout printing</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>3.<span><b>3</b><br/><b>Location : </b>_test_event<br/><b>Killed by : </b>failgood.internal.TestContextTest.TestContextTest: TestDSL > publishes a test event for stdout printing</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@52294ab7_28'>28</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@52294ab7_28'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>_test_event<br/><b>Killed by : </b>failgood.internal.TestContextTest.TestContextTest: TestDSL > publishes a test event for stdout printing</span></span> replaced return value with null for failgood/internal/TestContext::_test_event &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+
+</table>
+
+
+<h2>Active mutators</h2>
+<ul>
+<li class='mutator'>CONDITIONALS_BOUNDARY</li>
+<li class='mutator'>EMPTY_RETURNS</li>
+<li class='mutator'>FALSE_RETURNS</li>
+<li class='mutator'>INCREMENTS</li>
+<li class='mutator'>INVERT_NEGS</li>
+<li class='mutator'>MATH</li>
+<li class='mutator'>NEGATE_CONDITIONALS</li>
+<li class='mutator'>NULL_RETURNS</li>
+<li class='mutator'>PRIMITIVE_RETURNS</li>
+<li class='mutator'>TRUE_RETURNS</li>
+<li class='mutator'>VOID_METHOD_CALLS</li>
+
+</ul>
+
+<h2>Tests examined</h2>
+<ul>
+<li>failgood.functional.GivenTest.GivenTest > given that accesses non given values > a context with given that uses a value from the parent context > a context that uses the parent context value > first test (0 ms)</li><li>failgood.functional.GivenTest.GivenTest > nested describe > the given of a parent context > is available in the given block of the child > first test (0 ms)</li><li>failgood.functional.GivenTest.GivenTest > nested describe > the given of a parent context > is available in the given block of the child > second test (0 ms)</li><li>failgood.functional.GivenTest.GivenTest > given that accesses non given values > a context with given that uses a value from the parent context > a context that uses the parent context value > second test (0 ms)</li><li>failgood.internal.SingleTestExecutorTest.SingleTestExecutor > test execution > a context with given > collects given information (1 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > with a typical valid root context > executing a subset of tests > does not execute the context at all if the root name does not match (0 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > with a typical valid root context > executing a subset of tests > can execute a subset of tests (2 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > with a typical valid root context > executing all the tests > returns tests in the same order as they are declared in the file (1 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > with a typical valid root context > with a listener > reports tests and contexts in their order inside the file (3 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > with a typical valid root context > executing all the tests > reports failed tests > reports exception for failed tests (2 ms)</li><li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns a root descriptor (0 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > with a typical valid root context > executing all the tests > returns contexts in the same order as they appear in the file (1 ms)</li><li>failgood.functional.SubContextIsolationTest.sub context isolation > on a root context with default isolation (true) > turning off isolation for a subcontext > calls the given for each test (1 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > with a typical valid root context > executing all the tests > reports time of successful tests (2 ms)</li><li>failgood.functional.GivenTest.GivenTest > passes the value of the contests given block to the test (2 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > with a typical valid root context > executing all the tests > returns deferred test results (2 ms)</li><li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns all root contexts (0 ms)</li><li>failgood.internal.TestContextTest.TestContextTest: TestDSL > publishes a test event for stdout printing (0 ms)</li><li>failgood.internal.TestContextTest.TestContextTest: TestDSL > replaces an empty test event to make junit happy (0 ms)</li>
+</ul>
+
+<br/>
+
+Report generated by <a href='https://pitest.org'>PIT</a> 1.19.5
+
+</body>
+</html>

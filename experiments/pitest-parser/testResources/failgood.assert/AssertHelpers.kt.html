@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+<body>
+
+
+<h1>AssertHelpers.kt</h1>
+
+<table class="src">
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4e2bd0df_1'/>
+1
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4e2bd0df_1'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>package failgood.assert</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4e2bd0df_2'/>
+2
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4e2bd0df_2'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4e2bd0df_3'/>
+3
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4e2bd0df_3'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>fun &#60;T&#62; Iterable&#60;T&#62;.containsExactlyInAnyOrder(elements: Collection&#60;T&#62;): Boolean =</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4e2bd0df_4'/>
+4
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4e2bd0df_4'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    this.toSet() == elements.toSet()</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4e2bd0df_5'/>
+5
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4e2bd0df_5'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4e2bd0df_6'/>
+6
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4e2bd0df_6'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>fun &#60;T&#62; Iterable&#60;T&#62;.containsExactlyInAnyOrder(vararg elements: T): Boolean =</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4e2bd0df_7'/>
+7
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4e2bd0df_7'>2</a>
+<span>
+1. containsExactlyInAnyOrder : replaced boolean return with true for failgood/assert/AssertHelpersKt::containsExactlyInAnyOrder &rarr; KILLED<br/>
+2. containsExactlyInAnyOrder : replaced boolean return with false for failgood/assert/AssertHelpersKt::containsExactlyInAnyOrder &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    this.containsExactlyInAnyOrder(elements.asList())</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4e2bd0df_8'/>
+8
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4e2bd0df_8'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4e2bd0df_9'/>
+9
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4e2bd0df_9'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>fun &#60;T&#62; List&#60;T&#62;.endsWith(elements: List&#60;T&#62;): Boolean = this.takeLast(elements.size) == elements</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4e2bd0df_10'/>
+10
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4e2bd0df_10'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@4e2bd0df_11'/>
+11
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@4e2bd0df_11'>2</a>
+<span>
+1. endsWith : replaced boolean return with true for failgood/assert/AssertHelpersKt::endsWith &rarr; SURVIVED<br/>
+2. endsWith : replaced boolean return with false for failgood/assert/AssertHelpersKt::endsWith &rarr; SURVIVED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>fun &#60;T&#62; List&#60;T&#62;.endsWith(vararg elements: T): Boolean = this.endsWith(elements.asList())</span></pre></td></tr>
+
+
+
+<tr><td></td><td></td><td><h2>Mutations</h2></td></tr>
+
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4e2bd0df_7'>7</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4e2bd0df_7'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>containsExactlyInAnyOrder<br/><b>Killed by : </b>failgood.assert.AssertHelpersTest.AssertHelpersTest > containsExactlyInAnyOrder > simple > returns true when the elements are the same</span></span> replaced boolean return with true for failgood/assert/AssertHelpersKt::containsExactlyInAnyOrder &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>containsExactlyInAnyOrder<br/><b>Killed by : </b>failgood.assert.AssertHelpersTest.AssertHelpersTest > containsExactlyInAnyOrder > simple > returns true when the elements are the same</span></span> replaced boolean return with false for failgood/assert/AssertHelpersKt::containsExactlyInAnyOrder &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@4e2bd0df_11'>11</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@4e2bd0df_11'/> 
+
+<p class='SURVIVED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>endsWith<br/><b>Killed by : </b>none</span></span> replaced boolean return with true for failgood/assert/AssertHelpersKt::endsWith &rarr; SURVIVED</span>
+<a title="Click to view covering tests" class="view-covered-by-tests" onClick="document.getElementById('MutationIdentifier-[location=Location-[clazz=failgood.assert.AssertHelpersKt,-method=endsWith,-methodDesc=(Ljava/util/List;[Ljava/lang/Object;)Z],-indexes=[14],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.BooleanTrueReturnValsMutator]').style.display=(document.getElementById('MutationIdentifier-[location=Location-[clazz=failgood.assert.AssertHelpersKt,-method=endsWith,-methodDesc=(Ljava/util/List;[Ljava/lang/Object;)Z],-indexes=[14],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.BooleanTrueReturnValsMutator]').style.display == 'block')?'none':'block';">Covering tests</a>
+<div class="covered-tests" id="MutationIdentifier-[location=Location-[clazz=failgood.assert.AssertHelpersKt,-method=endsWith,-methodDesc=(Ljava/util/List;[Ljava/lang/Object;)Z],-indexes=[14],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.BooleanTrueReturnValsMutator]" style="display:none;">Covered by tests:
+<ul>
+<li>failgood.assert.AssertHelpersTest.AssertHelpersTest > endsWith > works with vararg</li> <li>failgood.functional.SubContextIsolationTest.sub context isolation > on a root context with default isolation (true) > turning off isolation for a subcontext > calls callbacks at the correct time</li> 
+</ul>
+</div></div> <p class='SURVIVED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>endsWith<br/><b>Killed by : </b>none</span></span> replaced boolean return with false for failgood/assert/AssertHelpersKt::endsWith &rarr; SURVIVED</span>
+<a title="Click to view covering tests" class="view-covered-by-tests" onClick="document.getElementById('MutationIdentifier-[location=Location-[clazz=failgood.assert.AssertHelpersKt,-method=endsWith,-methodDesc=(Ljava/util/List;[Ljava/lang/Object;)Z],-indexes=[14],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.BooleanFalseReturnValsMutator]').style.display=(document.getElementById('MutationIdentifier-[location=Location-[clazz=failgood.assert.AssertHelpersKt,-method=endsWith,-methodDesc=(Ljava/util/List;[Ljava/lang/Object;)Z],-indexes=[14],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.BooleanFalseReturnValsMutator]').style.display == 'block')?'none':'block';">Covering tests</a>
+<div class="covered-tests" id="MutationIdentifier-[location=Location-[clazz=failgood.assert.AssertHelpersKt,-method=endsWith,-methodDesc=(Ljava/util/List;[Ljava/lang/Object;)Z],-indexes=[14],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.BooleanFalseReturnValsMutator]" style="display:none;">Covered by tests:
+<ul>
+<li>failgood.assert.AssertHelpersTest.AssertHelpersTest > endsWith > works with vararg</li> <li>failgood.functional.SubContextIsolationTest.sub context isolation > on a root context with default isolation (true) > turning off isolation for a subcontext > calls callbacks at the correct time</li> 
+</ul>
+</div></div> 
+</td>
+</tr>
+
+</table>
+
+
+<h2>Active mutators</h2>
+<ul>
+<li class='mutator'>CONDITIONALS_BOUNDARY</li>
+<li class='mutator'>EMPTY_RETURNS</li>
+<li class='mutator'>FALSE_RETURNS</li>
+<li class='mutator'>INCREMENTS</li>
+<li class='mutator'>INVERT_NEGS</li>
+<li class='mutator'>MATH</li>
+<li class='mutator'>NEGATE_CONDITIONALS</li>
+<li class='mutator'>NULL_RETURNS</li>
+<li class='mutator'>PRIMITIVE_RETURNS</li>
+<li class='mutator'>TRUE_RETURNS</li>
+<li class='mutator'>VOID_METHOD_CALLS</li>
+
+</ul>
+
+<h2>Tests examined</h2>
+<ul>
+<li>failgood.assert.AssertHelpersTest.AssertHelpersTest > endsWith > works with vararg (0 ms)</li><li>failgood.functional.SubContextIsolationTest.sub context isolation > on a root context with default isolation (true) > turning off isolation for a subcontext > calls callbacks at the correct time (1 ms)</li><li>failgood.assert.AssertHelpersTest.AssertHelpersTest > containsExactlyInAnyOrder > simple > returns true when the elements are the same (0 ms)</li><li>failgood.softly.SoftAssertTest.SoftAssertTest: soft assert syntax > could look like this (0 ms)</li><li>failgood.assert.AssertHelpersTest.AssertHelpersTest > containsExactlyInAnyOrder > simple > returns true false the elements are not the same (0 ms)</li><li>failgood.assert.AssertHelpersTest.AssertHelpersTest > containsExactlyInAnyOrder > with a class that does not implement comparable > works with vararg (0 ms)</li><li>failgood.functional.NameHandlingTest.name handling > adding test class name to test collection name > adds the test class name to the test collection name when the test collection has no name (1 ms)</li><li>failgood.functional.NameHandlingTest.name handling > duplicate test collection names > makes duplicate test collection names unique (1 ms)</li><li>failgood.functional.NameHandlingTest.name handling > duplicate test collection names > makes unnamed collection names unique (0 ms)</li><li>failgood.functional.SubContextIsolationTest.sub context isolation > on a root context with default isolation (true) > turning off isolation for a subcontext > does not affect other contexts (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The New Junit Platform Engine > works for a failing context or root context (5 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > works for a failing context or root context (8 ms)</li>
+</ul>
+
+<br/>
+
+Report generated by <a href='https://pitest.org'>PIT</a> 1.19.5
+
+</body>
+</html>

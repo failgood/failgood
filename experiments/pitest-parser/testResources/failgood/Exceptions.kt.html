@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+<body>
+
+
+<h1>Exceptions.kt</h1>
+
+<table class="src">
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@3e242f6e_1'/>
+1
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@3e242f6e_1'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>package failgood</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@3e242f6e_2'/>
+2
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@3e242f6e_2'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@3e242f6e_3'/>
+3
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@3e242f6e_3'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import kotlin.reflect.KClass</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@3e242f6e_4'/>
+4
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@3e242f6e_4'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@3e242f6e_5'/>
+5
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@3e242f6e_5'>2</a>
+<span>
+1. getCause : replaced return value with null for failgood/FailGoodException::getCause &rarr; SURVIVED<br/>
+2. getMessage : replaced return value with &#34;&#34; for failgood/FailGoodException::getMessage &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>open class FailGoodException(override val message: String, override val cause: Throwable? = null) :</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@3e242f6e_6'/>
+6
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@3e242f6e_6'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    RuntimeException(message, cause)</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@3e242f6e_7'/>
+7
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@3e242f6e_7'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@3e242f6e_8'/>
+8
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@3e242f6e_8'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>internal class SuiteFailedException(reason: String) : FailGoodException(reason)</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@3e242f6e_9'/>
+9
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@3e242f6e_9'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@3e242f6e_10'/>
+10
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@3e242f6e_10'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>internal class EmptySuiteException : FailGoodException(&#34;suite can not be empty&#34;)</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@3e242f6e_11'/>
+11
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@3e242f6e_11'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@3e242f6e_12'/>
+12
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@3e242f6e_12'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>internal class ErrorLoadingContextsFromClass(</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@3e242f6e_13'/>
+13
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@3e242f6e_13'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    message: String,</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@3e242f6e_14'/>
+14
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@3e242f6e_14'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    val kClass: KClass&#60;out Any&#62;,</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@3e242f6e_15'/>
+15
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@3e242f6e_15'>1</a>
+<span>
+1. getCause : replaced return value with null for failgood/ErrorLoadingContextsFromClass::getCause &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    override val cause: Throwable? = null</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@3e242f6e_16'/>
+16
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@3e242f6e_16'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>) : FailGoodException(message, cause)</span></pre></td></tr>
+
+
+
+<tr><td></td><td></td><td><h2>Mutations</h2></td></tr>
+
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@3e242f6e_5'>5</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@3e242f6e_5'/> 
+
+<p class='SURVIVED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>getCause<br/><b>Killed by : </b>none</span></span> replaced return value with null for failgood/FailGoodException::getCause &rarr; SURVIVED</span>
+<a title="Click to view covering tests" class="view-covered-by-tests" onClick="document.getElementById('MutationIdentifier-[location=Location-[clazz=failgood.FailGoodException,-method=getCause,-methodDesc=()Ljava/lang/Throwable;],-indexes=[5],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.NullReturnValsMutator]').style.display=(document.getElementById('MutationIdentifier-[location=Location-[clazz=failgood.FailGoodException,-method=getCause,-methodDesc=()Ljava/lang/Throwable;],-indexes=[5],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.NullReturnValsMutator]').style.display == 'block')?'none':'block';">Covering tests</a>
+<div class="covered-tests" id="MutationIdentifier-[location=Location-[clazz=failgood.FailGoodException,-method=getCause,-methodDesc=()Ljava/lang/Throwable;],-indexes=[5],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.NullReturnValsMutator]" style="display:none;">Covered by tests:
+<ul>
+<li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > detects duplicated tests > fails with duplicate tests in one context</li> <li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > detects duplicate contexts > fails with duplicate contexts in one context</li> <li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > detects duplicate contexts > fails when a context has the same name as a test in the same contexts</li> <li>failgood.functional.ErrorHandlingTest.ErrorHandlingTest: Error Handling > tests with wrong receiver</li> <li>failgood.functional.SubContextIsolationTest.sub context isolation > on a root context with default isolation (true) > error handling > does not allow to turn isolation on when it was already off</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in root contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > duplicate test names > are correctly handled in root contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > duplicate test names > are correctly handled in sub contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > duplicate test names > works even in deeply nested contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in sub contexts</li> <li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > works even in deeply nested contexts</li> 
+</ul>
+</div></div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>getMessage<br/><b>Killed by : </b>failgood.ObjectContextProviderTest.ObjectContextProvider > Error handling > throws when a class contains no contexts</span></span> replaced return value with &#34;&#34; for failgood/FailGoodException::getMessage &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@3e242f6e_15'>15</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@3e242f6e_15'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>getCause<br/><b>Killed by : </b>failgood.ObjectContextProviderTest.ObjectContextProvider > Error handling > wraps exceptions that happen at class instantiation: ClassThatThrowsAtContextGetter</span></span> replaced return value with null for failgood/ErrorLoadingContextsFromClass::getCause &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+
+</table>
+
+
+<h2>Active mutators</h2>
+<ul>
+<li class='mutator'>CONDITIONALS_BOUNDARY</li>
+<li class='mutator'>EMPTY_RETURNS</li>
+<li class='mutator'>FALSE_RETURNS</li>
+<li class='mutator'>INCREMENTS</li>
+<li class='mutator'>INVERT_NEGS</li>
+<li class='mutator'>MATH</li>
+<li class='mutator'>NEGATE_CONDITIONALS</li>
+<li class='mutator'>NULL_RETURNS</li>
+<li class='mutator'>PRIMITIVE_RETURNS</li>
+<li class='mutator'>TRUE_RETURNS</li>
+<li class='mutator'>VOID_METHOD_CALLS</li>
+
+</ul>
+
+<h2>Tests examined</h2>
+<ul>
+<li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > detects duplicated tests > fails with duplicate tests in one context (0 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > detects duplicate contexts > fails with duplicate contexts in one context (1 ms)</li><li>failgood.internal.execution.TestCollectionExecutorTest.TestCollectionExecutorTest > detects duplicate contexts > fails when a context has the same name as a test in the same contexts (2 ms)</li><li>failgood.functional.ErrorHandlingTest.ErrorHandlingTest: Error Handling > tests with wrong receiver (1 ms)</li><li>failgood.functional.SubContextIsolationTest.sub context isolation > on a root context with default isolation (true) > error handling > does not allow to turn isolation on when it was already off (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in root contexts (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > duplicate test names > are correctly handled in root contexts (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > duplicate test names > are correctly handled in sub contexts (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > duplicate test names > works even in deeply nested contexts (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in sub contexts (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > works even in deeply nested contexts (2 ms)</li><li>failgood.ObjectContextProviderTest.ObjectContextProvider > Error handling > throws when a class contains no contexts (3 ms)</li><li>failgood.SuiteTest.Suite > timeout parsing > throws when it is not a number (0 ms)</li><li>failgood.ObjectContextProviderTest.ObjectContextProvider > Error handling > gives a helpful error when a class could not be instantiated (0 ms)</li><li>failgood.ObjectContextProviderTest.ObjectContextProvider > Error handling > returns useful error message for private classes (0 ms)</li><li>failgood.ObjectContextProviderTest.ObjectContextProvider > Error handling > wraps exceptions that happen at class instantiation: ClassThatThrowsAtCreationTime (0 ms)</li><li>failgood.ObjectContextProviderTest.ObjectContextProvider > Error handling > wraps exceptions that happen at class instantiation: ClassThatThrowsAtContextGetter (0 ms)</li><li>failgood.ObjectContextProviderTest.ObjectContextProvider > Error handling > gives a helpful error when a context method has parameters (0 ms)</li><li>failgood.SuiteTest.Suite > error handling > treats errors in getContexts as failed context (6 ms)</li><li>failgood.functional.ErrorHandlingTest.Error Handling > Non deterministic test names > make their test count as failed (2 ms)</li>
+</ul>
+
+<br/>
+
+Report generated by <a href='https://pitest.org'>PIT</a> 1.19.5
+
+</body>
+</html>

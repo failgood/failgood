@@ -1,2 +1,9 @@
 ./gradlew ktfmtFormat
 CI=true ./gradlew ci "$@"
+
+# Run pitest mutation testing
+./gradlew :failgood:pitest
+
+# Parse and store coverage results
+BUILD_STATS_DIR="${BUILD_STATS_DIR:-$(pwd)/buildStats}"
+./gradlew :experiments:pitest-parser:run --args="--report-dir=$(pwd)/failgood/build/reports/pitest --output-dir=$BUILD_STATS_DIR"

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+<body>
+
+
+<h1>StringUniquer.kt</h1>
+
+<table class="src">
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@56418318_1'/>
+1
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@56418318_1'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>package failgood.internal.util</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@56418318_2'/>
+2
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@56418318_2'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@56418318_3'/>
+3
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@56418318_3'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>internal class StringUniquer {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@56418318_4'/>
+4
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@56418318_4'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    private val used = mutableSetOf&#60;String&#62;()</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@56418318_5'/>
+5
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@56418318_5'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@56418318_6'/>
+6
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@56418318_6'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    /** this adds a number to a string to make it unique within this instance */</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@56418318_7'/>
+7
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@56418318_7'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    fun makeUnique(string: String): String {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@56418318_8'/>
+8
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@56418318_8'>2</a>
+<span>
+1. makeUnique : negated conditional &rarr; KILLED<br/>
+2. makeUnique : replaced return value with &#34;&#34; for failgood/internal/util/StringUniquer::makeUnique &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        return if (used.add(string)) string</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@56418318_9'/>
+9
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@56418318_9'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        else {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@56418318_10'/>
+10
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@56418318_10'>1</a>
+<span>
+1. makeUnique$lambda$0 : replaced return value with &#34;&#34; for failgood/internal/util/StringUniquer::makeUnique$lambda$0 &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>            (1..Int.MAX_VALUE).asSequence().map { &#34;$string-$it&#34; }.first { used.add(it) }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@56418318_11'/>
+11
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@56418318_11'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@56418318_12'/>
+12
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@56418318_12'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@56418318_13'/>
+13
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@56418318_13'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>}</span></pre></td></tr>
+
+
+
+<tr><td></td><td></td><td><h2>Mutations</h2></td></tr>
+
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@56418318_8'>8</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@56418318_8'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>makeUnique<br/><b>Killed by : </b>failgood.internal.util.StringUniquerTest.StringUniquerTest > makes strings unique</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>makeUnique<br/><b>Killed by : </b>failgood.internal.util.StringUniquerTest.StringUniquerTest > makes strings unique</span></span> replaced return value with &#34;&#34; for failgood/internal/util/StringUniquer::makeUnique &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@56418318_10'>10</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@56418318_10'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>makeUnique$lambda$0<br/><b>Killed by : </b>failgood.internal.util.StringUniquerTest.StringUniquerTest > makes strings unique</span></span> replaced return value with &#34;&#34; for failgood/internal/util/StringUniquer::makeUnique$lambda$0 &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@56418318_15'>15</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@56418318_15'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>makeUnique<br/><b>Killed by : </b>failgood.internal.util.StringUniquerTest.StringUniquerTest > makes strings unique</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>makeUnique<br/><b>Killed by : </b>failgood.internal.util.StringUniquerTest.StringUniquerTest > makes strings unique</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+
+</table>
+
+
+<h2>Active mutators</h2>
+<ul>
+<li class='mutator'>CONDITIONALS_BOUNDARY</li>
+<li class='mutator'>EMPTY_RETURNS</li>
+<li class='mutator'>FALSE_RETURNS</li>
+<li class='mutator'>INCREMENTS</li>
+<li class='mutator'>INVERT_NEGS</li>
+<li class='mutator'>MATH</li>
+<li class='mutator'>NEGATE_CONDITIONALS</li>
+<li class='mutator'>NULL_RETURNS</li>
+<li class='mutator'>PRIMITIVE_RETURNS</li>
+<li class='mutator'>TRUE_RETURNS</li>
+<li class='mutator'>VOID_METHOD_CALLS</li>
+
+</ul>
+
+<h2>Tests examined</h2>
+<ul>
+<li>failgood.internal.util.StringUniquerTest.StringUniquerTest > makes strings unique (0 ms)</li><li>failgood.junit.legacy.CreateResponseTest.createResponse > contexts > creates friendly uniqueid for a sub context (0 ms)</li><li>failgood.junit.legacy.CreateResponseTest.CreateResponseTest: createResponse > creates friendly uuids for tests (0 ms)</li><li>failgood.functional.NameHandlingTest.name handling > adding test class name to test collection name > adds the test class name to the test collection name when the test collection has no name (1 ms)</li><li>failgood.functional.NameHandlingTest.name handling > duplicate test collection names > makes duplicate test collection names unique (1 ms)</li><li>failgood.functional.ContextOrderTest.ContextOrderTest: Root Context Order > is determined by the order field low to high (1 ms)</li><li>failgood.functional.TestResourcesLifecycleTest.closing test resources > after suite callback > can throw exceptions that are ignored (0 ms)</li><li>failgood.functional.NameHandlingTest.name handling > duplicate test collection names > makes unnamed collection names unique (0 ms)</li><li>failgood.functional.ErrorHandlingTest.ErrorHandlingTest: Error Handling > tests with wrong receiver (1 ms)</li><li>failgood.functional.SubContextIsolationTest.sub context isolation > on a root context with default isolation (true) > error handling > does not allow to turn isolation on when it was already off (2 ms)</li><li>failgood.functional.SubContextIsolationTest.sub context isolation > on a root context with default isolation (true) > turning off isolation for a subcontext > executes all the tests in that context in one go (1 ms)</li><li>failgood.functional.ErrorHandlingTest.Error Handling > Non deterministic test names > make their test count as failed (2 ms)</li><li>failgood.functional.ErrorHandlingTest.ErrorHandlingTest: Error Handling > handles errors in resource correctly (1 ms)</li><li>failgood.SuiteTest.Suite > coroutine scope > does not wait for tests before returning context info (16 ms)</li><li>failgood.functional.GivenTest.GivenTest > error handling > treats errors in the given block as test failures (1 ms)</li><li>failgood.functional.TestResourcesLifecycleTest.closing test resources > autoclosable > closes autocloseables without callback (1 ms)</li><li>failgood.functional.TestResourcesLifecycleTest.closing test resources > autoclosable > error handling > calls autoCLose, afterEach and reports test Failure > when the test fails and autoclose and aftereach work (0 ms)</li><li>failgood.functional.TestResourcesLifecycleTest.closing test resources > autoclosable > error handling > reports the test failure even when the close callback fails too (0 ms)</li><li>failgood.pitest.FailGoodTestUnitFinderTest.FailGoodTestUnitFinderTest: FailGoodTestUnitFinder > creates a test unit for each test (3 ms)</li><li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns a root descriptor (0 ms)</li><li>failgood.functional.ContextDSLTest.ContextDSLTest: ContextDSL::describe > works for class (2 ms)</li><li>failgood.functional.SubContextIsolationTest.sub context isolation > on a root context with default isolation (true) > turning off isolation for a subcontext > calls the given for each test (1 ms)</li><li>failgood.functional.TestResourcesLifecycleTest.closing test resources > autoclosable > error handling > calls autoCLose, afterEach and reports test Failure > when the test succeeds, autoclose fails and aftereach works (0 ms)</li><li>failgood.functional.TestResourcesLifecycleTest.closing test resources > autoclosable > error handling > calls autoCLose, afterEach and reports test Failure > when the test fails and aftereach fails (0 ms)</li><li>failgood.functional.TestResourcesLifecycleTest.closing test resources > after suite callback > is called exactly once at the end of the suite, after all tests are finished (1 ms)</li><li>failgood.functional.TestResourcesLifecycleTest.closing test resources > autoclosable > error handling > calls autoCLose, afterEach and reports test Failure > when the test and autoclose succeeds and aftereach fails (1 ms)</li><li>failgood.functional.TestResourcesLifecycleTest.closing test resources > autoclosable > is closed in reverse order of creation (2 ms)</li><li>failgood.functional.SubContextIsolationTest.sub context isolation > on a root context with default isolation (true) > turning off isolation for a subcontext > does not affect other contexts (1 ms)</li><li>failgood.functional.GivenTest.GivenTest > passes the value of the contests given block to the test (2 ms)</li><li>failgood.functional.RootContextTestIsolationTest.test isolation for root contexts > in the default isolation mode (full isolation) > passes testInfo and success to afterEach (0 ms)</li><li>failgood.functional.TestResourcesLifecycleTest.closing test resources > autoclosable > works inside a test (2 ms)</li><li>failgood.functional.RootContextTestIsolationTest.test isolation for root contexts > a root context with isolation set to false > passes testInfo and success to afterEach (0 ms)</li><li>failgood.functional.SubContextIsolationTest.sub context isolation > on a root context with default isolation (true) > turning off isolation for a subcontext > calls callbacks at the correct time (1 ms)</li><li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > can discover tests > returns all root contexts (0 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > failing contexts > reports failing root contexts (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in root contexts (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > failing contexts > reports failing root contexts (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > duplicate test names > are correctly handled in root contexts (1 ms)</li><li>failgood.ThousandTestsTest.ThousandTestsTest: a test suite with 1000 tests in one context > runs pretty fast (52 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > error handling > correctly reports exceptions in afterEach as test failures (1 ms)</li><li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > sends one skip event and no start event for skipped tests (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The New Junit Platform Engine > can execute a simple test defined in an object (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The New Junit Platform Engine > can execute a simple test defined in a class (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly reports exceptions in afterEach as test failures (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > failing contexts > reports failing contexts (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The New Junit Platform Engine > can execute duplicate root (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > running by unique id > returns correct uniqueid for non standard describes (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in an object (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute a simple test defined in a class (3 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > returns tests in the order that they are declared in the file (5 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > error handling > correctly handles test that fail in their second pass (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > failing contexts > reports failing contexts (1 ms)</li><li>failgood.junit.legacy.LegacyJUnitTestEngineTest.LegacyJUnitTestEngine > test execution > starts and stops contexts in the correct order (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > error handling > correctly handles test that fail in their second pass (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > can execute duplicate root (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for named test collections (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > duplicate test names > are correctly handled in sub contexts (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The New Junit Platform Engine > executes contexts that contain tests with the same names (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns correct uniqueid for non standard describes (3 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > duplicate test names > works even in deeply nested contexts (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The New Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for unnamed test collections (1 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > executes contexts that contain tests with the same names (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > are correctly handled in sub contexts (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for named test collections (4 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > duplicate test names > works even in deeply nested contexts (2 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.The Legacy Junit Platform Engine > running by unique id > returns uniqueIds that it understands (uniqueid round-trip test) > works for unnamed test collections (4 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The New Junit Platform Engine > works for a failing context or root context (5 ms)</li><li>failgood.junit.it.JunitPlatformFunctionalTest.JunitPlatformFunctionalTest: The Legacy Junit Platform Engine > works for a failing context or root context (8 ms)</li><li>failgood.ContextTest.ContextTest: a test context > can be created from a path (4 ms)</li>
+</ul>
+
+<br/>
+
+Report generated by <a href='https://pitest.org'>PIT</a> 1.19.5
+
+</body>
+</html>

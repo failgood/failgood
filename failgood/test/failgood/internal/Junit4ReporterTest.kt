@@ -2,8 +2,6 @@ package failgood.internal
 
 import failgood.Test
 import failgood.testCollection
-import strikt.api.expectThat
-import strikt.assertions.containsExactly
 
 @Test
 class Junit4ReporterTest {
@@ -13,8 +11,8 @@ class Junit4ReporterTest {
             it("reports test results") {
                 val control = Junit4Reporter(TestResultFixtures.testResults).stringReport()
 
-                expectThat(control)
-                    .containsExactly(
+                assert(
+                    control ==
                         listOf(
                             """<testsuite tests="3">""",
                             """<testcase classname="the test runner" name="supports describe/it syntax"/>""",

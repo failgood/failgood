@@ -6,8 +6,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import strikt.api.expectThat
-import strikt.assertions.containsExactly
 
 @Test
 class CoroutinesTest {
@@ -29,7 +27,7 @@ class CoroutinesTest {
                     }
                     events.add("after-scope")
                 }
-                expectThat(events).containsExactly("after-async", "after-scope", "after-delay")
+                assert(events == listOf("after-async", "after-scope", "after-delay"))
             }
         }
 }

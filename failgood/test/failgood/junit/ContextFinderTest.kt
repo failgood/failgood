@@ -11,8 +11,6 @@ import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.discovery.DiscoverySelectors
 import org.junit.platform.engine.discovery.PackageNameFilter
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
-import strikt.api.expectThat
-import strikt.assertions.containsExactlyInAnyOrder
 
 @Test
 class ContextFinderTest {
@@ -69,8 +67,7 @@ class ContextFinderTest {
                         suiteAndFilters.suite.contextProviders
                             .flatMap { it.getContexts() }
                             .map { it.rootContext.name }
-                    expectThat(contextNames)
-                        .containsExactlyInAnyOrder(SimpleTestFixture.CONTEXT_NAME)
+                    assert(contextNames.toSet() == setOf(SimpleTestFixture.CONTEXT_NAME))
                 }
             }
             describe("parsing unique id selectors") {

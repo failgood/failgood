@@ -10,9 +10,6 @@ import failgood.mock.call
 import failgood.mock.getCalls
 import failgood.mock.mock
 import failgood.testCollection
-import strikt.api.expectThat
-import strikt.assertions.isEqualTo
-import strikt.assertions.single
 
 @Test
 class TestContextTest {
@@ -24,9 +21,10 @@ class TestContextTest {
             val testContext = TestContext(mock(), listener, testDescription, Unit)
             it("publishes a test event for stdout printing") {
                 testContext.log("printing to stdout")
-                expectThat(getCalls(listener))
-                    .single()
-                    .isEqualTo(
+                val calls = getCalls(listener)
+                assert(calls.size == 1)
+                assert(
+                    calls.single() ==
                         call(
                             ExecutionListener::testEvent,
                             testDescription,
@@ -36,9 +34,10 @@ class TestContextTest {
             it("replaces an empty test event to make junit happy") {
                 // junit throws when an empty event is published
                 testContext._test_event("type", "")
-                expectThat(getCalls(listener))
-                    .single()
-                    .isEqualTo(
+                val calls = getCalls(listener)
+                assert(calls.size == 1)
+                assert(
+                    calls.single() ==
                         call(ExecutionListener::testEvent, testDescription, "type", "<empty>"))
             }
             val testName = "tells the name of the test"

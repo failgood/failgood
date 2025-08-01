@@ -3,13 +3,6 @@ package failgood
 import failgood.internal.sysinfo.uptime
 import java.util.concurrent.CompletableFuture
 import kotlinx.coroutines.CompletableDeferred
-import strikt.api.expectThat
-import strikt.assertions.all
-import strikt.assertions.hasSize
-import strikt.assertions.isA
-import strikt.assertions.isEqualTo
-import strikt.assertions.isFalse
-import strikt.assertions.isTrue
 
 suspend fun main() {
     val testFinished = CompletableDeferred<Unit>()
@@ -17,35 +10,30 @@ suspend fun main() {
     val results =
         Suite {
                 test("firstTest") {
-                    expectThat(true).isTrue()
+                    assert(true)
                     testFinished.complete(Unit)
                 }
                 test("failing test") {
                     try {
-                        expectThat(true).isFalse()
+                        assert(!true)
                     } catch (e: AssertionError) {
                         failingTestFinished.complete(e)
                         throw e
                     }
                 }
                 context("child context") {
-                    context("grandchild context") {
-                        test("failing test") { expectThat(true).isFalse() }
-                    }
+                    context("grandchild context") { test("failing test") { assert(!true) } }
                 }
             }
             .run(silent = true)
-    expectThat(results) {
-        get(SuiteResult::allOk).isFalse()
-        get(SuiteResult::failedTests).and {
-            hasSize(2)
-            all {
-                get(TestPlusResult::test).get(TestDescription::testName).isEqualTo("failing test")
-                get { result }.isA<Failure>().get { failure }.isA<AssertionError>()
-            }
-            get(SuiteResult::allTests).hasSize(3)
-        }
+    assert(!results.allOk)
+    assert(results.failedTests.size == 2)
+    results.failedTests.forEach { failedTest ->
+        assert(failedTest.test.testName == "failing test")
+        assert(failedTest.result is Failure)
+        assert((failedTest.result as Failure).failure is AssertionError)
     }
+    assert(results.allTests.size == 3)
     testFinished.await()
     println("bootstrapped after: ${uptime()}")
 

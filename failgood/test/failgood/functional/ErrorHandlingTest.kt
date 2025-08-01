@@ -6,12 +6,6 @@ import failgood.Test
 import failgood.testCollection
 import java.util.UUID
 import kotlin.test.assertNotNull
-import strikt.api.expectThat
-import strikt.assertions.contains
-import strikt.assertions.isA
-import strikt.assertions.isNotNull
-import strikt.assertions.single
-import strikt.assertions.startsWith
 
 @Test
 class ErrorHandlingTest {
@@ -19,23 +13,27 @@ class ErrorHandlingTest {
         testCollection("Error Handling") {
             describe("Non deterministic test names") {
                 it("make their test count as failed") {
-                    expectThat(
-                            Suite {
-                                    it("test1" + UUID.randomUUID().toString()) {}
-                                    it("test2" + UUID.randomUUID().toString()) {}
-                                }
-                                .run(silent = true)
-                                .failedTests)
-                        .single()
-                        .and {
-                            get { test.testName }.startsWith("test2")
-                            get { result }
-                                .isA<Failure>()
-                                .get { failure.message }
-                                .isNotNull()
-                                .contains(
-                                    "please make sure your test names contain no random parts")
-                        }
+                    val suiteResult =
+                        Suite {
+                                it("test1" + UUID.randomUUID().toString()) {}
+                                it("test2" + UUID.randomUUID().toString()) {}
+                            }
+                            .run(silent = true)
+
+                    val failedTests = suiteResult.failedTests
+                    assert(failedTests.size == 1)
+
+                    val failedTest = failedTests.single()
+                    assert(failedTest.test.testName.startsWith("test2"))
+
+                    val result = failedTest.result
+                    assert(result is Failure)
+
+                    val failure = (result as Failure).failure
+                    val failureMessage = failure.message
+                    assert(
+                        assertNotNull(failureMessage)
+                            .contains("please make sure your test names contain no random parts"))
                 }
             }
             test("tests with wrong receiver") {

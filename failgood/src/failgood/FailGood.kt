@@ -95,8 +95,8 @@ object FailGood {
     }
 
     @Suppress("RedundantSuspendModifier")
-    suspend fun runAllTests(writeReport: Boolean = false) {
-        Suite(findTestClasses()).run().check(writeReport = writeReport)
+    suspend fun runAllTests(writeReport: Boolean = false, silent: Boolean = false) {
+        Suite(findTestClasses()).run(silent = silent).check(writeReport = writeReport)
         printThreads { !it.isDaemon && it.name != "main" }
     }
 

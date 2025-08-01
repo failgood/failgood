@@ -1,9 +1,20 @@
-./gradlew ktfmtFormat
-CI=true ./gradlew ci "$@"
+./gradlew --console plain -q ktfmtFormat
+CI=true ./gradlew "$@" -q --console plain ci
 
-# Run pitest mutation testing
-./gradlew :failgood:pitest
+# Run pitest separately and capture output
+PITEST_OUTPUT=$(mktemp)
+if CI=true ./gradlew -q --console plain :failgood:pitest > "$PITEST_OUTPUT" 2>&1; then
+    # Extract just the coverage line from the output
+    grep "^Coverage:" "$PITEST_OUTPUT" || true
+else
+    # If pitest failed, show the full output
+    echo "Pitest failed, full output:"
+    cat "$PITEST_OUTPUT"
+    rm -f "$PITEST_OUTPUT"
+    exit 1
+fi
+rm -f "$PITEST_OUTPUT"
 
 # Parse and store coverage results
 BUILD_STATS_DIR="${BUILD_STATS_DIR:-$(pwd)/buildStats}"
-./gradlew :experiments:pitest-parser:run --args="--report-dir=$(pwd)/failgood/build/reports/pitest --output-dir=$BUILD_STATS_DIR"
+./gradlew --console plain -q :experiments:pitest-parser:run --args="--report-dir=$(pwd)/failgood/build/reports/pitest --output-dir=$BUILD_STATS_DIR"

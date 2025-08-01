@@ -88,8 +88,12 @@ plugins.withId("info.solidsoft.pitest") {
     configure<PitestPluginExtension> {
         // in case of problems:
         //                verbose = true
+        verbose = false
         addJUnitPlatformLauncher = false
-        jvmArgs = listOf("-Xmx512m") // necessary on CI
+        jvmArgs =
+            listOf(
+                "-Xmx512m", // necessary on CI
+                "-Djava.util.logging.config.file=${rootProject.projectDir}/pitest.logging.properties")
         avoidCallsTo = setOf("kotlin.jvm.internal", "kotlin.Result")
         excludedTestClasses = setOf("failgood.MultiThreadingPerformanceTest*")
         targetClasses = setOf("failgood.*") // by default "${project.group}.*"

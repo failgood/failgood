@@ -1,5 +1,7 @@
 import com.adarshr.gradle.testlogger.TestLoggerExtension
 import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA_PARALLEL
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -16,7 +18,16 @@ tasks {
     test {
         useJUnitPlatform()
         outputs.upToDateWhen { false }
+        testLogging {
+            quiet {
+                events = setOf(TestLogEvent.FAILED)
+            }
+            events = setOf(TestLogEvent.FAILED)
+            exceptionFormat = TestExceptionFormat.FULL
+            showStandardStreams = false  // Only affects PASSING tests
+        }
     }
+
 
     withType<JavaCompile> {
         sourceCompatibility = "1.8"

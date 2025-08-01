@@ -49,7 +49,7 @@ suspend fun main() {
     testFinished.await()
     println("bootstrapped after: ${uptime()}")
 
-    FailGood.runAllTests(true)
+    FailGood.runAllTests(false, silent = true)
 
     // let's see how far we can get with one second.
     // on CI everything is much slower, especially on windows,

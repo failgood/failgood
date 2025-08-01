@@ -2,7 +2,6 @@ import failgood.versions.coroutinesVersion
 import failgood.versions.junitJupiterVersion
 import failgood.versions.junitPlatformVersion
 import failgood.versions.pitestVersion
-import failgood.versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
 plugins {
@@ -33,7 +32,6 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     compileOnly("org.pitest:pitest:$pitestVersion")
     implementation("org.opentest4j:opentest4j:1.3.0")
-    testImplementation("io.strikt:strikt-core:$striktVersion")
     testImplementation("org.pitest:pitest:$pitestVersion")
     testImplementation("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
     testImplementation("io.projectreactor.tools:blockhound:1.0.13.RELEASE")

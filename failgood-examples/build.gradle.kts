@@ -1,7 +1,6 @@
 @file:Suppress("GradlePackageUpdate")
 
 import failgood.versions.coroutinesVersion
-import failgood.versions.striktVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
 /** A kotlin project that uses failgood as test runner and pitest for mutation coverage. */
@@ -17,7 +16,6 @@ dependencies {
 
     // everything else is optional, and only here because some tests show interactions with these
     // libs
-    testImplementation("io.strikt:strikt-core:$striktVersion")
     testImplementation("io.mockk:mockk:1.14.5")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")

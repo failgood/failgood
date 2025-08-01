@@ -81,17 +81,19 @@ class CoverageReporter(
         val mutationsReport = xmlMapper.readValue(mutationsFile, MutationsReport::class.java)
         val totalMutations = mutationsReport.mutations.size
         val killedMutations = mutationsReport.mutations.count { it.status == "KILLED" }
+        val timedOutMutations = mutationsReport.mutations.count { it.status == "TIMED_OUT" }
+        val detectedMutations = killedMutations + timedOutMutations
         val noCoverageMutations = mutationsReport.mutations.count { it.status == "NO_COVERAGE" }
         val coveredMutations = totalMutations - noCoverageMutations
 
         val mutationCoverage =
             if (totalMutations > 0) {
-                (killedMutations * 100.0 / totalMutations)
+                (detectedMutations * 100.0 / totalMutations)
             } else 0.0
 
         val testStrength =
             if (coveredMutations > 0) {
-                (killedMutations * 100.0 / coveredMutations)
+                (detectedMutations * 100.0 / coveredMutations)
             } else 0.0
 
         // Parse line coverage from HTML
@@ -125,11 +127,14 @@ class CoverageReporter(
 
         // Print one-line summary
         println(
-            "Coverage: Line %.1f%% | Mutation %.1f%% | Test Strength %.1f%%"
+            "Coverage: Line %.1f%% | Mutation %.1f%% | Test Strength %.1f%% | Total Mutations: %d Killed: %d, Timed out: %d"
                 .format(
                     report.overall.lineCoverage,
                     report.overall.mutationCoverage,
-                    report.overall.testStrength))
+                    report.overall.testStrength,
+                    totalMutations,
+                    killedMutations,
+                    timedOutMutations))
     }
 
     private fun getGitHash(): String {

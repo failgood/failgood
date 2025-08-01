@@ -9,27 +9,24 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
-import strikt.api.expectThat
-import strikt.api.expectThrows
-import strikt.assertions.isEqualTo
 
 @Test
 class SuiteTest {
     val tests =
         testCollection(Suite::class) {
             test("Empty Suite fails") {
-                expectThrows<RuntimeException> { Suite(listOf<ContextProvider>()) }
+                assertNotNull(runCatching { Suite(listOf<ContextProvider>()) }.exceptionOrNull())
             }
             test("Suite {} creates a root context") {
-                expectThat(
-                        Suite { test("test") {} }
-                            .contextProviders
-                            .single()
-                            .getContexts()
-                            .single()
-                            .rootContext
-                            .name)
-                    .isEqualTo("root")
+                val name =
+                    Suite { test("test") {} }
+                        .contextProviders
+                        .single()
+                        .getContexts()
+                        .single()
+                        .rootContext
+                        .name
+                assert(name == "root")
             }
             describe("coroutine scope") {
                 it("does not wait for tests before returning context info") {

@@ -1,8 +1,5 @@
 package failgood
 
-import strikt.api.expectThat
-import strikt.assertions.isEqualTo
-
 @Test
 class RootContextTest {
     private val ste = Throwable().stackTrace.first()!!
@@ -10,10 +7,8 @@ class RootContextTest {
     val context: TestCollection<Unit> = testCollection {
         val testContext = otherContext
         it("knows its className and line number") {
-            expectThat(testContext.sourceInfo) {
-                get { lineNumber }.isEqualTo(ste.lineNumber + 1)
-                get { className }.isEqualTo("failgood.RootContextTest")
-            }
+            assert(testContext.sourceInfo.lineNumber == ste.lineNumber + 1)
+            assert(testContext.sourceInfo.className == "failgood.RootContextTest")
         }
     }
 }

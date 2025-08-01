@@ -31,20 +31,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
-import strikt.api.expectThat
-import strikt.assertions.all
-import strikt.assertions.contains
-import strikt.assertions.containsExactly
-import strikt.assertions.containsExactlyInAnyOrder
-import strikt.assertions.get
-import strikt.assertions.isA
-import strikt.assertions.isEmpty
-import strikt.assertions.isEqualTo
-import strikt.assertions.isGreaterThanOrEqualTo
-import strikt.assertions.isNotEmpty
-import strikt.assertions.isNotNull
-import strikt.assertions.map
-import strikt.assertions.message
 
 @Test
 object TestCollectionExecutorTest {
@@ -115,18 +101,15 @@ object TestCollectionExecutorTest {
                 }
 
                 it("returns contexts in the same order as they appear in the file") {
-                    expectThat(given.contexts)
-                        .map { it.name }
-                        .containsExactly("root context", "context 1", "context 2", "context 3")
+                    assert(
+                        given.contexts.map { it.name } ==
+                            listOf("root context", "context 1", "context 2", "context 3"))
                 }
                 it("reports time of successful tests") {
-                    expectThat(
-                            given.tests.values
-                                .awaitAll()
-                                .map { it.result }
-                                .filterIsInstance<Success>())
-                        .isNotEmpty()
-                        .all { get { timeMicro }.isGreaterThanOrEqualTo(1) }
+                    val successResults =
+                        given.tests.values.awaitAll().map { it.result }.filterIsInstance<Success>()
+                    assert(successResults.isNotEmpty())
+                    assert(successResults.all { it.timeMicro >= 1 })
                 }
 
                 describe(
@@ -179,22 +162,20 @@ object TestCollectionExecutorTest {
                     val contextResult =
                         given.execute(
                             testFilter = StringListTestFilter(listOf("root context", "test 1")))
-                    val testResults = expectThat(contextResult).isA<TestResults>().subject
-                    expectThat(testResults) {
-                        get { tests.keys }.map { it.testName }.containsExactly("test 1")
-                        get { contexts }.map { it.name }.containsExactly("root context")
-                    }
+                    assert(contextResult is TestResults)
+                    val testResults = contextResult as TestResults
+                    assert(testResults.tests.keys.map { it.testName } == listOf("test 1"))
+                    assert(testResults.contexts.map { it.name } == listOf("root context"))
                 }
                 it("does not execute the context at all if the root name does not match") {
                     val contextResult =
                         given.execute(
                             testFilter =
                                 StringListTestFilter(listOf("other root context", "test 1")))
-                    val testResults = expectThat(contextResult).isA<TestResults>().subject
-                    expectThat(testResults) {
-                        get { tests }.isEmpty()
-                        get { contexts }.isEmpty()
-                    }
+                    assert(contextResult is TestResults)
+                    val testResults = contextResult as TestResults
+                    assert(testResults.tests.isEmpty())
+                    assert(testResults.contexts.isEmpty())
                 }
             }
             describe("reports line numbers") {
@@ -221,42 +202,28 @@ object TestCollectionExecutorTest {
                     }
                 val testResults = assertNotNull(execute(ctx) as? TestResults)
                 it("returns file info for all subcontexts") {
-                    expectThat(testResults.contexts).all {
-                        get { sourceInfo }
-                            .isNotNull()
-                            .and { get { fileName }.isEqualTo("TestCollectionExecutorTest.kt") }
-                    }
+                    assert(
+                        testResults.contexts.all { context ->
+                            val sourceInfo = assertNotNull(context.sourceInfo)
+                            sourceInfo.fileName == "TestCollectionExecutorTest.kt"
+                        })
                 }
                 it("returns line number for contexts") {
-                    expectThat(testResults.contexts) {
-                        get(0)
-                            .get { sourceInfo }
-                            .isNotNull()
-                            .get { lineNumber }
-                            .isEqualTo(rootContextLine)
-                        get(1)
-                            .get { sourceInfo }
-                            .isNotNull()
-                            .get { lineNumber }
-                            .isEqualTo(context1Line)
-                        get(2)
-                            .get { sourceInfo }
-                            .isNotNull()
-                            .get { lineNumber }
-                            .isEqualTo(context2Line)
-                    }
+                    val contexts = testResults.contexts
+                    assert(assertNotNull(contexts[0].sourceInfo).lineNumber == rootContextLine)
+                    assert(assertNotNull(contexts[1].sourceInfo).lineNumber == context1Line)
+                    assert(assertNotNull(contexts[2].sourceInfo).lineNumber == context2Line)
                 }
                 it("reports file name for all tests") {
-                    expectThat(testResults.tests.keys).all {
-                        get { sourceInfo }
-                            .and { get { fileName }.isEqualTo("TestCollectionExecutorTest.kt") }
-                    }
+                    assert(
+                        testResults.tests.keys.all { test ->
+                            test.sourceInfo.fileName == "TestCollectionExecutorTest.kt"
+                        })
                 }
                 it("reports line number for all tests") {
-                    expectThat(testResults.tests.keys.toList()) {
-                        get(0).get { sourceInfo }.get { lineNumber }.isEqualTo(test1Line)
-                        get(1).get { sourceInfo }.get { lineNumber }.isEqualTo(test2Line)
-                    }
+                    val testKeys = testResults.tests.keys.toList()
+                    assert(testKeys[0].sourceInfo.lineNumber == test1Line)
+                    assert(testKeys[1].sourceInfo.lineNumber == test2Line)
                 }
             }
         }
@@ -283,11 +250,11 @@ object TestCollectionExecutorTest {
                         TestCollectionExecutor(ctx, this, lazy = true, testFilter = ExecuteAllTests)
                             .execute()
 
-                    expectThat(testExecuted).isEqualTo(false)
-                    expectThat(contextInfo).isA<TestResults>()
+                    assert(!testExecuted)
+                    assert(contextInfo is TestResults)
                     val deferred = (contextInfo as TestResults).tests.values.single()
-                    expectThat(deferred.await().result).isA<Success>()
-                    expectThat(testExecuted).isEqualTo(true)
+                    assert(deferred.await().result is Success)
+                    assert(testExecuted)
                 }
             }
         }
@@ -424,12 +391,10 @@ object TestCollectionExecutorTest {
                     context("dup ctx") {}
                 }
                 val result = execute(ctx)
-                expectThat(result)
-                    .isA<FailedTestCollectionExecution>()
-                    .get { failure }
-                    .message
-                    .isNotNull()
-                    .contains("duplicate name \"dup ctx\" in context \"root\"")
+                assert(result is FailedTestCollectionExecution)
+                val failureMessage =
+                    assertNotNull((result as FailedTestCollectionExecution).failure.message)
+                assert(failureMessage.contains("duplicate name \"dup ctx\" in context \"root\""))
             }
             it("does not fail when the contexts with the same name are in different contexts") {
                 val ctx = TestCollection {
@@ -446,12 +411,10 @@ object TestCollectionExecutorTest {
                     context("same name") {}
                 }
                 val result = execute(ctx)
-                expectThat(result)
-                    .isA<FailedTestCollectionExecution>()
-                    .get { failure }
-                    .message
-                    .isNotNull()
-                    .contains("duplicate name \"same name\" in context \"root\"")
+                assert(result is FailedTestCollectionExecution)
+                val failureMessage =
+                    assertNotNull((result as FailedTestCollectionExecution).failure.message)
+                assert(failureMessage.contains("duplicate name \"same name\" in context \"root\""))
             }
         }
         describe("filtering by tag") {
@@ -477,12 +440,13 @@ object TestCollectionExecutorTest {
                 }
                 val contextResult = execute(context, "single")
                 expectSuccess(contextResult)
-                expectThat(events)
-                    .containsExactlyInAnyOrder(
-                        "context with tag",
-                        "test in context with tag",
-                        "context in context with tag",
-                        "test in context in context with tag")
+                assert(
+                    events.toSet() ==
+                        setOf(
+                            "context with tag",
+                            "test in context with tag",
+                            "context in context with tag",
+                            "test in context in context with tag"))
             }
             it("can filter tests in the root context by tag") {
                 val context = TestCollection {
@@ -499,9 +463,9 @@ object TestCollectionExecutorTest {
                 }
                 val contextResult = execute(context, tag = "single")
                 expectSuccess(contextResult)
-                expectThat(events)
-                    .containsExactlyInAnyOrder(
-                        "test in root context with tag", "other test with the tag")
+                assert(
+                    events.toSet() ==
+                        setOf("test in root context with tag", "other test with the tag"))
             }
             it(
                 "can filter tests in a subcontext",
@@ -529,10 +493,11 @@ object TestCollectionExecutorTest {
                     }
                     val contextResult = execute(context, "single")
                     expectSuccess(contextResult)
-                    expectThat(events)
-                        .containsExactlyInAnyOrder(
-                            "context without the tag that contains the test with the tag",
-                            "test with the tag")
+                    assert(
+                        events.toSet() ==
+                            setOf(
+                                "context without the tag that contains the test with the tag",
+                                "test with the tag"))
                 }
         }
     }

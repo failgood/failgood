@@ -7,12 +7,6 @@ import org.pitest.testapi.Description
 import org.pitest.testapi.ResultCollector
 import org.pitest.testapi.TestUnit
 import org.pitest.testapi.TestUnitFinder
-import strikt.api.expectThat
-import strikt.assertions.containsExactlyInAnyOrder
-import strikt.assertions.filter
-import strikt.assertions.hasSize
-import strikt.assertions.isEqualTo
-import strikt.assertions.single
 
 // only compare the first 4 lines of the stacktrace because something is messing with stacktraces
 fun throwableToString(t: Throwable) = t.stackTraceToString().lineSequence().take(4).joinToString()
@@ -41,7 +35,7 @@ class FailGoodTestUnitFinderTest {
             it("creates a test unit for each test") {
                 val finder: TestUnitFinder = FailGoodTestUnitFinder
                 val testUnits = finder.findTestUnits(Tests::class.java, null)
-                expectThat(testUnits).hasSize(3)
+                assert(testUnits.size == 3)
                 val collector = TestResultCollector()
                 testUnits.forEach { it.execute(collector) }
                 val failedEvent =
@@ -51,13 +45,12 @@ class FailGoodTestUnitFinderTest {
                             Tests::class.java),
                         Type.END,
                         throwableToString(failure))
-                expectThat(collector.events)
-                    .filter { it.throwable != null }
-                    .single()
-                    .isEqualTo(failedEvent)
-                expectThat(collector.events)
-                    .containsExactlyInAnyOrder(
-                        listOf(
+                val eventsWithThrowable = collector.events.filter { it.throwable != null }
+                assert(eventsWithThrowable.size == 1)
+                assert(eventsWithThrowable.single() == failedEvent)
+                assert(
+                    collector.events.toSet() ==
+                        setOf(
                             Event(testUnits[0].description, Type.START, null),
                             Event(testUnits[1].description, Type.START, null),
                             Event(testUnits[2].description, Type.START, null),

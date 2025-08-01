@@ -23,10 +23,6 @@ import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.discovery.DiscoverySelectors
 import org.junit.platform.engine.reporting.OutputDirectoryProvider
-import strikt.api.expectThat
-import strikt.assertions.isEqualTo
-import strikt.assertions.isTrue
-import strikt.assertions.single
 
 /** This tests the old junit engine, so it will probably go away at some point */
 @Test
@@ -64,16 +60,15 @@ class LegacyJUnitTestEngineTest {
                         }
                 }) {
                     it("returns a root descriptor") {
-                        expectThat(given.isRoot)
-                        expectThat(given.displayName).isEqualTo("FailGood")
+                        assert(given.isRoot)
+                        assert(given.displayName == "FailGood")
                     }
                     it("returns all root contexts") {
-                        expectThat(given.children).single().and {
-                            get { isContainer }.isTrue()
-                            get { displayName }
-                                .isEqualTo(
-                                    "${SimpleTestFixture::class.simpleName}: ${SimpleTestFixture.ROOT_CONTEXT_NAME}")
-                        }
+                        val child = given.children.single()
+                        assert(child.isContainer)
+                        assert(
+                            child.displayName ==
+                                "${SimpleTestFixture::class.simpleName}: ${SimpleTestFixture.ROOT_CONTEXT_NAME}")
                     }
                 }
             describe("test execution") {
@@ -92,18 +87,19 @@ class LegacyJUnitTestEngineTest {
                             listener,
                             NoConfigurationParameters(),
                             NoOutputDirectories()))
-                    expectThat(
-                            listener.list
-                                .toList()
-                                .replace(
-                                    // we don't know in what order the tests will run
-                                    setOf(
-                                        "start-$TEST_NAME",
-                                        "stop-$TEST_NAME",
-                                        "start-$TEST2_NAME",
-                                        "stop-$TEST2_NAME"),
-                                    "some-test-event"))
-                        .isEqualTo(
+                    val result =
+                        listener.list
+                            .toList()
+                            .replace(
+                                // we don't know in what order the tests will run
+                                setOf(
+                                    "start-$TEST_NAME",
+                                    "stop-$TEST_NAME",
+                                    "start-$TEST2_NAME",
+                                    "stop-$TEST2_NAME"),
+                                "some-test-event")
+                    assert(
+                        result ==
                             listOf(
                                 "start-${FailGoodJunitTestEngineConstants.DISPLAY_NAME}",
                                 "start-${TestWithNestedContextsFixture::class.simpleName}: $ROOT_CONTEXT_NAME",
@@ -133,8 +129,8 @@ class LegacyJUnitTestEngineTest {
                             listener,
                             NoConfigurationParameters(),
                             NoOutputDirectories()))
-                    expectThat(listener.list.toList())
-                        .isEqualTo(
+                    assert(
+                        listener.list.toList() ==
                             listOf(
                                 "start-FailGood",
                                 "start-${IgnoredTestFixture::class.simpleName}: root context",

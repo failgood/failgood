@@ -5,58 +5,43 @@ import failgood.docs.ContextListExample
 import failgood.docs.testContextsOnTopLevelExampleClassName
 import failgood.fixtures.PrivateContextFixture
 import kotlin.test.assertNotNull
-import strikt.api.expectThat
-import strikt.assertions.all
-import strikt.assertions.containsExactlyInAnyOrder
-import strikt.assertions.hasSize
-import strikt.assertions.isA
-import strikt.assertions.isEqualTo
-import strikt.assertions.isFailure
-import strikt.assertions.isNotEqualTo
-import strikt.assertions.isNotNull
-import strikt.assertions.isNull
-import strikt.assertions.map
-import strikt.assertions.message
-import strikt.assertions.single
 
 @Test
 class ObjectContextProviderTest {
     val tests =
         testCollection(ObjectContextProvider::class) {
             it("provides a context from an class in a kotlin class (MyTest::class.java)") {
-                expectThat(ObjectContextProvider(ClassTestContextExample::class).getContexts())
-                    .map { it.rootContext.name }
-                    .containsExactlyInAnyOrder(
-                        "test context defined in a kotlin class",
-                        "another test context defined in a kotlin class",
-                        "a test context returned by a function")
+                val contexts = ObjectContextProvider(ClassTestContextExample::class).getContexts()
+                assert(
+                    contexts.map { it.rootContext.name }.toSet() ==
+                        setOf(
+                            "test context defined in a kotlin class",
+                            "another test context defined in a kotlin class",
+                            "a test context returned by a function"))
             }
             it("provides a context from an object in a java class (MyTest::class.java)") {
-                expectThat(ObjectContextProvider(TestFinderTest::class.java).getContexts())
-                    .single()
-                    .isA<TestCollection<Unit>>()
-                    .and { get { rootContext.name }.isEqualTo("test finder") }
+                val contexts = ObjectContextProvider(TestFinderTest::class.java).getContexts()
+                assert(contexts.size == 1)
+                val context = contexts.single()
+                assert(context.rootContext.name == "test finder")
             }
             it("provides a context from an object in a kotlin class (MyTest::class)") {
-                expectThat(ObjectContextProvider(TestFinderTest::class).getContexts())
-                    .single()
-                    .isA<TestCollection<Unit>>()
-                    .and { get { rootContext.name }.isEqualTo("test finder") }
+                val contexts = ObjectContextProvider(TestFinderTest::class).getContexts()
+                assert(contexts.size == 1)
+                val context = contexts.single()
+                assert(context.rootContext.name == "test finder")
             }
             it("provides a list of contexts from an object in a kotlin class (MyTest::class)") {
-                expectThat(ObjectContextProvider(ContextListExample::class).getContexts())
-                    .hasSize(2)
-                    .all { isA<TestCollection<Unit>>() }
+                val contexts = ObjectContextProvider(ContextListExample::class).getContexts()
+                assert(contexts.size == 2)
             }
             it("provides a top level context from a kotlin class") {
                 val classLoader = ObjectContextProviderTest::class.java.classLoader
                 val clazz = classLoader.loadClass(testContextsOnTopLevelExampleClassName)
-                expectThat(ObjectContextProvider(clazz.kotlin).getContexts())
-                    .single()
-                    .isA<TestCollection<Unit>>()
-                    .and {
-                        get { rootContext.name }.isEqualTo("test context declared on top level")
-                    }
+                val contexts = ObjectContextProvider(clazz.kotlin).getContexts()
+                assert(contexts.size == 1)
+                val context = contexts.single()
+                assert(context.rootContext.name == "test context declared on top level")
             }
             it("handles and ignores weird contexts defined in private vals gracefully") {
                 assert(
@@ -73,58 +58,57 @@ class ObjectContextProviderTest {
                             ObjectContextProvider(
                                     TestClassThatUsesUtilityMethodToCreateTestContexts::class)
                                 .getContexts()
-                        expectThat(contexts).hasSize(2).all {
-                            get { sourceInfo } and
-                                {
-                                    get { className }
-                                        .isEqualTo(
-                                            TestClassThatUsesUtilityMethodToCreateTestContexts::class
-                                                .qualifiedName)
-                                    get { lineNumber }
-                                        .isEqualTo(1) // junit engine does not like line number 0
-                                }
-                        }
+                        assert(contexts.size == 2)
+                        assert(
+                            contexts.all {
+                                it.sourceInfo.className ==
+                                    TestClassThatUsesUtilityMethodToCreateTestContexts::class
+                                        .qualifiedName &&
+                                    it.sourceInfo.lineNumber ==
+                                        1 // junit engine does not like line number 0
+                            })
                     }
                 it("does not touch the source info if it comes from the loaded class") {
                     val contexts = ObjectContextProvider(OrdinaryTestClass::class).getContexts()
-                    expectThat(contexts).hasSize(2).all {
-                        get { sourceInfo }
-                            .and {
-                                get { className }.isEqualTo(OrdinaryTestClass::class.qualifiedName)
-                                get { lineNumber }.isNotEqualTo(0)
-                            }
-                    }
+                    assert(contexts.size == 2)
+                    assert(
+                        contexts.all {
+                            it.sourceInfo.className == OrdinaryTestClass::class.qualifiedName &&
+                                it.sourceInfo.lineNumber != 0
+                        })
                 }
             }
             describe("Error handling") {
                 it("throws when a class contains no contexts") {
-                    expectThat(
-                            kotlin.runCatching {
-                                ObjectContextProvider(ContainsNoTests::class.java).getContexts()
-                            })
-                        .isFailure()
-                        .isA<ErrorLoadingContextsFromClass>()
-                        .and {
-                            message.isEqualTo("no contexts found in class")
-                            get { cause }.isNull()
-                            get { kClass }.isEqualTo(ContainsNoTests::class)
+                    val result =
+                        kotlin.runCatching {
+                            ObjectContextProvider(ContainsNoTests::class.java).getContexts()
                         }
+                    assert(result.isFailure)
+                    val exception = result.exceptionOrNull()
+                    assert(exception is ErrorLoadingContextsFromClass)
+                    val errorException = exception as ErrorLoadingContextsFromClass
+                    assert(errorException.message == "no contexts found in class")
+                    assert(errorException.cause == null)
+                    assert(errorException.kClass == ContainsNoTests::class)
                 }
                 listOf(ClassThatThrowsAtCreationTime::class, ClassThatThrowsAtContextGetter::class)
                     .forEach { kClass1 ->
                         it(
                             "wraps exceptions that happen at class instantiation: ${kClass1.simpleName}") {
-                                expectThat(
-                                        kotlin.runCatching {
-                                            ObjectContextProvider(kClass1).getContexts()
-                                        })
-                                    .isFailure()
-                                    .isA<ErrorLoadingContextsFromClass>()
-                                    .and {
-                                        message.isEqualTo("Could not load contexts from class")
-                                        get { cause }.isNotNull().message.isEqualTo("boo i failed")
-                                        get { kClass }.isEqualTo(kClass1)
+                                val result =
+                                    kotlin.runCatching {
+                                        ObjectContextProvider(kClass1).getContexts()
                                     }
+                                assert(result.isFailure)
+                                val exception = result.exceptionOrNull()
+                                assert(exception is ErrorLoadingContextsFromClass)
+                                val errorException = exception as ErrorLoadingContextsFromClass
+                                assert(
+                                    errorException.message == "Could not load contexts from class")
+                                assert(
+                                    assertNotNull(errorException.cause).message == "boo i failed")
+                                assert(errorException.kClass == kClass1)
                             }
                     }
                 it("gives a helpful error when a class could not be instantiated") {

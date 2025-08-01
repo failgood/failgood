@@ -14,11 +14,6 @@ import kotlinx.coroutines.CompletableDeferred
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.support.descriptor.ClassSource
-import strikt.api.expectThat
-import strikt.assertions.filter
-import strikt.assertions.isA
-import strikt.assertions.isEqualTo
-import strikt.assertions.single
 
 @Test
 class CreateResponseTest {
@@ -47,18 +42,16 @@ class CreateResponseTest {
                             failGoodEngineDescriptor,
                             suiteExecutionContext))
                 it("creates friendly uniqueid for a root context") {
-                    expectThat(rootContextDescriptor.children)
-                        .single()
-                        .get { uniqueId.toString() }
-                        .isEqualTo("[engine:failgood]/[class:root context name(package.ClassName)]")
+                    val child = rootContextDescriptor.children.single()
+                    assert(
+                        child.uniqueId.toString() ==
+                            "[engine:failgood]/[class:root context name(package.ClassName)]")
                 }
                 it("creates friendly uniqueid for a sub context") {
-                    expectThat(rootContextDescriptor.children)
-                        .single()
-                        .get { children }
-                        .single()
-                        .get { uniqueId.toString() }
-                        .isEqualTo(
+                    val child = rootContextDescriptor.children.single()
+                    val subChild = child.children.single()
+                    assert(
+                        subChild.uniqueId.toString() ==
                             "[engine:failgood]/[class:root context name(package.ClassName)]/[class:sub context name]")
                 }
             }
@@ -76,15 +69,14 @@ class CreateResponseTest {
                 it("creates a test node with friendly uniqueid for a failed root context") {
                     val children = rootContextDescriptor.children
 
-                    expectThat(children).single().and {
-                        // failed contexts must be tests or junit does not find them
-                        get { type }.isEqualTo(TestDescriptor.Type.TEST)
-                        // gradle needs all root contexts to have a class source
-                        get { source.get() }.isA<ClassSource>()
-                        get { uniqueId.toString() }
-                            .isEqualTo(
-                                "[engine:failgood]/[class:root context name(package.ClassName)]")
-                    }
+                    val child = children.single()
+                    // failed contexts must be tests or junit does not find them
+                    assert(child.type == TestDescriptor.Type.TEST)
+                    // gradle needs all root contexts to have a class source
+                    assert(child.source.get() is ClassSource)
+                    assert(
+                        child.uniqueId.toString() ==
+                            "[engine:failgood]/[class:root context name(package.ClassName)]")
                 }
             }
             it("creates friendly uuids for tests") {
@@ -110,13 +102,10 @@ class CreateResponseTest {
                                     setOf())),
                             failGoodEngineDescriptor,
                             suiteExecutionContext))
-                expectThat(rootContextDescriptor.children)
-                    .single()
-                    .get { children }
-                    .filter { it.isTest }
-                    .single()
-                    .get { uniqueId.toString() }
-                    .isEqualTo(
+                val child = rootContextDescriptor.children.single()
+                val testChild = child.children.filter { it.isTest }.single()
+                assert(
+                    testChild.uniqueId.toString() ==
                         "[engine:failgood]/[class:root context name(package.ClassName)]/[method:test]")
             }
         }

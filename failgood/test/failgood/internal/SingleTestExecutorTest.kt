@@ -12,10 +12,6 @@ import failgood.mock.mock
 import failgood.testCollection
 import kotlin.test.assertEquals
 import kotlinx.coroutines.coroutineScope
-import strikt.api.expectThat
-import strikt.assertions.containsExactly
-import strikt.assertions.isA
-import strikt.assertions.isEqualTo
 
 @Test
 class SingleTestExecutorTest {
@@ -57,8 +53,8 @@ class SingleTestExecutorTest {
                                     resourceCloser,
                                     ctx) {}
                                 .execute()
-                        expectThat(events).containsExactly("root context", "test 1")
-                        expectThat(result).isA<Success>()
+                        assert(events == listOf("root context", "test 1"))
+                        assert(result is Success)
                     }
                     it("executes a nested single test") {
                         val result =
@@ -68,9 +64,8 @@ class SingleTestExecutorTest {
                                     resourceCloser,
                                     ctx) {}
                                 .execute()
-                        expectThat(events)
-                            .containsExactly("root context", "context 1", "context 2", "test 3")
-                        expectThat(result).isA<Success>()
+                        assert(events == listOf("root context", "context 1", "context 2", "test 3"))
+                        assert(result is Success)
                     }
                 }
                 describe("a context with given") {
@@ -137,7 +132,8 @@ class SingleTestExecutorTest {
                                 resourceCloser,
                                 contextThatThrows.function) {}
                             .execute()
-                    expectThat(result).isA<Failure>().get { failure }.isEqualTo(runtimeException)
+                    assert(result is Failure)
+                    assert((result as Failure).failure == runtimeException)
                 }
                 it("reports exceptions in the autoclose function as test failures") {
                     val runtimeException = RuntimeException()
@@ -153,7 +149,8 @@ class SingleTestExecutorTest {
                                 resourceCloser,
                                 contextThatThrows.function) {}
                             .execute()
-                    expectThat(result).isA<Failure>().get { failure }.isEqualTo(runtimeException)
+                    assert(result is Failure)
+                    assert((result as Failure).failure == runtimeException)
                 }
             }
         }

@@ -122,3 +122,57 @@ Use Kotlin's standard library functions for parameterized tests:
     }
 }
 ```
+
+## Assertion Best Practices
+
+### Kotlin Power Assert
+
+FailGood uses Kotlin's power assert feature, which provides detailed output when assertions fail. Power assert shows the values of all intermediate expressions in the assertion, making it easy to understand why a test failed.
+
+Example of power assert output:
+```
+assert(typeOf<Collection<String>>().niceString().uppercase().contains("WRONG"))
+       |                            |            |           |
+       |                            |            |           false
+       |                            |            COLLECTION<STRING>
+       |                            Collection<String>
+       java.util.Collection<java.lang.String> (Kotlin reflection is not available)
+```
+
+This means:
+1. **Keep production code execution out of assertions** - Extract results of production code (like `Suite.run()`) to variables
+2. **Keep navigation inline in assertions** - Power assert shows each step of property access and transformations like `.filter().map()`
+3. **Avoid using `!!` in assertions** - Use `assertNotNull()` for safer null handling
+4. **Preserve exact assertion logic when refactoring** - Don't simplify or change test behavior
+
+Example of good assertion style:
+```kotlin
+// Production code execution extracted
+val result = Suite { contextFixture() }.run(silent = true)
+// Navigation inline for power assert visibility
+assert(result.tests.filter { it.isSuccess }.map { it.name } == expectedNames)
+```
+
+Power assert output comparison:
+
+With extracted intermediate value:
+```
+val successful = testResults.filter { it.isSuccess }
+assert(successful.map { it.test.testName } == listOf("test 1", "WRONG"))
+       |          |                        |
+       |          |                        false
+       |          [test 1, test 2, test 3]
+       [TestPlusResult(...), TestPlusResult(...), ...]
+```
+
+With inline navigation (better):
+```
+assert(testResults.filter { it.isSuccess }.map { it.test.testName } == listOf("test 1", "WRONG"))
+       |           |                       |                        |
+       |           |                       |                        false
+       |           |                       [test 1, test 2, test 3]
+       |           [TestPlusResult(...), TestPlusResult(...), ...]
+       [TestPlusResult(...), TestPlusResult(...), TestPlusResult(...), ...]
+```
+
+The inline version shows each transformation step, making debugging easier.

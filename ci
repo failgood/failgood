@@ -1,6 +1,11 @@
 ./gradlew --console plain -q ktfmtFormat
 CI=true ./gradlew "$@" -q --console plain ci
 
+# Exit early if ci task failed
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
 # Run pitest separately and capture output
 PITEST_OUTPUT=$(mktemp)
 if CI=true ./gradlew -q --console plain :failgood:pitest > "$PITEST_OUTPUT" 2>&1; then

@@ -36,7 +36,13 @@ nexusPublishing {
 
 // Task that combines runSingleNonFailgoodTest and check for CI purposes
 tasks.register("ci") {
-    dependsOn(":failgood:runSingleNonFailgoodTest", ":failgood:check")
+    dependsOn(":failgood:runSingleNonFailgoodTest")
+    dependsOn(":failgood:check")
+    dependsOn(":failgood-examples:check")
+    dependsOn(":failgood-gradle-test:check")
+    dependsOn(":experiments:failgood-debugger:check")
+    dependsOn(":experiments:gradle-plugin:check")
+    dependsOn(":experiments:pitest-parser:check")
     description = "Runs exactly what runs on CI"
     group = "verification"
 }

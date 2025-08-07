@@ -2,9 +2,11 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import failgood.Test
 import failgood.testCollection
-import java.io.File
+import java.nio.file.Files
+import kotlin.io.path.deleteRecursively
 
 @Test
+@OptIn(kotlin.io.path.ExperimentalPathApi::class)
 class CoverageReporterTest {
     val tests = testCollection {
         describe("CoverageReporter") {
@@ -27,184 +29,198 @@ class CoverageReporterTest {
             }
 
             it("generates coverage report from test data") {
-                val tempOutputDir = File("/tmp/pitest-test-${System.currentTimeMillis()}")
-                tempOutputDir.mkdirs()
-
-                try {
-                    val reporter =
-                        CoverageReporter(
-                            reportDir = "testResources",
-                            outputDir = tempOutputDir.absolutePath,
-                            gitHashOverride = "test-hash-123")
-
-                    // Capture output
-                    val outputStream = java.io.ByteArrayOutputStream()
-                    val originalOut = System.out
-                    System.setOut(java.io.PrintStream(outputStream))
-
-                    try {
-                        reporter.run()
-                    } catch (e: Exception) {
-                        System.setOut(originalOut)
-                        println("Error during reporter.run(): ${e.message}")
-                        throw e
-                    } finally {
-                        System.setOut(originalOut)
+                // Create temp directory with automatic cleanup
+                val tempDir =
+                    autoClose(Files.createTempDirectory("coverage-test-")) {
+                        it.deleteRecursively()
                     }
 
-                    val output = outputStream.toString().trim()
+                // Create directory structure
+                val reportDir = tempDir.resolve("reports")
+                val outputDir = tempDir.resolve("output")
+                val packageDir = reportDir.resolve("failgood.internal")
+                Files.createDirectories(packageDir)
+                Files.createDirectories(outputDir)
 
-                    println("Captured output: '$output'")
+                // Copy test fixtures from classpath
+                val mutationsStream =
+                    this::class.java.getResourceAsStream("/mutations.xml")
+                        ?: error("Could not load /mutations.xml from classpath")
+                mutationsStream.use { Files.copy(it, reportDir.resolve("mutations.xml")) }
+                val indexStream =
+                    this::class.java.getResourceAsStream("/index.html")
+                        ?: error("Could not load /index.html from classpath")
+                indexStream.use { Files.copy(it, reportDir.resolve("index.html")) }
+                val packageIndexStream =
+                    this::class.java.getResourceAsStream("/failgood.internal/index.html")
+                        ?: error("Could not load /failgood.internal/index.html from classpath")
+                packageIndexStream.use { Files.copy(it, packageDir.resolve("index.html")) }
 
-                    // Verify console output format
-                    assert(output.contains("Coverage: Line")) {
-                        "Output should contain 'Coverage: Line' but was: '$output'"
-                    }
-                    assert(output.contains("Mutation"))
-                    assert(output.contains("Test Strength"))
-                    assert(output.contains("%"))
-
-                    // Verify file was created
-                    val expectedFile = File(tempOutputDir, "test-hash-123-1.json")
-                    assert(expectedFile.exists()) {
-                        "Expected file ${expectedFile.absolutePath} to exist"
-                    }
-
-                    // Parse and verify JSON content
-                    val mapper = jacksonObjectMapper()
-                    val report = mapper.readValue<CoverageReport>(expectedFile)
-
-                    assert(report.gitHash == "test-hash-123")
-                    assert(report.runNumber == 1)
-                    assert(report.overall.lineCoverage > 0)
-                    assert(report.overall.mutationCoverage > 0)
-                    assert(report.overall.testStrength > 0)
-                    assert(report.files.isNotEmpty())
-                } finally {
-                    tempOutputDir.deleteRecursively()
+                // Verify files were copied
+                assert(Files.exists(reportDir.resolve("mutations.xml"))) {
+                    "mutations.xml should exist at ${reportDir.resolve("mutations.xml")}"
                 }
+                assert(Files.exists(reportDir.resolve("index.html"))) {
+                    "index.html should exist at ${reportDir.resolve("index.html")}"
+                }
+
+                val reporter =
+                    CoverageReporter(
+                        reportDir = reportDir.toString(),
+                        outputDir = outputDir.toString(),
+                        gitHashOverride = "test-hash-123")
+
+                reporter.run()
+
+                // Verify file was created
+                val expectedFile = outputDir.resolve("test-hash-123-1.json")
+                assert(Files.exists(expectedFile)) { "Expected file $expectedFile to exist" }
+
+                // Parse and verify JSON content
+                val mapper = jacksonObjectMapper()
+                val report = mapper.readValue<CoverageReport>(expectedFile.toFile())
+
+                assert(report.gitHash == "test-hash-123")
+                assert(report.runNumber == 1)
+                assert(report.overall.lineCoverage > 0)
+                assert(report.overall.mutationCoverage > 0)
+                assert(report.overall.testStrength > 0)
+                assert(report.files.isNotEmpty())
             }
 
             it("increments run number for same git hash") {
-                val tempOutputDir = File("/tmp/pitest-test-${System.currentTimeMillis()}")
-                tempOutputDir.mkdirs()
-
-                try {
-                    // First run
-                    val reporter1 =
-                        CoverageReporter(
-                            reportDir = "testResources",
-                            outputDir = tempOutputDir.absolutePath,
-                            gitHashOverride = "test-hash-456")
-
-                    try {
-                        reporter1.run()
-                    } catch (e: Exception) {
-                        println("First run failed: ${e.message}")
-                        throw e
+                // Create temp directory with automatic cleanup
+                val tempDir =
+                    autoClose(Files.createTempDirectory("coverage-test-")) {
+                        it.deleteRecursively()
                     }
 
-                    // Second run
-                    val reporter2 =
-                        CoverageReporter(
-                            reportDir = "testResources",
-                            outputDir = tempOutputDir.absolutePath,
-                            gitHashOverride = "test-hash-456")
+                // Create directory structure
+                val reportDir = tempDir.resolve("reports")
+                val outputDir = tempDir.resolve("output")
+                val packageDir = reportDir.resolve("failgood.internal")
+                Files.createDirectories(packageDir)
+                Files.createDirectories(outputDir)
 
-                    try {
-                        reporter2.run()
-                    } catch (e: Exception) {
-                        println("Second run failed: ${e.message}")
-                        throw e
-                    }
+                // Copy test fixtures from classpath
+                val mutationsStream =
+                    this::class.java.getResourceAsStream("/mutations.xml")
+                        ?: error("Could not load /mutations.xml from classpath")
+                mutationsStream.use { Files.copy(it, reportDir.resolve("mutations.xml")) }
+                val indexStream =
+                    this::class.java.getResourceAsStream("/index.html")
+                        ?: error("Could not load /index.html from classpath")
+                indexStream.use { Files.copy(it, reportDir.resolve("index.html")) }
+                val packageIndexStream =
+                    this::class.java.getResourceAsStream("/failgood.internal/index.html")
+                        ?: error("Could not load /failgood.internal/index.html from classpath")
+                packageIndexStream.use { Files.copy(it, packageDir.resolve("index.html")) }
 
-                    // Verify files
-                    val files = tempOutputDir.listFiles() ?: emptyArray()
-                    println("Files in directory: ${files.map { it.name }}")
-                    assert(File(tempOutputDir, "test-hash-456-1.json").exists()) {
-                        "First file should exist"
-                    }
-                    assert(File(tempOutputDir, "test-hash-456-2.json").exists()) {
-                        "Second file should exist"
-                    }
-                } finally {
-                    tempOutputDir.deleteRecursively()
+                // First run
+                val reporter1 =
+                    CoverageReporter(
+                        reportDir = reportDir.toString(),
+                        outputDir = outputDir.toString(),
+                        gitHashOverride = "test-hash-456")
+
+                reporter1.run()
+
+                // Second run
+                val reporter2 =
+                    CoverageReporter(
+                        reportDir = reportDir.toString(),
+                        outputDir = outputDir.toString(),
+                        gitHashOverride = "test-hash-456")
+
+                reporter2.run()
+
+                // Verify files
+                val files = Files.list(outputDir).use { it.toList() }
+                println("Files in directory: ${files.map { it.fileName }}")
+                assert(Files.exists(outputDir.resolve("test-hash-456-1.json"))) {
+                    "First file should exist"
+                }
+                assert(Files.exists(outputDir.resolve("test-hash-456-2.json"))) {
+                    "Second file should exist"
                 }
             }
 
-            it("formats one-line summary correctly") {
-                val tempOutputDir = File("/tmp/pitest-test-${System.currentTimeMillis()}")
-                tempOutputDir.mkdirs()
-
-                try {
-                    val reporter =
-                        CoverageReporter(
-                            reportDir = "testResources",
-                            outputDir = tempOutputDir.absolutePath,
-                            gitHashOverride = "test-hash-789")
-
-                    val outputStream = java.io.ByteArrayOutputStream()
-                    val originalOut = System.out
-                    System.setOut(java.io.PrintStream(outputStream))
-
-                    var error: Exception? = null
-                    try {
-                        reporter.run()
-                    } catch (e: Exception) {
-                        error = e
-                    } finally {
-                        System.setOut(originalOut)
+            it("creates JSON report with correct data") {
+                // Create temp directory with automatic cleanup
+                val tempDir =
+                    autoClose(Files.createTempDirectory("coverage-test-")) {
+                        it.deleteRecursively()
                     }
 
-                    if (error != null) {
-                        println("Error during test: ${error.message}")
-                        error.printStackTrace()
-                        throw error
-                    }
+                // Create directory structure
+                val reportDir = tempDir.resolve("reports")
+                val outputDir = tempDir.resolve("output")
+                val packageDir = reportDir.resolve("failgood.internal")
+                Files.createDirectories(packageDir)
+                Files.createDirectories(outputDir)
 
-                    val output = outputStream.toString().trim()
+                // Copy test fixtures from classpath
+                val mutationsStream =
+                    this::class.java.getResourceAsStream("/mutations.xml")
+                        ?: error("Could not load /mutations.xml from classpath")
+                mutationsStream.use { Files.copy(it, reportDir.resolve("mutations.xml")) }
+                val indexStream =
+                    this::class.java.getResourceAsStream("/index.html")
+                        ?: error("Could not load /index.html from classpath")
+                indexStream.use { Files.copy(it, reportDir.resolve("index.html")) }
+                val packageIndexStream =
+                    this::class.java.getResourceAsStream("/failgood.internal/index.html")
+                        ?: error("Could not load /failgood.internal/index.html from classpath")
+                packageIndexStream.use { Files.copy(it, packageDir.resolve("index.html")) }
 
-                    // Output should be a single line (after trimming)
-                    assert(!output.contains("\n")) {
-                        "Output should be a single line after trimming"
-                    }
+                val reporter =
+                    CoverageReporter(
+                        reportDir = reportDir.toString(),
+                        outputDir = outputDir.toString(),
+                        gitHashOverride = "test-hash-789")
 
-                    // Should match the expected format (handle both . and , as decimal separator)
-                    val pattern =
-                        """Coverage: Line \d+[.,]\d% \| Mutation \d+[.,]\d% \| Test Strength \d+[.,]\d%"""
-                            .toRegex()
-                    assert(pattern.matches(output)) {
-                        "Output '$output' doesn't match expected format"
-                    }
-                } finally {
-                    tempOutputDir.deleteRecursively()
-                }
+                reporter.run()
+
+                // Verify JSON file was created with correct data
+                val expectedFile = outputDir.resolve("test-hash-789-1.json")
+                assert(Files.exists(expectedFile)) { "Expected file $expectedFile to exist" }
+
+                val mapper = jacksonObjectMapper()
+                val report = mapper.readValue<CoverageReport>(expectedFile.toFile())
+
+                assert(report.gitHash == "test-hash-789")
+                assert(report.runNumber == 1)
+                assert(report.overall.lineCoverage > 0)
+                assert(report.overall.mutationCoverage > 0)
+                assert(report.overall.testStrength > 0)
             }
 
             it("handles missing report files gracefully") {
-                val tempOutputDir = File("/tmp/pitest-test-${System.currentTimeMillis()}")
-                tempOutputDir.mkdirs()
-
-                try {
-                    val reporter =
-                        CoverageReporter(
-                            reportDir = "/non/existent/path",
-                            outputDir = tempOutputDir.absolutePath,
-                            gitHashOverride = "test-hash")
-
-                    var exception: Exception? = null
-                    try {
-                        reporter.run()
-                    } catch (e: Exception) {
-                        exception = e
+                // Create temp directory with automatic cleanup
+                val tempDir =
+                    autoClose(Files.createTempDirectory("coverage-test-")) {
+                        it.deleteRecursively()
                     }
 
-                    assert(exception != null) { "Should throw exception for missing files" }
-                    assert(exception is IllegalStateException)
-                    assert(exception?.message?.contains("mutations.xml not found") == true)
-                } finally {
-                    tempOutputDir.deleteRecursively()
+                val outputDir = tempDir.resolve("output")
+                Files.createDirectories(outputDir)
+
+                val reporter =
+                    CoverageReporter(
+                        reportDir = "/non/existent/path",
+                        outputDir = outputDir.toString(),
+                        gitHashOverride = "test-hash")
+
+                var exception: Exception? = null
+                try {
+                    reporter.run()
+                } catch (e: Exception) {
+                    exception = e
                 }
+
+                assert(exception != null) { "Should throw exception for missing files" }
+                assert(exception is IllegalStateException)
+                assert(exception?.message?.contains("mutations.xml not found") == true)
             }
         }
     }

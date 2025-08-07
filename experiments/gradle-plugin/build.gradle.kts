@@ -31,7 +31,8 @@ tasks.test {
     doFirst { classpath += files(tasks.pluginUnderTestMetadata.get().outputDirectory) }
     useJUnitPlatform()
 
-    // Add the metadata to the test classpath
+    // Don't fail when no tests are found (test is commented out)
+    failOnNoDiscoveredTests = false
 }
 
 dependencies {

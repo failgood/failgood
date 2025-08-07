@@ -5,9 +5,9 @@ import kotlin.io.path.deleteRecursively
 
 @Test
 @OptIn(kotlin.io.path.ExperimentalPathApi::class)
-class CoverageReporterSimpleTest {
+class CoverageReporterDebugTest {
     val tests = testCollection {
-        it("runs without errors and produces output") {
+        it("runs reporter without capturing output") {
             // Create temp directory with automatic cleanup
             val tempDir =
                 autoClose(Files.createTempDirectory("coverage-test-")) { it.deleteRecursively() }
@@ -37,14 +37,17 @@ class CoverageReporterSimpleTest {
                 CoverageReporter(
                     reportDir = reportDir.toString(),
                     outputDir = outputDir.toString(),
-                    gitHashOverride = "test-simple")
+                    gitHashOverride = "test-debug")
 
+            // Run without capturing output
             reporter.run()
 
-            // Check file was created
+            // Check if file was created
             val files = Files.list(outputDir).use { it.toList() }
-            println("Files created: ${files.map { it.fileName }}")
             assert(files.isNotEmpty()) { "Expected at least one file to be created" }
+
+            val expectedFile = outputDir.resolve("test-debug-1.json")
+            assert(Files.exists(expectedFile)) { "Expected file ${expectedFile.fileName} to exist" }
         }
     }
 }

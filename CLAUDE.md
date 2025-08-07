@@ -72,6 +72,10 @@ When debugging issues in this codebase, you MUST follow these strict guidelines:
    - Test each component in isolation before combining them
    - Document each finding to build evidence toward the root cause
 
+## Debugging Guidelines
+
+- Never add debug output to diagnose a test failure. Write a simpler test instead
+
 ## Test Structure
 
 Tests are defined in classes with the `@Test` annotation:

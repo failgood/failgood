@@ -7,7 +7,7 @@ plugins {
 dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.19.2")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.19.2")
-    implementation("org.jsoup:jsoup:1.21.1")
+    implementation("org.jsoup:jsoup:1.21.2")
     testImplementation(project(":failgood"))
 }
 

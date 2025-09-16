@@ -32,7 +32,9 @@ tasks.test {
     useJUnitPlatform()
 
     // Don't fail when no tests are found (test is commented out)
-    failOnNoDiscoveredTests = false
+    // this is necessary in gradle 9.0 and not supported in gradle 8.x so we keep it commented out
+    // for now
+    //    failOnNoDiscoveredTests = false
 }
 
 dependencies {

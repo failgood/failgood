@@ -72,6 +72,10 @@ When debugging issues in this codebase, you MUST follow these strict guidelines:
    - Test each component in isolation before combining them
    - Document each finding to build evidence toward the root cause
 
+## Debugging Guidelines
+
+- Never add debug output to diagnose a test failure. Write a simpler test instead
+
 ## Test Structure
 
 Tests are defined in classes with the `@Test` annotation:
@@ -176,3 +180,43 @@ assert(testResults.filter { it.isSuccess }.map { it.test.testName } == listOf("t
 ```
 
 The inline version shows each transformation step, making debugging easier.
+
+## Test Independence with autoClose
+
+Tests MUST be location-independent using the autoClose pattern with nio.file API:
+
+```kotlin
+import java.nio.file.Files
+import java.nio.file.Path
+import kotlin.io.path.*
+
+it("test name") {
+    // Create temp directory with automatic cleanup
+    val tempDir = autoClose(Files.createTempDirectory("test-")) { 
+        it.deleteRecursively() 
+    }
+    
+    // Create directory structure - createDirectories creates all parents
+    val dataDir = tempDir.resolve("path/to/data")
+    Files.createDirectories(dataDir)
+    
+    // Load fixtures from classpath
+    this::class.java.getResourceAsStream("/fixtures/data.xml")?.use { 
+        Files.copy(it, dataDir.resolve("data.xml"))
+    }
+    
+    // Test against temp directory
+    val component = MyComponent(dataDir.toString())
+    component.process()
+    
+    // Verify results
+    assert(Files.exists(dataDir.resolve("output.json")))
+}
+```
+
+Key principles:
+- Use `autoClose` for cleanup (no try/finally)
+- Use `java.nio.file` API (not `java.io.File`)
+- Load fixtures from classpath using `getResourceAsStream`
+- Use `Files.createDirectories()` to create full paths at once
+- Tests must work from any working directory

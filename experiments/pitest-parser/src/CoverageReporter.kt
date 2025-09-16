@@ -127,14 +127,11 @@ class CoverageReporter(
 
         // Print one-line summary
         println(
-            "Coverage: Line %.1f%% | Mutation %.1f%% | Test Strength %.1f%% | Total Mutations: %d Killed: %d, Timed out: %d"
+            "Coverage: Line %.1f%% | Mutation %.1f%% | Test Strength %.1f%%"
                 .format(
                     report.overall.lineCoverage,
                     report.overall.mutationCoverage,
-                    report.overall.testStrength,
-                    totalMutations,
-                    killedMutations,
-                    timedOutMutations))
+                    report.overall.testStrength))
     }
 
     private fun getGitHash(): String {

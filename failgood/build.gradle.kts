@@ -34,7 +34,7 @@ dependencies {
     implementation("org.opentest4j:opentest4j:1.3.0")
     testImplementation("org.pitest:pitest:$pitestVersion")
     testImplementation("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
-    testImplementation("io.projectreactor.tools:blockhound:1.0.13.RELEASE")
+    testImplementation("io.projectreactor.tools:blockhound:1.0.14.RELEASE")
 
     testImplementation(kotlin("test"))
     testImplementation("ch.qos.logback:logback-classic:1.5.18")

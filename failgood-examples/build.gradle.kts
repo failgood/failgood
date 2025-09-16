@@ -1,5 +1,6 @@
 @file:Suppress("GradlePackageUpdate")
 
+import com.ncorti.ktfmt.gradle.TrailingCommaManagementStrategy
 import failgood.versions.coroutinesVersion
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
@@ -69,5 +70,5 @@ sourceSets.test {
 
 ktfmt {
     kotlinLangStyle()
-    manageTrailingCommas = false
+    trailingCommaManagementStrategy = TrailingCommaManagementStrategy.NONE
 }

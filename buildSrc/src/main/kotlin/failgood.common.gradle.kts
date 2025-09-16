@@ -1,5 +1,6 @@
 import com.adarshr.gradle.testlogger.TestLoggerExtension
 import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA_PARALLEL
+import com.ncorti.ktfmt.gradle.TrailingCommaManagementStrategy
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -71,7 +72,7 @@ configure<TestLoggerExtension> {
 tasks.getByName("check").dependsOn(tasks.getByName("ktfmtCheck"))
 ktfmt {
     kotlinLangStyle()
-    manageTrailingCommas = false
+    trailingCommaManagementStrategy = TrailingCommaManagementStrategy.NONE
 }
 @Suppress("OPT_IN_USAGE")
 powerAssert {

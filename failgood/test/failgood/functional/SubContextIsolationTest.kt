@@ -17,23 +17,25 @@ object SubContextIsolationTest {
                 val evt = NestedEvents()
                 describe("turning off isolation for a subcontext") {
                     it("executes all the tests in that context in one go") {
-                        Suite(
-                                testCollection("root") {
-                                    val events = evt.addEvent()
-                                    describe("child", isolation = false) {
-                                        events.add("childContext")
-                                        it("test1") { events.add("test1") }
-                                        it("test2") { events.add("test2") }
-                                    }
-                                })
-                            .run(silent = true)
+                        val result =
+                            Suite(
+                                    testCollection("root") {
+                                        val events = evt.addEvent()
+                                        describe("child", isolation = false) {
+                                            events.add("childContext")
+                                            it("test1") { events.add("test1") }
+                                            it("test2") { events.add("test2") }
+                                        }
+                                    })
+                                .run(silent = true)
+                        assert(result.allOk)
                         val singleEvent = assertNotNull(evt.globalEvents.singleOrNull())
                         assert(
                             singleEvent.containsExactlyInAnyOrder(
                                 listOf("childContext", "test1", "test2")))
                     }
                     it("does not affect other contexts") {
-                        assert(
+                        val result =
                             Suite(
                                     testCollection("root") {
                                         val events = evt.addEvent()
@@ -49,7 +51,7 @@ object SubContextIsolationTest {
                                         }
                                     })
                                 .run(silent = true)
-                                .allOk)
+                        assert(result.allOk)
 
                         val e = evt.globalEvents
                         assert(e.size == 3)
@@ -60,29 +62,33 @@ object SubContextIsolationTest {
                     it("calls the given for each test") {
                         var givenCalls = 0
                         val givenValues = ConcurrentLinkedQueue<Int>()
-                        Suite(
-                                testCollection("root") {
-                                    val events = evt.addEvent()
-                                    describe(
-                                        "child",
-                                        isolation = false,
-                                        given = {
-                                            // make sure that the block is not called twice before
-                                            // the counter increments
-                                            synchronized(givenValues) { givenCalls++ }
-                                        }) {
-                                            events.add("childContext")
-                                            it("test1") {
-                                                events.add("test1")
-                                                givenValues.add(given)
+                        val result =
+                            Suite(
+                                    testCollection("root") {
+                                        val events = evt.addEvent()
+                                        describe(
+                                            "child",
+                                            isolation = false,
+                                            given = {
+                                                // make sure that the block is not called twice
+                                                // before
+                                                // the counter increments
+                                                synchronized(givenValues) { givenCalls++ }
+                                            }) {
+                                                events.add("childContext")
+                                                it("test1") {
+                                                    events.add("test1")
+                                                    givenValues.add(given)
+                                                }
+                                                it("test2") {
+                                                    events.add("test2")
+                                                    givenValues.add(given)
+                                                }
                                             }
-                                            it("test2") {
-                                                events.add("test2")
-                                                givenValues.add(given)
-                                            }
-                                        }
-                                })
-                            .run(silent = true)
+                                    })
+                                .run(silent = true)
+                        assert(result.allOk)
+
                         val singleEvent = assertNotNull(evt.globalEvents.singleOrNull())
                         assert(
                             singleEvent.containsExactlyInAnyOrder(
@@ -91,7 +97,7 @@ object SubContextIsolationTest {
                         assert(givenCalls == 2)
                     }
                     it("calls callbacks at the correct time") {
-                        assert(
+                        val result =
                             Suite(
                                     testCollection("root") {
                                         val events = evt.addEvent()
@@ -109,7 +115,7 @@ object SubContextIsolationTest {
                                         }
                                     })
                                 .run(silent = true)
-                                .allOk)
+                        assert(result.allOk)
 
                         val e = evt.globalEvents
                         assert(e.size == 3)

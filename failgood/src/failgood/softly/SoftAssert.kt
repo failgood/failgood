@@ -3,7 +3,7 @@ package failgood.softly
 import java.util.concurrent.CopyOnWriteArrayList
 import org.opentest4j.MultipleFailuresError
 
-fun softly(function: AssertDSL.() -> Unit) {
+suspend fun softly(function: suspend AssertDSL.() -> Unit) {
     with(Asserter()) {
         function()
         check()

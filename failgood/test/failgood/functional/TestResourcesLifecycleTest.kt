@@ -178,7 +178,7 @@ class TestResourcesLifecycleTest {
                             }
                             .run(silent = true)
 
-                    fun assertOk(result: SuiteResult) {
+                    suspend fun assertOk(result: SuiteResult) {
                         softly {
                             assert(autoCloseCalled.get() == 2)
                             assert(afterEachCalled.get() == 2)

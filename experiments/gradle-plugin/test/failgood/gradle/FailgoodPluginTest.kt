@@ -25,19 +25,19 @@ class FailgoodPluginTest {
         settingsFile.writeText("")
         buildFile.writeText(
             """
-            plugins {
-                id("com.your.package.custom-test-plugin")
-            }
+                plugins {
+                    id("com.your.package.custom-test-plugin")
+                }
 
-            repositories {
-                mavenCentral()
-            }
+                repositories {
+                    mavenCentral()
+                }
 
-            dependencies {
-                testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
-                testImplementation("your.failogood.dependency:failogood:version")
-            }
-        """
+                dependencies {
+                    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
+                    testImplementation("your.failogood.dependency:failogood:version")
+                }
+            """
                 .trimIndent())
 
         // Create a test file
@@ -45,15 +45,15 @@ class FailgoodPluginTest {
         testFile.parentFile.mkdirs()
         testFile.writeText(
             """
-            import org.junit.jupiter.api.Test
+                import org.junit.jupiter.api.Test
 
-            class SampleTest {
-                @Test
-                fun `sample test`() {
-                    assert(true)
+                class SampleTest {
+                    @Test
+                    fun `sample test`() {
+                        assert(true)
+                    }
                 }
-            }
-        """
+            """
                 .trimIndent())
 
         val result =

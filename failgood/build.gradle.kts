@@ -23,7 +23,7 @@ dependencies {
     api("org.junit.platform:junit-platform-commons:$junitPlatformVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:$coroutinesVersion")
     implementation("org.slf4j:slf4j-api:2.0.17")
-    implementation("io.github.oshai:kotlin-logging-jvm:7.0.10")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.13")
 
     // to enable running test in idea without having to add the dependency manually
     api("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")

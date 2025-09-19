@@ -1,16 +1,20 @@
 @file:Suppress("GradlePackageUpdate")
 
 import com.ncorti.ktfmt.gradle.TrailingCommaManagementStrategy
-import failgood.versions.coroutinesVersion
+import failgood.versions.Versions
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
 /** A kotlin project that uses failgood as test runner and pitest for mutation coverage. */
 plugins {
+    id("failgood.versions")
     kotlin("jvm")
     id("info.solidsoft.pitest")
-    id("com.ncorti.ktfmt.gradle")
-    kotlin("plugin.power-assert")
+    id("com.ncorti.ktfmt.gradle") version "0.24.0"
+    kotlin("plugin.power-assert") version "2.1.21"
 }
+
+// Access versions object from the versions plugin
+val versions: Versions by project.extra
 
 dependencies {
     testImplementation(project(":failgood"))
@@ -18,7 +22,7 @@ dependencies {
     // everything else is optional, and only here because some tests show interactions with these
     // libs
     testImplementation("io.mockk:mockk:1.14.5")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.coroutines}")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
     implementation("org.slf4j:slf4j-api:2.0.17")
 }

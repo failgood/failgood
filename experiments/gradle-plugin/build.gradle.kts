@@ -1,10 +1,10 @@
 @file:Suppress("GradlePackageUpdate")
 
-import failgood.versions.junitJupiterVersion
-import failgood.versions.junitPlatformVersion
+import failgood.versions.Versions
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
 plugins {
+    id("failgood.versions")
     kotlin("jvm")
     id("info.solidsoft.pitest")
     id("failgood.common")
@@ -37,6 +37,9 @@ tasks.test {
     //    failOnNoDiscoveredTests = false
 }
 
+// Access versions object from the versions plugin
+val versions: Versions by project.extra
+
 dependencies {
     testImplementation(kotlin("test"))
     implementation(project(":failgood"))
@@ -45,10 +48,10 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit5"))
 
-    implementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
-    implementation("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
-    implementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
-    implementation("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
+    implementation("org.junit.jupiter:junit-jupiter-api:${versions.junitJupiter}")
+    implementation("org.junit.jupiter:junit-jupiter-engine:${versions.junitJupiter}")
+    implementation("org.junit.platform:junit-platform-launcher:${versions.junitPlatform}")
+    implementation("org.junit.platform:junit-platform-engine:${versions.junitPlatform}")
 }
 
 sourceSets.main {
@@ -68,7 +71,7 @@ plugins.withId("info.solidsoft.pitest") {
         avoidCallsTo = setOf("kotlin.jvm.internal", "kotlin.Result")
         targetClasses = setOf("failgood.*") // by default "${project.group}.*"
         targetTests = setOf("failgood.*Test", "failgood.**.*Test")
-        pitestVersion = failgood.versions.pitestVersion
+        pitestVersion = versions.pitest
         threads =
             System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()
 

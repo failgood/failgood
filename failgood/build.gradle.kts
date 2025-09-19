@@ -1,10 +1,8 @@
-import failgood.versions.coroutinesVersion
-import failgood.versions.junitJupiterVersion
-import failgood.versions.junitPlatformVersion
-import failgood.versions.pitestVersion
+import failgood.versions.Versions
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
 plugins {
+    id("failgood.versions")
     kotlin("jvm")
     `maven-publish`
     id("info.solidsoft.pitest")
@@ -14,35 +12,38 @@ plugins {
     id("org.jetbrains.kotlinx.kover") version "0.9.2"
 }
 
+// Access versions object from the versions plugin
+val versions: Versions by project.extra
+
 // to release:
 // ./gradlew publishToSonatype closeSonatypeStagingRepository (or ./gradlew publishToSonatype
 // closeAndReleaseSonatypeStagingRepository)
 
 dependencies {
-    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
-    api("org.junit.platform:junit-platform-commons:$junitPlatformVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:$coroutinesVersion")
+    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.coroutines}")
+    api("org.junit.platform:junit-platform-commons:${versions.junitPlatform}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:${versions.coroutines}")
     implementation("org.slf4j:slf4j-api:2.0.17")
     implementation("io.github.oshai:kotlin-logging-jvm:7.0.13")
 
     // to enable running test in idea without having to add the dependency manually
-    api("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
-    compileOnly("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
+    api("org.junit.platform:junit-platform-launcher:${versions.junitPlatform}")
+    compileOnly("org.junit.platform:junit-platform-engine:${versions.junitPlatform}")
 
     implementation(kotlin("stdlib-jdk8"))
-    compileOnly("org.pitest:pitest:$pitestVersion")
+    compileOnly("org.pitest:pitest:${versions.pitest}")
     implementation("org.opentest4j:opentest4j:1.3.0")
-    testImplementation("org.pitest:pitest:$pitestVersion")
-    testImplementation("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
+    testImplementation("org.pitest:pitest:${versions.pitest}")
+    testImplementation("org.junit.platform:junit-platform-engine:${versions.junitPlatform}")
     testImplementation("io.projectreactor.tools:blockhound:1.0.14.RELEASE")
 
     testImplementation(kotlin("test"))
     testImplementation("ch.qos.logback:logback-classic:1.5.18")
 
     // for the tools that analyze what events jupiter tests generate.
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
-    testRuntimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-debug:$coroutinesVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${versions.junitJupiter}")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:${versions.junitJupiter}")
+    testRuntimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-debug:${versions.coroutines}")
 }
 
 sourceSets.main {
@@ -96,7 +97,7 @@ plugins.withId("info.solidsoft.pitest") {
         excludedTestClasses = setOf("failgood.MultiThreadingPerformanceTest*")
         targetClasses = setOf("failgood.*") // by default "${project.group}.*"
         targetTests = setOf("failgood.*Test", "failgood.**.*Test")
-        pitestVersion = failgood.versions.pitestVersion
+        pitestVersion = versions.pitest
         threads =
             System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()
 

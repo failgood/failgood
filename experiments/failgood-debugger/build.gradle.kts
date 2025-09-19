@@ -1,14 +1,19 @@
 @file:Suppress("GradlePackageUpdate")
 
+import failgood.versions.Versions
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
 plugins {
+    id("failgood.versions")
     kotlin("jvm")
     id("info.solidsoft.pitest")
     id("failgood.common")
     //    id("failgood.publishing")
     id("org.jetbrains.kotlinx.kover") version "0.9.2"
 }
+
+// Access versions object from the versions plugin
+val versions: Versions by project.extra
 
 dependencies {
     testImplementation(kotlin("test"))
@@ -36,7 +41,7 @@ plugins.withId("info.solidsoft.pitest") {
         avoidCallsTo = setOf("kotlin.jvm.internal", "kotlin.Result")
         targetClasses = setOf("failgood.*") // by default "${project.group}.*"
         targetTests = setOf("failgood.*Test", "failgood.**.*Test")
-        pitestVersion = failgood.versions.pitestVersion
+        pitestVersion = versions.pitest
         threads =
             System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()
 

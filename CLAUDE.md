@@ -220,3 +220,31 @@ Key principles:
 - Load fixtures from classpath using `getResourceAsStream`
 - Use `Files.createDirectories()` to create full paths at once
 - Tests must work from any working directory
+
+## when committing
+
+- please run git status and git diff before committing to make sure you clearly understand what is going to be committed. then think hard if you need to exclude files and if everything is in the shape you want it to be
+- if i tell you to do something and it turns out that that is hard or maybe even impossible please stop and ask what to do. do not just do anything or decide that the task i told you to do should not be done.
+
+## Problem-Solving Guidelines
+
+- **Never accept "impossible" or "not supported" without thorough investigation**
+  - Check all linked resources in bug reports and issues
+  - Look for workarounds that others have found
+  - Test edge cases and alternative approaches
+
+- **When hitting apparent limitations:**
+  - Find the exact code causing the limitation
+  - Look for configuration options or workarounds
+  - Check how others have solved similar problems
+  - The more "impossible" something seems, the more important it is to solve
+
+- **Follow through completely:**
+  - When finding a relevant issue/bug report, read ALL of it including comments and linked resources
+  - Don't stop at the first obstacle - that's usually where the real work begins
+  - If something seems hardcoded, find WHERE it's hardcoded and look for ways around it
+
+- **The tricky problems are the most important:**
+  - Easy problems don't need AI assistance
+  - When things get complex, that's when to dig deeper, not give up
+  - "Known limitations" often have unknown workarounds

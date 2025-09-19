@@ -11,6 +11,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm") version "2.1.21" apply false
 }
 rootProject.name = "failgood-root"
+includeBuild("build-logic")
 include("failgood", "failgood-examples", "failgood-gradle-test",
     "experiments:failgood-debugger",
     "experiments:gradle-plugin",

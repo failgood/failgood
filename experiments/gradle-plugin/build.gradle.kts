@@ -1,15 +1,13 @@
 @file:Suppress("GradlePackageUpdate")
 
-import failgood.versions.Versions
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
 plugins {
-    id("failgood.versions")
     kotlin("jvm")
     id("info.solidsoft.pitest")
-    id("failgood.common")
+    id("shared.common")
     //    id("failgood.publishing")
-    id("org.jetbrains.kotlinx.kover") version "0.9.2"
+    alias(libs.plugins.kover)
     `java-gradle-plugin`
 }
 
@@ -37,31 +35,18 @@ tasks.test {
     //    failOnNoDiscoveredTests = false
 }
 
-// Access versions object from the versions plugin
-val versions: Versions by project.extra
-
 dependencies {
-    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.test)
     implementation(project(":failgood"))
     implementation(gradleApi())
     testImplementation(gradleTestKit())
-    testImplementation(kotlin("test"))
-    testImplementation(kotlin("test-junit5"))
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlin.test.junit5)
 
-    implementation("org.junit.jupiter:junit-jupiter-api:${versions.junitJupiter}")
-    implementation("org.junit.jupiter:junit-jupiter-engine:${versions.junitJupiter}")
-    implementation("org.junit.platform:junit-platform-launcher:${versions.junitPlatform}")
-    implementation("org.junit.platform:junit-platform-engine:${versions.junitPlatform}")
-}
-
-sourceSets.main {
-    java.srcDirs("src")
-    resources.srcDirs("resources")
-}
-
-sourceSets.test {
-    java.srcDirs("test")
-    resources.srcDirs("testResources")
+    implementation(libs.junit.jupiter.api)
+    implementation(libs.junit.jupiter.engine)
+    implementation(libs.junit.platform.launcher)
+    implementation(libs.junit.platform.engine)
 }
 
 plugins.withId("info.solidsoft.pitest") {
@@ -71,7 +56,7 @@ plugins.withId("info.solidsoft.pitest") {
         avoidCallsTo = setOf("kotlin.jvm.internal", "kotlin.Result")
         targetClasses = setOf("failgood.*") // by default "${project.group}.*"
         targetTests = setOf("failgood.*Test", "failgood.**.*Test")
-        pitestVersion = versions.pitest
+        pitestVersion = libs.versions.pitest.get()
         threads =
             System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()
 

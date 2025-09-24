@@ -6,24 +6,14 @@ repositories {
 }
 
 plugins {
-    id("failgood.common")
+    id("shared.common")
     kotlin("jvm")
 }
 
 dependencies {
     testImplementation(project(":failgood"))
-    testImplementation("org.gradle:gradle-tooling-api:9.0.0")
-    testImplementation(kotlin("stdlib-jdk8", "2.1.21"))
+    testImplementation(libs.gradle.tooling.api)
+    testImplementation(libs.kotlin.stdlib.jdk8)
 }
 
 tasks { withType<Test> { useJUnitPlatform() } }
-
-sourceSets.main {
-    java.srcDirs("src")
-    resources.srcDirs("resources")
-}
-
-sourceSets.test {
-    java.srcDirs("test")
-    resources.srcDirs("testResources")
-}

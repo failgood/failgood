@@ -1,30 +1,26 @@
 @file:Suppress("GradlePackageUpdate")
 
 import com.ncorti.ktfmt.gradle.TrailingCommaManagementStrategy
-import failgood.versions.Versions
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
-/** A kotlin project that uses failgood as test runner and pitest for mutation coverage. */
+/** A kotlin project that uses failgood as test runner and pitest for mutation coverage.
+ * this build does not use the common build logic because it is an example meant to work standalone */
 plugins {
-    id("failgood.versions")
     kotlin("jvm")
     id("info.solidsoft.pitest")
     id("com.ncorti.ktfmt.gradle") version "0.24.0"
     kotlin("plugin.power-assert") version "2.1.21"
 }
 
-// Access versions object from the versions plugin
-val versions: Versions by project.extra
-
 dependencies {
     testImplementation(project(":failgood"))
 
     // everything else is optional, and only here because some tests show interactions with these
     // libs
-    testImplementation("io.mockk:mockk:1.14.5")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.coroutines}")
-    implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
-    implementation("org.slf4j:slf4j-api:2.0.17")
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlin.logging.microutils)
+    implementation(libs.slf4j.api)
 }
 
 plugins.withId("info.solidsoft.pitest") {
@@ -36,7 +32,7 @@ plugins.withId("info.solidsoft.pitest") {
         avoidCallsTo.set(setOf("kotlin.jvm.internal", "kotlin.Result"))
         targetClasses.set(setOf("failgood.examples.*")) // by default "${project.group}.*"
         targetTests.set(setOf("failgood.examples.*Test", "failgood.examples.**.*Test"))
-        pitestVersion.set("1.20.3")
+        pitestVersion.set(libs.versions.pitest.get())
         threads.set(
             System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors())
         outputFormats.set(setOf("XML", "HTML"))

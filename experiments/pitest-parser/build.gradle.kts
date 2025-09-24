@@ -1,24 +1,13 @@
 plugins {
     kotlin("jvm")
-    id("failgood.common")
+    id("shared.common")
     application
 }
 
 dependencies {
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.20.0")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.20.0")
-    implementation("org.jsoup:jsoup:1.21.2")
+    implementation(libs.bundles.jackson)
+    implementation(libs.jsoup)
     testImplementation(project(":failgood"))
-}
-
-sourceSets.main {
-    java.srcDirs("src")
-    resources.srcDirs("resources")
-}
-
-sourceSets.test {
-    java.srcDirs("test")
-    resources.srcDirs("testResources")
 }
 
 application { mainClass.set("CoverageReporterKt") }

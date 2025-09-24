@@ -22,6 +22,7 @@ dependencies {
     implementation("com.ncorti.ktfmt.gradle:plugin:0.24.0") {
         exclude(group = "org.jetbrains.kotlin")
     }
+    implementation("info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.15.0")
 }
 
 // Configure flat source structure BEFORE applying kotlin-dsl

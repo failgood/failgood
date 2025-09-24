@@ -5,6 +5,9 @@ plugins {
     id("info.solidsoft.pitest") version "1.19.0-rc.1" apply false
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
 }
+
+// Project configuration is now handled via gradle.properties
+// Each submodule applies shared.common and shared.publishing as needed
 fun isNonStable(version: String): Boolean {
     val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.uppercase().contains(it) }
     val regex = "^[0-9,.v-]+(-r)?$".toRegex()

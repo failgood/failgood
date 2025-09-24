@@ -14,6 +14,18 @@ FailGood is a test runner for Kotlin focusing on simplicity, usability, and spee
 - Gradle integration
 - Compatible with various assertion libraries
 
+## Build Structure
+
+The project uses a Gradle composite build with convention plugins:
+
+- **build-logic/** - Contains convention plugins and centralized configuration
+  - `failgood.common` - Common settings for all projects (Kotlin, testing, formatting)
+  - `failgood.publishing` - Maven publishing configuration
+  - `failgood.versions` - Centralized version management via a `Versions` data class
+- **Version Management** - All versions are centralized in `build-logic/src/Versions.kt`
+  - Access versions in build scripts: `val versions: Versions by project.extra`
+  - Use like: `${versions.coroutines}`, `${versions.pitest}`, etc.
+
 ## Build and Test Commands
 
 ### Running Tests

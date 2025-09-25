@@ -23,6 +23,7 @@ dependencies {
         exclude(group = "org.jetbrains.kotlin")
     }
     implementation("info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.15.0")
+    implementation("com.github.ben-manes:gradle-versions-plugin:0.52.0")
 }
 
 // Configure flat source structure BEFORE applying kotlin-dsl

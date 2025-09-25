@@ -1,32 +1,24 @@
-import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import buildgood.CommonBuildExtension
 
 plugins {
-    id("com.github.ben-manes.versions") version "0.52.0"
     id("info.solidsoft.pitest") version "1.19.0-rc.1" apply false
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
+    id("buildgood.root")
 }
 
-// Project configuration is now handled via gradle.properties
-// Each submodule applies shared.common and shared.publishing as needed
-fun isNonStable(version: String): Boolean {
-    val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.uppercase().contains(it) }
-    val regex = "^[0-9,.v-]+(-r)?$".toRegex()
-    val isStable = stableKeyword || regex.matches(version)
-    return isStable.not()
-}
-tasks.named<DependencyUpdatesTask>("dependencyUpdates") {
-    rejectVersionIf {
-        isNonStable(candidate.version) && !isNonStable(currentVersion)
+// Configure build settings for all modules using the DSL
+commonBuild {
+    basePackage = "failgood"
+    jvmTarget {
+        production(8)  // JVM 1.8 for production
+        test(17)       // JVM 17 for tests
     }
-    // optional parameters
-    gradleReleaseChannel = "current"
-    checkForGradleUpdate = true
-    outputFormatter = "json"
-    outputDir = "build/dependencyUpdates"
-    reportfileName = "report"
+    useFailgoodPowerAssert()  // Use failgood asserts for this project
+    useStrictKotlinMode()     // Enable strict Kotlin mode
+    pitest {
+        excludeTestClasses("failgood.MultiThreadingPerformanceTest*")
+    }
 }
-
-tasks.wrapper { distributionType = Wrapper.DistributionType.ALL }
 
 nexusPublishing {
     repositories {

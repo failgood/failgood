@@ -1,4 +1,4 @@
-package buildlogic
+package buildgood
 
 import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory

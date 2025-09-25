@@ -1,5 +1,5 @@
-import buildlogic.CommonBuildExtension
-import buildlogic.PublishingBuildExtension
+import buildgood.CommonBuildExtension
+import buildgood.PublishingBuildExtension
 
 // This plugin configures the project-specific settings for failgood
 // Apply this in your root build.gradle.kts to configure all modules
@@ -18,8 +18,8 @@ val useStrictMode = findProperty("use.strict.mode")?.toString()?.toBoolean() ?: 
 pluginManager.withPlugin("shared.common") {
     configure<CommonBuildExtension> {
         jvmTarget {
-            production = jvmProduction
-            test = jvmTest
+            production(jvmProduction.replace("1.", "").toIntOrNull() ?: 8)
+            test(jvmTest.replace("1.", "").toIntOrNull() ?: 17)
         }
         if (useFailgoodAsserts) {
             useFailgoodPowerAssert()

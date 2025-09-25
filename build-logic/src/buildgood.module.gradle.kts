@@ -1,4 +1,5 @@
 import buildgood.CommonBuildExtension
+import buildgood.PublishingBuildExtension
 import com.adarshr.gradle.testlogger.TestLoggerExtension
 import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA_PARALLEL
 import com.ncorti.ktfmt.gradle.TrailingCommaManagementStrategy
@@ -13,8 +14,11 @@ plugins {
     id("com.adarshr.test-logger")
     id("com.ncorti.ktfmt.gradle")
     kotlin("plugin.power-assert")
+    `maven-publish`
+    signing
 }
 
+// Configure flat source structure (used by failgood and isolation-chamber)
 sourceSets.main {
     java.srcDirs("src")
     resources.srcDirs("resources")
@@ -27,6 +31,9 @@ sourceSets.test {
 
 // Create the DSL extension for this module
 val commonBuild = extensions.create<CommonBuildExtension>("commonBuild", project)
+
+// Create publishing extension for configuration
+val publishingConfig = extensions.create<PublishingBuildExtension>("publishingConfig")
 
 // First, copy configuration from root if available
 val rootConfig = if (rootProject.extra.has("commonBuildConfig")) {
@@ -64,7 +71,6 @@ if (rootConfig != null) {
 // Apply configuration after evaluation
 // At this point, any local DSL configuration will have overridden the copied values
 afterEvaluate {
-
     val jvmConfig = commonBuild.jvmTarget
 
     tasks {
@@ -142,6 +148,95 @@ afterEvaluate {
     @Suppress("OPT_IN_USAGE")
     powerAssert {
         functions = commonBuild.powerAssertFunctions
+    }
+
+    // Configure publishing if enabled via DSL
+    configurePublishing()
+}
+
+fun Project.configurePublishing() {
+    // Read project metadata from gradle.properties
+    val projectName = findProperty("project.name") as String? ?: project.name
+    val projectDescription = findProperty("project.description") as String? ?: ""
+    val projectUrl = findProperty("project.url") as String? ?: ""
+    val projectRepo = findProperty("project.repo") as String? ?: ""
+
+    // Apply any DSL configuration
+    publishingConfig.apply {
+        if (projectInfo.name.isNullOrEmpty()) {
+            projectInfo {
+                name = projectName
+                description = projectDescription
+                url = projectUrl
+            }
+        }
+        if (scm.url.isNullOrEmpty() && projectRepo.isNotEmpty()) {
+            scm {
+                fromGitHub(projectRepo)
+            }
+        }
+    }
+
+    publishing {
+        publications {
+            create<MavenPublication>("maven") {
+                from(components["java"])
+
+                artifact(tasks.register<Jar>("sourcesJar") {
+                    from(sourceSets.main.get().allSource)
+                    archiveClassifier = "sources"
+                })
+
+                artifact(tasks.register<Jar>("javadocJar") {
+                    from(tasks.javadoc)
+                    archiveClassifier = "javadoc"
+                })
+
+                pom {
+                    if (!publishingConfig.projectInfo.name.isNullOrEmpty()) {
+                        name = publishingConfig.projectInfo.name
+                    }
+                    if (!publishingConfig.projectInfo.description.isNullOrEmpty()) {
+                        description = publishingConfig.projectInfo.description
+                    }
+                    if (!publishingConfig.projectInfo.url.isNullOrEmpty()) {
+                        url = publishingConfig.projectInfo.url
+                    }
+
+                    licenses {
+                        license {
+                            name = "MIT License"
+                            url = "https://opensource.org/licenses/MIT"
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id = "christophsturm"
+                            name = "Christoph Sturm"
+                            email = "me@christophsturm.com"
+                        }
+                    }
+
+                    if (!publishingConfig.scm.url.isNullOrEmpty()) {
+                        scm {
+                            url = publishingConfig.scm.url
+                            connection = publishingConfig.scm.connection
+                            developerConnection = publishingConfig.scm.developerConnection
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    signing {
+        val signingKey: String? by project
+        val signingPassword: String? by project
+        if (signingKey != null && signingPassword != null) {
+            useInMemoryPgpKeys(signingKey, signingPassword)
+            sign(publishing.publications["maven"])
+        }
     }
 }
 

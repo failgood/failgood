@@ -3,13 +3,15 @@
 import com.ncorti.ktfmt.gradle.TrailingCommaManagementStrategy
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
-/** A kotlin project that uses failgood as test runner and pitest for mutation coverage.
- * this build does not use the common build logic because it is an example meant to work standalone */
+/**
+ * A kotlin project that uses failgood as test runner and pitest for mutation coverage. this build
+ * does not use the common build logic because it is an example meant to work standalone
+ */
 plugins {
     kotlin("jvm")
     id("info.solidsoft.pitest")
-    id("com.ncorti.ktfmt.gradle") version "0.24.0"
-    kotlin("plugin.power-assert") version "2.1.21"
+    id("com.ncorti.ktfmt.gradle")
+    kotlin("plugin.power-assert")
 }
 
 dependencies {

@@ -1,12 +1,6 @@
-import info.solidsoft.gradle.pitest.PitestPluginExtension
-
 plugins {
-    kotlin("jvm")
-    `maven-publish`
-    id("info.solidsoft.pitest")
-    signing
-    id("shared.common")
-    id("shared.publishing")
+    id("buildgood.module")
+    id("buildgood.pitest")
     alias(libs.plugins.kover)
 }
 
@@ -64,28 +58,6 @@ tasks {
         outputs.upToDateWhen { false }
         include("**/NonFailgoodTest.class")
         useJUnitPlatform()
-    }
-}
-
-plugins.withId("info.solidsoft.pitest") {
-    configure<PitestPluginExtension> {
-        // in case of problems:
-        //                verbose = true
-        verbose = false
-        addJUnitPlatformLauncher = false
-        jvmArgs =
-            listOf(
-                "-Xmx512m", // necessary on CI
-                "-Djava.util.logging.config.file=${rootProject.projectDir}/pitest.logging.properties")
-        avoidCallsTo = setOf("kotlin.jvm.internal", "kotlin.Result")
-        excludedTestClasses = setOf("failgood.MultiThreadingPerformanceTest*")
-        targetClasses = setOf("failgood.*") // by default "${project.group}.*"
-        targetTests = setOf("failgood.*Test", "failgood.**.*Test")
-        pitestVersion = libs.versions.pitest.get()
-        threads =
-            System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()
-
-        outputFormats = setOf("XML", "HTML")
     }
 }
 

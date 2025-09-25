@@ -1,4 +1,4 @@
-import buildlogic.PublishingBuildExtension
+import buildgood.PublishingBuildExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.*

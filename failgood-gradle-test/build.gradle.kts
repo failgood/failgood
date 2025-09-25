@@ -5,10 +5,7 @@ repositories {
     mavenCentral()
 }
 
-plugins {
-    id("shared.common")
-    kotlin("jvm")
-}
+plugins { id("buildgood.module") }
 
 dependencies {
     testImplementation(project(":failgood"))

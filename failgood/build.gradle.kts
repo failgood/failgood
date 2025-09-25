@@ -1,6 +1,5 @@
 plugins {
     id("buildgood.module")
-    id("buildgood.pitest")
     alias(libs.plugins.kover)
 }
 

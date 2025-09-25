@@ -1,7 +1,6 @@
 import buildgood.CommonBuildExtension
 
 plugins {
-    id("info.solidsoft.pitest") version "1.19.0-rc.1" apply false
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
     id("buildgood.root")
 }

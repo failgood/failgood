@@ -1,6 +1,5 @@
 plugins {
-    kotlin("jvm")
-    id("shared.common")
+    id("buildgood.module")
     application
 }
 

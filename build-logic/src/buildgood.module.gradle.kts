@@ -3,6 +3,7 @@ import buildgood.PublishingBuildExtension
 import com.adarshr.gradle.testlogger.TestLoggerExtension
 import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA_PARALLEL
 import com.ncorti.ktfmt.gradle.TrailingCommaManagementStrategy
+import info.solidsoft.gradle.pitest.PitestPluginExtension
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -14,6 +15,7 @@ plugins {
     id("com.adarshr.test-logger")
     id("com.ncorti.ktfmt.gradle")
     kotlin("plugin.power-assert")
+    id("info.solidsoft.pitest")
     `maven-publish`
     signing
 }
@@ -35,7 +37,7 @@ val commonBuild = extensions.create<CommonBuildExtension>("commonBuild", project
 // Create publishing extension for configuration
 val publishingConfig = extensions.create<PublishingBuildExtension>("publishingConfig")
 
-// First, copy configuration from root if available
+// Copy configuration from root if available
 val rootConfig = if (rootProject.extra.has("commonBuildConfig")) {
     rootProject.extra["commonBuildConfig"] as CommonBuildExtension
 } else null
@@ -43,29 +45,6 @@ val rootConfig = if (rootProject.extra.has("commonBuildConfig")) {
 if (rootConfig != null) {
     // Copy all settings from root immediately
     commonBuild.copyFrom(rootConfig)
-} else {
-    // Fallback to gradle.properties for backwards compatibility
-    commonBuild.apply {
-        jvmTarget {
-            val prodVersion = findProperty("jvm.production") as String?
-            val testVersion = findProperty("jvm.test") as String?
-            if (prodVersion != null) {
-                production(prodVersion.replace("1.", "").toIntOrNull() ?: 8)
-            }
-            if (testVersion != null) {
-                test(testVersion.replace("1.", "").toIntOrNull() ?: 17)
-            }
-        }
-        val useFailgoodAsserts = findProperty("use.failgood.asserts")?.toString()?.toBoolean()
-        val useStrictMode = findProperty("use.strict.mode")?.toString()?.toBoolean()
-
-        if (useFailgoodAsserts == true) {
-            useFailgoodPowerAssert()
-        }
-        if (useStrictMode == true) {
-            useStrictKotlinMode()
-        }
-    }
 }
 
 // Apply configuration after evaluation
@@ -150,32 +129,50 @@ afterEvaluate {
         functions = commonBuild.powerAssertFunctions
     }
 
+    // Configure pitest if basePackage is set
+    if (commonBuild.basePackage.isNotEmpty()) {
+        configure<PitestPluginExtension> {
+            verbose = false
+            addJUnitPlatformLauncher = false
+            jvmArgs = listOf(
+                "-Xmx512m", // necessary on CI
+                "-Djava.util.logging.config.file=${rootProject.projectDir}/pitest.logging.properties"
+            )
+            avoidCallsTo = setOf("kotlin.jvm.internal", "kotlin.Result")
+
+            // Configure based on basePackage
+            targetClasses = setOf("${commonBuild.basePackage}.*")
+            targetTests = setOf(
+                "${commonBuild.basePackage}.*Test",
+                "${commonBuild.basePackage}.**.*Test"
+            )
+
+            // Apply excluded test classes from configuration
+            excludedTestClasses = commonBuild.pitest.excludedTestClasses
+
+            // Use pitest version from libs if available
+            val libs = project.extensions.findByType<org.gradle.api.artifacts.VersionCatalogsExtension>()
+                ?.named("libs")
+            if (libs != null) {
+                try {
+                    pitestVersion = libs.findVersion("pitest").get().toString()
+                } catch (e: Exception) {
+                    // Use default version if not found in version catalog
+                    pitestVersion = "1.17.1"
+                }
+            }
+
+            threads = System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()
+            outputFormats = setOf("XML", "HTML")
+        }
+    }
+
     // Configure publishing if enabled via DSL
     configurePublishing()
 }
 
 fun Project.configurePublishing() {
-    // Read project metadata from gradle.properties
-    val projectName = findProperty("project.name") as String? ?: project.name
-    val projectDescription = findProperty("project.description") as String? ?: ""
-    val projectUrl = findProperty("project.url") as String? ?: ""
-    val projectRepo = findProperty("project.repo") as String? ?: ""
-
-    // Apply any DSL configuration
-    publishingConfig.apply {
-        if (projectInfo.name.isNullOrEmpty()) {
-            projectInfo {
-                name = projectName
-                description = projectDescription
-                url = projectUrl
-            }
-        }
-        if (scm.url.isNullOrEmpty() && projectRepo.isNotEmpty()) {
-            scm {
-                fromGitHub(projectRepo)
-            }
-        }
-    }
+    // Publishing configuration is set entirely via DSL
 
     publishing {
         publications {

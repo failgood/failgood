@@ -1,5 +1,3 @@
-import buildgood.CommonBuildExtension
-
 plugins {
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
     id("buildgood.root")
@@ -12,8 +10,7 @@ commonBuild {
         production(8)  // JVM 1.8 for production
         test(17)       // JVM 17 for tests
     }
-    useFailgoodPowerAssert()  // Use failgood asserts for this project
-    useStrictKotlinMode()     // Enable strict Kotlin mode
+    requireExplicitReturnTypes()     // Enable strict Kotlin mode
     pitest {
         excludeTestClasses("failgood.MultiThreadingPerformanceTest*")
     }

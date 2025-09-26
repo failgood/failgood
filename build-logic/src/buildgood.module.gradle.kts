@@ -109,7 +109,7 @@ afterEvaluate {
                     21 -> JvmTarget.JVM_21
                     else -> JvmTarget.JVM_1_8
                 }
-                if (commonBuild.useStrictKotlin) {
+                if (commonBuild.requireExplicitReturnTypes) {
                     freeCompilerArgs.add("-XXexplicit-return-types=strict")
                 }
             }
@@ -130,7 +130,9 @@ afterEvaluate {
 
     @Suppress("OPT_IN_USAGE")
     powerAssert {
-        functions = commonBuild.powerAssertFunctions
+        functions.add(
+            "failgood.softly.AssertDSL.assert"
+        )
     }
 
     // Configure pitest if basePackage is set

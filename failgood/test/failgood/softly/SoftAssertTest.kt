@@ -40,7 +40,7 @@ object SoftAssertTest {
                             .exceptionOrNull())
                 assert(exception.message == "assert error message")
             }
-            it("throws MultipleFailuresError when multipe asserts fail") {
+            it("throws MultipleFailuresError when multiple asserts fail") {
                 val name = "klausi"
                 val exception =
                     assertNotNull(

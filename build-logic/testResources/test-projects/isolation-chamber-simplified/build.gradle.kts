@@ -14,5 +14,4 @@ commonBuild {
         production(11)
         test(17)
     }
-    useBasicPowerAssert()
 }

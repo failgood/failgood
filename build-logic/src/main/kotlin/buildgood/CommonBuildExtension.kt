@@ -8,19 +8,13 @@ import org.gradle.jvm.toolchain.JavaLanguageVersion
 import javax.inject.Inject
 
 open class CommonBuildExtension @Inject constructor(
-    private val objects: ObjectFactory,
-    private val project: Project
+    objects: ObjectFactory,
+    project: Project
 ) {
     val jvmTarget = objects.newInstance(JvmTargetConfig::class.java)
     val pitest = objects.newInstance(PitestConfig::class.java)
 
-    internal val powerAssertFunctions = mutableListOf(
-        "kotlin.assert",
-        "kotlin.test.assertTrue",
-        "kotlin.test.assertNotNull"
-    )
-
-    internal var useStrictKotlin = false
+    internal var requireExplicitReturnTypes = false
 
     // Base package for the project (e.g., "failgood" or "com.christophsturm.isolationchamber")
     var basePackage: String = ""
@@ -33,27 +27,8 @@ open class CommonBuildExtension @Inject constructor(
         action.execute(pitest)
     }
 
-    fun useFailgoodPowerAssert() {
-        powerAssertFunctions.clear()
-        powerAssertFunctions.addAll(listOf(
-            "kotlin.assert",
-            "kotlin.test.assertTrue",
-            "kotlin.test.assertNotNull",
-            "failgood.softly.AssertDSL.assert"
-        ))
-    }
-
-    fun useBasicPowerAssert() {
-        powerAssertFunctions.clear()
-        powerAssertFunctions.addAll(listOf(
-            "kotlin.assert",
-            "kotlin.test.assertTrue",
-            "kotlin.test.assertNotNull"
-        ))
-    }
-
-    fun useStrictKotlinMode() {
-        useStrictKotlin = true
+    fun requireExplicitReturnTypes() {
+        requireExplicitReturnTypes = true
     }
 
     /**
@@ -65,12 +40,8 @@ open class CommonBuildExtension @Inject constructor(
         jvmTarget.production = other.jvmTarget.production
         jvmTarget.test = other.jvmTarget.test
 
-        // Copy power assert functions
-        powerAssertFunctions.clear()
-        powerAssertFunctions.addAll(other.powerAssertFunctions)
-
         // Copy strict Kotlin mode
-        useStrictKotlin = other.useStrictKotlin
+        requireExplicitReturnTypes = other.requireExplicitReturnTypes
 
         // Copy base package
         basePackage = other.basePackage

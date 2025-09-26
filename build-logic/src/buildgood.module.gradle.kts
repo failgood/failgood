@@ -20,7 +20,11 @@ plugins {
     signing
 }
 
-// Configure flat source structure (used by failgood and isolation-chamber)
+// Ensure repositories are configured
+repositories {
+    mavenCentral()
+}
+
 sourceSets.main {
     java.srcDirs("src")
     resources.srcDirs("resources")
@@ -38,7 +42,7 @@ val commonBuild = extensions.create<CommonBuildExtension>("commonBuild", project
 val publishingConfig = extensions.create<PublishingBuildExtension>("publishingConfig")
 
 // Copy configuration from root if available
-val rootConfig = if (rootProject.extra.has("commonBuildConfig")) {
+val rootConfig = if (rootProject != project && rootProject.extra.has("commonBuildConfig")) {
     rootProject.extra["commonBuildConfig"] as CommonBuildExtension
 } else null
 
@@ -150,16 +154,17 @@ afterEvaluate {
             // Apply excluded test classes from configuration
             excludedTestClasses = commonBuild.pitest.excludedTestClasses
 
-            // Use pitest version from libs if available
-            val libs = project.extensions.findByType<org.gradle.api.artifacts.VersionCatalogsExtension>()
-                ?.named("libs")
-            if (libs != null) {
-                try {
-                    pitestVersion = libs.findVersion("pitest").get().toString()
-                } catch (e: Exception) {
-                    // Use default version if not found in version catalog
-                    pitestVersion = "1.17.1"
+            // Try to use pitest version from libs catalog if available
+            pitestVersion = try {
+                val catalogs = project.extensions.findByType<org.gradle.api.artifacts.VersionCatalogsExtension>()
+                if (catalogs != null && catalogs.catalogNames.contains("libs")) {
+                    catalogs.named("libs").findVersion("pitest").orElse(null)?.toString() ?: "1.17.1"
+                } else {
+                    "1.17.1"
                 }
+            } catch (e: Exception) {
+                // Use default version if catalog or version not found
+                "1.17.1"
             }
 
             threads = System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()

@@ -40,5 +40,3 @@ tasks.register("ci") {
     description = "Runs exactly what runs on CI"
     group = "verification"
 }
-
-tasks.register("compileTestKotlin") {}

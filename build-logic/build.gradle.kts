@@ -3,6 +3,8 @@ plugins {
     `kotlin-dsl` apply false
     `kotlin-dsl-precompiled-script-plugins` apply false
     kotlin("jvm") version "2.1.21"
+    kotlin("plugin.power-assert") version "2.1.21"
+    id("com.ncorti.ktfmt.gradle") version "0.24.0"
     idea
 }
 
@@ -24,6 +26,11 @@ dependencies {
     }
     implementation("info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.15.0")
     implementation("com.github.ben-manes:gradle-versions-plugin:0.52.0")
+
+    // Test dependencies
+    testImplementation(gradleTestKit())
+    testImplementation("dev.failgood:failgood:0.9.1")
+    testImplementation(kotlin("test"))
 }
 
 // Configure flat source structure BEFORE applying kotlin-dsl
@@ -44,6 +51,30 @@ sourceSets.test {
 // The kotlin-dsl plugin includes precompiled script plugin support
 apply(plugin = "org.gradle.kotlin.kotlin-dsl")
 
+tasks.test {
+    useJUnitPlatform()
+}
+
+// Configure ktfmt for build-logic itself
+ktfmt {
+    kotlinLangStyle()
+}
+
+// Register a custom ktfmt task for test fixtures
+tasks.register<com.ncorti.ktfmt.gradle.tasks.KtfmtFormatTask>("formatTestFixtures") {
+    description = "Format Kotlin files in test fixtures"
+    group = "formatting"
+    source = fileTree("testResources/test-projects") {
+        include("**/*.kt")
+        include("**/*.gradle.kts")
+    }
+}
+
+// Make ktfmtFormat depend on formatting test fixtures
+tasks.named("ktfmtFormat") {
+    dependsOn("formatTestFixtures")
+}
+
 // to make idea ignore gradle generated classes in analyze code. (idea bug)
 idea {
     module {
@@ -52,61 +83,3 @@ idea {
     }
 }
 
-tasks.register("debugPrecompiledScripts") {
-    doLast {
-        println("=== Debugging Precompiled Script Plugin Detection ===")
-
-        // Check if the task exists
-        val extractTask = tasks.findByName("extractPrecompiledScriptPluginPlugins")
-        if (extractTask != null) {
-            println("extractPrecompiledScriptPluginPlugins task exists")
-            println("  Type: ${extractTask::class.simpleName}")
-            println("  Enabled: ${extractTask.enabled}")
-
-            // Try to get inputs
-            extractTask.inputs.files.forEach { file ->
-                println("  Input: $file")
-            }
-        } else {
-            println("extractPrecompiledScriptPluginPlugins task NOT FOUND")
-        }
-
-        // Check what gradle.kts files are in source sets
-        sourceSets["main"].kotlin.matching {
-            include("**/*.gradle.kts")
-        }.files.forEach { file ->
-            println("Found .gradle.kts in kotlin source: $file")
-        }
-
-        // Check all source directories
-        sourceSets["main"].kotlin.srcDirs.forEach { dir ->
-            println("Kotlin source dir: $dir")
-            if (dir.exists()) {
-                dir.walkTopDown().filter { it.extension == "gradle.kts" }.forEach { file ->
-                    println("  Found: ${file.relativeTo(dir)}")
-                }
-            }
-        }
-    }
-}
-
-tasks.register("showSourceSets") {
-    doLast {
-        sourceSets.forEach { sourceSet ->
-            println("Source Set: ${sourceSet.name}")
-            println("  Kotlin directories:")
-            sourceSet.extensions.getByName<org.gradle.api.file.SourceDirectorySet>("kotlin").srcDirs.forEach { dir ->
-                println("    - $dir (exists: ${dir.exists()})")
-            }
-            println("  Java directories:")
-            sourceSet.java.srcDirs.forEach { dir ->
-                println("    - $dir (exists: ${dir.exists()})")
-            }
-            println("  Resources directories:")
-            sourceSet.resources.srcDirs.forEach { dir ->
-                println("    - $dir (exists: ${dir.exists()})")
-            }
-            println()
-        }
-    }
-}

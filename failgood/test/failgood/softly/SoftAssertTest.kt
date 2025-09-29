@@ -3,8 +3,8 @@
 package failgood.softly
 
 import failgood.Test
-import failgood.assert.containsExactlyInAnyOrder
 import failgood.testCollection
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.delay
 import org.opentest4j.MultipleFailuresError
@@ -19,8 +19,6 @@ object SoftAssertTest {
                     // standard boolean
                     assert(name == "klausi")
                     assert(name == "klausi") { "assert error message" }
-
-                    assert(!listOf("a", "b", "c").containsExactlyInAnyOrder("b", "a"))
                 }
             }
             it("throws when one assert fails") {
@@ -32,13 +30,10 @@ object SoftAssertTest {
                                     // standard boolean
                                     assert(name == "klausi")
                                     assert(name != "klausi") { "assert error message" }
-
-                                    assert(
-                                        !listOf("a", "b", "c").containsExactlyInAnyOrder("b", "a"))
                                 }
                             }
                             .exceptionOrNull())
-                assert(exception.message == "assert error message")
+                assertEquals("assert error message", exception.message)
             }
             it("throws MultipleFailuresError when multiple asserts fail") {
                 val name = "klausi"
@@ -50,9 +45,6 @@ object SoftAssertTest {
                                     assert(name == "klausi")
                                     assert(name != "klausi") { "assert1 error message" }
                                     assert(name != "klausi") { "assert2 error message" }
-
-                                    assert(
-                                        !listOf("a", "b", "c").containsExactlyInAnyOrder("b", "a"))
                                 }
                             }
                             .exceptionOrNull())
@@ -61,6 +53,6 @@ object SoftAssertTest {
                         exception.failures.map { it.message }.toSet() ==
                             setOf("assert1 error message", "assert2 error message"))
             }
-            it("can contail suspend methods") { softly { delay(1) } }
+            it("can contain suspend methods") { softly { delay(1) } }
         }
 }

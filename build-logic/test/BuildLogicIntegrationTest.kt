@@ -19,7 +19,6 @@ class BuildLogicIntegrationTest {
                     .withProjectDir(testProject)
                     .withArguments("build", "--stacktrace")
                     .withPluginClasspath()
-                    .forwardOutput()
                     .build()
 
             // Check that no tasks failed
@@ -43,8 +42,10 @@ class BuildLogicIntegrationTest {
                     .withProjectDir(testProject)
                     .withArguments("test", "--info")
                     .withPluginClasspath()
-                    .forwardOutput()
                     .buildAndFail() // Expect the build to fail due to test failures
+
+            val testOutput = extractTestTaskOutput(result.output)
+
             test("project should compile fine but tests should fail") {
                 log(result.tasks.joinToString { it.path })
                 assert(result.task(":core:compileTestKotlin")?.outcome == TaskOutcome.SUCCESS)
@@ -52,18 +53,14 @@ class BuildLogicIntegrationTest {
             }
 
             test("power assert should augment standard asserts") {
-                val output = result.output
-
                 // Check that power assert is working by looking for its characteristic output
                 // Power assert shows values aligned under the expression with | characters
-                assert(output.contains("assert(1 == 2)"))
+                assert(testOutput.contains("assert(1 == 2)"))
             }
             test("power assert should augment failgood asserts") {
-                val output = result.output
-
                 // Check that power assert is working by looking for its characteristic output
                 // Power assert shows values aligned under the expression with | characters
-                assert(output.contains("assert(1 == 3)"))
+                assert(testOutput.contains("assert(1 == 3)"))
             }
         }
     }
@@ -83,4 +80,20 @@ private fun prepareTestProject(projectName: String): File {
     sourceDir.copyRecursively(tempDir)
 
     return tempDir
+}
+
+private fun extractTestTaskOutput(fullOutput: String): String {
+    val lines = fullOutput.lines()
+    val startIndex = lines.indexOfFirst { it.contains("Gradle Test Executor") && it.contains("STANDARD_OUT") }
+    if (startIndex == -1) return fullOutput
+
+    val endIndex = lines.indexOfFirst {
+        it.contains("tests completed") || it.contains("Finished generating test")
+    }
+
+    return if (endIndex > startIndex) {
+        lines.subList(startIndex, endIndex).joinToString("\n")
+    } else {
+        fullOutput
+    }
 }

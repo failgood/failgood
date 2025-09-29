@@ -27,6 +27,7 @@ nexusPublishing {
 
 // Task that combines runSingleNonFailgoodTest and check for CI purposes
 tasks.register("ci") {
+    dependsOn(gradle.includedBuild("build-logic").task(":test"))
     dependsOn(":failgood:runSingleNonFailgoodTest")
     dependsOn(":failgood:check")
     dependsOn(":failgood-examples:check")

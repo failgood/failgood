@@ -54,18 +54,18 @@ if (rootConfig != null) {
 @Suppress("OPT_IN_USAGE")
 powerAssert {
     // The functions list might start empty in precompiled script plugins
-    // So we need to add all the functions we want to support
-    functions.addAll(listOf(
+    // So we need to explicitly set all the functions we want to support
+    functions = listOf(
         "kotlin.assert",
-        "kotlin.check",
-        "kotlin.require",
         "kotlin.test.assertTrue",
-        "kotlin.test.assertFalse",
         "kotlin.test.assertEquals",
-        "kotlin.test.assertNotNull",
+        "kotlin.test.assertNull",
+        "kotlin.require",
+        "kotlin.check",
         "failgood.softly.AssertDSL.assert"
-    ))
+    )
 }
+
 // Apply configuration after evaluation
 // At this point, any local DSL configuration will have overridden the copied values
 afterEvaluate {
@@ -168,8 +168,8 @@ afterEvaluate {
                 try {
                     val catalogs =
                         project.extensions.findByType<
-                            org.gradle.api.artifacts.VersionCatalogsExtension
-                        >()
+                                org.gradle.api.artifacts.VersionCatalogsExtension
+                                >()
                     if (catalogs != null && catalogs.catalogNames.contains("libs")) {
                         catalogs.named("libs").findVersion("pitest").orElse(null)?.toString()
                             ?: "1.17.1"

@@ -4,7 +4,6 @@ package failgood.softly
 
 import failgood.Test
 import failgood.testCollection
-import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.delay
 import org.opentest4j.MultipleFailuresError
@@ -33,7 +32,8 @@ object SoftAssertTest {
                                 }
                             }
                             .exceptionOrNull())
-                assertEquals("assert error message", exception.message)
+                val message = exception.message
+                assert(message != null && message.startsWith("assert error message"))
             }
             it("throws MultipleFailuresError when multiple asserts fail") {
                 val name = "klausi"
@@ -48,10 +48,13 @@ object SoftAssertTest {
                                 }
                             }
                             .exceptionOrNull())
-                assert(
-                    exception is MultipleFailuresError &&
-                        exception.failures.map { it.message }.toSet() ==
-                            setOf("assert1 error message", "assert2 error message"))
+                assert(exception is MultipleFailuresError)
+                val failures = (exception as MultipleFailuresError).failures
+                assert(failures.size == 2)
+                val firstMessage = failures[0].message
+                assert(firstMessage != null && firstMessage.startsWith("assert1 error message"))
+                val secondMessage = failures[1].message
+                assert(secondMessage != null && secondMessage.startsWith("assert2 error message"))
             }
             it("can contain suspend methods") { softly { delay(1) } }
         }

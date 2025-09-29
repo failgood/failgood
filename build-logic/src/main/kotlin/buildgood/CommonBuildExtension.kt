@@ -1,16 +1,13 @@
 package buildgood
 
+import javax.inject.Inject
 import org.gradle.api.Action
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import org.gradle.jvm.toolchain.JavaLanguageVersion
-import javax.inject.Inject
 
-open class CommonBuildExtension @Inject constructor(
-    objects: ObjectFactory,
-    project: Project
-) {
+open class CommonBuildExtension @Inject constructor(objects: ObjectFactory, project: Project) {
     val jvmTarget = objects.newInstance(JvmTargetConfig::class.java)
     val pitest = objects.newInstance(PitestConfig::class.java)
 
@@ -32,8 +29,8 @@ open class CommonBuildExtension @Inject constructor(
     }
 
     /**
-     * Copies all configuration from another CommonBuildExtension (typically from root).
-     * This is called before any local configuration is applied, so local config will override.
+     * Copies all configuration from another CommonBuildExtension (typically from root). This is
+     * called before any local configuration is applied, so local config will override.
      */
     fun copyFrom(other: CommonBuildExtension) {
         // Copy JVM target settings
@@ -55,16 +52,12 @@ open class JvmTargetConfig @Inject constructor() {
     var production: JavaLanguageVersion = JavaLanguageVersion.of(8)
     var test: JavaLanguageVersion = JavaLanguageVersion.of(17)
 
-    /**
-     * Set production JVM target from an integer version
-     */
+    /** Set production JVM target from an integer version */
     fun production(version: Int) {
         production = JavaLanguageVersion.of(version)
     }
 
-    /**
-     * Set test JVM target from an integer version
-     */
+    /** Set test JVM target from an integer version */
     fun test(version: Int) {
         test = JavaLanguageVersion.of(version)
     }
@@ -77,9 +70,7 @@ open class JvmTargetConfig @Inject constructor() {
         return test.toString()
     }
 
-    /**
-     * Get the JavaVersion enum for production (used by sourceCompatibility/targetCompatibility)
-     */
+    /** Get the JavaVersion enum for production (used by sourceCompatibility/targetCompatibility) */
     fun getProductionJavaVersion(): JavaVersion {
         return when (val version = production.asInt()) {
             8 -> JavaVersion.VERSION_1_8
@@ -90,9 +81,7 @@ open class JvmTargetConfig @Inject constructor() {
         }
     }
 
-    /**
-     * Get the JavaVersion enum for test
-     */
+    /** Get the JavaVersion enum for test */
     fun getTestJavaVersion(): JavaVersion {
         return when (val version = test.asInt()) {
             8 -> JavaVersion.VERSION_1_8
@@ -116,9 +105,7 @@ open class PitestConfig @Inject constructor() {
         excludedTestClasses.addAll(patterns)
     }
 
-    /**
-     * Copies configuration from another PitestConfig.
-     */
+    /** Copies configuration from another PitestConfig. */
     fun copyFrom(other: PitestConfig) {
         excludedTestClasses.clear()
         excludedTestClasses.addAll(other.excludedTestClasses)

@@ -5,6 +5,7 @@ plugins {
     kotlin("jvm") version "2.1.21"
     kotlin("plugin.power-assert") version "2.1.21"
     id("com.ncorti.ktfmt.gradle") version "0.24.0"
+    id("com.adarshr.test-logger") version "4.0.0"
     idea
 }
 
@@ -14,11 +15,14 @@ repositories {
 }
 
 val kotlinVersion = "2.1.21"
+
 dependencies {
     // hotfix to make kotlin scratch files work in idea
     implementation(kotlin("script-runtime"))
     implementation(kotlin("gradle-plugin", kotlinVersion))
-    implementation("org.jetbrains.kotlin.plugin.power-assert:org.jetbrains.kotlin.plugin.power-assert.gradle.plugin:$kotlinVersion")
+    implementation(
+        "org.jetbrains.kotlin.plugin.power-assert:org.jetbrains.kotlin.plugin.power-assert.gradle.plugin:$kotlinVersion"
+    )
 
     implementation("com.adarshr:gradle-test-logger-plugin:4.0.0")
     implementation("com.ncorti.ktfmt.gradle:plugin:0.24.0") {
@@ -39,13 +43,9 @@ kotlin {
     sourceSets["test"].kotlin.srcDir("test")
 }
 
-sourceSets.main {
-    resources.srcDirs("resources")
-}
+sourceSets.main { resources.srcDirs("resources") }
 
-sourceSets.test {
-    resources.srcDirs("testResources")
-}
+sourceSets.test { resources.srcDirs("testResources") }
 
 // Apply kotlin-dsl plugin LAST (workaround for issue #21052)
 // The kotlin-dsl plugin includes precompiled script plugin support
@@ -53,33 +53,48 @@ apply(plugin = "org.gradle.kotlin.kotlin-dsl")
 
 tasks.test {
     useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+        showStandardStreams = true
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
+}
+
+// Configure test-logger plugin
+testlogger {
+    theme = com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA_PARALLEL
+    showSimpleNames = true
+    showFullStackTraces = true
 }
 
 // Configure ktfmt for build-logic itself
-ktfmt {
-    kotlinLangStyle()
-}
+ktfmt { kotlinLangStyle() }
 
 // Register a custom ktfmt task for test fixtures
 tasks.register<com.ncorti.ktfmt.gradle.tasks.KtfmtFormatTask>("formatTestFixtures") {
     description = "Format Kotlin files in test fixtures"
     group = "formatting"
-    source = fileTree("testResources/test-projects") {
-        include("**/*.kt")
-        include("**/*.gradle.kts")
-    }
+    source =
+        fileTree("testResources/test-projects") {
+            include("**/*.kt")
+            include("**/*.gradle.kts")
+        }
 }
 
 // Make ktfmtFormat depend on formatting test fixtures
-tasks.named("ktfmtFormat") {
-    dependsOn("formatTestFixtures")
-}
+tasks.named("ktfmtFormat") { dependsOn("formatTestFixtures") }
 
 // to make idea ignore gradle generated classes in analyze code. (idea bug)
 idea {
     module {
-        generatedSourceDirs.add(File(layout.buildDirectory.get().asFile, "generated-sources/kotlin-dsl-accessors/kotlin"))
-        generatedSourceDirs.add(File(layout.buildDirectory.get().asFile, "generated-sources/kotlin-dsl-plugins/kotlin"))
+        generatedSourceDirs.add(
+            File(
+                layout.buildDirectory.get().asFile,
+                "generated-sources/kotlin-dsl-accessors/kotlin",
+            )
+        )
+        generatedSourceDirs.add(
+            File(layout.buildDirectory.get().asFile, "generated-sources/kotlin-dsl-plugins/kotlin")
+        )
     }
 }
-

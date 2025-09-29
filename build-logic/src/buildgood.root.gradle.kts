@@ -1,9 +1,7 @@
 import buildgood.CommonBuildExtension
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
-plugins {
-    id("com.github.ben-manes.versions")
-}
+plugins { id("com.github.ben-manes.versions") }
 
 // Create the root configuration extension
 val commonBuildConfig = extensions.create<CommonBuildExtension>("commonBuild", project)
@@ -21,9 +19,7 @@ fun isNonStable(version: String): Boolean {
 
 // Configure dependency updates task
 tasks.named<DependencyUpdatesTask>("dependencyUpdates") {
-    rejectVersionIf {
-        isNonStable(candidate.version) && !isNonStable(currentVersion)
-    }
+    rejectVersionIf { isNonStable(candidate.version) && !isNonStable(currentVersion) }
     // optional parameters
     gradleReleaseChannel = "current"
     checkForGradleUpdate = true

@@ -21,9 +21,7 @@ plugins {
 }
 
 // Ensure repositories are configured
-repositories {
-    mavenCentral()
-}
+repositories { mavenCentral() }
 
 sourceSets.main {
     java.srcDirs("src")
@@ -42,15 +40,32 @@ val commonBuild = extensions.create<CommonBuildExtension>("commonBuild", project
 val publishingConfig = extensions.create<PublishingBuildExtension>("publishingConfig")
 
 // Copy configuration from root if available
-val rootConfig = if (rootProject != project && rootProject.extra.has("commonBuildConfig")) {
-    rootProject.extra["commonBuildConfig"] as CommonBuildExtension
-} else null
+val rootConfig =
+    if (rootProject != project && rootProject.extra.has("commonBuildConfig")) {
+        rootProject.extra["commonBuildConfig"] as CommonBuildExtension
+    } else null
 
 if (rootConfig != null) {
     // Copy all settings from root immediately
     commonBuild.copyFrom(rootConfig)
 }
 
+// Configure power assert immediately (not in afterEvaluate)
+@Suppress("OPT_IN_USAGE")
+powerAssert {
+    // The functions list might start empty in precompiled script plugins
+    // So we need to add all the functions we want to support
+    functions.addAll(listOf(
+        "kotlin.assert",
+        "kotlin.check",
+        "kotlin.require",
+        "kotlin.test.assertTrue",
+        "kotlin.test.assertFalse",
+        "kotlin.test.assertEquals",
+        "kotlin.test.assertNotNull",
+        "failgood.softly.AssertDSL.assert"
+    ))
+}
 // Apply configuration after evaluation
 // At this point, any local DSL configuration will have overridden the copied values
 afterEvaluate {
@@ -61,12 +76,10 @@ afterEvaluate {
             useJUnitPlatform()
             outputs.upToDateWhen { false }
             testLogging {
-                quiet {
-                    events = setOf(TestLogEvent.FAILED)
-                }
+                quiet { events = setOf(TestLogEvent.FAILED) }
                 events = setOf(TestLogEvent.FAILED)
                 exceptionFormat = TestExceptionFormat.FULL
-                showStandardStreams = false  // Only affects PASSING tests
+                showStandardStreams = false // Only affects PASSING tests
             }
         }
 
@@ -77,15 +90,15 @@ afterEvaluate {
 
         withType<KotlinCompile> {
             compilerOptions {
-                if (System.getenv("CI") != null)
-                    allWarningsAsErrors = true
-                jvmTarget = when (jvmConfig.production.asInt()) {
-                    8 -> JvmTarget.JVM_1_8
-                    11 -> JvmTarget.JVM_11
-                    17 -> JvmTarget.JVM_17
-                    21 -> JvmTarget.JVM_21
-                    else -> JvmTarget.JVM_1_8
-                }
+                if (System.getenv("CI") != null) allWarningsAsErrors = true
+                jvmTarget =
+                    when (jvmConfig.production.asInt()) {
+                        8 -> JvmTarget.JVM_1_8
+                        11 -> JvmTarget.JVM_11
+                        17 -> JvmTarget.JVM_17
+                        21 -> JvmTarget.JVM_21
+                        else -> JvmTarget.JVM_1_8
+                    }
                 freeCompilerArgs = listOf("-opt-in=kotlin.RequiresOptIn")
             }
         }
@@ -102,13 +115,14 @@ afterEvaluate {
 
         compileKotlin {
             compilerOptions {
-                jvmTarget = when (jvmConfig.production.asInt()) {
-                    8 -> JvmTarget.JVM_1_8
-                    11 -> JvmTarget.JVM_11
-                    17 -> JvmTarget.JVM_17
-                    21 -> JvmTarget.JVM_21
-                    else -> JvmTarget.JVM_1_8
-                }
+                jvmTarget =
+                    when (jvmConfig.production.asInt()) {
+                        8 -> JvmTarget.JVM_1_8
+                        11 -> JvmTarget.JVM_11
+                        17 -> JvmTarget.JVM_17
+                        21 -> JvmTarget.JVM_21
+                        else -> JvmTarget.JVM_1_8
+                    }
                 if (commonBuild.requireExplicitReturnTypes) {
                     freeCompilerArgs.add("-XXexplicit-return-types=strict")
                 }
@@ -117,22 +131,16 @@ afterEvaluate {
 
         compileTestKotlin {
             compilerOptions {
-                jvmTarget = when (jvmConfig.test.asInt()) {
-                    8 -> JvmTarget.JVM_1_8
-                    11 -> JvmTarget.JVM_11
-                    17 -> JvmTarget.JVM_17
-                    21 -> JvmTarget.JVM_21
-                    else -> JvmTarget.JVM_17
-                }
+                jvmTarget =
+                    when (jvmConfig.test.asInt()) {
+                        8 -> JvmTarget.JVM_1_8
+                        11 -> JvmTarget.JVM_11
+                        17 -> JvmTarget.JVM_17
+                        21 -> JvmTarget.JVM_21
+                        else -> JvmTarget.JVM_17
+                    }
             }
         }
-    }
-
-    @Suppress("OPT_IN_USAGE")
-    powerAssert {
-        functions.add(
-            "failgood.softly.AssertDSL.assert"
-        )
     }
 
     // Configure pitest if basePackage is set
@@ -140,36 +148,42 @@ afterEvaluate {
         configure<PitestPluginExtension> {
             verbose = false
             addJUnitPlatformLauncher = false
-            jvmArgs = listOf(
-                "-Xmx512m", // necessary on CI
-                "-Djava.util.logging.config.file=${rootProject.projectDir}/pitest.logging.properties"
-            )
+            jvmArgs =
+                listOf(
+                    "-Xmx512m", // necessary on CI
+                    "-Djava.util.logging.config.file=${rootProject.projectDir}/pitest.logging.properties",
+                )
             avoidCallsTo = setOf("kotlin.jvm.internal", "kotlin.Result")
 
             // Configure based on basePackage
             targetClasses = setOf("${commonBuild.basePackage}.*")
-            targetTests = setOf(
-                "${commonBuild.basePackage}.*Test",
-                "${commonBuild.basePackage}.**.*Test"
-            )
+            targetTests =
+                setOf("${commonBuild.basePackage}.*Test", "${commonBuild.basePackage}.**.*Test")
 
             // Apply excluded test classes from configuration
             excludedTestClasses = commonBuild.pitest.excludedTestClasses
 
             // Try to use pitest version from libs catalog if available
-            pitestVersion = try {
-                val catalogs = project.extensions.findByType<org.gradle.api.artifacts.VersionCatalogsExtension>()
-                if (catalogs != null && catalogs.catalogNames.contains("libs")) {
-                    catalogs.named("libs").findVersion("pitest").orElse(null)?.toString() ?: "1.17.1"
-                } else {
+            pitestVersion =
+                try {
+                    val catalogs =
+                        project.extensions.findByType<
+                            org.gradle.api.artifacts.VersionCatalogsExtension
+                        >()
+                    if (catalogs != null && catalogs.catalogNames.contains("libs")) {
+                        catalogs.named("libs").findVersion("pitest").orElse(null)?.toString()
+                            ?: "1.17.1"
+                    } else {
+                        "1.17.1"
+                    }
+                } catch (e: Exception) {
+                    // Use default version if catalog or version not found
                     "1.17.1"
                 }
-            } catch (e: Exception) {
-                // Use default version if catalog or version not found
-                "1.17.1"
-            }
 
-            threads = System.getenv("PITEST_THREADS")?.toInt() ?: Runtime.getRuntime().availableProcessors()
+            threads =
+                System.getenv("PITEST_THREADS")?.toInt()
+                    ?: Runtime.getRuntime().availableProcessors()
             outputFormats = setOf("XML", "HTML")
         }
     }
@@ -186,15 +200,19 @@ fun Project.configurePublishing() {
             create<MavenPublication>("maven") {
                 from(components["java"])
 
-                artifact(tasks.register<Jar>("sourcesJar") {
-                    from(sourceSets.main.get().allSource)
-                    archiveClassifier = "sources"
-                })
+                artifact(
+                    tasks.register<Jar>("sourcesJar") {
+                        from(sourceSets.main.get().allSource)
+                        archiveClassifier = "sources"
+                    }
+                )
 
-                artifact(tasks.register<Jar>("javadocJar") {
-                    from(tasks.javadoc)
-                    archiveClassifier = "javadoc"
-                })
+                artifact(
+                    tasks.register<Jar>("javadocJar") {
+                        from(tasks.javadoc)
+                        archiveClassifier = "javadoc"
+                    }
+                )
 
                 pom {
                     if (!publishingConfig.projectInfo.name.isNullOrEmpty()) {

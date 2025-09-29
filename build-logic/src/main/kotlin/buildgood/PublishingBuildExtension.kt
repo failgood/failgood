@@ -1,12 +1,10 @@
 package buildgood
 
+import javax.inject.Inject
 import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
-import javax.inject.Inject
 
-open class PublishingBuildExtension @Inject constructor(
-    private val objects: ObjectFactory
-) {
+open class PublishingBuildExtension @Inject constructor(private val objects: ObjectFactory) {
     val projectInfo = objects.newInstance(ProjectInfo::class.java)
     val scm = objects.newInstance(ScmConfig::class.java)
 

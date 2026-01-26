@@ -17,7 +17,7 @@ dependencies {
 
     // everything else is optional, and only here because some tests show interactions with these
     // libs
-    testImplementation("io.mockk:mockk:1.14.5")
+    testImplementation("io.mockk:mockk:1.14.9")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
     implementation("org.slf4j:slf4j-api:2.0.17")

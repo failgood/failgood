@@ -1,13 +1,12 @@
 plugins {
     id("buildgood.module")
+    id("buildgood.pitest")
     alias(libs.plugins.kover)
 }
 
 // to release:
 // ./gradlew publishToSonatype closeSonatypeStagingRepository (or ./gradlew publishToSonatype
 // closeAndReleaseSonatypeStagingRepository)
-
-commonBuild { pitest {} }
 
 publish {}
 
@@ -40,17 +39,20 @@ dependencies {
 tasks {
     val testMain =
         register("testMain", JavaExec::class) {
+            enableAssertions = true
             mainClass = "failgood.FailGoodBootstrapKt"
             classpath = sourceSets["test"].runtimeClasspath
         }
     val multiThreadedTest =
         register("multiThreadedTest", JavaExec::class) {
+            enableAssertions = true
             mainClass = "failgood.MultiThreadingPerformanceTestKt"
             classpath = sourceSets["test"].runtimeClasspath
             systemProperties = mapOf("kotlinx.coroutines.scheduler.core.pool.size" to "1000")
         }
 
     register("autotest", JavaExec::class) {
+        enableAssertions = true
         mainClass = "failgood.AutoTestMainKt"
         classpath = sourceSets["test"].runtimeClasspath
     }

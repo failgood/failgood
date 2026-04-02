@@ -21,8 +21,7 @@ class FailgoodPluginTest {
         buildFile = File(testProjectDir, "build.gradle.kts")
     }
 
-    @Test
-    fun `custom test task should run successfully`() {
+    private fun writeBuildFile() {
         settingsFile.writeText("")
         buildFile.writeText(
             """
@@ -40,8 +39,19 @@ class FailgoodPluginTest {
                 }
             """
                 .trimIndent())
+    }
 
-        // Create a test file
+    private fun runner(vararg arguments: String): GradleRunner {
+        return GradleRunner.create()
+            .withProjectDir(testProjectDir)
+            .withArguments(*arguments)
+            .withPluginClasspath()
+    }
+
+    @Test
+    fun `custom test task should run successfully`() {
+        writeBuildFile()
+
         val testFile = File(testProjectDir, "src/test/java/SampleTest.java")
         testFile.parentFile.mkdirs()
         testFile.writeText(
@@ -57,14 +67,41 @@ class FailgoodPluginTest {
             """
                 .trimIndent())
 
-        val result =
-            GradleRunner.create()
-                .withProjectDir(testProjectDir)
-                .withArguments("customTest")
-                .withPluginClasspath()
-                .build()
+        val result = runner("customTest").build()
 
         assertEquals(TaskOutcome.SUCCESS, result.task(":customTest")?.outcome)
         assertTrue(result.output.contains("Running custom tests"))
+    }
+
+    @Test
+    fun `custom test task should fail on before all error`() {
+        writeBuildFile()
+
+        val testFile = File(testProjectDir, "src/test/java/BrokenSetupTest.java")
+        testFile.parentFile.mkdirs()
+        testFile.writeText(
+            """
+                import org.junit.jupiter.api.BeforeAll;
+                import org.junit.jupiter.api.Test;
+
+                class BrokenSetupTest {
+                    @BeforeAll
+                    static void init() {
+                        throw new RuntimeException("boom");
+                    }
+
+                    @Test
+                    void sampleTest() {
+                        assert true;
+                    }
+                }
+            """
+                .trimIndent())
+
+        val result = runner("customTest").buildAndFail()
+
+        assertEquals(TaskOutcome.FAILED, result.task(":customTest")?.outcome)
+        assertTrue(result.output.contains("Custom tests failed:"))
+        assertTrue(result.output.contains("1 containers failed"))
     }
 }

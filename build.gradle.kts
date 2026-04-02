@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
     id("buildgood.root")
@@ -7,13 +9,14 @@ plugins {
 commonBuild {
     basePackage = "failgood"
     jvmTarget {
-        production(8)  // JVM 1.8 for production
-        test(17)       // JVM 17 for tests
+        production(JvmTarget.JVM_1_8) // JVM 1.8 for production
+        test(JvmTarget.JVM_17) // JVM 17 for tests
     }
-    requireExplicitReturnTypes()     // Enable strict Kotlin mode
-    pitest {
-        excludeTestClasses("failgood.MultiThreadingPerformanceTest*")
-    }
+    requireExplicitReturnTypes() // Enable strict Kotlin mode
+}
+
+pitest {
+    excludeTestClasses("failgood.MultiThreadingPerformanceTest*")
 }
 
 nexusPublishing {

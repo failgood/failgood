@@ -1,13 +1,16 @@
 import buildgood.CommonBuildExtension
+import buildgood.PitestBuildExtension
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins { id("com.github.ben-manes.versions") }
 
 // Create the root configuration extension
-val commonBuildConfig = extensions.create<CommonBuildExtension>("commonBuild", project)
+val commonBuildConfig = extensions.create<CommonBuildExtension>("commonBuild")
+val pitestConfig = extensions.create<PitestBuildExtension>("pitestConfig")
 
 // Store the configuration in extra properties for submodules to access
 extra["commonBuildConfig"] = commonBuildConfig
+extra["pitestConfig"] = pitestConfig
 
 // Function to check if a version is non-stable
 fun isNonStable(version: String): Boolean {

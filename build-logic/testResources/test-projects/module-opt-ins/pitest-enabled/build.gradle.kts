@@ -1,5 +1,6 @@
-plugins { id("buildgood.module") }
-
-commonBuild { pitest {} }
+plugins {
+    id("buildgood.module")
+    id("buildgood.pitest")
+}
 
 dependencies { testImplementation(kotlin("test")) }

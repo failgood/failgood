@@ -3,14 +3,12 @@ import buildgood.PublishingBuildExtension
 import com.adarshr.gradle.testlogger.TestLoggerExtension
 import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA_PARALLEL
 import com.ncorti.ktfmt.gradle.TrailingCommaManagementStrategy
-import info.solidsoft.gradle.pitest.PitestPluginExtension
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.plugins.signing.SigningExtension
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -35,7 +33,7 @@ sourceSets.test {
 }
 
 // Create the DSL extension for this module
-val commonBuild = extensions.create<CommonBuildExtension>("commonBuild", project)
+val commonBuild = extensions.create<CommonBuildExtension>("commonBuild")
 
 // Create publishing extension for configuration
 val publishingConfig = extensions.create<PublishingBuildExtension>("publishingConfig")
@@ -94,14 +92,7 @@ afterEvaluate {
         withType<KotlinCompile> {
             compilerOptions {
                 if (System.getenv("CI") != null) allWarningsAsErrors = true
-                jvmTarget =
-                    when (jvmConfig.production.asInt()) {
-                        8 -> JvmTarget.JVM_1_8
-                        11 -> JvmTarget.JVM_11
-                        17 -> JvmTarget.JVM_17
-                        21 -> JvmTarget.JVM_21
-                        else -> JvmTarget.JVM_1_8
-                    }
+                jvmTarget = jvmConfig.production
                 freeCompilerArgs = listOf("-opt-in=kotlin.RequiresOptIn")
             }
         }
@@ -118,14 +109,7 @@ afterEvaluate {
 
         compileKotlin {
             compilerOptions {
-                jvmTarget =
-                    when (jvmConfig.production.asInt()) {
-                        8 -> JvmTarget.JVM_1_8
-                        11 -> JvmTarget.JVM_11
-                        17 -> JvmTarget.JVM_17
-                        21 -> JvmTarget.JVM_21
-                        else -> JvmTarget.JVM_1_8
-                    }
+                jvmTarget = jvmConfig.production
                 if (commonBuild.requireExplicitReturnTypes) {
                     freeCompilerArgs.add("-XXexplicit-return-types=strict")
                 }
@@ -134,65 +118,8 @@ afterEvaluate {
 
         compileTestKotlin {
             compilerOptions {
-                jvmTarget =
-                    when (jvmConfig.test.asInt()) {
-                        8 -> JvmTarget.JVM_1_8
-                        11 -> JvmTarget.JVM_11
-                        17 -> JvmTarget.JVM_17
-                        21 -> JvmTarget.JVM_21
-                        else -> JvmTarget.JVM_17
-                    }
+                jvmTarget = jvmConfig.test
             }
-        }
-    }
-
-    // Configure pitest only for modules that opt in explicitly.
-    if (commonBuild.pitest.enabled) {
-        require(commonBuild.basePackage.isNotEmpty()) {
-            "commonBuild.basePackage must be set to enable pitest for project $path"
-        }
-
-        pluginManager.apply("info.solidsoft.pitest")
-        configure<PitestPluginExtension> {
-            verbose = false
-            addJUnitPlatformLauncher = false
-            jvmArgs =
-                listOf(
-                    "-Xmx512m", // necessary on CI
-                    "-Djava.util.logging.config.file=${rootProject.projectDir}/pitest.logging.properties",
-                )
-            avoidCallsTo = setOf("kotlin.jvm.internal", "kotlin.Result")
-
-            // Configure based on basePackage
-            targetClasses = setOf("${commonBuild.basePackage}.*")
-            targetTests =
-                setOf("${commonBuild.basePackage}.*Test", "${commonBuild.basePackage}.**.*Test")
-
-            // Apply excluded test classes from configuration
-            excludedTestClasses = commonBuild.pitest.excludedTestClasses
-
-            // Try to use pitest version from libs catalog if available
-            pitestVersion =
-                try {
-                    val catalogs =
-                        project.extensions.findByType<
-                            org.gradle.api.artifacts.VersionCatalogsExtension
-                        >()
-                    if (catalogs != null && catalogs.catalogNames.contains("libs")) {
-                        catalogs.named("libs").findVersion("pitest").orElse(null)?.toString()
-                            ?: "1.17.1"
-                    } else {
-                        "1.17.1"
-                    }
-                } catch (e: Exception) {
-                    // Use default version if catalog or version not found
-                    "1.17.1"
-                }
-
-            threads =
-                System.getenv("PITEST_THREADS")?.toInt()
-                    ?: Runtime.getRuntime().availableProcessors()
-            outputFormats = setOf("XML", "HTML")
         }
     }
 

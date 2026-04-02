@@ -48,11 +48,13 @@ tasks {
     // most projects will probably just use the junit platform engine via gradle
     val testMain =
         register("testMain", JavaExec::class) {
+            enableAssertions = true
             mainClass.set("failgood.examples.AllTestsKt")
             classpath = sourceSets["test"].runtimeClasspath
         }
 
     register("autotest", JavaExec::class) {
+        enableAssertions = true
         mainClass.set("failgood.examples.AutoTestMainKt")
         classpath = sourceSets["test"].runtimeClasspath
     }

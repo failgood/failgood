@@ -2,11 +2,10 @@
 
 plugins {
     id("buildgood.module")
+    id("buildgood.pitest")
     alias(libs.plugins.kover)
     `java-gradle-plugin`
 }
-
-commonBuild { pitest {} }
 
 gradlePlugin {
     plugins {

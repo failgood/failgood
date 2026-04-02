@@ -3,30 +3,19 @@ package buildgood
 import javax.inject.Inject
 import org.gradle.api.Action
 import org.gradle.api.JavaVersion
-import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
-import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 open class CommonBuildExtension
 @Inject
-constructor(objects: ObjectFactory, private val project: Project) {
+constructor(objects: ObjectFactory) {
     val jvmTarget = objects.newInstance(JvmTargetConfig::class.java)
-    val pitest = objects.newInstance(PitestConfig::class.java)
 
     internal var requireExplicitReturnTypes = false
-
-    // Base package for the project (e.g., "failgood" or "com.christophsturm.isolationchamber")
     var basePackage: String = ""
 
     fun jvmTarget(action: Action<JvmTargetConfig>) {
         action.execute(jvmTarget)
-    }
-
-    fun pitest(action: Action<PitestConfig>) {
-        if (project != project.rootProject) {
-            pitest.enabled = true
-        }
-        action.execute(pitest)
     }
 
     fun requireExplicitReturnTypes() {
@@ -44,78 +33,37 @@ constructor(objects: ObjectFactory, private val project: Project) {
 
         // Copy strict Kotlin mode
         requireExplicitReturnTypes = other.requireExplicitReturnTypes
-
-        // Copy base package
         basePackage = other.basePackage
-
-        // Copy pitest configuration
-        pitest.copyFrom(other.pitest)
     }
 }
 
 open class JvmTargetConfig @Inject constructor() {
-    var production: JavaLanguageVersion = JavaLanguageVersion.of(8)
-    var test: JavaLanguageVersion = JavaLanguageVersion.of(17)
+    var production: JvmTarget = JvmTarget.DEFAULT
+    var test: JvmTarget = JvmTarget.JVM_17
 
-    /** Set production JVM target from an integer version */
-    fun production(version: Int) {
-        production = JavaLanguageVersion.of(version)
+    fun production(version: JvmTarget) {
+        production = version
     }
 
-    /** Set test JVM target from an integer version */
-    fun test(version: Int) {
-        test = JavaLanguageVersion.of(version)
+    fun test(version: JvmTarget) {
+        test = version
     }
 
     fun getProductionVersion(): String {
-        return production.toString()
+        return production.target
     }
 
     fun getTestVersion(): String {
-        return test.toString()
+        return test.target
     }
 
     /** Get the JavaVersion enum for production (used by sourceCompatibility/targetCompatibility) */
     fun getProductionJavaVersion(): JavaVersion {
-        return when (val version = production.asInt()) {
-            8 -> JavaVersion.VERSION_1_8
-            11 -> JavaVersion.VERSION_11
-            17 -> JavaVersion.VERSION_17
-            21 -> JavaVersion.VERSION_21
-            else -> JavaVersion.toVersion(version)
-        }
+        return JavaVersion.toVersion(production.target)
     }
 
     /** Get the JavaVersion enum for test */
     fun getTestJavaVersion(): JavaVersion {
-        return when (val version = test.asInt()) {
-            8 -> JavaVersion.VERSION_1_8
-            11 -> JavaVersion.VERSION_11
-            17 -> JavaVersion.VERSION_17
-            21 -> JavaVersion.VERSION_21
-            else -> JavaVersion.toVersion(version)
-        }
-    }
-}
-
-open class PitestConfig @Inject constructor() {
-    var enabled: Boolean = false
-
-    // Classes to exclude from mutation testing
-    val excludedTestClasses: MutableSet<String> = mutableSetOf()
-
-    fun excludeTestClass(pattern: String) {
-        excludedTestClasses.add(pattern)
-    }
-
-    fun excludeTestClasses(vararg patterns: String) {
-        excludedTestClasses.addAll(patterns)
-    }
-
-    /** Copies configuration from another PitestConfig. */
-    fun copyFrom(other: PitestConfig) {
-        enabled = other.enabled
-        excludedTestClasses.clear()
-        excludedTestClasses.addAll(other.excludedTestClasses)
+        return JavaVersion.toVersion(test.target)
     }
 }

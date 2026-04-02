@@ -104,10 +104,14 @@ open class CustomTestTask : DefaultTask() {
                 launcher.execute(request, listener)
 
                 val summary = listener.summary
-                if (summary.testsFailedCount > 0 || summary.testsAbortedCount > 0) {
+                if (summary.failures.isNotEmpty() ||
+                    summary.testsAbortedCount > 0 ||
+                    summary.containersAbortedCount > 0) {
                     throw GradleException(
-                        "Custom tests failed: ${summary.testsFailedCount} failed, " +
-                            "${summary.testsAbortedCount} aborted.")
+                        "Custom tests failed: ${summary.testsFailedCount} tests failed, " +
+                            "${summary.containersFailedCount} containers failed, " +
+                            "${summary.testsAbortedCount} tests aborted, " +
+                            "${summary.containersAbortedCount} containers aborted.")
                 }
             } finally {
                 Thread.currentThread().contextClassLoader = originalClassLoader

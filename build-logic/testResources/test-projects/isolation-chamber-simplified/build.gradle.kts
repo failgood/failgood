@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins { id("buildgood.root") }
 
 allprojects {
@@ -11,7 +13,7 @@ allprojects {
 commonBuild {
     basePackage = "com.test.isolationchamber"
     jvmTarget {
-        production(11)
-        test(17)
+        production(JvmTarget.JVM_11)
+        test(JvmTarget.JVM_17)
     }
 }

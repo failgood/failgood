@@ -61,6 +61,7 @@ powerAssert {
             "kotlin.assert",
             "kotlin.test.assertTrue",
             "kotlin.test.assertEquals",
+            "kotlin.test.assertNotNull",
             "kotlin.test.assertNull",
             "kotlin.require",
             "kotlin.check",

@@ -4,8 +4,12 @@ import com.adarshr.gradle.testlogger.TestLoggerExtension
 import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA_PARALLEL
 import com.ncorti.ktfmt.gradle.TrailingCommaManagementStrategy
 import info.solidsoft.gradle.pitest.PitestPluginExtension
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -15,9 +19,6 @@ plugins {
     id("com.adarshr.test-logger")
     id("com.ncorti.ktfmt.gradle")
     kotlin("plugin.power-assert")
-    id("info.solidsoft.pitest")
-    `maven-publish`
-    signing
 }
 
 // Ensure repositories are configured
@@ -55,15 +56,16 @@ if (rootConfig != null) {
 powerAssert {
     // The functions list might start empty in precompiled script plugins
     // So we need to explicitly set all the functions we want to support
-    functions = listOf(
-        "kotlin.assert",
-        "kotlin.test.assertTrue",
-        "kotlin.test.assertEquals",
-        "kotlin.test.assertNull",
-        "kotlin.require",
-        "kotlin.check",
-        "failgood.softly.AssertDSL.assert"
-    )
+    functions =
+        listOf(
+            "kotlin.assert",
+            "kotlin.test.assertTrue",
+            "kotlin.test.assertEquals",
+            "kotlin.test.assertNull",
+            "kotlin.require",
+            "kotlin.check",
+            "failgood.softly.AssertDSL.assert",
+        )
 }
 
 // Apply configuration after evaluation
@@ -143,8 +145,13 @@ afterEvaluate {
         }
     }
 
-    // Configure pitest if basePackage is set
-    if (commonBuild.basePackage.isNotEmpty()) {
+    // Configure pitest only for modules that opt in explicitly.
+    if (commonBuild.pitest.enabled) {
+        require(commonBuild.basePackage.isNotEmpty()) {
+            "commonBuild.basePackage must be set to enable pitest for project $path"
+        }
+
+        pluginManager.apply("info.solidsoft.pitest")
         configure<PitestPluginExtension> {
             verbose = false
             addJUnitPlatformLauncher = false
@@ -168,8 +175,8 @@ afterEvaluate {
                 try {
                     val catalogs =
                         project.extensions.findByType<
-                                org.gradle.api.artifacts.VersionCatalogsExtension
-                                >()
+                            org.gradle.api.artifacts.VersionCatalogsExtension
+                        >()
                     if (catalogs != null && catalogs.catalogNames.contains("libs")) {
                         catalogs.named("libs").findVersion("pitest").orElse(null)?.toString()
                             ?: "1.17.1"
@@ -188,79 +195,97 @@ afterEvaluate {
         }
     }
 
-    // Configure publishing if enabled via DSL
+    // Configure publishing only for modules that opt in explicitly.
     configurePublishing()
 }
 
 fun Project.configurePublishing() {
-    // Publishing configuration is set entirely via DSL
+    if (!publishingConfig.enabled) return
 
-    publishing {
-        publications {
-            create<MavenPublication>("maven") {
-                from(components["java"])
+    pluginManager.apply("maven-publish")
+    pluginManager.apply("signing")
 
-                artifact(
-                    tasks.register<Jar>("sourcesJar") {
-                        from(sourceSets.main.get().allSource)
-                        archiveClassifier = "sources"
-                    }
-                )
+    val pomName = publishingConfig.projectInfo.name ?: gradleProperty("project.name") ?: name
+    val pomDescription =
+        publishingConfig.projectInfo.description ?: gradleProperty("project.description")
+    val pomUrl = publishingConfig.projectInfo.url ?: gradleProperty("project.url")
+    val projectRepo = gradleProperty("project.repo")
+    val scmUrl = publishingConfig.scm.url ?: projectRepo?.let { "https://github.com/$it/" }
+    val scmConnection =
+        publishingConfig.scm.connection ?: projectRepo?.let { "scm:git:https://github.com/$it.git" }
+    val scmDeveloperConnection =
+        publishingConfig.scm.developerConnection
+            ?: projectRepo?.let { "scm:git:git@github.com:$it.git" }
 
-                artifact(
-                    tasks.register<Jar>("javadocJar") {
-                        from(tasks.javadoc)
-                        archiveClassifier = "javadoc"
-                    }
-                )
+    val publishingExtension = extensions.getByType(PublishingExtension::class.java)
+    publishingExtension.publications.create("maven", MavenPublication::class.java) {
+        from(components["java"])
 
-                pom {
-                    if (!publishingConfig.projectInfo.name.isNullOrEmpty()) {
-                        name = publishingConfig.projectInfo.name
-                    }
-                    if (!publishingConfig.projectInfo.description.isNullOrEmpty()) {
-                        description = publishingConfig.projectInfo.description
-                    }
-                    if (!publishingConfig.projectInfo.url.isNullOrEmpty()) {
-                        url = publishingConfig.projectInfo.url
-                    }
+        artifact(
+            tasks.register<Jar>("sourcesJar") {
+                from(sourceSets.main.get().allSource)
+                archiveClassifier = "sources"
+            }
+        )
 
-                    licenses {
-                        license {
-                            name = "MIT License"
-                            url = "https://opensource.org/licenses/MIT"
-                        }
-                    }
+        artifact(
+            tasks.register<Jar>("javadocJar") {
+                from(tasks.javadoc)
+                archiveClassifier = "javadoc"
+            }
+        )
 
-                    developers {
-                        developer {
-                            id = "christophsturm"
-                            name = "Christoph Sturm"
-                            email = "me@christophsturm.com"
-                        }
-                    }
+        pom {
+            name = pomName
+            if (!pomDescription.isNullOrEmpty()) {
+                description = pomDescription
+            }
+            if (!pomUrl.isNullOrEmpty()) {
+                url = pomUrl
+            }
 
-                    if (!publishingConfig.scm.url.isNullOrEmpty()) {
-                        scm {
-                            url = publishingConfig.scm.url
-                            connection = publishingConfig.scm.connection
-                            developerConnection = publishingConfig.scm.developerConnection
-                        }
-                    }
+            licenses {
+                license {
+                    name = "The MIT License"
+                    url = "https://opensource.org/licenses/MIT"
+                    distribution = "repo"
+                }
+            }
+
+            developers {
+                developer {
+                    id = "christophsturm"
+                    name = "Christoph Sturm"
+                    email = "me@christophsturm.com"
+                }
+            }
+
+            if (
+                !scmUrl.isNullOrEmpty() ||
+                    !scmConnection.isNullOrEmpty() ||
+                    !scmDeveloperConnection.isNullOrEmpty()
+            ) {
+                scm {
+                    url = scmUrl
+                    connection = scmConnection
+                    developerConnection = scmDeveloperConnection
                 }
             }
         }
     }
 
-    signing {
+    extensions.configure<SigningExtension> {
         val signingKey: String? by project
         val signingPassword: String? by project
         if (signingKey != null && signingPassword != null) {
             useInMemoryPgpKeys(signingKey, signingPassword)
-            sign(publishing.publications["maven"])
+            sign(publishingExtension.publications["maven"])
         }
     }
 }
+
+fun Project.gradleProperty(name: String): String? =
+    findProperty(name)?.toString()?.takeIf { it.isNotBlank() }
 
 configure<TestLoggerExtension> {
     theme = MOCHA_PARALLEL

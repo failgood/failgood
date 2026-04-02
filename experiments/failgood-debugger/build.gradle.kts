@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.kover)
 }
 
+commonBuild { pitest {} }
+
 dependencies {
     testImplementation(kotlin("test"))
     testImplementation(project(":failgood"))

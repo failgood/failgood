@@ -6,6 +6,8 @@ plugins {
     `java-gradle-plugin`
 }
 
+commonBuild { pitest {} }
+
 gradlePlugin {
     plugins {
         create("customTestPlugin") {

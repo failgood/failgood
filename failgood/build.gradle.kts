@@ -7,6 +7,10 @@ plugins {
 // ./gradlew publishToSonatype closeSonatypeStagingRepository (or ./gradlew publishToSonatype
 // closeAndReleaseSonatypeStagingRepository)
 
+commonBuild { pitest {} }
+
+publish {}
+
 dependencies {
     compileOnly(libs.kotlinx.coroutines.core)
     api(libs.junit.platform.commons)

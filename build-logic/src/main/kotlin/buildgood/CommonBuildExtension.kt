@@ -7,7 +7,9 @@ import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 
-open class CommonBuildExtension @Inject constructor(objects: ObjectFactory, project: Project) {
+open class CommonBuildExtension
+@Inject
+constructor(objects: ObjectFactory, private val project: Project) {
     val jvmTarget = objects.newInstance(JvmTargetConfig::class.java)
     val pitest = objects.newInstance(PitestConfig::class.java)
 
@@ -21,6 +23,9 @@ open class CommonBuildExtension @Inject constructor(objects: ObjectFactory, proj
     }
 
     fun pitest(action: Action<PitestConfig>) {
+        if (project != project.rootProject) {
+            pitest.enabled = true
+        }
         action.execute(pitest)
     }
 
@@ -94,6 +99,8 @@ open class JvmTargetConfig @Inject constructor() {
 }
 
 open class PitestConfig @Inject constructor() {
+    var enabled: Boolean = false
+
     // Classes to exclude from mutation testing
     val excludedTestClasses: MutableSet<String> = mutableSetOf()
 
@@ -107,6 +114,7 @@ open class PitestConfig @Inject constructor() {
 
     /** Copies configuration from another PitestConfig. */
     fun copyFrom(other: PitestConfig) {
+        enabled = other.enabled
         excludedTestClasses.clear()
         excludedTestClasses.addAll(other.excludedTestClasses)
     }

@@ -4,16 +4,16 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
 
 @JacksonXmlRootElement(localName = "mutations")
 data class MutationsReport(
-    @JacksonXmlProperty(isAttribute = true) val partial: Boolean = false,
-    @JacksonXmlProperty(localName = "mutation")
-    @JacksonXmlElementWrapper(useWrapping = false)
+    @param:JacksonXmlProperty(isAttribute = true) val partial: Boolean = false,
+    @param:JacksonXmlProperty(localName = "mutation")
+    @param:JacksonXmlElementWrapper(useWrapping = false)
     val mutations: List<Mutation> = emptyList()
 )
 
 data class Mutation(
-    @JacksonXmlProperty(isAttribute = true) val detected: Boolean,
-    @JacksonXmlProperty(isAttribute = true) val status: String,
-    @JacksonXmlProperty(isAttribute = true) val numberOfTestsRun: Int,
+    @param:JacksonXmlProperty(isAttribute = true) val detected: Boolean,
+    @param:JacksonXmlProperty(isAttribute = true) val status: String,
+    @param:JacksonXmlProperty(isAttribute = true) val numberOfTestsRun: Int,
     val sourceFile: String,
     val mutatedClass: String,
     val mutatedMethod: String,
@@ -27,14 +27,14 @@ data class Mutation(
 )
 
 data class Indexes(
-    @JacksonXmlProperty(localName = "index")
-    @JacksonXmlElementWrapper(useWrapping = false)
+    @param:JacksonXmlProperty(localName = "index")
+    @param:JacksonXmlElementWrapper(useWrapping = false)
     val index: List<Int> = emptyList()
 )
 
 data class Blocks(
-    @JacksonXmlProperty(localName = "block")
-    @JacksonXmlElementWrapper(useWrapping = false)
+    @param:JacksonXmlProperty(localName = "block")
+    @param:JacksonXmlElementWrapper(useWrapping = false)
     val block: List<Int> = emptyList()
 )
 

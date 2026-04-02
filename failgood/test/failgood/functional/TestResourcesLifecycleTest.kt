@@ -80,10 +80,16 @@ class TestResourcesLifecycleTest {
                         Suite {
                                 val events = mutableListOf<String>()
                                 totalEvents.add(events)
-                                ac1 = AutoCloseable { events.add("first close callback") }
-                                resource1 = autoClose(ac1!!)
-                                ac2 = SuspendAutoCloseable { events.add("second close callback") }
-                                resource2 = autoClose(ac2!!)
+                                val closeable1 = AutoCloseable {
+                                    events.add("first close callback")
+                                }
+                                ac1 = closeable1
+                                resource1 = autoClose(closeable1)
+                                val closeable2 = SuspendAutoCloseable {
+                                    events.add("second close callback")
+                                }
+                                ac2 = closeable2
+                                resource2 = autoClose(closeable2)
                                 test("first test") { events.add("first test") }
                                 test("second test") { events.add("second test") }
                             }

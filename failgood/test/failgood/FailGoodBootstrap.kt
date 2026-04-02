@@ -9,13 +9,10 @@ suspend fun main() {
     val failingTestFinished = CompletableFuture<Throwable>()
     val results =
         Suite {
-                test("firstTest") {
-                    assert(true)
-                    testFinished.complete(Unit)
-                }
+                test("firstTest") { testFinished.complete(Unit) }
                 test("failing test") {
                     try {
-                        assert(!true)
+                        throw AssertionError("expected failure")
                     } catch (e: AssertionError) {
                         failingTestFinished.complete(e)
                         throw e

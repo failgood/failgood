@@ -2,8 +2,8 @@ plugins {
     `java-gradle-plugin`
     `kotlin-dsl` apply false
     `kotlin-dsl-precompiled-script-plugins` apply false
-    kotlin("jvm") version "2.1.21"
-    kotlin("plugin.power-assert") version "2.1.21"
+    kotlin("jvm") version "2.3.20"
+    kotlin("plugin.power-assert") version "2.3.20"
     id("com.ncorti.ktfmt.gradle") version "0.24.0"
     id("com.adarshr.test-logger") version "4.0.0"
     idea
@@ -14,7 +14,7 @@ repositories {
     mavenCentral()
 }
 
-val kotlinVersion = "2.1.21"
+val kotlinVersion = "2.3.20"
 
 dependencies {
     // hotfix to make kotlin scratch files work in idea
@@ -28,7 +28,7 @@ dependencies {
     implementation("com.ncorti.ktfmt.gradle:plugin:0.24.0") {
         exclude(group = "org.jetbrains.kotlin")
     }
-    implementation("info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.15.0")
+    implementation("info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.19.0")
     implementation("com.github.ben-manes:gradle-versions-plugin:0.52.0")
 
     // Test dependencies

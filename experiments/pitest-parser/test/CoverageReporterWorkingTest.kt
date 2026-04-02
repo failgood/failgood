@@ -55,7 +55,7 @@ class CoverageReporterWorkingTest {
                             outputDir = tempDir.absolutePath,
                             gitHashOverride = "test")
                     badReporter.run()
-                    assert(false) { "Should have thrown exception" }
+                    throw AssertionError("Should have thrown exception")
                 } catch (e: IllegalStateException) {
                     assert(e.message?.contains("mutations.xml not found") == true)
                 }

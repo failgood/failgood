@@ -283,7 +283,7 @@ object TestCollectionExecutorTest {
                     test("test 2") {}
                     context("context 1") {
                         error = NotImplementedError("")
-                        throw error!!
+                        throw error
                     }
                     context("context 4") { test("test 4") {} }
                 }

@@ -16,6 +16,7 @@ commonBuild {
 }
 
 pitest {
+    pitestVersion = libs.versions.pitest.get()
     excludeTestClasses("failgood.MultiThreadingPerformanceTest*")
 }
 

@@ -35,21 +35,9 @@ afterEvaluate {
             setOf("${commonBuild.basePackage}.*Test", "${commonBuild.basePackage}.**.*Test")
         excludedTestClasses = pitestConfig.excludedTestClasses
 
-        pitestVersion =
-            try {
-                val catalogs =
-                    project.extensions.findByType<
-                        org.gradle.api.artifacts.VersionCatalogsExtension
-                    >()
-                if (catalogs != null && catalogs.catalogNames.contains("libs")) {
-                    catalogs.named("libs").findVersion("pitest").orElse(null)?.toString()
-                        ?: "1.17.1"
-                } else {
-                    "1.17.1"
-                }
-            } catch (e: Exception) {
-                "1.17.1"
-            }
+        pitestConfig.pitestVersion?.let { configuredPitestVersion ->
+            pitestVersion.set(configuredPitestVersion)
+        }
 
         threads =
             System.getenv("PITEST_THREADS")?.toInt()

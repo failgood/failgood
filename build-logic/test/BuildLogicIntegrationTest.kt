@@ -108,6 +108,39 @@ class BuildLogicIntegrationTest {
                 )
             }
         }
+
+        describe("pitest version configuration", isolation = false) {
+            val defaultVersionProject =
+                prepareTestProject("module-opt-ins").also {
+                    addPitestVersionCatalog(it, "9.9.9")
+                    addPitestVersionPrintTask(it)
+                }
+            val explicitVersionProject =
+                prepareTestProject("module-opt-ins").also {
+                    addPitestVersionCatalog(it, "9.9.9")
+                    configureRootPitestVersion(it, "1.2.3")
+                    addPitestVersionPrintTask(it)
+                }
+
+            val defaultVersionResult =
+                gradleRunner(defaultVersionProject, ":pitest-enabled:printConfiguredPitestVersion")
+                    .build()
+            val explicitVersionResult =
+                gradleRunner(
+                        explicitVersionProject,
+                        ":pitest-enabled:printConfiguredPitestVersion",
+                    )
+                    .build()
+
+            test("pitest plugin version ignores version catalogs without root override") {
+                assert(defaultVersionResult.output.contains("configuredPitestVersion="))
+                assert(!defaultVersionResult.output.contains("configuredPitestVersion=9.9.9"))
+            }
+
+            test("pitest plugin version uses explicit root override") {
+                assert(explicitVersionResult.output.contains("configuredPitestVersion=1.2.3"))
+            }
+        }
     }
 }
 
@@ -150,4 +183,45 @@ private fun gradleRunner(projectDir: File, vararg arguments: String): GradleRunn
         .withProjectDir(projectDir)
         .withArguments(*arguments, "--stacktrace")
         .withPluginClasspath()
+}
+
+private fun addPitestVersionPrintTask(projectDir: File) {
+    val buildFile = File(projectDir, "pitest-enabled/build.gradle.kts")
+    buildFile.appendText(
+        """
+
+tasks.register("printConfiguredPitestVersion") {
+    doLast {
+        val pitestExtension =
+            project.extensions.getByType(
+                info.solidsoft.gradle.pitest.PitestPluginExtension::class.java
+            )
+        println("configuredPitestVersion=${'$'}{pitestExtension.pitestVersion.orNull}")
+    }
+}
+""".trimIndent()
+    )
+}
+
+private fun configureRootPitestVersion(projectDir: File, version: String) {
+    val buildFile = File(projectDir, "build.gradle.kts")
+    buildFile.appendText(
+        """
+
+pitest {
+    pitestVersion = "$version"
+}
+""".trimIndent()
+    )
+}
+
+private fun addPitestVersionCatalog(projectDir: File, version: String) {
+    val catalogFile = File(projectDir, "gradle/libs.versions.toml")
+    catalogFile.parentFile.mkdirs()
+    catalogFile.writeText(
+        """
+[versions]
+pitest = "$version"
+""".trimIndent()
+    )
 }

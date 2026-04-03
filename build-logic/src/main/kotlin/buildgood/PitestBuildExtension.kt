@@ -3,6 +3,8 @@ package buildgood
 import javax.inject.Inject
 
 open class PitestBuildExtension @Inject constructor() {
+    var pitestVersion: String? = null
+
     // Classes to exclude from mutation testing
     val excludedTestClasses: MutableSet<String> = mutableSetOf()
 
@@ -15,6 +17,7 @@ open class PitestBuildExtension @Inject constructor() {
     }
 
     fun copyFrom(other: PitestBuildExtension) {
+        pitestVersion = other.pitestVersion
         excludedTestClasses.clear()
         excludedTestClasses.addAll(other.excludedTestClasses)
     }

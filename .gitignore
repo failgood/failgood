@@ -15,6 +15,7 @@ out/
 .failgood.autotest.timestamp
 junit-platform.properties
 failgood.debug*
+local.properties
 
 .claude/
 buildStats/

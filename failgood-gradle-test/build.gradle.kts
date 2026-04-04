@@ -9,6 +9,7 @@ plugins { id("buildgood.module") }
 
 dependencies {
     testImplementation(project(":failgood"))
+    testImplementation(gradleTestKit())
     testImplementation(libs.gradle.tooling.api)
     testImplementation(libs.kotlin.stdlib.jdk8)
 }

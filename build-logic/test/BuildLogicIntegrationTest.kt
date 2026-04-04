@@ -141,6 +141,22 @@ class BuildLogicIntegrationTest {
                 assert(explicitVersionResult.output.contains("configuredPitestVersion=1.2.3"))
             }
         }
+
+        describe("kmp inheritance", isolation = false) {
+            val testProject = prepareTestProject("kmp-inheritance")
+            val result =
+                gradleRunner(
+                        testProject,
+                        ":inherited:printConfiguredTargets",
+                        ":overridden:printConfiguredTargets",
+                    )
+                    .build()
+
+            test("kmp modules inherit and override root JVM target defaults") {
+                assert(result.output.contains("module=inherited mainJvmTarget=JVM_11 testJvmTarget=JVM_17"))
+                assert(result.output.contains("module=overridden mainJvmTarget=JVM_17 testJvmTarget=JVM_17"))
+            }
+        }
     }
 }
 

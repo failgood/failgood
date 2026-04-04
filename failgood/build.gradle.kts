@@ -1,3 +1,6 @@
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
+
 plugins {
     id("buildgood.kmp")
     id("buildgood.pitest")
@@ -45,6 +48,14 @@ kotlin {
                 useJUnitPlatform()
             }
 
+            tasks.register("test", Test::class) {
+                description = "Runs the JVM test suite with the standard Gradle test entry point"
+                group = "verification"
+                testClassesDirs = output.classesDirs
+                classpath = files(runtimeDependencyFiles, output)
+                useJUnitPlatform()
+            }
+
             tasks.named("check") { dependsOn(testMain, multiThreadedTest) }
         }
     }
@@ -82,6 +93,15 @@ kotlin {
                 implementation(libs.pitest)
                 runtimeOnly(libs.kotlinx.coroutines.debug)
             }
+        }
+    }
+}
+
+configure<PublishingExtension> {
+    publications.withType(MavenPublication::class.java).configureEach {
+        when (name) {
+            "jvm" -> artifactId = project.name
+            "kotlinMultiplatform" -> artifactId = "${project.name}-kmp"
         }
     }
 }

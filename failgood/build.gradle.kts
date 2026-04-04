@@ -1,6 +1,7 @@
 plugins {
-    id("buildgood.module")
-    id("buildgood.pitest")
+    id("buildgood.kmp")
+    `maven-publish`
+    signing
     alias(libs.plugins.kover)
 }
 
@@ -10,59 +11,78 @@ plugins {
 
 publish {}
 
-dependencies {
-    compileOnly(libs.kotlinx.coroutines.core)
-    api(libs.junit.platform.commons)
-    implementation(libs.kotlinx.coroutines.slf4j)
-    implementation(libs.slf4j.api)
-    implementation(libs.kotlin.logging)
+kotlin {
+    jvm {
+        compilations.getByName("test") {
+            val testMain =
+                tasks.register("testMain", JavaExec::class) {
+                    enableAssertions = true
+                    mainClass.set("failgood.FailGoodBootstrapKt")
+                    classpath(runtimeDependencyFiles, output)
+                }
+            val multiThreadedTest =
+                tasks.register("multiThreadedTest", JavaExec::class) {
+                    enableAssertions = true
+                    mainClass.set("failgood.MultiThreadingPerformanceTestKt")
+                    classpath(runtimeDependencyFiles, output)
+                    systemProperties =
+                        mapOf("kotlinx.coroutines.scheduler.core.pool.size" to "1000")
+                }
 
-    api(libs.junit.platform.launcher)
-    compileOnly(libs.junit.platform.engine)
+            tasks.register("autotest", JavaExec::class) {
+                enableAssertions = true
+                mainClass.set("failgood.AutoTestMainKt")
+                classpath(runtimeDependencyFiles, output)
+            }
 
-    implementation(libs.kotlin.stdlib.jdk8)
-    compileOnly(libs.pitest)
-    implementation(libs.opentest4j)
-    testImplementation(libs.pitest)
-    testImplementation(libs.junit.platform.engine)
-    testImplementation(libs.blockhound)
+            tasks.register("runSingleNonFailgoodTest", Test::class) {
+                outputs.upToDateWhen { false }
+                testClassesDirs = output.classesDirs
+                classpath = files(runtimeDependencyFiles, output)
+                include("**/NonFailgoodTest.class")
+                useJUnitPlatform()
+            }
 
-    testImplementation(libs.kotlin.test)
-    testImplementation(libs.logback.classic)
-
-    // for the tools that analyze what events jupiter tests generate.
-    testImplementation(libs.junit.jupiter.api)
-    testImplementation(libs.junit.jupiter.engine)
-    testRuntimeOnly(libs.kotlinx.coroutines.debug)
-}
-
-tasks {
-    val testMain =
-        register("testMain", JavaExec::class) {
-            enableAssertions = true
-            mainClass = "failgood.FailGoodBootstrapKt"
-            classpath = sourceSets["test"].runtimeClasspath
+            tasks.named("check") { dependsOn(testMain, multiThreadedTest) }
         }
-    val multiThreadedTest =
-        register("multiThreadedTest", JavaExec::class) {
-            enableAssertions = true
-            mainClass = "failgood.MultiThreadingPerformanceTestKt"
-            classpath = sourceSets["test"].runtimeClasspath
-            systemProperties = mapOf("kotlinx.coroutines.scheduler.core.pool.size" to "1000")
-        }
-
-    register("autotest", JavaExec::class) {
-        enableAssertions = true
-        mainClass = "failgood.AutoTestMainKt"
-        classpath = sourceSets["test"].runtimeClasspath
     }
-    check { dependsOn(testMain, multiThreadedTest) }
 
-    // reproduce https://github.com/failgood/failgood/issues/93
-    register<Test>("runSingleNonFailgoodTest") {
-        outputs.upToDateWhen { false }
-        include("**/NonFailgoodTest.class")
-        useJUnitPlatform()
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+
+    sourceSets {
+        val commonMain by getting {
+            dependencies { implementation(libs.kotlinx.coroutines.core) }
+        }
+        val commonTest by getting { dependencies { implementation(kotlin("test")) } }
+        val jvmMain by getting {
+            dependencies {
+                api(libs.junit.platform.commons)
+                api(libs.junit.platform.launcher)
+                compileOnly(libs.junit.platform.engine)
+                compileOnly(libs.pitest)
+                implementation(libs.kotlin.stdlib.jdk8)
+                implementation(libs.kotlin.logging)
+                implementation(libs.kotlinx.coroutines.slf4j)
+                implementation(libs.opentest4j)
+                implementation(libs.slf4j.api)
+            }
+        }
+        val jvmTest by getting {
+            dependencies {
+                implementation("com.christophsturm:filepeek:0.1.3") // IDEA misses it transitively
+                implementation(kotlin("test"))
+                implementation(libs.blockhound)
+                implementation(libs.junit.jupiter.api)
+                implementation(libs.junit.jupiter.engine)
+                implementation(libs.junit.platform.engine)
+                implementation(libs.junit.platform.launcher)
+                implementation(libs.logback.classic)
+                implementation(libs.pitest)
+                runtimeOnly(libs.kotlinx.coroutines.debug)
+            }
+        }
     }
 }
 

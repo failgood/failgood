@@ -7,9 +7,9 @@ private val operatingSystemMXBean =
     ManagementFactory.getOperatingSystemMXBean() as com.sun.management.OperatingSystemMXBean
 private val runtimeMXBean = ManagementFactory.getRuntimeMXBean()
 
-internal fun upt(): Long = runtimeMXBean.uptime
+internal actual fun upt(): Long = runtimeMXBean.uptime
 
-internal fun uptime(totalTests: Int? = null): String {
+internal actual fun uptime(totalTests: Int?): String {
     val uptime = upt()
     val cpuTime = operatingSystemMXBean.processCpuTime / 1000000
     val percentage = cpuTime * 100 / uptime
@@ -19,6 +19,6 @@ internal fun uptime(totalTests: Int? = null): String {
         } else ""
 }
 
-internal fun cpus() = Runtime.getRuntime().availableProcessors()
+internal actual fun cpus() = Runtime.getRuntime().availableProcessors()
 
-internal fun isRunningOnWindows() = System.getProperty("os.name").startsWith("Windows")
+internal actual fun isRunningOnWindows() = System.getProperty("os.name").startsWith("Windows")

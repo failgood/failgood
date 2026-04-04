@@ -1,5 +1,6 @@
 plugins {
     id("buildgood.kmp")
+    id("buildgood.pitest")
     `maven-publish`
     signing
     alias(libs.plugins.kover)
@@ -40,6 +41,7 @@ kotlin {
                 testClassesDirs = output.classesDirs
                 classpath = files(runtimeDependencyFiles, output)
                 include("**/NonFailgoodTest.class")
+                failOnNoDiscoveredTests = false
                 useJUnitPlatform()
             }
 
@@ -52,9 +54,7 @@ kotlin {
     iosSimulatorArm64()
 
     sourceSets {
-        val commonMain by getting {
-            dependencies { implementation(libs.kotlinx.coroutines.core) }
-        }
+        val commonMain by getting { dependencies { implementation(libs.kotlinx.coroutines.core) } }
         val commonTest by getting { dependencies { implementation(kotlin("test")) } }
         val jvmMain by getting {
             dependencies {

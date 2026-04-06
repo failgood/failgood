@@ -1,22 +1,16 @@
 package failgood
 
 import failgood.dsl.ContextFunction
-import failgood.internal.ContextTreeReporter
 import failgood.internal.ExecuteAllTestFilterProvider
 import failgood.internal.FailedTestCollectionExecution
 import failgood.internal.LoadResults
-import failgood.internal.SuiteExecutionContext
 import failgood.internal.TestCollectionExecutionResult
 import failgood.internal.TestFilterProvider
 import failgood.internal.TestResults
-import kotlin.reflect.KClass
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.slf4j.MDCContext
 
 internal const val DEFAULT_TIMEOUT: Long = 40000
 
@@ -31,24 +25,13 @@ data class Suite(val contextProviders: Collection<ContextProvider>, val repeat: 
         filter: TestFilterProvider? = null,
         listener: ExecutionListener = NullExecutionListener
     ): SuiteResult {
-        return SuiteExecutionContext(parallelism).use { suiteExecutionContext ->
-            if (!silent)
-                println(
-                    "starting test suite with parallelism = ${suiteExecutionContext.parallelism}")
-            suiteExecutionContext.coroutineDispatcher.use { dispatcher ->
-                runBlocking(dispatcher + MDCContext()) {
-                    val contextInfos =
-                        findAndStartTests(
-                            this,
-                            filter = filter ?: ExecuteAllTestFilterProvider,
-                            listener = listener)
-                    if (!silent) {
-                        printResults(this, contextInfos)
-                    }
-                    awaitTestResults(contextInfos.awaitAll())
-                }
-            }
-        }
+        return runSuiteBlocking(
+            suite = this,
+            parallelism = parallelism,
+            silent = silent,
+            filter = filter ?: ExecuteAllTestFilterProvider,
+            listener = listener,
+        )
     }
 
     companion object {
@@ -90,6 +73,14 @@ data class Suite(val contextProviders: Collection<ContextProvider>, val repeat: 
     }
 }
 
+internal expect fun runSuiteBlocking(
+    suite: Suite,
+    parallelism: Int?,
+    silent: Boolean,
+    filter: TestFilterProvider,
+    listener: ExecutionListener
+): SuiteResult
+
 internal suspend fun awaitTestResults(
     resolvedContexts: List<TestCollectionExecutionResult>
 ): SuiteResult {
@@ -101,46 +92,19 @@ internal suspend fun awaitTestResults(
         it.afterSuiteCallbacks.forEach { callback ->
             try {
                 callback.invoke()
-                // here we don't catch throwable because we are already finished anyway.
             } catch (ignored: Exception) {} catch (ignored: AssertionError) {}
         }
     }
     return SuiteResult(
-        results,
-        results.filter { it.isFailure },
-        successfulContexts.flatMap { it.contexts },
-        failedRootContexts)
-}
-
-internal fun printResults(
-    coroutineScope: CoroutineScope,
-    contextInfos: List<Deferred<TestCollectionExecutionResult>>
-) {
-    contextInfos.forEach {
-        coroutineScope.launch {
-            val context = it.await()
-            val contextTreeReporter = ContextTreeReporter()
-            when (context) {
-                is TestResults -> {
-                    println(
-                        contextTreeReporter
-                            .stringReport(context.tests.values.awaitAll(), context.contexts)
-                            .joinToString("\n"))
-                }
-
-                is FailedTestCollectionExecution -> {
-                    println(
-                        "context ${context.context} failed: ${context.failure.stackTraceToString()}")
-                }
-            }
-        }
-    }
+        allTests = results,
+        failedTests = results.filter { it.isFailure },
+        contexts = successfulContexts.flatMap { it.contexts },
+        failedRootContexts = failedRootContexts,
+    )
 }
 
 fun Suite(rootContexts: Collection<TestCollection<*>>): Suite =
     Suite(rootContexts.map { ContextProvider { listOf(it) } })
-
-fun Suite(kClasses: List<KClass<*>>): Suite = Suite(kClasses.map { ObjectContextProvider(it) })
 
 fun <RootGiven> Suite(rootContext: TestCollection<RootGiven>): Suite = Suite(listOf(rootContext))
 

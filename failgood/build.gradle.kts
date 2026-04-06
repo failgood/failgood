@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
+
 plugins {
     id("buildgood.kmp")
     id("buildgood.pitest")
@@ -12,7 +14,27 @@ plugins {
 
 publish {}
 
+fun wantsAppleFrameworks(): Boolean {
+    val requestedTasks = gradle.startParameter.taskNames
+    return requestedTasks.any {
+        it.contains("XCFramework") ||
+            it.contains("Framework", ignoreCase = false) ||
+            it.contains("embedAndSignAppleFrameworkForXcode")
+    }
+}
+
 kotlin {
+    val iosTargets = listOf(iosX64(), iosArm64(), iosSimulatorArm64())
+    if (wantsAppleFrameworks()) {
+        val failgoodXcframework = XCFramework("Failgood")
+        iosTargets.forEach { iosTarget ->
+            iosTarget.binaries.framework {
+                baseName = "Failgood"
+                failgoodXcframework.add(this)
+            }
+        }
+    }
+
     jvm {
         compilations.getByName("test") {
             val testMain =
@@ -56,10 +78,6 @@ kotlin {
             tasks.named("check") { dependsOn(testMain, multiThreadedTest) }
         }
     }
-
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
 
     sourceSets {
         val commonMain by getting { dependencies { implementation(libs.kotlinx.coroutines.core) } }

@@ -1,144 +1,149 @@
 package failgood.gradle
 
-import failgood.Ignored
 import failgood.Test
 import failgood.testCollection
 import java.io.File
-import kotlin.io.path.createTempDirectory
+import java.nio.file.Files
 import org.gradle.testkit.runner.GradleRunner
+
+private const val FAILGOOD_ANDROID_VERSION = "0.9.2"
+private const val MANAGED_DEVICE = "pixel2Api34"
+private const val SUITE_CLASS = "sample.app.AndroidRoundtripSuite"
+private const val FIRST_REPORTED_TEST =
+    "AndroidRoundtripSuite: android roundtrip > runs a passing failgood suite on device"
+private const val SECOND_REPORTED_TEST =
+    "AndroidRoundtripSuite: android roundtrip > proves that a test body really ran"
 
 @Test
 class AndroidManagedDeviceGradleTest {
     val tests =
         testCollection("android managed device via gradle") {
-            it(
-                "runs a failgood suite on a managed emulator and reports it through Gradle",
-                ignored = Ignored { androidRoundtripSkipReason() },
-            ) {
-                val testProject = prepareAndroidConsumerProject()
+            it("runs a failgood suite on a managed emulator and reports it through Gradle") {
+                val projectDir = createConsumerProject()
                 val result =
                     GradleRunner.create()
-                        .withProjectDir(testProject)
+                        .withProjectDir(projectDir)
                         .withArguments(":app:smokeGroupDebugAndroidTest", "--stacktrace")
                         .build()
 
-                assert(result.output.contains("Starting 1 tests on pixel2Api34"))
-                assert(
-                    result.output.contains(
-                        "pixel2Api34 Tests 1/1 completed. (0 skipped) (0 failed)"))
-
                 val xmlReport =
                     File(
-                            testProject,
-                            "app/build/outputs/androidTest-results/managedDevice/debug/pixel2Api34")
+                            projectDir,
+                            "app/build/outputs/androidTest-results/managedDevice/debug/$MANAGED_DEVICE",
+                        )
                         .walkTopDown()
-                        .firstOrNull { it.name.startsWith("TEST-") && it.extension == "xml" }
-                        ?: error("Managed-device XML report not found.")
-                val xml = xmlReport.readText()
-                assert(xml.contains("tests=\"1\""))
-                assert(xml.contains("failures=\"0\""))
-                assert(xml.contains("classname=\"sample.app.AndroidRoundtripSuite\""))
-                assert(xml.contains("testcase name=\"failgood suite\""))
-
-                val htmlSummary =
+                        .first { it.name.startsWith("TEST-") && it.extension == "xml" }
+                        .readText()
+                val summaryHtmlReport =
                     File(
-                            testProject,
+                            projectDir,
                             "app/build/reports/androidTests/managedDevice/debug/allDevices/index.html",
                         )
                         .readText()
-                assert(htmlSummary.contains("""<div class="counter">1</div>"""))
-                assert(htmlSummary.contains("""<div class="percent">100%</div>"""))
-                assert(htmlSummary.contains("sample.app.AndroidRoundtripSuite"))
+                val suiteHtmlReport =
+                    File(
+                            projectDir,
+                            "app/build/reports/androidTests/managedDevice/debug/allDevices/$SUITE_CLASS.html",
+                        )
+                        .readText()
+
+                assert(xmlReport.contains("""tests="2""""))
+                assert(xmlReport.contains("""failures="0""""))
+                assert(xmlReport.contains("""classname="$SUITE_CLASS""""))
+                assert(xmlReport.contains("""testcase name="${xmlEncode(FIRST_REPORTED_TEST)}""""))
+                assert(xmlReport.contains("""testcase name="${xmlEncode(SECOND_REPORTED_TEST)}""""))
+
+                assert(summaryHtmlReport.contains(SUITE_CLASS))
+                assert(suiteHtmlReport.contains(htmlEncode(FIRST_REPORTED_TEST)))
+                assert(suiteHtmlReport.contains(htmlEncode(SECOND_REPORTED_TEST)))
             }
         }
 }
 
-private fun prepareAndroidConsumerProject(): File {
-    val rootDirectory = rootDirectory()
-    val tempDir = createTempDirectory("failgood-android-gradle").toFile()
-    val sdkDir = checkNotNull(androidSdkDir()) { "Android SDK not found." }
-    val version = projectVersion(rootDirectory)
+private fun createConsumerProject(): File {
+    val projectDir =
+        Files.createTempDirectory(buildDir().toPath(), "failgood-android-gradle-").toFile()
+    val sdkDir = androidSdkDir()!!
 
-    File(tempDir, "settings.gradle.kts")
+    File(projectDir, "settings.gradle.kts")
         .writeText(
             """
-        pluginManagement {
-            repositories {
-                google()
-                gradlePluginPortal()
-                mavenCentral()
+            pluginManagement {
+                repositories {
+                    google()
+                    gradlePluginPortal()
+                    mavenCentral()
+                }
             }
-        }
 
-        dependencyResolutionManagement {
-            repositories {
-                google()
-                mavenCentral()
+            dependencyResolutionManagement {
+                repositories {
+                    google()
+                    mavenCentral()
+                }
             }
-        }
 
-        rootProject.name = "failgood-android-roundtrip"
-        include(":app")
-        includeBuild("${rootDirectory.invariantSeparatorsPath}")
-        """
+            rootProject.name = "failgood-android-roundtrip"
+            include(":app")
+            includeBuild("../../..")
+            """
                 .trimIndent())
-    File(tempDir, "local.properties").writeText("sdk.dir=${sdkDir.invariantSeparatorsPath}\n")
+    File(projectDir, "local.properties").writeText("sdk.dir=${sdkDir.invariantSeparatorsPath}\n")
 
-    val appDir = File(tempDir, "app")
-    appDir.mkdirs()
+    val appDir = File(projectDir, "app").apply { mkdirs() }
     File(appDir, "build.gradle.kts")
         .writeText(
             """
-        plugins { id("com.android.application") version "9.1.0" }
+            plugins { id("com.android.application") version "9.1.0" }
 
-        android {
-            namespace = "sample.app"
-            compileSdk = 35
+            android {
+                namespace = "sample.app"
+                compileSdk = 35
 
-            defaultConfig {
-                applicationId = "sample.app"
-                minSdk = 26
-                targetSdk = 35
-                testInstrumentationRunner = "failgood.android.FailgoodAndroidInstrumentationRunner"
-                testInstrumentationRunnerArguments["class"] = "sample.app.AndroidRoundtripSuite"
-            }
+                defaultConfig {
+                    applicationId = "sample.app"
+                    minSdk = 26
+                    targetSdk = 35
+                    testInstrumentationRunner = "failgood.android.FailgoodAndroidInstrumentationRunner"
+                    testInstrumentationRunnerArguments["class"] = "$SUITE_CLASS"
+                }
 
-            buildFeatures { buildConfig = false }
+                buildFeatures { buildConfig = false }
 
-            packaging {
-                resources {
-                    excludes += "META-INF/LICENSE*"
-                    excludes += "META-INF/NOTICE*"
+                packaging {
+                    resources {
+                        excludes += "META-INF/LICENSE*"
+                        excludes += "META-INF/NOTICE*"
+                    }
+                }
+
+                testOptions {
+                    managedDevices {
+                        localDevices {
+                            create("$MANAGED_DEVICE") {
+                                device = "Pixel 2"
+                                apiLevel = 34
+                                systemImageSource = "google"
+                                require64Bit = true
+                            }
+                        }
+                        groups {
+                            create("smoke") {
+                                targetDevices.add(allDevices.getByName("$MANAGED_DEVICE"))
+                            }
+                        }
+                    }
                 }
             }
 
-            testOptions {
-                managedDevices {
-                    localDevices {
-                        create("pixel2Api34") {
-                            device = "Pixel 2"
-                            apiLevel = 34
-                            systemImageSource = "google"
-                            require64Bit = true
-                        }
-                    }
-                    groups {
-                        create("smoke") {
-                            targetDevices.add(allDevices.getByName("pixel2Api34"))
-                        }
-                    }
-                }
+            dependencies {
+                androidTestImplementation("dev.failgood:failgood-android:$FAILGOOD_ANDROID_VERSION")
             }
-        }
-
-        dependencies {
-            androidTestImplementation("dev.failgood:failgood-android:$version")
-        }
-        """
+            """
                 .trimIndent())
     File(appDir, "src/main/AndroidManifest.xml").apply {
         parentFile.mkdirs()
-        writeText("""<manifest />""")
+        writeText("<manifest />")
     }
     File(appDir, "src/androidTest/kotlin/sample/app/AndroidRoundtripSuite.kt").apply {
         parentFile.mkdirs()
@@ -158,49 +163,33 @@ private fun prepareAndroidConsumerProject(): File {
                 val tests =
                     testCollection("android roundtrip", isolation = false) {
                         it("runs a passing failgood suite on device") { SmokeState.didRun = true }
-                        it("proves that a test body really ran") { check(SmokeState.didRun) }
+                        it("proves that a test body really ran") { assert(SmokeState.didRun) }
                     }
             }
             """
                 .trimIndent())
     }
-    return tempDir
+    return projectDir
 }
 
-private fun androidRoundtripSkipReason(): String? {
-    val sdkDir = androidSdkDir() ?: return "Android SDK not found."
-    if (!File(sdkDir, "emulator/emulator").exists()) {
-        return "Android emulator binary not found in ${sdkDir.invariantSeparatorsPath}."
-    }
-    if (!File(sdkDir, "system-images/android-34/google_apis/arm64-v8a").exists()) {
-        return "Missing managed-device system image android-34/google_apis/arm64-v8a."
-    }
-    return null
-}
-
-private fun androidSdkDir(): File? {
-    val candidates =
-        listOfNotNull(
+private fun androidSdkDir(): File? =
+    listOfNotNull(
             System.getenv("ANDROID_HOME"),
             System.getenv("ANDROID_SDK_ROOT"),
             File(System.getProperty("user.home"), "Library/Android/sdk")
                 .takeIf { it.exists() }
                 ?.path,
         )
-    return candidates.map(::File).firstOrNull(File::exists)
-}
+        .map(::File)
+        .firstOrNull(File::exists)
 
-private fun projectVersion(rootDirectory: File): String =
-    File(rootDirectory, "gradle.properties")
-        .readLines()
-        .first { it.startsWith("version=") }
-        .substringAfter('=')
-        .trim()
-
-private fun rootDirectory(): File =
+private fun buildDir(): File =
     File(AndroidManagedDeviceGradleTest::class.java.protectionDomain.codeSource.location.toURI())
         .parentFile
         .parentFile
         .parentFile
-        .parentFile
-        .parentFile
+
+private fun xmlEncode(text: String): String =
+    text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+private fun htmlEncode(text: String): String = xmlEncode(text)

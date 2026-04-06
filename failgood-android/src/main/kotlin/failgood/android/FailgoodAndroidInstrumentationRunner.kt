@@ -3,12 +3,6 @@ package failgood.android
 import android.app.Activity
 import android.app.Instrumentation
 import android.os.Bundle
-import failgood.ExecutionListener
-import failgood.Failure
-import failgood.Suite
-import failgood.TestDescription
-import failgood.TestPlusResult
-import failgood.internal.FailedTestCollectionExecution
 
 const val SUCCESS_MARKER = "FAILGOOD_ANDROID_OK"
 
@@ -21,9 +15,7 @@ private const val REPORT_KEY_STACK = "stack"
 private const val REPORT_VALUE_RESULT_START = 1
 private const val REPORT_VALUE_RESULT_OK = 0
 private const val REPORT_VALUE_RESULT_FAILURE = -2
-private const val SYNTHETIC_TEST_NAME = "failgood suite"
-private const val CLASS_ARGUMENT = "class"
-private const val FAILGOOD_CLASS_ARGUMENT = "failgood.class"
+private const val REPORT_VALUE_RESULT_IGNORED = -3
 
 class FailgoodAndroidInstrumentationRunner : Instrumentation() {
     private lateinit var arguments: Bundle
@@ -37,114 +29,102 @@ class FailgoodAndroidInstrumentationRunner : Instrumentation() {
     override fun onStart() {
         waitForIdleSync()
 
+        val classLoader = checkNotNull(javaClass.classLoader)
         val result =
-            runCatching {
-                val classNames = selectedClassNames(arguments)
-                check(classNames.isNotEmpty()) {
-                    "No failgood test classes configured. Set instrumentation argument '$CLASS_ARGUMENT'."
-                }
-
-                val template =
-                    Bundle().apply {
-                        putString(REPORT_KEY_IDENTIFIER, REPORT_VALUE_ID)
-                        putInt(REPORT_KEY_NUM_TOTAL, classNames.size)
-                    }
-
-                classNames.forEachIndexed { index, className ->
-                    runClass(template, className, index + 1)
-                }
-
-                successBundle(classNames.size)
-            }
+            FailgoodAndroidBootstrap(ReflectiveAndroidClassRunner(classLoader)).run(
+                arguments =
+                    AndroidArguments(
+                        classArgument = arguments.getString(CLASS_ARGUMENT),
+                        failgoodClassArgument = arguments.getString(FAILGOOD_CLASS_ARGUMENT),
+                    ),
+                reporter = InstrumentationReporter(this),
+            )
 
         finish(
             if (result.isSuccess) Activity.RESULT_OK else Activity.RESULT_CANCELED,
-            result.getOrElse(::failureBundle),
+            if (result.isSuccess) successBundle(result) else failureBundle(result.failure!!),
         )
     }
 
-    private fun runClass(template: Bundle, className: String, currentIndex: Int) {
-        val testResult =
-            Bundle(template).apply {
-                putString(REPORT_KEY_NAME_CLASS, className)
-                putString(REPORT_KEY_NAME_TEST, SYNTHETIC_TEST_NAME)
-                putInt(REPORT_KEY_NUM_CURRENT, currentIndex)
-                putString(REPORT_KEY_STREAMRESULT, "\n$className:")
-            }
-        sendStatus(REPORT_VALUE_RESULT_START, testResult)
-
-        val listener = CountingExecutionListener()
-        val classLoader = checkNotNull(javaClass.classLoader) { "Instrumentation class loader missing." }
-        val suiteResult =
-            Suite(listOf(classLoader.loadClass(className).kotlin)).run(
-                parallelism = 1,
-                silent = true,
-                listener = listener,
-            )
-        check(listener.discovered > 0 || listener.started > 0 || listener.finished > 0) {
-            "Failgood runner did not discover or execute any tests in $className."
-        }
-
-        firstFailure(suiteResult.failedRootContexts, suiteResult.failedTests)?.let { throwable ->
-            testResult.putString(REPORT_KEY_STACK, throwable.stackTraceToString())
-            testResult.putString(
-                REPORT_KEY_STREAMRESULT,
-                "\nError in $className#$SYNTHETIC_TEST_NAME:\n${throwable.stackTraceToString()}",
-            )
-            sendStatus(REPORT_VALUE_RESULT_FAILURE, testResult)
-            throw throwable
-        }
-
-        testResult.putString(REPORT_KEY_STREAMRESULT, ".")
-        sendStatus(REPORT_VALUE_RESULT_OK, testResult)
-    }
-
-    private fun successBundle(totalSuites: Int): Bundle =
+    private fun successBundle(result: AndroidRunResult): Bundle =
         Bundle().apply {
-            putString(REPORT_KEY_STREAMRESULT, "$SUCCESS_MARKER\n")
-            putString("failgoodSuites", totalSuites.toString())
+            putString(Instrumentation.REPORT_KEY_STREAMRESULT, "$SUCCESS_MARKER\n")
+            putString("failgoodSuites", result.totalSuites.toString())
+            putString("failgoodTests", result.totalTests.toString())
         }
 
     private fun failureBundle(throwable: Throwable): Bundle =
         Bundle().apply {
             putString(
-                REPORT_KEY_STREAMRESULT,
+                Instrumentation.REPORT_KEY_STREAMRESULT,
                 "FAILGOOD_ANDROID_FAILED\n${throwable.stackTraceToString()}",
             )
         }
-
-    private fun selectedClassNames(arguments: Bundle): List<String> =
-        (arguments.getString(FAILGOOD_CLASS_ARGUMENT) ?: arguments.getString(CLASS_ARGUMENT))
-            ?.split(',')
-            ?.map { it.substringBefore('#').trim() }
-            ?.filter { it.isNotEmpty() }
-            ?.distinct()
-            .orEmpty()
-
-    private fun firstFailure(
-        failedRootContexts: List<FailedTestCollectionExecution>,
-        failedTests: List<TestPlusResult>,
-    ): Throwable? {
-        val rootFailure = failedRootContexts.firstOrNull()?.failure
-        if (rootFailure != null) return rootFailure
-        return (failedTests.firstOrNull()?.result as? Failure)?.failure
-    }
 }
 
-private class CountingExecutionListener : ExecutionListener {
-    var discovered = 0
-    var started = 0
-    var finished = 0
+private class InstrumentationReporter(private val instrumentation: Instrumentation) :
+    AndroidRunReporter {
+    private var lastClassName: String? = null
 
-    override suspend fun testDiscovered(testDescription: TestDescription) {
-        discovered += 1
+    override fun testStarted(test: AndroidReportedTest, currentIndex: Int, totalTests: Int) {
+        instrumentation.sendStatus(
+            REPORT_VALUE_RESULT_START,
+            baseBundle(test, currentIndex, totalTests).apply {
+                putString(
+                    Instrumentation.REPORT_KEY_STREAMRESULT,
+                    if (lastClassName != test.className) "\n${test.className}:" else "",
+                )
+                lastClassName = test.className
+            },
+        )
     }
 
-    override suspend fun testStarted(testDescription: TestDescription) {
-        started += 1
+    override fun testPassed(test: AndroidReportedTest, currentIndex: Int, totalTests: Int) {
+        instrumentation.sendStatus(
+            REPORT_VALUE_RESULT_OK,
+            baseBundle(test, currentIndex, totalTests).apply {
+                putString(Instrumentation.REPORT_KEY_STREAMRESULT, ".")
+            },
+        )
     }
 
-    override suspend fun testFinished(testPlusResult: TestPlusResult) {
-        finished += 1
+    override fun testFailed(
+        test: AndroidReportedTest,
+        currentIndex: Int,
+        totalTests: Int,
+        throwable: Throwable,
+    ) {
+        instrumentation.sendStatus(
+            REPORT_VALUE_RESULT_FAILURE,
+            baseBundle(test, currentIndex, totalTests).apply {
+                putString(REPORT_KEY_STACK, throwable.stackTraceToString())
+                putString(
+                    Instrumentation.REPORT_KEY_STREAMRESULT,
+                    "\nError in ${test.className}#${test.testName}:\n${throwable.stackTraceToString()}",
+                )
+            },
+        )
     }
+
+    override fun testIgnored(test: AndroidReportedTest, currentIndex: Int, totalTests: Int) {
+        instrumentation.sendStatus(
+            REPORT_VALUE_RESULT_IGNORED,
+            baseBundle(test, currentIndex, totalTests).apply {
+                putString(Instrumentation.REPORT_KEY_STREAMRESULT, "")
+            },
+        )
+    }
+
+    private fun baseBundle(
+        test: AndroidReportedTest,
+        currentIndex: Int,
+        totalTests: Int,
+    ): Bundle =
+        Bundle().apply {
+            putString(Instrumentation.REPORT_KEY_IDENTIFIER, REPORT_VALUE_ID)
+            putInt(REPORT_KEY_NUM_TOTAL, currentIndex)
+            putInt(REPORT_KEY_NUM_CURRENT, currentIndex)
+            putString(REPORT_KEY_NAME_CLASS, test.className)
+            putString(REPORT_KEY_NAME_TEST, test.testName)
+        }
 }

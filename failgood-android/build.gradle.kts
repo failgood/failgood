@@ -6,6 +6,8 @@ android {
 
     defaultConfig { minSdk = 26 }
 
+    testOptions { unitTests.all { it.useJUnitPlatform() } }
+
     buildFeatures { buildConfig = false }
 }
 

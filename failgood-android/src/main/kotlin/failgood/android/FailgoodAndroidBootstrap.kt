@@ -60,15 +60,15 @@ internal interface AndroidClassRunner {
     fun runClass(className: String, listener: ExecutionListener): AndroidClassRunResult
 }
 
-internal class FailgoodAndroidBootstrap(private val classRunner: AndroidClassRunner) {
+internal class FailgoodAndroidBootstrap(
+    private val classFinder: AndroidTestClassFinder,
+    private val classRunner: AndroidClassRunner,
+) {
     fun run(arguments: AndroidArguments, reporter: AndroidRunReporter): AndroidRunResult {
-        val classNames = arguments.classNames
+        val classNames = arguments.classNames.ifEmpty(classFinder::findTestClasses)
         if (classNames.isEmpty()) {
             return AndroidRunResult(
-                failure =
-                    IllegalStateException(
-                        "No failgood test classes configured. Set instrumentation argument '$CLASS_ARGUMENT'."
-                    )
+                failure = IllegalStateException("No failgood test classes configured or discovered.")
             )
         }
         val reportingState = ReportingState()

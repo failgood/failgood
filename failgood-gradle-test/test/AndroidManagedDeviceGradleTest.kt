@@ -8,11 +8,14 @@ import org.gradle.testkit.runner.GradleRunner
 
 private const val FAILGOOD_ANDROID_VERSION = "0.9.2"
 private const val MANAGED_DEVICE = "pixel2Api34"
-private const val SUITE_CLASS = "sample.app.AndroidRoundtripSuite"
+private const val FIRST_SUITE_CLASS = "sample.app.AndroidRoundtripSuite"
+private const val SECOND_SUITE_CLASS = "sample.app.SecondRoundtripSuite"
 private const val FIRST_REPORTED_TEST =
     "AndroidRoundtripSuite: android roundtrip > runs a passing failgood suite on device"
 private const val SECOND_REPORTED_TEST =
     "AndroidRoundtripSuite: android roundtrip > proves that a test body really ran"
+private const val THIRD_REPORTED_TEST =
+    "SecondRoundtripSuite: second roundtrip > discovers a second suite without explicit class selection"
 
 @Test
 class AndroidManagedDeviceGradleTest {
@@ -29,33 +32,41 @@ class AndroidManagedDeviceGradleTest {
                 val xmlReport =
                     File(
                             projectDir,
-                            "app/build/outputs/androidTest-results/managedDevice/debug/$MANAGED_DEVICE",
-                        )
+                            "app/build/outputs/androidTest-results/managedDevice/debug/$MANAGED_DEVICE")
                         .walkTopDown()
-                        .first { it.name.startsWith("TEST-") && it.extension == "xml" }
-                        .readText()
+                        .filter { it.name.startsWith("TEST-") && it.extension == "xml" }
+                        .joinToString("\n") { it.readText() }
                 val summaryHtmlReport =
                     File(
                             projectDir,
                             "app/build/reports/androidTests/managedDevice/debug/allDevices/index.html",
                         )
                         .readText()
-                val suiteHtmlReport =
+                val firstSuiteHtmlReport =
                     File(
                             projectDir,
-                            "app/build/reports/androidTests/managedDevice/debug/allDevices/$SUITE_CLASS.html",
+                            "app/build/reports/androidTests/managedDevice/debug/allDevices/$FIRST_SUITE_CLASS.html",
+                        )
+                        .readText()
+                val secondSuiteHtmlReport =
+                    File(
+                            projectDir,
+                            "app/build/reports/androidTests/managedDevice/debug/allDevices/$SECOND_SUITE_CLASS.html",
                         )
                         .readText()
 
-                assert(xmlReport.contains("""tests="2""""))
-                assert(xmlReport.contains("""failures="0""""))
-                assert(xmlReport.contains("""classname="$SUITE_CLASS""""))
+                assert(result.output.contains("BUILD SUCCESSFUL"))
+                assert(xmlReport.contains("""classname="$FIRST_SUITE_CLASS""""))
+                assert(xmlReport.contains("""classname="$SECOND_SUITE_CLASS""""))
                 assert(xmlReport.contains("""testcase name="${xmlEncode(FIRST_REPORTED_TEST)}""""))
                 assert(xmlReport.contains("""testcase name="${xmlEncode(SECOND_REPORTED_TEST)}""""))
+                assert(xmlReport.contains("""testcase name="${xmlEncode(THIRD_REPORTED_TEST)}""""))
 
-                assert(summaryHtmlReport.contains(SUITE_CLASS))
-                assert(suiteHtmlReport.contains(htmlEncode(FIRST_REPORTED_TEST)))
-                assert(suiteHtmlReport.contains(htmlEncode(SECOND_REPORTED_TEST)))
+                assert(summaryHtmlReport.contains(FIRST_SUITE_CLASS))
+                assert(summaryHtmlReport.contains(SECOND_SUITE_CLASS))
+                assert(firstSuiteHtmlReport.contains(htmlEncode(FIRST_REPORTED_TEST)))
+                assert(firstSuiteHtmlReport.contains(htmlEncode(SECOND_REPORTED_TEST)))
+                assert(secondSuiteHtmlReport.contains(htmlEncode(THIRD_REPORTED_TEST)))
             }
         }
 }
@@ -105,7 +116,6 @@ private fun createConsumerProject(): File {
                     minSdk = 26
                     targetSdk = 35
                     testInstrumentationRunner = "failgood.android.FailgoodAndroidInstrumentationRunner"
-                    testInstrumentationRunnerArguments["class"] = "$SUITE_CLASS"
                 }
 
                 buildFeatures { buildConfig = false }
@@ -164,6 +174,25 @@ private fun createConsumerProject(): File {
                     testCollection("android roundtrip", isolation = false) {
                         it("runs a passing failgood suite on device") { SmokeState.didRun = true }
                         it("proves that a test body really ran") { assert(SmokeState.didRun) }
+                    }
+            }
+            """
+                .trimIndent())
+    }
+    File(appDir, "src/androidTest/kotlin/sample/app/SecondRoundtripSuite.kt").apply {
+        parentFile.mkdirs()
+        writeText(
+            """
+            package sample.app
+
+            import failgood.Test
+            import failgood.testCollection
+
+            @Test
+            class SecondRoundtripSuite {
+                val tests =
+                    testCollection("second roundtrip") {
+                        it("discovers a second suite without explicit class selection") { assert(true) }
                     }
             }
             """

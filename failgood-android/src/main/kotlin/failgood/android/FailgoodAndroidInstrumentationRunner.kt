@@ -31,7 +31,11 @@ class FailgoodAndroidInstrumentationRunner : Instrumentation() {
 
         val classLoader = checkNotNull(javaClass.classLoader)
         val result =
-            FailgoodAndroidBootstrap(ReflectiveAndroidClassRunner(classLoader)).run(
+            FailgoodAndroidBootstrap(
+                    ReflectiveAndroidTestClassFinder(classLoader, ApkClassNameFinder(context.packageCodePath)),
+                    ReflectiveAndroidClassRunner(classLoader),
+                )
+                .run(
                 arguments =
                     AndroidArguments(
                         classArgument = arguments.getString(CLASS_ARGUMENT),

@@ -49,15 +49,82 @@ class FailgoodAndroidBootstrapTest {
                 assert(result.failure is AssertionError)
             }
 
-            it("fails when no classes are configured") {
+            it("finds failgood test classes from class names") {
                 val result =
-                    FailgoodAndroidBootstrap(FakeAndroidClassRunner(emptyMap()))
+                    ReflectiveAndroidTestClassFinder(
+                            checkNotNull(javaClass.classLoader),
+                            FakeAndroidClassNameFinder(
+                                listOf(
+                                    PlainClass::class.java.name,
+                                    PassingSuite::class.java.name,
+                                    FailgoodAndroidBootstrapTest::class.java.name,
+                                )
+                            ),
+                        )
+                        .findTestClasses()
+
+                assert(result == listOf(FailgoodAndroidBootstrapTest::class.java.name))
+            }
+
+            it("skips classes that cannot be loaded during discovery") {
+                val result =
+                    ReflectiveAndroidTestClassFinder(
+                            ThrowingClassLoader(checkNotNull(javaClass.classLoader)),
+                            FakeAndroidClassNameFinder(
+                                listOf(
+                                    "missing.Dependency",
+                                    FailgoodAndroidBootstrapTest::class.java.name,
+                                )
+                            ),
+                        )
+                        .findTestClasses()
+
+                assert(result == listOf(FailgoodAndroidBootstrapTest::class.java.name))
+            }
+
+            it("discovers classes when none are configured") {
+                val first = testDescription("suite.One", "root", "test 1")
+                val reporter = RecordingAndroidRunReporter()
+                val result =
+                    FailgoodAndroidBootstrap(
+                            FakeAndroidTestClassFinder(listOf("suite.One")),
+                            FakeAndroidClassRunner(
+                                mapOf(
+                                    "suite.One" to
+                                        FakeClassRun(
+                                            discoveredTests = 1,
+                                            execute = { listener ->
+                                                listener.testDiscovered(first)
+                                                listener.testStarted(first)
+                                                listener.testFinished(
+                                                    TestPlusResult(first, Success(1))
+                                                )
+                                            },
+                                        )
+                                )
+                            ),
+                        )
+                        .run(AndroidArguments(), reporter)
+
+                assert(result == AndroidRunResult(totalSuites = 1, totalTests = 1))
+                assert(
+                    reporter.events ==
+                        listOf(
+                            "start:1/1:suite.One#root > test 1",
+                            "pass:1/1:suite.One#root > test 1",
+                        )
+                )
+            }
+
+            it("fails when no classes are configured or discovered") {
+                val result =
+                    FailgoodAndroidBootstrap(
+                            FakeAndroidTestClassFinder(emptyList()),
+                            FakeAndroidClassRunner(emptyMap()),
+                        )
                         .run(AndroidArguments(), RecordingAndroidRunReporter())
 
-                assert(
-                    result.failure?.message ==
-                        "No failgood test classes configured. Set instrumentation argument 'class'."
-                )
+                assert(result.failure?.message == "No failgood test classes configured or discovered.")
             }
 
             it("reports each failgood test individually") {
@@ -66,6 +133,7 @@ class FailgoodAndroidBootstrapTest {
                 val reporter = RecordingAndroidRunReporter()
                 val result =
                     FailgoodAndroidBootstrap(
+                            FakeAndroidTestClassFinder(emptyList()),
                             FakeAndroidClassRunner(
                                 mapOf(
                                     "suite.One" to
@@ -106,6 +174,7 @@ class FailgoodAndroidBootstrapTest {
                 val reporter = RecordingAndroidRunReporter()
                 val result =
                     FailgoodAndroidBootstrap(
+                            FakeAndroidTestClassFinder(emptyList()),
                             FakeAndroidClassRunner(
                                 mapOf(
                                     IgnoredSuite::class.java.name to
@@ -146,6 +215,7 @@ class FailgoodAndroidBootstrapTest {
                 val reporter = RecordingAndroidRunReporter()
                 val result =
                     FailgoodAndroidBootstrap(
+                            FakeAndroidTestClassFinder(emptyList()),
                             FakeAndroidClassRunner(
                                 mapOf(
                                     "suite.One" to
@@ -245,6 +315,21 @@ private data class FakeClassRun(
     val execute: suspend (ExecutionListener) -> Unit = {},
 )
 
+private class FakeAndroidTestClassFinder(private val classNames: List<String>) : AndroidTestClassFinder {
+    override fun findTestClasses(): List<String> = classNames
+}
+
+private class FakeAndroidClassNameFinder(private val classNames: List<String>) : AndroidClassNameFinder {
+    override fun findClassNames(): List<String> = classNames
+}
+
+private class ThrowingClassLoader(parent: ClassLoader) : ClassLoader(parent) {
+    override fun loadClass(name: String): Class<*> {
+        if (name == "missing.Dependency") throw NoClassDefFoundError(name)
+        return super.loadClass(name)
+    }
+}
+
 private class FakeAndroidClassRunner(private val results: Map<String, FakeClassRun>) :
     AndroidClassRunner {
     override fun runClass(className: String, listener: ExecutionListener): AndroidClassRunResult {
@@ -267,6 +352,8 @@ private fun runSuspending(block: suspend () -> Unit) {
         }
     )
 }
+
+private class PlainClass
 
 @TestFixture
 object PassingSuite {

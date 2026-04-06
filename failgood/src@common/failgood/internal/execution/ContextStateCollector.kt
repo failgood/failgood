@@ -1,47 +1,44 @@
 package failgood.internal.execution
 
-import failgood.*
+import failgood.Context
+import failgood.Failure
+import failgood.SourceInfo
+import failgood.Success
+import failgood.TestDescription
+import failgood.TestPlusResult
 import failgood.dsl.TestFunction
-import failgood.internal.*
+import failgood.internal.ContextPath
+import failgood.internal.ResourcesCloser
+import failgood.internal.SingleTestExecutor
+import failgood.internal.TestContext
 import failgood.internal.given.GivenDSLHandler
-import kotlinx.coroutines.*
-import kotlinx.coroutines.slf4j.MDCContext
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.withTimeout
 
 internal class ContextStateCollector<RootGiven>(
     private val staticConfig: StaticContextExecutionConfig<RootGiven>,
-    // did we find contexts without isolation in this root context?
-    // in that case we have to call the resources closer after suite.
-    var containsContextsWithoutIsolation: Boolean
+    var containsContextsWithoutIsolation: Boolean,
 ) {
-
-    // here we build a list of all the sub-contexts in this root context to later return it
     val foundContexts = mutableListOf<Context>()
-
     val deferredTestResults = mutableMapOf<TestDescription, Deferred<TestPlusResult>>()
     val afterSuiteCallbacks = mutableSetOf<suspend () -> Unit>()
-
-    // a context is investigated when we have executed it once. we still need to execute it again to
-    // get into its sub-contexts
     val investigatedContexts = mutableSetOf<Context>()
-
-    // tests or contexts that we don't have to execute again.
     val finishedPaths = mutableSetOf<ContextPath>()
 
-    /*
-     * A context is reported as failure by reporting it as a context with a failed test as only child.
-     */
     suspend fun recordContextAsFailed(
         context: Context,
         sourceInfo: SourceInfo,
         contextPath: ContextPath,
-        exceptionInContext: Throwable
+        exceptionInContext: Throwable,
     ) {
         val testDescriptor = TestDescription(context, "error in context", sourceInfo)
         val testPlusResult = TestPlusResult(testDescriptor, Failure(exceptionInContext))
         deferredTestResults[testDescriptor] = CompletableDeferred(testPlusResult)
         staticConfig.listener.testDiscovered(testDescriptor)
-
-        finishedPaths.add(contextPath) // don't visit this context again
+        finishedPaths.add(contextPath)
         foundContexts.add(context)
         staticConfig.listener.testStarted(testDescriptor)
         staticConfig.listener.testFinished(testPlusResult)
@@ -53,10 +50,10 @@ internal class ContextStateCollector<RootGiven>(
         resourcesCloser: ResourcesCloser,
         isolation: Boolean,
         givenDSLHandler: GivenDSLHandler<GivenType>,
-        rootContextStartTime: Long
+        rootContextStartTime: Long,
     ) {
         deferredTestResults[testDescription] =
-            staticConfig.scope.async(MDCContext(), start = staticConfig.coroutineStart) {
+            staticConfig.scope.async(executionContext(), start = staticConfig.coroutineStart) {
                 val listener = staticConfig.listener
                 listener.testStarted(testDescription)
                 val testResult =
@@ -82,14 +79,15 @@ internal class ContextStateCollector<RootGiven>(
                                 try {
                                     resourcesCloser.callAfterEach(testContext, failure)
                                 } catch (_: Throwable) {}
-                                if (isolation)
+                                if (isolation) {
                                     try {
                                         resourcesCloser.closeAutoCloseables()
                                     } catch (_: Throwable) {}
+                                }
                                 return@withTimeout failure
                             }
-                            // test was successful
-                            val success = Success((System.nanoTime() - rootContextStartTime) / 1000)
+                            val success =
+                                Success((platformNanoTime() - rootContextStartTime) / 1000)
                             try {
                                 resourcesCloser.callAfterEach(testContext, success)
                             } catch (e: Throwable) {
@@ -121,9 +119,9 @@ internal class ContextStateCollector<RootGiven>(
     }
 
     fun executeTestLater(testDescription: TestDescription, testPath: ContextPath) {
-        val resourcesCloser = ResourceCloserImpl(staticConfig.scope)
+        val resourcesCloser = createResourcesCloser(staticConfig.scope)
         val deferred =
-            staticConfig.scope.async(MDCContext(), start = staticConfig.coroutineStart) {
+            staticConfig.scope.async(executionContext(), start = staticConfig.coroutineStart) {
                 staticConfig.listener.testStarted(testDescription)
                 val testPlusResult =
                     try {
@@ -135,16 +133,16 @@ internal class ContextStateCollector<RootGiven>(
                                             resourcesCloser,
                                             staticConfig.listener,
                                             testDescription,
-                                            null),
+                                            null,
+                                        ),
                                         resourcesCloser,
                                         staticConfig.rootContextFunction,
-                                        staticConfig.givenFunction)
+                                        staticConfig.givenFunction,
+                                    )
                                     .execute()
                             TestPlusResult(testDescription, result)
                         }
                     } catch (e: Throwable) {
-                        TestPlusResult(testDescription, Failure(e))
-                    } catch (e: TimeoutCancellationException) {
                         TestPlusResult(testDescription, Failure(e))
                     }
                 testPlusResult.also { staticConfig.listener.testFinished(it) }

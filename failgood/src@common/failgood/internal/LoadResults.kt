@@ -1,49 +1,52 @@
 package failgood.internal
 
-import failgood.*
+import failgood.Context
+import failgood.CouldNotLoadTestCollection
+import failgood.ExecutionListener
+import failgood.LoadResult
+import failgood.NullExecutionListener
+import failgood.TestCollection
 import failgood.internal.execution.TestCollectionExecutor
 import failgood.internal.util.StringUniquer
 import failgood.internal.util.getenv
-import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 
-// set timeout to the timeout in milliseconds, an empty string to turn it off
-private val timeoutMillis: Long = Suite.parseTimeout(getenv("TIMEOUT"))
+private val timeoutMillis: Long = parseTimeout(getenv("TIMEOUT"))
 private val tag = getenv("FAILGOOD_TAG")
 
 internal class LoadResults(private val loadResults: List<LoadResult>) {
-    private val logger = KotlinLogging.logger {}
-
     private val testCollectionNameUniquer = StringUniquer()
 
     private fun fixRootName(tc: TestCollection<*>): TestCollection<out Any?> {
-        // if the root context name is just "root", it is an unnamed context and so
-        // we replace it and we change the name and the display name
         val name = tc.rootContext.name
         val unnamedContext = name == "root"
 
         val newDisplayName =
             if (tc.addClassName) {
                 val shortClassName = tc.sourceInfo.className.substringAfterLast(".")
-
                 if (unnamedContext) shortClassName else "$shortClassName: $name"
-            } else name
+            } else {
+                name
+            }
         val uniqueNewDisplayName = testCollectionNameUniquer.makeUnique(newDisplayName)
-        logger.debug { "uniqueNewDisplayName: $uniqueNewDisplayName" }
-        return if (unnamedContext)
+        return if (unnamedContext) {
             tc.copy(
                 rootContext =
                     tc.rootContext.copy(
-                        displayName = uniqueNewDisplayName, name = uniqueNewDisplayName))
-        else {
+                        displayName = uniqueNewDisplayName,
+                        name = uniqueNewDisplayName,
+                    ))
+        } else {
             val uniqueNewName = testCollectionNameUniquer.makeUnique(name)
-            logger.debug { "uniqueNewName: $uniqueNewName" }
             tc.copy(
                 rootContext =
-                    tc.rootContext.copy(displayName = uniqueNewDisplayName, name = uniqueNewName))
+                    tc.rootContext.copy(
+                        displayName = uniqueNewDisplayName,
+                        name = uniqueNewName,
+                    ))
         }
     }
 
@@ -51,14 +54,16 @@ internal class LoadResults(private val loadResults: List<LoadResult>) {
         coroutineScope: CoroutineScope,
         executeTests: Boolean = true,
         executionFilter: TestFilterProvider = ExecuteAllTestFilterProvider,
-        listener: ExecutionListener = NullExecutionListener
+        listener: ExecutionListener = NullExecutionListener,
     ): List<Deferred<TestCollectionExecutionResult>> {
         return loadResults.map { loadResult: LoadResult ->
             when (loadResult) {
                 is CouldNotLoadTestCollection ->
                     CompletableDeferred(
                         FailedTestCollectionExecution(
-                            Context(loadResult.kClass.simpleName ?: "unknown"), loadResult.reason))
+                            Context(loadResult.kClass.simpleName ?: "unknown"),
+                            loadResult.reason,
+                        ))
 
                 is TestCollection<*> -> {
                     val testFilter =
@@ -75,12 +80,25 @@ internal class LoadResults(private val loadResults: List<LoadResult>) {
                                     listener,
                                     testFilter,
                                     timeoutMillis,
-                                    runOnlyTag = tag)
+                                    runOnlyTag = tag,
+                                )
                                 .execute()
                         }
-                    } else CompletableDeferred(TestResults(emptyList(), mapOf(), setOf()))
+                    } else {
+                        CompletableDeferred(TestResults(emptyList(), mapOf(), setOf()))
+                    }
                 }
             }
         }
+    }
+}
+
+private fun parseTimeout(timeout: String?): Long {
+    return when (timeout) {
+        null -> 40000
+        "" -> Long.MAX_VALUE
+        else ->
+            timeout.toLongOrNull()
+                ?: throw failgood.FailGoodException("TIMEOUT must be a number or an empty string")
     }
 }

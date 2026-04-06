@@ -16,5 +16,5 @@ internal data class StaticContextExecutionConfig<RootGiven>(
     val timeoutMillis: Long = 40000,
     val coroutineStart: CoroutineStart = CoroutineStart.DEFAULT,
     val runOnlyTag: String? = null,
-    val givenFunction: suspend () -> RootGiven
+    val givenFunction: suspend () -> RootGiven,
 )

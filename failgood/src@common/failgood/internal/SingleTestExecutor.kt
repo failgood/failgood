@@ -1,25 +1,29 @@
 package failgood.internal
 
-import failgood.*
-import failgood.dsl.*
+import failgood.FailGoodException
+import failgood.Failure
+import failgood.Ignored
+import failgood.Success
+import failgood.TestResult
 import failgood.dsl.ContextDSL
+import failgood.dsl.ContextFunctionWithGiven
+import failgood.dsl.ContextOnlyResourceDSL
+import failgood.dsl.GivenFunction
 import failgood.dsl.ResourcesDSL
+import failgood.dsl.TestDSLWithGiven
+import failgood.dsl.TestFunction
+import failgood.internal.execution.platformNanoTime
 import failgood.internal.given.GivenDSLHandler
 import failgood.internal.given.RootGivenDSLHandler
 
-/**
- * Executes a single test with all its parent contexts. Called by
- * [failgood.internal.execution.TestCollectionExecutor] to execute all tests that it does not have
- * to execute itself
- */
 internal class SingleTestExecutor<RootGiven, TestGivenType>(
     private val test: ContextPath,
     val testContextHandler: ClonableTestContext<TestGivenType>,
     val resourcesCloser: ResourcesCloser,
     private val rootContextFunction: ContextFunctionWithGiven<RootGiven>,
-    private val givenFunction: suspend () -> RootGiven
+    private val givenFunction: suspend () -> RootGiven,
 ) {
-    private val startTime = System.nanoTime()
+    private val startTime = platformNanoTime()
 
     suspend fun execute(): TestResult {
         val dsl: ContextDSL<RootGiven> =
@@ -28,7 +32,8 @@ internal class SingleTestExecutor<RootGiven, TestGivenType>(
             dsl.(rootContextFunction)()
             throw FailGoodException(
                 "test not found: $test.\n" +
-                    "please make sure your test names contain no random parts")
+                    "please make sure your test names contain no random parts",
+            )
         } catch (e: TestResultAvailable) {
             e.testResult
         } catch (e: Throwable) {
@@ -38,12 +43,11 @@ internal class SingleTestExecutor<RootGiven, TestGivenType>(
 
     private inner class ContextFinder<GivenType>(
         private val contexts: List<String>,
-        val givenDSLHandler: GivenDSLHandler<GivenType>
+        val givenDSLHandler: GivenDSLHandler<GivenType>,
     ) :
         ContextDSL<GivenType>,
         ResourcesDSL by resourcesCloser,
         ContextOnlyResourceDSL by resourcesCloser {
-        // are we already in the correct context and just waiting for the test?
         val findTest = contexts.isEmpty()
 
         override fun afterSuite(function: suspend () -> Unit) {}
@@ -54,10 +58,9 @@ internal class SingleTestExecutor<RootGiven, TestGivenType>(
             isolation: Boolean?,
             ignored: Ignored?,
             given: GivenFunction<GivenType, ContextDependency>,
-            contextFunction: suspend ContextDSL<ContextDependency>.() -> Unit
+            contextFunction: suspend ContextDSL<ContextDependency>.() -> Unit,
         ) {
             if (findTest || contexts.first() != name) return
-
             ContextFinder(contexts.drop(1), givenDSLHandler.add(given)).contextFunction()
         }
 
@@ -65,20 +68,21 @@ internal class SingleTestExecutor<RootGiven, TestGivenType>(
             name: String,
             tags: Set<String>,
             ignored: Ignored?,
-            function: TestFunction<GivenType>
+            function: TestFunction<GivenType>,
         ) {
             if (findTest && test.name == name) {
                 @Suppress("UNCHECKED_CAST")
                 throw TestResultAvailable(
                     executeTest(
                         function as TestFunction<TestGivenType>,
-                        givenDSLHandler as GivenDSLHandler<TestGivenType>))
+                        givenDSLHandler as GivenDSLHandler<TestGivenType>,
+                    ))
             }
         }
 
         private suspend fun executeTest(
             function: TestFunction<TestGivenType>,
-            givenDSLHandler: GivenDSLHandler<TestGivenType>
+            givenDSLHandler: GivenDSLHandler<TestGivenType>,
         ): TestResult {
             try {
                 val given = givenDSLHandler.given()
@@ -96,7 +100,7 @@ internal class SingleTestExecutor<RootGiven, TestGivenType>(
             }
             val success =
                 try {
-                    val success = Success((System.nanoTime() - startTime) / 1000)
+                    val success = Success((platformNanoTime() - startTime) / 1000)
                     resourcesCloser.callAfterEach(testContextHandler, success)
                     success
                 } catch (e: Throwable) {

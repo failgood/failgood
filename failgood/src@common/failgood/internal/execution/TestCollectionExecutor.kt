@@ -1,7 +1,15 @@
 package failgood.internal.execution
 
-import failgood.*
-import failgood.internal.*
+import failgood.ExecutionListener
+import failgood.FailGoodException
+import failgood.NullExecutionListener
+import failgood.TestCollection
+import failgood.internal.DSLGotoException
+import failgood.internal.ExecuteAllTests
+import failgood.internal.FailedTestCollectionExecution
+import failgood.internal.TestCollectionExecutionResult
+import failgood.internal.TestFilter
+import failgood.internal.TestResults
 import failgood.internal.given.RootGivenDSLHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -14,13 +22,11 @@ internal class TestCollectionExecutor<RootGiven>(
     listener: ExecutionListener = NullExecutionListener,
     testFilter: TestFilter = ExecuteAllTests,
     timeoutMillis: Long = 40000L,
-    runOnlyTag: String? = null
+    runOnlyTag: String? = null,
 ) {
     companion object {
         init {
-            // this class is used in a catch (Throwable) block so make sure we always have this
-            // class available even when we are out of files when we first need it
-            Class.forName(FailedTestCollectionExecution::class.qualifiedName)
+            preloadFailedTestCollectionExecution()
         }
     }
 
@@ -33,29 +39,23 @@ internal class TestCollectionExecutor<RootGiven>(
             timeoutMillis,
             if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT,
             runOnlyTag,
-            testCollection.given)
+            testCollection.given,
+        )
 
     private val stateCollector =
         ContextStateCollector(staticExecutionConfig, !testCollection.rootContext.isolation)
 
-    /**
-     * Execute the rootContext.
-     *
-     * We keep executing the Context DSL until we know about all contexts and tests in this root
-     * context The first test in each context is directly executed (async via coroutines), and for
-     * all other tests in that context we create a SingleTestExecutor that executes the whole
-     * context path of that test together with the test.
-     */
     suspend fun execute(): TestCollectionExecutionResult {
-        if (!staticExecutionConfig.testFilter.shouldRun(testCollection))
+        if (!staticExecutionConfig.testFilter.shouldRun(testCollection)) {
             return TestResults(listOf(), mapOf(), setOf())
+        }
         val function = testCollection.function
         val rootContext = testCollection.rootContext
         staticExecutionConfig.listener.contextDiscovered(rootContext)
         try {
             do {
-                val startTime = System.nanoTime()
-                val resourcesCloser = ResourceCloserImpl(staticExecutionConfig.scope)
+                val startTime = platformNanoTime()
+                val resourcesCloser = createResourcesCloser(staticExecutionConfig.scope)
                 val visitor =
                     ContextVisitor(
                         staticExecutionConfig,
@@ -65,7 +65,8 @@ internal class TestCollectionExecutor<RootGiven>(
                         false,
                         stateCollector.investigatedContexts.contains(rootContext),
                         startTime,
-                        RootGivenDSLHandler(staticExecutionConfig.givenFunction))
+                        RootGivenDSLHandler(staticExecutionConfig.givenFunction),
+                    )
                 try {
                     withTimeout(staticExecutionConfig.timeoutMillis) { visitor.function() }
                 } catch (_: ContextFinished) {}
@@ -77,32 +78,18 @@ internal class TestCollectionExecutor<RootGiven>(
         } catch (e: Throwable) {
             return FailedTestCollectionExecution(rootContext, e)
         }
-        // context order: first root context, then sub-contexts ordered by line number
         val contexts =
             listOf(rootContext) +
                 stateCollector.foundContexts.sortedBy { it.sourceInfo!!.lineNumber }
         return TestResults(
-            contexts, stateCollector.deferredTestResults, stateCollector.afterSuiteCallbacks)
+            contexts,
+            stateCollector.deferredTestResults,
+            stateCollector.afterSuiteCallbacks,
+        )
     }
 }
 
-// this is thrown to save time when the context is finished, and we cannot do anything meaningful in
-// this pass
 class ContextFinished : DSLGotoException()
-
-fun sourceInfo(): SourceInfo {
-    // find the first stack trace element not in this class or ContextDSL
-    // (ContextDSL because of default parameters defined there)
-    val first =
-        RuntimeException().stackTrace.first {
-            !(it.fileName?.let { fileName ->
-                fileName.endsWith("ContextVisitor.kt") ||
-                    fileName.endsWith("TestCollectionExecutor.kt") ||
-                    fileName.endsWith("ContextDSL.kt")
-            } ?: true)
-        }
-    return first.let { SourceInfo(it.className, it.fileName!!, it.lineNumber) }
-}
 
 internal class DuplicateNameInContextException(s: String) : FailGoodException(s)
 

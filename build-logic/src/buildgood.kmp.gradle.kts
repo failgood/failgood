@@ -1,4 +1,5 @@
 import buildgood.CommonBuildExtension
+import buildgood.configureIosAppTestTasks
 import buildgood.PublishingBuildExtension
 import com.adarshr.gradle.testlogger.TestLoggerExtension
 import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA_PARALLEL
@@ -126,6 +127,8 @@ afterEvaluate {
 
     configurePublishing()
 }
+
+configureIosAppTestTasks()
 
 fun Project.configurePublishing() {
     if (!publishingConfig.enabled) return

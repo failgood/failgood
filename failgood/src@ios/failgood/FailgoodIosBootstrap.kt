@@ -1,10 +1,11 @@
 package failgood
 
 /**
- * Explicit iOS entrypoint for failgood suites.
+ * Kotlin entrypoint for failgood suites on iOS.
  *
- * Build a bootstrap in Kotlin and call [runAndThrow] from an XCTest method to run the registered
- * failgood suites on a simulator or device.
+ * Build a bootstrap in `iosTest` and call [run] or [runAndThrow] from a `kotlin.test` test. The
+ * native Gradle iOS app-test tasks package that test executable and run it on a simulator or, via
+ * `iosAppTest`, on a configured real device.
  */
 class FailgoodIosBootstrap(val name: String, rootContexts: Collection<TestCollection<*>>) {
     private val suite = Suite(rootContexts)

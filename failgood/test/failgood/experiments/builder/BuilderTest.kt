@@ -5,6 +5,7 @@ package failgood.experiments.builder
 import failgood.SourceInfo
 import failgood.callerSourceInfo
 import failgood.dsl.ContextDSL
+import failgood.internal.Path
 
 /*
  * just playing around with a builder like syntax for contexts and tests.
@@ -51,7 +52,7 @@ data class RootContext(
     val sourceInfo: SourceInfo = callerSourceInfo(),
     val tags: List<String>,
     val function: suspend XContextDSL.() -> Unit
-) : failgood.internal.Path {
+) : Path {
     override val path: List<String>
         get() = listOf(name)
 }

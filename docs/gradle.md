@@ -1,6 +1,6 @@
 ### Gradle build
 
-Just add a Failgood dependency and configure gradle to use the Junit platform. Your build file could look like this:
+For a JVM-only project, add the `failgood-jvm` dependency and configure Gradle to use the JUnit platform. Your build file could look like this:
 
 ```kotlin
 repositories {
@@ -8,10 +8,24 @@ repositories {
 }
 
 dependencies {
-    testImplementation("dev.failgood:failgood:0.9.0")
+    testImplementation("dev.failgood:failgood-jvm:0.9.2")
 }
 tasks.test {
     useJUnitPlatform()
+}
+```
+
+For a Kotlin Multiplatform project, use the root `failgood` coordinate from the relevant source set:
+
+```kotlin
+kotlin {
+    sourceSets {
+        commonTest {
+            dependencies {
+                implementation("dev.failgood:failgood:0.9.2")
+            }
+        }
+    }
 }
 ```
 
@@ -33,7 +47,7 @@ plugins {
 }
 
 dependencies {
-    testImplementation("dev.failgood:failgood:0.9.2")
+    testImplementation("dev.failgood:failgood-jvm:0.9.2")
 }
 tasks.test {
     useJUnitPlatform()

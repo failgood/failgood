@@ -5,10 +5,6 @@ import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 import kotlin.reflect.KClass
 
-fun interface ContextProvider {
-    fun getContexts(): List<TestCollection<*>>
-}
-
 class ObjectContextProvider(private val jClass: Class<out Any>) : ContextProvider {
     constructor(kClass: KClass<*>) : this(kClass.java)
 

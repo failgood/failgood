@@ -1,4 +1,5 @@
 import buildgood.CommonBuildExtension
+import buildgood.configureIosAppTestTasks
 import buildgood.PublishingBuildExtension
 import com.adarshr.gradle.testlogger.TestLoggerExtension
 import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA_PARALLEL
@@ -6,10 +7,12 @@ import com.ncorti.ktfmt.gradle.TrailingCommaManagementStrategy
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.plugins.signing.SigningExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
@@ -34,6 +37,29 @@ if (rootConfig != null) {
     commonBuild.copyFrom(rootConfig)
 }
 
+extensions.configure<KotlinMultiplatformExtension> {
+    sourceSets.all {
+        when (name) {
+            "commonMain" -> kotlin.srcDir("src@common")
+            "commonTest" -> kotlin.srcDir("test@common")
+            "jvmMain" -> {
+                kotlin.srcDir("src")
+                resources.srcDir("resources")
+            }
+            "jvmTest" -> {
+                kotlin.srcDir("test")
+                resources.srcDir("testResources")
+            }
+            "jsMain" -> kotlin.srcDir("src@js")
+            "jsTest" -> kotlin.srcDir("test@js")
+            "iosMain" -> kotlin.srcDir("src@ios")
+            "iosTest" -> kotlin.srcDir("test@ios")
+            "wasmWasiMain" -> kotlin.srcDir("src@wasm")
+            "wasmWasiTest" -> kotlin.srcDir("test@wasm")
+        }
+    }
+}
+
 @Suppress("OPT_IN_USAGE")
 powerAssert {
     functions =
@@ -56,7 +82,11 @@ afterEvaluate {
                 allWarningsAsErrors = true
             }
             freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
-            if (commonBuild.requireExplicitReturnTypes) {
+            freeCompilerArgs.add("-Xexpect-actual-classes")
+            if (
+                commonBuild.requireExplicitReturnTypes &&
+                    !name.contains("Test", ignoreCase = true)
+            ) {
                 freeCompilerArgs.add("-XXexplicit-return-types=strict")
             }
         }
@@ -73,6 +103,17 @@ afterEvaluate {
         }
     }
 
+    tasks.withType<JavaCompile>().configureEach {
+        val javaVersion =
+            if (name.contains("Test", ignoreCase = true)) {
+                commonBuild.jvmTarget.getTestJavaVersion()
+            } else {
+                commonBuild.jvmTarget.getProductionJavaVersion()
+            }
+        sourceCompatibility = javaVersion.toString()
+        targetCompatibility = javaVersion.toString()
+    }
+
     tasks.withType<Test>().configureEach {
         useJUnitPlatform()
         outputs.upToDateWhen { false }
@@ -86,6 +127,8 @@ afterEvaluate {
 
     configurePublishing()
 }
+
+configureIosAppTestTasks()
 
 fun Project.configurePublishing() {
     if (!publishingConfig.enabled) return

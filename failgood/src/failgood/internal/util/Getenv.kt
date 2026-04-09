@@ -1,3 +1,5 @@
 package failgood.internal.util
 
-internal fun getenv(name: String): String? = System.getenv(name)
+actual fun getenv(name: String): String? {
+    return System.getenv(name)
+}

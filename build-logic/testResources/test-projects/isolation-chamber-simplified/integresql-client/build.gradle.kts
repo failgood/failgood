@@ -1,6 +1,6 @@
 plugins {
     id("buildgood.module")
-    kotlin("plugin.serialization") version "2.1.21"
+    kotlin("plugin.serialization") version "2.3.21"
 }
 
 dependencies {

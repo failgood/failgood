@@ -8,7 +8,7 @@ dependencyResolutionManagement {
 }
 plugins {
     id("com.autonomousapps.build-health") version "3.0.3"
-    id("org.jetbrains.kotlin.jvm") version "2.3.20" apply false
+    id("org.jetbrains.kotlin.jvm") version "2.3.21" apply false
 }
 rootProject.name = "failgood-root"
 includeBuild("build-logic")

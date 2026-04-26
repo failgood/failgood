@@ -1,8 +1,8 @@
 [versions]
 kotlin = "2.1.21"
 kotlinx-coroutines = "1.10.2"
-junit-platform = "1.12.2"
-junit-jupiter = "5.12.2"
+junit-platform = "1.14.4"
+junit-jupiter = "5.14.4"
 pitest = "1.23.0"
 slf4j = "2.0.17"
 kotlin-logging = "7.0.13"
